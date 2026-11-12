@@ -1,0 +1,764 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>منصة مسيو رضا الخشن</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;600;700;800&family=Tajawal:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{--bg:#0a0a1f;--bg2:#0d0d27;--card:#12122e;--line:#26264d;--fg:#f1f1fb;--muted:#a6a6cc;--accent:#7c5cff;--accent-deep:#6444f0;--accent-2:#4f6bff;--accent-text:#b39dff;--soft:rgba(124,92,255,.16);--good:#3ddc84;--bad:#ff6b7a;--warn:#ffb84d;--fd:"Cairo","Segoe UI",Tahoma,sans-serif;--fb:"Tajawal","Segoe UI",Tahoma,sans-serif;--fm:"IBM Plex Mono",ui-monospace,Consolas,monospace;color-scheme:dark}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.7 var(--fb);min-height:100vh}
+a{color:inherit;text-decoration:none}
+h1,h2,h3,p{margin:0}
+h1,h2,h3{font-family:var(--fd);line-height:1.35}
+img{max-width:100%}
+:focus-visible{outline:2px solid var(--accent-text);outline-offset:2px;border-radius:6px}
+.wrap{max-width:1120px;margin-inline:auto;padding-inline:16px}
+.hdr{position:sticky;top:0;z-index:20;background:rgba(10,10,31,.96);border-bottom:1px solid var(--line);backdrop-filter:blur(8px)}
+.hdr-in{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:10px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:10px;font-family:var(--fd);font-weight:700}
+.logo small{display:block;font:400 .72rem var(--fb);color:var(--muted);line-height:1.2}
+.logo-mark{display:grid;place-items:center;width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--accent-deep),var(--accent-2));font-weight:800;color:#fff}
+.hdr-r{display:flex;align-items:center;gap:10px}
+.chipuser{display:flex;align-items:center;gap:10px;padding:4px 14px 4px 6px;border:1px solid var(--line);border-radius:999px;background:var(--card);font-weight:600;max-width:240px;transition:border-color .15s}
+.chipuser:hover{border-color:var(--accent)}
+.chipuser span.n{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.92rem}
+.av{display:inline-grid;place-items:center;border-radius:50%;background:linear-gradient(135deg,var(--accent-deep),var(--accent-2));color:#fff;font-family:var(--fd);font-weight:700;overflow:hidden;flex:none;line-height:1}
+.av img{width:100%;height:100%;object-fit:cover;display:block}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 22px;border-radius:8px;border:1px solid transparent;font:600 .95rem var(--fd);cursor:pointer;transition:transform .15s,border-color .15s,background .15s;color:var(--fg);background:transparent}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.btn-fill{background:linear-gradient(135deg,var(--accent-deep),var(--accent-2));color:#fff}
+.btn-fill:not(:disabled):hover{transform:translateY(-1px)}
+.btn-line{border-color:#44447a;background:transparent}
+.btn-line:hover{border-color:var(--accent-text);background:var(--soft)}
+.btn-sm{min-height:36px;padding:0 14px;font-size:.85rem}
+.btn-bad{border-color:rgba(255,107,122,.5);color:var(--bad)}
+.btn-bad:hover{background:rgba(255,107,122,.12)}
+.btn-good{border-color:rgba(61,220,132,.5);color:var(--good)}
+.w100{width:100%}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:24px}
+.auth{min-height:100vh;display:grid;place-items:center;padding:24px 16px;background:radial-gradient(60% 60% at 80% 10%,rgba(124,92,255,.18),transparent 70%),var(--bg)}
+.auth-card{width:min(100%,480px);display:flex;flex-direction:column;gap:14px}
+.auth-card.wide{width:min(100%,640px)}
+.auth-card h1{font-size:1.6rem}
+.sub{color:var(--muted);margin-top:-6px}
+.alt{text-align:center;color:var(--muted);font-size:.93rem}
+.alt a,.lnk{color:var(--accent-text);font-weight:600;cursor:pointer;background:none;border:0;padding:0;font:inherit}
+.adm-link{position:fixed;bottom:10px;inset-inline-start:14px;font-size:.72rem;color:#4b4b80}
+.adm-link:hover{color:var(--muted)}
+form{display:flex;flex-direction:column;gap:14px}
+.fl{display:flex;flex-direction:column;gap:6px;font-size:.9rem;font-weight:500;color:var(--muted)}
+.fl em{font-style:normal;color:var(--bad)}
+input:not([type=radio]):not([type=checkbox]):not([type=file]),select,textarea{width:100%;min-height:46px;padding:0 14px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);font:1rem var(--fb)}
+textarea{padding:10px 14px;min-height:80px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent)}
+input[dir=ltr]{text-align:left}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip input{position:absolute;opacity:0;pointer-events:none}
+.chip span{display:inline-flex;align-items:center;min-height:40px;padding:0 16px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--fg);cursor:pointer;font-size:.92rem;transition:.15s}
+.chip input:checked+span{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+.chip input:focus-visible+span{outline:2px solid var(--accent-text);outline-offset:2px}
+.grp{font-size:.9rem;font-weight:500;color:var(--muted);display:flex;flex-direction:column;gap:8px}
+.picker{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.emojis{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;max-width:340px}
+.em{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--bg);font-size:1.2rem;cursor:pointer}
+.em:hover{border-color:var(--accent)}
+.alert{padding:10px 14px;border-radius:8px;background:rgba(255,107,122,.12);border:1px solid rgba(255,107,122,.4);color:#ffb3bb;font-size:.92rem}
+.okbox{background:rgba(61,220,132,.1);border-color:rgba(61,220,132,.4);color:#9af0c0}
+.terms{display:flex;gap:10px;align-items:flex-start;font-size:.92rem;color:var(--muted)}
+.terms input{margin-top:6px;width:18px;height:18px;accent-color:var(--accent);flex:none}
+.sec{padding-block:32px}
+.hero-s{padding-block:28px 8px}
+.hero-s h1{font-size:clamp(1.4rem,3.6vw,2rem)}
+.hero-s p{color:var(--muted)}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-block:20px 18px;align-items:center}
+.tab{min-height:42px;padding:0 20px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--muted);font:600 .95rem var(--fd);cursor:pointer}
+.tab.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.srch{flex:1;min-width:180px;max-width:320px;margin-inline-start:auto}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.vcard{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;transition:border-color .15s,transform .15s}
+.vcard:hover{border-color:var(--accent);transform:translateY(-2px)}
+.thumb{position:relative;aspect-ratio:16/9;background:#000}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.play{position:absolute;inset:0;display:grid;place-items:center;font-size:2rem;color:#fff;background:rgba(10,10,31,.35)}
+.vb{padding:14px 16px;display:flex;flex-direction:column;gap:4px}
+.vb h3{font-size:1.02rem}
+.vb p{color:var(--muted);font-size:.88rem}
+.fcard{display:flex;gap:14px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+.ficon{flex:none;display:grid;place-items:center;width:52px;height:52px;border-radius:12px;background:var(--soft);color:var(--accent-text);font:800 .85rem var(--fd)}
+.fcard .t{flex:1;min-width:0}
+.fcard h3{font-size:1rem;overflow:hidden;text-overflow:ellipsis}
+.fcard small{color:var(--muted)}
+.empty{grid-column:1/-1;text-align:center;color:var(--muted);padding:48px 16px;border:1px dashed var(--line);border-radius:14px}
+.badge{display:inline-block;padding:1px 10px;border-radius:6px;font-size:.78rem;background:var(--soft);color:var(--accent-text);white-space:nowrap}
+.badge.good{background:rgba(61,220,132,.14);color:var(--good)}
+.badge.bad{background:rgba(255,107,122,.14);color:var(--bad)}
+.badge.warn{background:rgba(255,184,77,.14);color:var(--warn)}
+.player{position:relative;aspect-ratio:16/9;background:#000;border-radius:14px;overflow:hidden;border:1px solid var(--line);user-select:none;-webkit-user-select:none}
+.player iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.shield{position:absolute;inset:0 0 auto 0;height:64px;z-index:2}
+.wm{position:absolute;z-index:3;pointer-events:none;color:rgba(255,255,255,.32);font:600 .8rem var(--fm);text-shadow:0 0 4px #000;direction:ltr;animation:wm 24s linear infinite}
+.wm.b{animation-delay:-12s}
+@keyframes wm{0%{top:8%;left:6%}25%{top:72%;left:58%}50%{top:30%;left:66%}75%{top:76%;left:8%}100%{top:8%;left:6%}}
+.fsbtn{position:absolute;top:10px;left:10px;z-index:4;min-height:34px;padding:0 12px;border-radius:8px;border:1px solid rgba(255,255,255,.3);background:rgba(10,10,31,.7);color:#fff;font:600 .8rem var(--fd);cursor:pointer}
+.watch{display:grid;grid-template-columns:2fr 1fr;gap:24px;align-items:start}
+.side{display:flex;flex-direction:column;gap:12px}
+.side a{display:flex;gap:10px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px}
+.side a:hover,.side a.cur{border-color:var(--accent)}
+.side img{width:96px;aspect-ratio:16/9;object-fit:cover;border-radius:6px;flex:none}
+.side span{font-size:.88rem;line-height:1.4}
+.pf{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+.pf-top{display:flex;align-items:center;gap:16px;margin-bottom:6px}
+.pf-top h2{font-size:1.2rem}
+.pf-top small{color:var(--muted);direction:ltr;display:block}
+.nav-a{display:flex;gap:8px;flex-wrap:wrap}
+.atab{min-height:40px;padding:0 16px;border-radius:8px;border:1px solid transparent;background:transparent;color:var(--muted);font:600 .92rem var(--fd);cursor:pointer}
+.atab.on{background:var(--soft);color:var(--accent-text);border-color:var(--accent)}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:22px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+.stat b{display:block;font:800 1.8rem var(--fd)}
+.stat span{color:var(--muted);font-size:.86rem}
+.bars{display:flex;flex-direction:column;gap:10px}
+.bar{display:grid;grid-template-columns:110px 1fr 40px;gap:10px;align-items:center;font-size:.9rem}
+.bar i{display:block;height:10px;border-radius:6px;background:linear-gradient(90deg,var(--accent-deep),var(--accent-2))}
+.bar .bg{background:var(--bg);border-radius:6px}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
+.toolbar input,.toolbar select{width:auto;min-width:150px;flex:1;max-width:260px}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+table{width:100%;border-collapse:collapse;font-size:.9rem;min-width:860px}
+th,td{padding:10px 12px;text-align:start;border-bottom:1px solid var(--line);vertical-align:middle}
+th{color:var(--muted);font-weight:600;font-size:.82rem;background:var(--bg2)}
+tr:last-child td{border-bottom:0}
+.who{display:flex;align-items:center;gap:10px;min-width:170px}
+.ph{direction:ltr;font-family:var(--fm);font-size:.85rem;white-space:nowrap}
+.acts{display:flex;gap:6px;flex-wrap:wrap}
+.agrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.acard{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.acard h3{font-size:1rem}
+.acard .m{display:flex;gap:6px;flex-wrap:wrap}
+.overlay{position:fixed;inset:0;z-index:60;background:rgba(5,5,18,.78);display:grid;place-items:center;padding:16px;overflow-y:auto}
+.modal{width:min(100%,520px);max-height:94vh;overflow-y:auto;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:14px}
+.modal.wide{width:min(100%,640px)}
+.modal h2{font-size:1.2rem}
+.mact{display:flex;gap:10px;justify-content:flex-start;flex-wrap:wrap}
+.prog{height:8px;border-radius:6px;background:var(--bg);overflow:hidden}
+.prog i{display:block;height:100%;width:0;background:var(--accent);transition:width .2s}
+#toast{position:fixed;bottom:18px;inset-inline:0;display:flex;flex-direction:column;align-items:center;gap:8px;z-index:90;pointer-events:none}
+.toast{background:#1c1c44;border:1px solid var(--accent);padding:10px 18px;border-radius:10px;font-size:.92rem;pointer-events:auto}
+.toast.err{border-color:var(--bad)}
+.toast.ok{border-color:var(--good)}
+.loading{min-height:100vh;display:grid;place-items:center;color:var(--muted)}
+.spin{width:34px;height:34px;border:3px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:sp .8s linear infinite;margin:0 auto 12px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.legal{max-height:50vh;overflow-y:auto;color:var(--muted);font-size:.93rem;display:flex;flex-direction:column;gap:8px}
+.legal b{color:var(--fg)}
+.foot{border-top:1px solid var(--line);padding-block:20px;color:var(--muted);font-size:.84rem;text-align:center;margin-top:40px}
+@media(max-width:900px){.grid{grid-template-columns:1fr 1fr}.watch,.pf{grid-template-columns:1fr}.stats{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:600px){.grid{grid-template-columns:1fr}.row2{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.chipuser .n{display:none}.chipuser{padding:4px}.srch{max-width:none;margin:0;flex-basis:100%}.bar{grid-template-columns:80px 1fr 32px}}
+@media(prefers-reduced-motion:reduce){.wm{animation:none;top:8%;left:6%}.wm.b{top:80%;left:60%}.spin{animation:none}}
+</style>
+</head>
+<body>
+<div id="app"><div class="loading"><div><div class="spin"></div>جاري التحميل...</div></div></div>
+<div id="modal-root"></div>
+<div id="toast" aria-live="polite"></div>
+<noscript><p style="padding:24px;text-align:center">يرجى تفعيل JavaScript لتشغيل المنصة.</p></noscript>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
+/* =====================  الإعدادات (املأها من Firebase Console)  ===================== */
+const firebaseConfig = {
+  apiKey: "PASTE_API_KEY",
+  authDomain: "PASTE_PROJECT_ID.firebaseapp.com",
+  projectId: "PASTE_PROJECT_ID",
+  storageBucket: "PASTE_PROJECT_ID.appspot.com",
+  messagingSenderId: "PASTE_SENDER_ID",
+  appId: "PASTE_APP_ID"
+};
+// بريد حساب الأدمن (يُنشأ يدويًا في Firebase Authentication، وكلمة سره لا تُكتب في أي مكان بالكود)
+const ADMIN_EMAIL = "admin@reda-fr.app";
+const EMAIL_DOMAIN = "students.reda-fr.app";
+/* ================================================================================== */
+
+const STAGES = { primary: "الابتدائية", prep: "الإعدادية", secondary: "الثانوية" };
+const SYSTEMS = { lang: "لغات", gov: "حكومي" };
+const GRADES = {
+  primary: ["الصف الأول", "الصف الثاني", "الصف الثالث", "الصف الرابع", "الصف الخامس", "الصف السادس"],
+  prep: ["الأول الإعدادي", "الثاني الإعدادي", "الثالث الإعدادي"],
+  secondary: ["الأول الثانوي", "الثاني الثانوي", "الثالث الثانوي"]
+};
+const CITIES = ["القاهرة","الجيزة","الإسكندرية","الدقهلية","البحيرة","الشرقية","الغربية","المنوفية","القليوبية","كفر الشيخ","دمياط","بورسعيد","الإسماعيلية","السويس","الفيوم","بني سويف","المنيا","أسيوط","سوهاج","قنا","الأقصر","أسوان","البحر الأحمر","الوادي الجديد","مطروح","شمال سيناء","جنوب سيناء","أخرى"];
+const AVATARS = ["🦁","🐯","🦊","🐼","🐨","🦄","🐬","🦉","🚀","⭐","🎨","⚽","🎮","📚","🌸","🐱"];
+const PHONE_RE = /^01[0125]\d{8}$/;
+
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const toLatin = s => String(s || "").replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/[۰-۹]/g, d => "۰۱۲۳۴۵۶۷۸۹".indexOf(d));
+const app = $("#app");
+const toast = (m, t = "") => { const e = document.createElement("div"); e.className = "toast " + t; e.textContent = m; $("#toast").append(e); setTimeout(() => e.remove(), 3400); };
+const go = h => { if (location.hash !== "#" + h) location.hash = h; else render(); };
+
+/* ---------- تهيئة Firebase ---------- */
+if (firebaseConfig.apiKey.startsWith("PASTE")) {
+  app.innerHTML = `<div class="auth"><div class="card auth-card"><h1>المنصة تحتاج إعداد Firebase</h1><p class="sub">افتح ملف platform.html وضع بيانات مشروعك في <b>firebaseConfig</b> ثم أعد تحميل الصفحة. التفاصيل في ملف README.</p></div></div>`;
+  throw new Error("Firebase config missing");
+}
+const fbApp = initializeApp(firebaseConfig);
+const auth = getAuth(fbApp);
+const db = getFirestore(fbApp);
+const storage = getStorage(fbApp);
+
+/* ---------- الحالة ---------- */
+const S = { ready: false, user: null, student: null, busy: false, flash: "", videos: [], files: [], students: [], unsubs: [], unsubSelf: null, page: "" };
+const H = { tab: "videos", q: "" };
+const A = { tab: "overview", q: "", fstage: "", fstatus: "" };
+
+const isAdminUser = () => !!S.user && S.user.email === ADMIN_EMAIL;
+const deviceId = () => { let d = ""; try { d = localStorage.getItem("rf_device") || ""; } catch {} if (!d) { d = (crypto.randomUUID ? crypto.randomUUID() : Date.now() + "-" + Math.random().toString(36).slice(2)); try { localStorage.setItem("rf_device", d); } catch {} } return d; };
+
+/* ---------- مساعدات واجهة ---------- */
+const brand = () => `<a class="logo" href="#/"><span class="logo-mark">R</span><span dir="ltr">M. Reda Elkhshen<small dir="rtl">منصة تعليم اللغة الفرنسية</small></span></a>`;
+const avatarHTML = (s, size = 40) => {
+  const p = s?.photo || "", st = `width:${size}px;height:${size}px;font-size:${Math.round(size * .5)}px`;
+  if (p.startsWith("data:image/")) return `<span class="av" style="${st}"><img src="${esc(p)}" alt=""></span>`;
+  if (p) return `<span class="av" style="${st}">${esc(p)}</span>`;
+  return `<span class="av" style="${st}">${esc(((s?.name || "؟").trim()[0]) || "؟")}</span>`;
+};
+function openModal(html, wide) {
+  const o = document.createElement("div"); o.className = "overlay";
+  o.innerHTML = `<div class="modal ${wide ? "wide" : ""}" role="dialog" aria-modal="true">${html}</div>`;
+  o.addEventListener("mousedown", e => { if (e.target === o) o.remove(); });
+  o.addEventListener("click", e => { if (e.target.closest("[data-close]")) o.remove(); });
+  $("#modal-root").append(o); return o;
+}
+const closeModals = () => $("#modal-root").innerHTML = "";
+function resizeImage(file, size = 256) {
+  return new Promise((res, rej) => {
+    const url = URL.createObjectURL(file), img = new Image();
+    img.onload = () => {
+      const s = Math.min(img.width, img.height), c = document.createElement("canvas"); c.width = c.height = size;
+      c.getContext("2d").drawImage(img, (img.width - s) / 2, (img.height - s) / 2, s, s, 0, 0, size, size);
+      URL.revokeObjectURL(url); res(c.toDataURL("image/jpeg", .82));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error("img")); };
+    img.src = url;
+  });
+}
+function pickerHTML(cur, s) {
+  return `<div class="grp">الصورة الشخصية أو الأيقونة<div class="picker"><div id="pv">${avatarHTML({ photo: cur, name: s?.name }, 76)}</div><div><div class="emojis">${AVATARS.map(e => `<button type="button" class="em" data-e="${e}" aria-label="أيقونة ${e}">${e}</button>`).join("")}</div><label class="btn btn-line btn-sm">رفع صورة<input type="file" accept="image/*" hidden id="pfile"></label></div></div></div>`;
+}
+function bindPicker(root, initial, name) {
+  let val = initial || "";
+  const show = () => $("#pv", root).innerHTML = avatarHTML({ photo: val, name }, 76);
+  root.addEventListener("click", e => { const b = e.target.closest(".em"); if (b) { val = b.dataset.e; show(); } });
+  $("#pfile", root).addEventListener("change", async e => {
+    const f = e.target.files[0]; if (!f) return;
+    if (!f.type.startsWith("image/")) return toast("اختر ملف صورة", "err");
+    try { val = await resizeImage(f); show(); } catch { toast("تعذر قراءة الصورة", "err"); }
+  });
+  return () => val;
+}
+const gradeOpts = (stage, cur) => `<option value="">اختر الصف</option>` + (GRADES[stage] || []).map(g => `<option ${g === cur ? "selected" : ""}>${g}</option>`).join("");
+function profileFields(s = {}) {
+  return `
+  <label class="fl">الاسم الكامل<input name="name" maxlength="60" autocomplete="name" value="${esc(s.name)}"></label>
+  <div class="grp">المرحلة الدراسية<div class="chips">${Object.entries(STAGES).map(([k, v]) => `<label class="chip"><input type="radio" name="stage" value="${k}" ${s.stage === k ? "checked" : ""}><span>${v}</span></label>`).join("")}</div></div>
+  <div class="grp">نوع التعليم<div class="chips">${Object.entries(SYSTEMS).map(([k, v]) => `<label class="chip"><input type="radio" name="system" value="${k}" ${s.system === k ? "checked" : ""}><span>${v}</span></label>`).join("")}</div></div>
+  <div class="row2">
+    <label class="fl">الصف الدراسي<select name="grade">${gradeOpts(s.stage, s.grade)}</select></label>
+    <label class="fl">المدينة / المحافظة<select name="city"><option value="">اختر</option>${CITIES.map(c => `<option ${c === s.city ? "selected" : ""}>${c}</option>`).join("")}</select></label>
+  </div>
+  <div class="row2">
+    <label class="fl">اسم المدرسة (اختياري)<input name="school" maxlength="80" value="${esc(s.school)}"></label>
+    <label class="fl">رقم ولي الأمر (اختياري)<input name="parentPhone" dir="ltr" inputmode="numeric" maxlength="11" value="${esc(s.parentPhone)}"></label>
+  </div>`;
+}
+function bindStageGrade(form) {
+  $$('input[name="stage"]', form).forEach(r => r.addEventListener("change", () => { $('select[name="grade"]', form).innerHTML = gradeOpts(r.value, ""); }));
+}
+function readProfile(form) {
+  const f = new FormData(form);
+  const v = { name: (f.get("name") || "").trim().replace(/\s+/g, " "), stage: f.get("stage"), system: f.get("system"), grade: f.get("grade"), city: f.get("city"), school: (f.get("school") || "").trim(), parentPhone: toLatin(f.get("parentPhone") || "").replace(/[\s-]/g, "") };
+  if (v.name.length < 3) throw new Error("اكتب اسمك بالكامل");
+  if (!STAGES[v.stage]) throw new Error("اختر المرحلة الدراسية");
+  if (!SYSTEMS[v.system]) throw new Error("اختر نوع التعليم (لغات أو حكومي)");
+  if (!v.grade) throw new Error("اختر الصف الدراسي");
+  if (!v.city) throw new Error("اختر المدينة");
+  if (v.parentPhone && !PHONE_RE.test(v.parentPhone)) throw new Error("رقم ولي الأمر غير صحيح");
+  return v;
+}
+const showErr = (m) => { const e = $("#err"); if (e) { e.textContent = m; e.hidden = !m; if (m) e.scrollIntoView({ block: "nearest" }); } };
+const flash = () => { const m = S.flash; S.flash = ""; return m ? `<div class="alert">${esc(m)}</div>` : ""; };
+function authMsg(e) {
+  const c = e?.code || "";
+  if (["auth/invalid-credential", "auth/wrong-password", "auth/user-not-found", "auth/invalid-email"].includes(c)) return "رقم الواتس أو كلمة السر غير صحيحة";
+  if (c === "auth/too-many-requests") return "محاولات كثيرة. انتظر قليلًا ثم حاول مرة أخرى";
+  if (c === "auth/network-request-failed") return "تعذر الاتصال بالإنترنت";
+  if (c === "auth/operation-not-allowed") return "تسجيل الدخول بالبريد غير مفعّل في Firebase (راجع README)";
+  return "حدث خطأ غير متوقع، حاول مرة أخرى";
+}
+const fmtSize = n => !n ? "" : n > 1048576 ? (n / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round(n / 1024)) + " KB";
+const fmtDate = t => { try { return t?.toDate ? t.toDate().toLocaleDateString("ar-EG", { year: "numeric", month: "short", day: "numeric" }) : "—"; } catch { return "—"; } };
+const ytId = u => { u = (u || "").trim(); if (/^[\w-]{11}$/.test(u)) return u; const m = u.match(/(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/|v\/))([\w-]{11})/); return m ? m[1] : ""; };
+const driveLink = u => { const m = (u || "").match(/drive\.google\.com\/file\/d\/([\w-]+)/) || (u || "").match(/drive\.google\.com\/open\?id=([\w-]+)/); return m ? `https://drive.google.com/uc?export=download&id=${m[1]}` : u; };
+const stageLabel = v => v === "all" ? "كل المراحل" : STAGES[v] || "—";
+const sysLabel = v => v === "all" ? "لغات + حكومي" : SYSTEMS[v] || "—";
+
+/* ---------- المصادقة ---------- */
+function clearSubs() { S.unsubs.forEach(f => f()); S.unsubs = []; if (S.unsubSelf) { S.unsubSelf(); S.unsubSelf = null; } }
+function sub(col, key) {
+  const q = query(collection(db, col), orderBy("createdAt", "desc"));
+  S.unsubs.push(onSnapshot(q, s => { S[key] = s.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, e => console.warn(col, e.code)));
+}
+function onData() {
+  if (isAdminUser()) { if ($("#abody")) fillTab(); }
+  else if (S.page === "home") fillHome();
+  else if (S.page === "watch" && !S.watchOk) render();
+}
+async function kick(msg) { S.flash = msg; S.student = null; clearSubs(); try { await signOut(auth); } catch {} if (!S.user) render(); }
+async function attachStudent(u) {
+  const dref = doc(db, "students", u.uid), dev = deviceId();
+  let snap;
+  try { snap = await getDoc(dref); } catch { return kick("تعذر الاتصال بالخادم، حاول مرة أخرى"); }
+  if (!snap.exists()) return kick("هذا الحساب غير موجود أو تم حذفه. تواصل مع المدرس.");
+  const d = snap.data();
+  if (d.status === "banned") return kick("تم حظر هذا الحساب. تواصل مع المدرس.");
+  if (!d.deviceId) { try { await updateDoc(dref, { deviceId: dev }); d.deviceId = dev; } catch { return kick("تعذر تثبيت الحساب على هذا الجهاز"); } }
+  else if (d.deviceId !== dev) return kick("هذا الحساب مسجّل على جهاز آخر. تواصل مع المدرس لفك ارتباطه.");
+  S.student = { id: u.uid, ...d };
+  clearSubs();
+  S.unsubSelf = onSnapshot(dref, s => {
+    if (!s.exists()) return kick("تم حذف هذا الحساب.");
+    const x = s.data();
+    if (x.status === "banned") return kick("تم حظر هذا الحساب. تواصل مع المدرس.");
+    if (x.deviceId && x.deviceId !== dev) return kick("تم تسجيل الدخول لهذا الحساب من جهاز آخر.");
+    S.student = { id: u.uid, ...x };
+  }, () => {});
+  sub("videos", "videos"); sub("files", "files");
+  S.ready = true; render();
+}
+onAuthStateChanged(auth, async u => {
+  clearSubs(); S.user = u; S.student = null;
+  if (!u) { S.ready = true; render(); return; }
+  if (u.email === ADMIN_EMAIL) { sub("students", "students"); sub("videos", "videos"); sub("files", "files"); S.ready = true; render(); return; }
+  if (S.busy) return;
+  await attachStudent(u);
+});
+const doLogout = async () => { try { await signOut(auth); } catch {} go("/"); };
+
+/* ---------- الراوتر ---------- */
+window.addEventListener("hashchange", () => { closeModals(); render(); window.scrollTo(0, 0); });
+function render() {
+  if (!S.ready) return;
+  const route = location.hash.slice(1) || "/";
+  S.page = ""; S.watchOk = false;
+  if (isAdminUser()) { if (route.startsWith("/admin") && route !== "/admin-login") return renderAdmin(); return go("/admin"); }
+  if (route === "/admin-login") return renderAdminLogin();
+  if (S.user && S.student) {
+    if (route === "/profile") return renderProfile();
+    if (route.startsWith("/watch/")) return renderWatch(route.slice(7));
+    return renderHome();
+  }
+  if (S.user && !S.student) { app.innerHTML = `<div class="loading"><div><div class="spin"></div>جاري التحقق من الحساب...</div></div>`; return; }
+  if (route === "/register") return renderRegister();
+  renderLogin();
+}
+
+/* ---------- تسجيل الدخول ---------- */
+function renderLogin() {
+  app.innerHTML = `<div class="auth"><div class="card auth-card">${brand()}<h1>تسجيل الدخول</h1><p class="sub">ادخل برقم الواتس وكلمة السر الخاصة بك</p>${flash()}
+  <div class="alert" id="err" hidden></div>
+  <form id="f" novalidate>
+    <label class="fl">رقم الواتس<input name="phone" type="tel" inputmode="numeric" dir="ltr" autocomplete="username" maxlength="11" placeholder="01XXXXXXXXX"></label>
+    <label class="fl">كلمة السر (أرقام فقط)<input name="pass" type="password" inputmode="numeric" dir="ltr" autocomplete="current-password" maxlength="12"></label>
+    <button class="btn btn-fill w100" id="sb">دخول</button>
+  </form>
+  <p class="alt">طالب جديد؟ <a href="#/register">أنشئ حسابك</a></p></div><a class="adm-link" href="#/admin-login">دخول المدرس</a></div>`;
+  $("#f").addEventListener("submit", async e => {
+    e.preventDefault(); showErr("");
+    const f = new FormData(e.target), phone = toLatin(f.get("phone")).replace(/\s/g, ""), pass = toLatin(f.get("pass"));
+    if (!PHONE_RE.test(phone)) return showErr("اكتب رقم الواتس بشكل صحيح (11 رقم)");
+    if (!/^\d{6,12}$/.test(pass)) return showErr("كلمة السر أرقام فقط (من 6 إلى 12 رقم)");
+    const b = $("#sb"); b.disabled = true; b.textContent = "جاري الدخول...";
+    try { await signInWithEmailAndPassword(auth, `${phone}@${EMAIL_DOMAIN}`, pass); }
+    catch (er) { showErr(authMsg(er)); b.disabled = false; b.textContent = "دخول"; }
+  });
+}
+
+/* ---------- إنشاء حساب ---------- */
+function termsHTML() {
+  return `<h2>شروط الاستخدام</h2><div class="legal">
+  <p><b>1. الحساب شخصي:</b> يُسمح لك باستخدام حسابك على جهاز واحد فقط، ولا يجوز مشاركته مع أي شخص آخر.</p>
+  <p><b>2. المحتوى:</b> جميع الفيديوهات والملفات ملك لمسيو رضا الخشن، وهي للاستخدام التعليمي الشخصي فقط.</p>
+  <p><b>3. ممنوع:</b> تسجيل الفيديوهات أو نسخها أو مشاركتها أو إعادة نشرها بأي وسيلة، أو مشاركة روابطها خارج المنصة.</p>
+  <p><b>4.</b> يحق للإدارة إيقاف أو حظر أي حساب يخالف هذه الشروط دون إشعار مسبق.</p>
+  <p><b>5. البيانات:</b> بياناتك (الاسم والرقم والمدينة) تُستخدم لإدارة حسابك والتواصل معك فقط.</p>
+  <p><b>6.</b> كلمة السر مسؤوليتك، ولا تشاركها مع أحد.</p></div><div class="mact"><button class="btn btn-fill" data-close>فهمت</button></div>`;
+}
+function renderRegister() {
+  app.innerHTML = `<div class="auth"><div class="card auth-card wide">${brand()}<h1>إنشاء حساب طالب</h1><p class="sub">املأ بياناتك بدقة، وسيتم تثبيت الحساب على جهازك</p>
+  <div class="alert" id="err" hidden></div>
+  <form id="f" novalidate>
+    <label class="fl">رقم الواتس<input name="phone" type="tel" inputmode="numeric" dir="ltr" autocomplete="username" maxlength="11" placeholder="01XXXXXXXXX"></label>
+    ${profileFields({})}
+    ${pickerHTML("", {})}
+    <div class="row2">
+      <label class="fl">كلمة السر (أرقام فقط، 6 على الأقل)<input name="pass" type="password" inputmode="numeric" dir="ltr" autocomplete="new-password" maxlength="12"></label>
+      <label class="fl">تأكيد كلمة السر<input name="pass2" type="password" inputmode="numeric" dir="ltr" autocomplete="new-password" maxlength="12"></label>
+    </div>
+    <label class="terms"><input type="checkbox" name="terms"><span>أوافق على <button type="button" class="lnk" id="tl">الشروط والأحكام</button> وألتزم بعدم مشاركة المحتوى</span></label>
+    <button class="btn btn-fill w100" id="sb">إنشاء الحساب</button>
+  </form>
+  <p class="alt">لديك حساب؟ <a href="#/login">سجّل الدخول</a></p></div></div>`;
+  const form = $("#f"); bindStageGrade(form);
+  const getPhoto = bindPicker(form, "", "");
+  $("#tl").addEventListener("click", () => openModal(termsHTML()));
+  $$('input[name="pass"],input[name="pass2"],input[name="phone"]', form).forEach(i => i.addEventListener("input", () => { i.value = toLatin(i.value).replace(/\D/g, ""); }));
+  form.addEventListener("submit", async e => {
+    e.preventDefault(); showErr("");
+    const b = $("#sb");
+    try {
+      const f = new FormData(form), phone = toLatin(f.get("phone")).replace(/\s/g, ""), pass = toLatin(f.get("pass")), pass2 = toLatin(f.get("pass2"));
+      if (!PHONE_RE.test(phone)) throw new Error("اكتب رقم واتس مصري صحيح (11 رقم)");
+      const p = readProfile(form);
+      if (!/^\d{6,12}$/.test(pass)) throw new Error("كلمة السر أرقام فقط (من 6 إلى 12 رقم)");
+      if (pass !== pass2) throw new Error("كلمة السر وتأكيدها غير متطابقين");
+      if (!f.get("terms")) throw new Error("يجب الموافقة على الشروط والأحكام");
+      b.disabled = true; b.textContent = "جاري إنشاء الحساب...";
+      const email = `${phone}@${EMAIL_DOMAIN}`;
+      S.busy = true;
+      let cred;
+      try { cred = await createUserWithEmailAndPassword(auth, email, pass); }
+      catch (er) {
+        if (er.code !== "auth/email-already-in-use") throw er;
+        let c2; try { c2 = await signInWithEmailAndPassword(auth, email, pass); } catch { throw new Error("هذا الرقم مسجّل بالفعل. سجّل الدخول من الصفحة الرئيسية"); }
+        const ex = await getDoc(doc(db, "students", c2.user.uid));
+        if (ex.exists()) { await signOut(auth); throw new Error("هذا الرقم مسجّل بالفعل. سجّل الدخول من الصفحة الرئيسية"); }
+        cred = c2;
+      }
+      await setDoc(doc(db, "students", cred.user.uid), { ...p, phone, photo: getPhoto(), status: "active", deviceId: deviceId(), createdAt: serverTimestamp(), termsAcceptedAt: serverTimestamp() });
+      S.busy = false;
+      await attachStudent(cred.user);
+      go("/");
+      toast("تم إنشاء حسابك بنجاح، أهلًا بك 👋", "ok");
+    } catch (er) {
+      S.busy = false;
+      showErr(er.code ? authMsg(er) : er.message);
+      b.disabled = false; b.textContent = "إنشاء الحساب";
+    }
+  });
+}
+
+/* ---------- هيدر الطالب ---------- */
+function studentHeader(active) {
+  const s = S.student;
+  return `<header class="hdr"><div class="wrap hdr-in">${brand()}<div class="hdr-r">
+    <a class="chipuser" href="#/profile" aria-label="بياناتي">${avatarHTML(s, 34)}<span class="n">${esc(s.name)}</span></a>
+    <button class="btn btn-line btn-sm" id="lo">خروج</button></div></div></header>`;
+}
+
+/* ---------- الصفحة الرئيسية للطالب ---------- */
+const visible = list => { const s = S.student; return list.filter(x => (x.stage === "all" || x.stage === s.stage) && (x.system === "all" || x.system === s.system)); };
+function renderHome() {
+  S.page = "home"; const s = S.student;
+  app.innerHTML = `${studentHeader()}<main class="wrap">
+    <section class="hero-s"><h1>أهلًا يا ${esc(s.name.split(" ")[0])} 👋</h1><p>${STAGES[s.stage]} · ${SYSTEMS[s.system]} · ${esc(s.grade)}</p></section>
+    <div class="tabs"><button class="tab" data-t="videos">🎬 الفيديوهات</button><button class="tab" data-t="files">📄 الملفات</button><input class="srch" id="q" placeholder="ابحث..." value="${esc(H.q)}"></div>
+    <div class="grid" id="list"></div></main><footer class="foot">© منصة مسيو رضا الخشن — المحتوى للاستخدام الشخصي فقط</footer>`;
+  $("#lo").onclick = doLogout;
+  $$(".tab").forEach(b => b.onclick = () => { H.tab = b.dataset.t; fillHome(); });
+  $("#q").oninput = e => { H.q = e.target.value; fillHome(); };
+  fillHome();
+}
+function fillHome() {
+  const list = $("#list"); if (!list) return;
+  $$(".tab").forEach(b => b.classList.toggle("on", b.dataset.t === H.tab));
+  const q = H.q.trim().toLowerCase();
+  const m = x => !q || (x.title || "").toLowerCase().includes(q) || (x.description || "").toLowerCase().includes(q);
+  if (H.tab === "videos") {
+    const v = visible(S.videos).filter(m);
+    list.innerHTML = v.length ? v.map(x => `<a class="vcard" href="#/watch/${esc(x.id)}"><div class="thumb"><img loading="lazy" src="https://i.ytimg.com/vi/${esc(x.ytId)}/mqdefault.jpg" alt=""><span class="play">▶</span></div><div class="vb"><h3>${esc(x.title)}</h3>${x.description ? `<p>${esc(x.description)}</p>` : ""}</div></a>`).join("") : `<div class="empty">لا توجد فيديوهات لمرحلتك حاليًا</div>`;
+  } else {
+    const f = visible(S.files).filter(m);
+    list.innerHTML = f.length ? f.map(x => `<div class="fcard"><div class="ficon">${esc((x.ext || "FILE").toUpperCase().slice(0, 4))}</div><div class="t"><h3>${esc(x.title)}</h3><small>${esc(fmtSize(x.size))}</small></div><a class="btn btn-fill btn-sm" href="${esc(x.url)}" target="_blank" rel="noopener" download>تحميل</a></div>`).join("") : `<div class="empty">لا توجد ملفات لمرحلتك حاليًا</div>`;
+  }
+}
+
+/* ---------- مشاهدة فيديو ---------- */
+function renderWatch(id) {
+  S.page = "watch"; const s = S.student;
+  const v = S.videos.find(x => x.id === id);
+  if (!v) { app.innerHTML = `${studentHeader()}<main class="wrap sec"><div class="empty">${S.videos.length ? "الفيديو غير موجود" : "جاري التحميل..."}</div><p class="alt" style="margin-top:16px"><a href="#/">← العودة للرئيسية</a></p></main>`; $("#lo").onclick = doLogout; return; }
+  if (!visible([v]).length) { app.innerHTML = `${studentHeader()}<main class="wrap sec"><div class="empty">هذا الفيديو غير متاح لمرحلتك</div><p class="alt" style="margin-top:16px"><a href="#/">← العودة للرئيسية</a></p></main>`; $("#lo").onclick = doLogout; return; }
+  S.watchOk = true;
+  const others = visible(S.videos).filter(x => x.id !== id).slice(0, 12);
+  const wm = `${esc(s.name)} · ${esc(s.phone)}`;
+  app.innerHTML = `${studentHeader()}<main class="wrap sec"><div class="watch"><div>
+    <div class="player" id="pl"><iframe src="https://www.youtube-nocookie.com/embed/${esc(v.ytId)}?rel=0&modestbranding=1&fs=0&disablekb=1&iv_load_policy=3&playsinline=1&cc_load_policy=0" title="${esc(v.title)}" allow="autoplay; encrypted-media" referrerpolicy="strict-origin-when-cross-origin" sandbox="allow-scripts allow-same-origin allow-presentation"></iframe>
+      <div class="shield"></div><button class="fsbtn" id="fs" type="button">ملء الشاشة ⛶</button><div class="wm">${wm}</div><div class="wm b">${wm}</div></div>
+    <h1 style="font-size:1.4rem;margin-top:16px">${esc(v.title)}</h1>
+    <p class="sub" style="margin-top:6px">${v.description ? esc(v.description) : ""}</p>
+    <p class="alt" style="text-align:start;margin-top:14px">🔒 هذا الفيديو يُعرض على حسابك فقط ويحمل بياناتك. تسجيله أو مشاركته مخالف للشروط.</p>
+    <p style="margin-top:14px"><a class="btn btn-line btn-sm" href="#/">← العودة</a></p></div>
+    <aside class="side"><h3>فيديوهات أخرى</h3>${others.map(o => `<a href="#/watch/${esc(o.id)}"><img loading="lazy" src="https://i.ytimg.com/vi/${esc(o.ytId)}/mqdefault.jpg" alt=""><span>${esc(o.title)}</span></a>`).join("") || `<p class="sub">لا يوجد المزيد</p>`}</aside></div></main>`;
+  $("#lo").onclick = doLogout;
+  const pl = $("#pl");
+  pl.addEventListener("contextmenu", e => e.preventDefault());
+  $("#fs").onclick = () => { const f = pl.requestFullscreen || pl.webkitRequestFullscreen; if (f) f.call(pl); else toast("المتصفح لا يدعم ملء الشاشة هنا", "err"); };
+}
+
+/* ---------- بياناتي ---------- */
+function renderProfile() {
+  S.page = "profile"; const s = S.student;
+  app.innerHTML = `${studentHeader()}<main class="wrap sec"><p style="margin-bottom:16px"><a class="btn btn-line btn-sm" href="#/">← العودة</a></p><div class="pf">
+  <div class="card"><div class="pf-top">${avatarHTML(s, 64)}<div><h2>${esc(s.name)}</h2><small>${esc(s.phone)}</small></div></div>
+    <div class="alert" id="err" hidden></div>
+    <form id="f" novalidate>${profileFields(s)}${pickerHTML(s.photo || "", s)}<button class="btn btn-fill w100" id="sb">حفظ التعديلات</button></form></div>
+  <div class="card"><h2 style="margin-bottom:6px">تغيير كلمة السر</h2><p class="sub" style="margin-bottom:12px">أرقام فقط (من 6 إلى 12 رقم)</p>
+    <div class="alert" id="err2" hidden></div>
+    <form id="pf2" novalidate>
+      <label class="fl">كلمة السر الحالية<input name="old" type="password" inputmode="numeric" dir="ltr" autocomplete="current-password" maxlength="12"></label>
+      <label class="fl">كلمة السر الجديدة<input name="n1" type="password" inputmode="numeric" dir="ltr" autocomplete="new-password" maxlength="12"></label>
+      <label class="fl">تأكيد الجديدة<input name="n2" type="password" inputmode="numeric" dir="ltr" autocomplete="new-password" maxlength="12"></label>
+      <button class="btn btn-line w100" id="sb2">تغيير كلمة السر</button></form>
+    <p class="sub" style="margin-top:14px">رقم الواتس لا يمكن تعديله. للتغيير تواصل مع المدرس.</p></div></div></main>`;
+  $("#lo").onclick = doLogout;
+  const form = $("#f"); bindStageGrade(form);
+  const getPhoto = bindPicker(form, s.photo || "", s.name);
+  form.addEventListener("submit", async e => {
+    e.preventDefault(); showErr(""); const b = $("#sb");
+    try {
+      const p = readProfile(form); b.disabled = true; b.textContent = "جاري الحفظ...";
+      const upd = { ...p, photo: getPhoto() };
+      await updateDoc(doc(db, "students", s.id), upd);
+      S.student = { ...S.student, ...upd };
+      toast("تم حفظ بياناتك", "ok"); renderProfile();
+    } catch (er) { showErr(er.code === "permission-denied" ? "لا تملك صلاحية التعديل" : er.message); b.disabled = false; b.textContent = "حفظ التعديلات"; }
+  });
+  const e2 = m => { const e = $("#err2"); e.textContent = m; e.hidden = !m; };
+  $$("#pf2 input").forEach(i => i.addEventListener("input", () => { i.value = toLatin(i.value).replace(/\D/g, ""); }));
+  $("#pf2").addEventListener("submit", async e => {
+    e.preventDefault(); e2(""); const f = new FormData(e.target), o = f.get("old"), n1 = f.get("n1"), n2 = f.get("n2");
+    if (!/^\d{6,12}$/.test(n1)) return e2("كلمة السر الجديدة أرقام فقط (من 6 إلى 12 رقم)");
+    if (n1 !== n2) return e2("كلمة السر الجديدة وتأكيدها غير متطابقين");
+    const b = $("#sb2"); b.disabled = true;
+    try {
+      await reauthenticateWithCredential(auth.currentUser, EmailAuthProvider.credential(auth.currentUser.email, o));
+      await updatePassword(auth.currentUser, n1);
+      e.target.reset(); toast("تم تغيير كلمة السر", "ok");
+    } catch (er) { e2(["auth/invalid-credential", "auth/wrong-password"].includes(er.code) ? "كلمة السر الحالية غير صحيحة" : authMsg(er)); }
+    b.disabled = false;
+  });
+}
+
+/* ================================ الأدمن ================================ */
+function renderAdminLogin() {
+  app.innerHTML = `<div class="auth"><div class="card auth-card">${brand()}<h1>دخول المدرس</h1><div class="alert" id="err" hidden></div>
+  <form id="f" novalidate><label class="fl">كلمة السر<input name="pass" type="password" inputmode="numeric" dir="ltr" autocomplete="current-password" autofocus></label>
+  <button class="btn btn-fill w100" id="sb">دخول</button></form><p class="alt"><a href="#/">← العودة</a></p></div></div>`;
+  $("#f").addEventListener("submit", async e => {
+    e.preventDefault(); showErr(""); const pass = toLatin(new FormData(e.target).get("pass")); const b = $("#sb");
+    if (!pass) return showErr("اكتب كلمة السر");
+    b.disabled = true;
+    try { await signInWithEmailAndPassword(auth, ADMIN_EMAIL, pass); }
+    catch (er) { showErr(er.code === "auth/network-request-failed" ? "تعذر الاتصال بالإنترنت" : "كلمة السر غير صحيحة"); b.disabled = false; }
+  });
+}
+function renderAdmin() {
+  S.page = "admin";
+  app.innerHTML = `<header class="hdr"><div class="wrap hdr-in">${brand()}<nav class="nav-a">
+    <button class="atab" data-t="overview">نظرة عامة</button><button class="atab" data-t="students">الطلاب</button><button class="atab" data-t="videos">الفيديوهات</button><button class="atab" data-t="files">الملفات</button></nav>
+    <button class="btn btn-line btn-sm" id="lo">خروج</button></div></header><main class="wrap sec" id="abody"></main>`;
+  $("#lo").onclick = doLogout;
+  $$(".atab").forEach(b => b.onclick = () => setTab(b.dataset.t));
+  setTab(A.tab);
+}
+function setTab(t) {
+  A.tab = t; $$(".atab").forEach(b => b.classList.toggle("on", b.dataset.t === t));
+  const body = $("#abody"); body.innerHTML = TABS[t].skel(); TABS[t].init?.(body); fillTab();
+}
+const fillTab = () => { const b = $("#abody"); if (b) TABS[A.tab].fill(b); };
+const opts = (obj, cur, extra) => (extra ? Object.entries(extra) : []).concat(Object.entries(obj)).map(([k, v]) => `<option value="${k}" ${k === cur ? "selected" : ""}>${v}</option>`).join("");
+
+const TABS = {
+  overview: {
+    skel: () => `<h2 style="margin-bottom:16px">نظرة عامة</h2><div id="ov"></div>`,
+    fill: b => {
+      const st = S.students, act = st.filter(x => x.status !== "banned").length;
+      const by = k => Object.keys(k === "stage" ? STAGES : SYSTEMS).map(key => [(k === "stage" ? STAGES : SYSTEMS)[key], st.filter(x => x[k] === key).length]);
+      const max = Math.max(1, ...by("stage").map(x => x[1]), ...by("system").map(x => x[1]));
+      const bar = ([l, n]) => `<div class="bar"><span>${l}</span><div class="bg"><i style="width:${n / max * 100}%"></i></div><b>${n}</b></div>`;
+      $("#ov", b).innerHTML = `<div class="stats">
+        <div class="stat"><b>${st.length}</b><span>إجمالي الطلاب</span></div><div class="stat"><b>${act}</b><span>نشط</span></div><div class="stat"><b>${st.length - act}</b><span>محظور</span></div>
+        <div class="stat"><b>${S.videos.length}</b><span>فيديو</span></div><div class="stat"><b>${S.files.length}</b><span>ملف</span></div></div>
+        <div class="pf"><div class="card"><h3 style="margin-bottom:12px">الطلاب حسب المرحلة</h3><div class="bars">${by("stage").map(bar).join("")}</div></div>
+        <div class="card"><h3 style="margin-bottom:12px">الطلاب حسب النظام</h3><div class="bars">${by("system").map(bar).join("")}</div></div></div>
+        <h3 style="margin:24px 0 12px">آخر المسجلين</h3><div class="tw"><table><tbody>${st.slice(0, 6).map(x => `<tr><td><div class="who">${avatarHTML(x, 34)}<span>${esc(x.name)}</span></div></td><td class="ph">${esc(x.phone)}</td><td>${stageLabel(x.stage)} · ${sysLabel(x.system)}</td><td>${fmtDate(x.createdAt)}</td></tr>`).join("") || `<tr><td>لا يوجد طلاب بعد</td></tr>`}</tbody></table></div>`;
+    }
+  },
+  students: {
+    skel: () => `<h2 style="margin-bottom:16px">إدارة الطلاب</h2><div class="toolbar"><input id="aq" placeholder="بحث بالاسم أو الرقم أو المدينة" value="${esc(A.q)}">
+      <select id="as"><option value="">كل المراحل</option>${opts(STAGES, A.fstage)}</select>
+      <select id="at"><option value="">كل الحالات</option><option value="active" ${A.fstatus === "active" ? "selected" : ""}>نشط</option><option value="banned" ${A.fstatus === "banned" ? "selected" : ""}>محظور</option></select></div><div class="tw" id="sl"></div>`,
+    init: b => {
+      $("#aq", b).oninput = e => { A.q = e.target.value; fillTab(); };
+      $("#as", b).onchange = e => { A.fstage = e.target.value; fillTab(); };
+      $("#at", b).onchange = e => { A.fstatus = e.target.value; fillTab(); };
+      b.onclick = studentAction;
+    },
+    fill: b => {
+      const q = A.q.trim().toLowerCase();
+      const l = S.students.filter(x => (!A.fstage || x.stage === A.fstage) && (!A.fstatus || (x.status || "active") === A.fstatus) && (!q || [x.name, x.phone, x.city].some(t => (t || "").toLowerCase().includes(q))));
+      $("#sl", b).innerHTML = `<table><thead><tr><th>الطالب</th><th>الواتس</th><th>المرحلة</th><th>المدينة</th><th>الحالة</th><th>الجهاز</th><th>التسجيل</th><th>إجراءات</th></tr></thead><tbody>${l.map(x => `<tr>
+        <td><div class="who">${avatarHTML(x, 36)}<div><b>${esc(x.name)}</b><br><small style="color:var(--muted)">${esc(x.grade || "")}</small></div></div></td>
+        <td class="ph">${esc(x.phone)}</td><td>${stageLabel(x.stage)}<br><small style="color:var(--muted)">${sysLabel(x.system)}</small></td><td>${esc(x.city || "—")}</td>
+        <td>${x.status === "banned" ? `<span class="badge bad">محظور</span>` : `<span class="badge good">نشط</span>`}</td>
+        <td>${x.deviceId ? `<span class="badge">مثبّت</span>` : `<span class="badge warn">غير مثبّت</span>`}</td><td>${fmtDate(x.createdAt)}</td>
+        <td><div class="acts"><button class="btn btn-line btn-sm" data-a="edit" data-id="${esc(x.id)}">تعديل</button>
+        <button class="btn btn-sm ${x.status === "banned" ? "btn-good" : "btn-bad"}" data-a="ban" data-id="${esc(x.id)}">${x.status === "banned" ? "فك الحظر" : "حظر"}</button>
+        <button class="btn btn-line btn-sm" data-a="dev" data-id="${esc(x.id)}">فك الجهاز</button>
+        <a class="btn btn-line btn-sm" target="_blank" rel="noopener" href="https://wa.me/2${esc(x.phone)}">واتس</a>
+        <button class="btn btn-bad btn-sm" data-a="del" data-id="${esc(x.id)}">حذف</button></div></td></tr>`).join("") || `<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:32px">لا يوجد طلاب</td></tr>`}</tbody></table>`;
+    }
+  },
+  videos: {
+    skel: () => `<div class="toolbar"><h2 style="flex:1">إدارة الفيديوهات</h2><button class="btn btn-fill" data-a="vadd">+ إضافة فيديو</button></div><div class="agrid" id="vl"></div>`,
+    init: b => { b.onclick = contentAction; },
+    fill: b => {
+      $("#vl", b).innerHTML = S.videos.map(v => `<div class="acard"><div class="thumb" style="border-radius:8px;overflow:hidden"><img loading="lazy" src="https://i.ytimg.com/vi/${esc(v.ytId)}/mqdefault.jpg" alt=""></div><h3>${esc(v.title)}</h3>
+        <div class="m"><span class="badge">${stageLabel(v.stage)}</span><span class="badge">${sysLabel(v.system)}</span></div>
+        <div class="acts"><button class="btn btn-line btn-sm" data-a="vedit" data-id="${esc(v.id)}">تعديل</button><button class="btn btn-bad btn-sm" data-a="vdel" data-id="${esc(v.id)}">حذف</button></div></div>`).join("") || `<div class="empty">لم تُضف فيديوهات بعد</div>`;
+    }
+  },
+  files: {
+    skel: () => `<div class="toolbar"><h2 style="flex:1">إدارة الملفات</h2><button class="btn btn-fill" data-a="fadd">+ إضافة ملف</button></div><div class="agrid" id="fl"></div>`,
+    init: b => { b.onclick = contentAction; },
+    fill: b => {
+      $("#fl", b).innerHTML = S.files.map(f => `<div class="acard"><div class="fcard" style="border:0;padding:0"><div class="ficon">${esc((f.ext || "FILE").toUpperCase().slice(0, 4))}</div><div class="t"><h3>${esc(f.title)}</h3><small>${esc(fmtSize(f.size))}</small></div></div>
+        <div class="m"><span class="badge">${stageLabel(f.stage)}</span><span class="badge">${sysLabel(f.system)}</span></div>
+        <div class="acts"><a class="btn btn-line btn-sm" href="${esc(f.url)}" target="_blank" rel="noopener">فتح</a><button class="btn btn-line btn-sm" data-a="fedit" data-id="${esc(f.id)}">تعديل</button><button class="btn btn-bad btn-sm" data-a="fdel" data-id="${esc(f.id)}">حذف</button></div></div>`).join("") || `<div class="empty">لم تُضف ملفات بعد</div>`;
+    }
+  }
+};
+
+/* ---- إجراءات الطلاب ---- */
+async function studentAction(e) {
+  const btn = e.target.closest("[data-a]"); if (!btn || btn.tagName === "A") return;
+  const id = btn.dataset.id, x = S.students.find(s => s.id === id); if (!x) return;
+  const dref = doc(db, "students", id);
+  try {
+    if (btn.dataset.a === "ban") {
+      const ban = x.status !== "banned";
+      if (!confirm(ban ? `حظر الطالب ${x.name}؟` : `فك الحظر عن ${x.name}؟`)) return;
+      await updateDoc(dref, { status: ban ? "banned" : "active" }); toast(ban ? "تم الحظر" : "تم فك الحظر", "ok");
+    } else if (btn.dataset.a === "dev") {
+      if (!confirm(`فك ارتباط جهاز ${x.name}؟ سيستطيع تسجيل الدخول من جهاز جديد.`)) return;
+      await updateDoc(dref, { deviceId: "" }); toast("تم فك ارتباط الجهاز", "ok");
+    } else if (btn.dataset.a === "del") {
+      if (!confirm(`حذف الطالب ${x.name} نهائيًا؟ لا يمكن التراجع.`)) return;
+      await deleteDoc(dref); toast("تم حذف الطالب", "ok");
+    } else if (btn.dataset.a === "edit") editStudent(x);
+  } catch (er) { toast("فشلت العملية: " + (er.code || er.message), "err"); }
+}
+function editStudent(x) {
+  const m = openModal(`<h2>تعديل بيانات الطالب</h2><p class="sub" dir="ltr" style="text-align:start">${esc(x.phone)}</p><div class="alert" id="err" hidden></div>
+    <form id="ef" novalidate>${profileFields(x)}<label class="fl">الحالة<select name="status"><option value="active" ${x.status !== "banned" ? "selected" : ""}>نشط</option><option value="banned" ${x.status === "banned" ? "selected" : ""}>محظور</option></select></label>
+    <div class="mact"><button class="btn btn-fill" id="sb">حفظ</button><button type="button" class="btn btn-line" data-close>إلغاء</button></div></form>`, true);
+  const form = $("#ef", m); bindStageGrade(form);
+  form.addEventListener("submit", async e => {
+    e.preventDefault(); showErr("");
+    try { const p = readProfile(form); p.status = new FormData(form).get("status"); $("#sb", m).disabled = true; await updateDoc(doc(db, "students", x.id), p); m.remove(); toast("تم الحفظ", "ok"); }
+    catch (er) { showErr(er.message); $("#sb", m).disabled = false; }
+  });
+}
+
+/* ---- إجراءات الفيديو والملفات ---- */
+async function contentAction(e) {
+  const btn = e.target.closest("[data-a]"); if (!btn || btn.tagName === "A") return;
+  const a = btn.dataset.a, id = btn.dataset.id;
+  try {
+    if (a === "vadd") return videoModal();
+    if (a === "vedit") return videoModal(S.videos.find(v => v.id === id));
+    if (a === "vdel") { const v = S.videos.find(v => v.id === id); if (v && confirm(`حذف الفيديو "${v.title}"؟`)) { await deleteDoc(doc(db, "videos", id)); toast("تم الحذف", "ok"); } return; }
+    if (a === "fadd") return fileModal();
+    if (a === "fedit") return fileModal(S.files.find(f => f.id === id));
+    if (a === "fdel") {
+      const f = S.files.find(f => f.id === id); if (!f || !confirm(`حذف الملف "${f.title}"؟`)) return;
+      if (f.storagePath) { try { await deleteObject(ref(storage, f.storagePath)); } catch {} }
+      await deleteDoc(doc(db, "files", id)); toast("تم الحذف", "ok");
+    }
+  } catch (er) { toast("فشلت العملية: " + (er.code || er.message), "err"); }
+}
+const targetFields = c => `<div class="row2"><label class="fl">المرحلة<select name="stage">${opts(STAGES, c?.stage || "all", { all: "كل المراحل" })}</select></label>
+  <label class="fl">النظام<select name="system">${opts(SYSTEMS, c?.system || "all", { all: "لغات + حكومي" })}</select></label></div>`;
+function videoModal(v) {
+  const m = openModal(`<h2>${v ? "تعديل فيديو" : "إضافة فيديو"}</h2><div class="alert" id="err" hidden></div>
+    <form id="vf" novalidate><label class="fl">عنوان الفيديو<input name="title" maxlength="120" value="${esc(v?.title)}"></label>
+    <label class="fl">رابط YouTube<input name="url" dir="ltr" placeholder="https://youtu.be/XXXXXXXXXXX" value="${v ? `https://youtu.be/${esc(v.ytId)}` : ""}"></label>
+    <p class="sub" style="margin-top:-6px;font-size:.84rem">اجعل الفيديو على يوتيوب <b>غير مدرج (Unlisted)</b> مع السماح بالتضمين.</p>
+    ${targetFields(v)}<label class="fl">وصف (اختياري)<textarea name="description" maxlength="300">${esc(v?.description)}</textarea></label>
+    <div class="mact"><button class="btn btn-fill" id="sb">حفظ</button><button type="button" class="btn btn-line" data-close>إلغاء</button></div></form>`);
+  $("#vf", m).addEventListener("submit", async e => {
+    e.preventDefault(); showErr(""); const f = new FormData(e.target), title = (f.get("title") || "").trim(), id = ytId(f.get("url"));
+    if (!title) return showErr("اكتب عنوان الفيديو");
+    if (!id) return showErr("رابط يوتيوب غير صحيح");
+    const data = { title, ytId: id, stage: f.get("stage"), system: f.get("system"), description: (f.get("description") || "").trim() };
+    $("#sb", m).disabled = true;
+    try { if (v) await updateDoc(doc(db, "videos", v.id), data); else await addDoc(collection(db, "videos"), { ...data, createdAt: serverTimestamp() }); m.remove(); toast("تم الحفظ", "ok"); }
+    catch (er) { showErr("فشل الحفظ: " + (er.code || er.message)); $("#sb", m).disabled = false; }
+  });
+}
+function fileModal(fl) {
+  const m = openModal(`<h2>${fl ? "تعديل ملف" : "إضافة ملف"}</h2><div class="alert" id="err" hidden></div>
+    <form id="ff" novalidate><label class="fl">عنوان الملف<input name="title" maxlength="120" value="${esc(fl?.title)}"></label>${targetFields(fl)}
+    <label class="fl">${fl ? "استبدال الملف (اختياري)" : "ارفع ملف Word أو PDF"}<input type="file" name="file" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="padding:10px 0"></label>
+    <label class="fl">أو ضع رابط مباشر (Google Drive مثلًا)<input name="url" dir="ltr" placeholder="https://drive.google.com/file/d/..." value="${fl && !fl.storagePath ? esc(fl.url) : ""}"></label>
+    <div class="prog" id="pg" hidden><i></i></div>
+    <div class="mact"><button class="btn btn-fill" id="sb">حفظ</button><button type="button" class="btn btn-line" data-close>إلغاء</button></div></form>`);
+  $("#ff", m).addEventListener("submit", async e => {
+    e.preventDefault(); showErr(""); const f = new FormData(e.target), title = (f.get("title") || "").trim(), file = f.get("file"), link = (f.get("url") || "").trim();
+    if (!title) return showErr("اكتب عنوان الملف");
+    const has = file && file.size > 0;
+    if (!fl && !has && !link) return showErr("ارفع ملفًا أو ضع رابطًا");
+    if (has && file.size > 50 * 1048576) return showErr("الحد الأقصى لحجم الملف 50 ميجا");
+    const data = { title, stage: f.get("stage"), system: f.get("system") };
+    $("#sb", m).disabled = true;
+    try {
+      if (has) {
+        const ext = (file.name.split(".").pop() || "file").toLowerCase().slice(0, 5);
+        if (!["pdf", "doc", "docx"].includes(ext)) throw new Error("الصيغ المسموحة: PDF أو Word فقط");
+        const path = `files/${Date.now()}_${Math.random().toString(36).slice(2, 8)}.${ext}`, task = uploadBytesResumable(ref(storage, path), file), pg = $("#pg", m); pg.hidden = false;
+        await new Promise((res, rej) => task.on("state_changed", s => { $("i", pg).style.width = (s.bytesTransferred / s.totalBytes * 100) + "%"; }, rej, res));
+        const url = await getDownloadURL(task.snapshot.ref);
+        if (fl?.storagePath) { try { await deleteObject(ref(storage, fl.storagePath)); } catch {} }
+        Object.assign(data, { url, storagePath: path, ext, size: file.size });
+      } else if (link) {
+        if (!/^https?:\/\//i.test(link)) throw new Error("الرابط يجب أن يبدأ بـ https://");
+        if (fl?.storagePath && link !== fl.url) { try { await deleteObject(ref(storage, fl.storagePath)); } catch {} }
+        if (!fl || link !== fl.url) Object.assign(data, { url: driveLink(link), storagePath: "", ext: (link.split("?")[0].split(".").pop() || "").length <= 4 ? link.split("?")[0].split(".").pop().toLowerCase() : "link", size: 0 });
+      }
+      if (fl) await updateDoc(doc(db, "files", fl.id), data); else await addDoc(collection(db, "files"), { ...data, createdAt: serverTimestamp() });
+      m.remove(); toast("تم الحفظ", "ok");
+    } catch (er) {
+      const stor = (er.code || "").startsWith("storage/");
+      showErr(stor ? "تعذر الرفع على Firebase Storage. تأكد من تفعيله وقواعده، أو استخدم رابطًا مباشرًا بدلًا من الرفع." : (er.message || "فشل الحفظ"));
+      $("#sb", m).disabled = false; $("#pg", m).hidden = true;
+    }
+  });
+}
+
+/* ---------- تشغيل ---------- */
+window.addEventListener("hashchange", () => {});
+document.addEventListener("click", e => { if (e.target.closest("#lo")) return; });
+</script>
+</body>
+</html>
