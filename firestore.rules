@@ -45,5 +45,33 @@ service cloud.firestore {
       allow read: if isAdmin() || isActiveStudent();
       allow write: if isAdmin();
     }
+
+    // التعليقات: الطالب يضيف ويعدّل ويحذف تعليقه فقط، والأدمن يتحكم في الكل
+    match /comments/{id} {
+      allow read: if isAdmin() || isActiveStudent();
+      allow create: if isActiveStudent()
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.keys().hasOnly(['videoId','uid','name','photo','text','createdAt'])
+        && request.resource.data.videoId is string
+        && request.resource.data.name is string && request.resource.data.name.size() <= 80
+        && request.resource.data.photo is string && request.resource.data.photo.size() <= 12
+        && request.resource.data.text is string && request.resource.data.text.size() > 0 && request.resource.data.text.size() <= 500;
+      allow update: if isAdmin() || (isActiveStudent()
+        && resource.data.uid == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['text','edited','editedAt'])
+        && request.resource.data.text is string && request.resource.data.text.size() > 0 && request.resource.data.text.size() <= 500);
+      allow delete: if isAdmin() || (isActiveStudent() && resource.data.uid == request.auth.uid);
+    }
+
+    // التقييم: تقييم واحد لكل طالب لكل فيديو (رقم المستند = videoId_uid)
+    match /ratings/{rid} {
+      allow read: if isAdmin() || isActiveStudent();
+      allow create, update: if isActiveStudent()
+        && request.resource.data.uid == request.auth.uid
+        && rid == request.resource.data.videoId + '_' + request.auth.uid
+        && request.resource.data.keys().hasOnly(['videoId','uid','value','updatedAt'])
+        && request.resource.data.value is int && request.resource.data.value >= 1 && request.resource.data.value <= 5;
+      allow delete: if isAdmin() || (isActiveStudent() && resource.data.uid == request.auth.uid);
+    }
   }
 }

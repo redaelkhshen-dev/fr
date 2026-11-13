@@ -368,6 +368,35 @@ section[id]{scroll-margin-top:84px}
 .row3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
 .cf select{max-width:200px}
 @media(max-width:600px){.row3{grid-template-columns:1fr}}
+/* ===== التعليقات والتقييم ===== */
+.cm{margin-top:34px;padding-top:24px;border-top:1px solid var(--line)}
+.cm h2{font-size:1.25rem;margin-bottom:14px}
+.rate{display:flex;flex-wrap:wrap;gap:20px 36px;align-items:center;padding:16px 18px;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+.rate-avg{display:flex;align-items:baseline;gap:10px}
+.rate-avg b{font:800 2rem var(--fd);color:var(--accent-text)}
+.stars-ro{color:var(--accent);letter-spacing:2px;font-size:1.1rem}
+.rate-avg small,.rate-me span{color:var(--muted)}
+.rate-me{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.stars{display:flex;direction:ltr}
+.star{background:none;border:0;cursor:pointer;font-size:1.7rem;line-height:1;padding:2px 3px;color:#4a4228;transition:transform .12s,color .12s}
+.star.on{color:var(--accent)}
+.stars:hover .star{color:var(--accent)}
+.stars .star:hover~.star{color:#4a4228}
+.star:hover{transform:scale(1.2)}
+.cmp{display:flex;gap:12px;margin:18px 0;align-items:flex-start}
+.cmp>div{flex:1;min-width:0}
+.cmp textarea{min-height:84px}
+.cmp-b{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+.cmp-b small{color:var(--muted)}
+.cl{display:flex;flex-direction:column;gap:4px}
+.ci{display:flex;gap:12px;padding:14px 0;border-top:1px solid var(--line)}
+.cb{flex:1;min-width:0}
+.ch{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.ch small{color:var(--muted)}
+.cb p{margin:6px 0 0;white-space:pre-wrap;overflow-wrap:anywhere}
+.cb .acts{margin-top:6px;gap:14px}
+.lnk.bad{color:var(--bad)}
+.et{margin-top:8px;min-height:80px}
 </style>
 </head>
 <body>
@@ -379,7 +408,7 @@ section[id]{scroll-margin-top:84px}
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, updatePassword, reauthenticateWithCredential, EmailAuthProvider, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, addDoc, onSnapshot, query, orderBy, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
 /* =====================  الإعدادات (املأها من Firebase Console)  ===================== */
@@ -434,9 +463,9 @@ const db = getFirestore(fbApp);
 const storage = getStorage(fbApp);
 
 /* ---------- الحالة ---------- */
-const S = { ready: false, user: null, student: null, busy: false, flash: "", videos: [], files: [], students: [], unsubs: [], unsubSelf: null, page: "" };
+const S = { ready: false, user: null, student: null, busy: false, flash: "", videos: [], files: [], students: [], comments: [], ratings: [], unsubs: [], unsubSelf: null, page: "" };
 const H = { tab: "videos", q: "" };
-const A = { cstage: "", cgrade: "", tab: "overview", q: "", fstage: "", fstatus: "" };
+const A = { cvid: "", cq: "", cstage: "", cgrade: "", tab: "overview", q: "", fstage: "", fstatus: "" };
 
 const isAdminUser = () => !!S.user && S.user.email === ADMIN_EMAIL;
 // نوع الجهاز: هاتف/تابلت (devM) أو كمبيوتر (devD) — لكل حساب جهاز واحد من كل نوع
@@ -605,7 +634,7 @@ async function attachStudent(u) {
 onAuthStateChanged(auth, async u => {
   clearSubs(); S.user = u; S.student = null;
   if (!u) { S.ready = true; render(); return; }
-  if (u.email === ADMIN_EMAIL) { sub("students", "students"); sub("videos", "videos"); sub("files", "files"); S.ready = true; render(); return; }
+  if (u.email === ADMIN_EMAIL) { sub("students", "students"); sub("videos", "videos"); sub("files", "files"); sub("comments", "comments"); S.unsubs.push(onSnapshot(collection(db, "ratings"), s => { S.ratings = s.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.ready = true; render(); return; }
   if (S.busy) return;
   await attachStudent(u);
 });
@@ -615,7 +644,7 @@ const doLogout = async () => { try { await signOut(auth); } catch {} go("/"); };
 window.addEventListener("hashchange", () => { closeModals(); render(); window.scrollTo(0, 0); });
 function render() {
   if (!S.ready) return;
-  stopTracker(); previewStop();
+  stopTracker(); previewStop(); stopCommentSubs();
   const route = location.hash.slice(1) || "/";
   S.page = ""; S.watchOk = false;
   if (isAdminUser()) { if (route.startsWith("/admin") && route !== "/admin-login") return renderAdmin(); return go("/admin"); }
@@ -920,13 +949,68 @@ function renderWatch(id) {
     <h1 style="font-size:1.4rem;margin-top:16px">${esc(v.title)}</h1>
     <p class="sub" style="margin-top:6px">${v.description ? esc(v.description) : ""}</p>
     <p class="alt" style="text-align:start;margin-top:14px">🔒 هذا الفيديو يُعرض على حسابك فقط ويحمل بياناتك. تسجيله أو مشاركته مخالف للشروط.</p>
-    <p style="margin-top:14px"><a class="btn btn-line btn-sm" href="#/">← العودة</a></p></div>
+    <p style="margin-top:14px"><a class="btn btn-line btn-sm" href="#/">← العودة</a></p>
+    <section class="cm" id="cm"></section></div>
     <aside class="side"><div class="tcard"><div class="disc-wrap"><div class="disc"><span class="orbit" aria-hidden="true"><i></i></span><img src="teacher.jpg" alt="مسيو رضا الخشن"></div></div><div><b>مسيو رضا الخشن</b><small>مدرّس اللغة الفرنسية</small></div></div><h3>فيديوهات أخرى</h3>${others.map(o => `<a href="#/watch/${esc(o.id)}"><img loading="lazy" src="https://i.ytimg.com/vi/${esc(o.ytId)}/mqdefault.jpg" alt=""><span>${esc(o.title)}</span></a>`).join("") || `<p class="sub">لا يوجد المزيد</p>`}</aside></div></main>`;
   $("#lo").onclick = doLogout;
   const pl = $("#pl");
   pl.addEventListener("contextmenu", e => e.preventDefault());
-  startTracker(v);
+  startTracker(v); startCommentSubs(v);
   $("#fs").onclick = () => { const f = pl.requestFullscreen || pl.webkitRequestFullscreen; if (f) f.call(pl); else toast("المتصفح لا يدعم ملء الشاشة هنا", "err"); };
+}
+
+/* ---------- التعليقات والتقييم (الطالب) ---------- */
+const CM = { unsubs: [], vid: null, comments: [], ratings: [], editing: null, editText: "" };
+function stopCommentSubs() { CM.unsubs.forEach(f => f()); CM.unsubs = []; CM.vid = null; CM.comments = []; CM.ratings = []; CM.editing = null; }
+const ago = t => { if (!t?.toDate) return "الآن"; const d = (Date.now() - t.toDate().getTime()) / 1000; if (d < 60) return "الآن"; if (d < 3600) return `منذ ${Math.floor(d / 60)} دقيقة`; if (d < 86400) return `منذ ${Math.floor(d / 3600)} ساعة`; if (d < 604800) return `منذ ${Math.floor(d / 86400)} يوم`; return fmtDate(t); };
+const myPhoto = () => { const p = S.student?.photo || ""; return p && !p.startsWith("data:") && p.length <= 12 ? p : ""; };
+function startCommentSubs(v) {
+  const box = $("#cm"); if (!box) return;
+  CM.vid = v.id; CM.editing = null;
+  box.innerHTML = `<h2>التقييم والتعليقات</h2><div class="rate" id="cr"></div>
+    <div class="cmp">${avatarHTML(S.student, 42)}<div><textarea id="ct" maxlength="500" placeholder="اكتب تعليقك أو سؤالك عن الدرس..."></textarea><div class="cmp-b"><small id="cc">0/500</small><button class="btn btn-fill btn-sm" id="cp">نشر التعليق</button></div></div></div>
+    <div class="cl" id="cl"></div>`;
+  $("#ct").addEventListener("input", e => { $("#cc").textContent = e.target.value.length + "/500"; });
+  $("#cp").onclick = async () => {
+    const t = $("#ct").value.trim(); if (!t) return toast("اكتب تعليقًا أولًا", "err");
+    const b = $("#cp"); b.disabled = true;
+    try { await addDoc(collection(db, "comments"), { videoId: CM.vid, uid: S.student.id, name: S.student.name, photo: myPhoto(), text: t, createdAt: serverTimestamp() }); $("#ct").value = ""; $("#cc").textContent = "0/500"; }
+    catch { toast("تعذر نشر التعليق", "err"); }
+    b.disabled = false;
+  };
+  box.addEventListener("input", e => { if (e.target.classList.contains("et")) CM.editText = e.target.value; });
+  box.addEventListener("click", async e => {
+    const r = e.target.closest("[data-r]"), c = e.target.closest("[data-c]");
+    try {
+      if (r) {
+        const val = +r.dataset.r, rid = `${CM.vid}_${S.student.id}`;
+        if (val === 0) await deleteDoc(doc(db, "ratings", rid));
+        else await setDoc(doc(db, "ratings", rid), { videoId: CM.vid, uid: S.student.id, value: val, updatedAt: serverTimestamp() });
+      } else if (c) {
+        const id = c.dataset.id, a = c.dataset.c, cm = CM.comments.find(x => x.id === id);
+        if (a === "edit" && cm) { CM.editing = id; CM.editText = cm.text; paintComments(); }
+        else if (a === "cancel") { CM.editing = null; paintComments(); }
+        else if (a === "save") {
+          const t = (CM.editText || "").trim(); if (!t) return toast("التعليق لا يمكن أن يكون فارغًا", "err");
+          await updateDoc(doc(db, "comments", id), { text: t, edited: true, editedAt: serverTimestamp() }); CM.editing = null; paintComments(); toast("تم تعديل التعليق", "ok");
+        } else if (a === "del" && confirm("حذف تعليقك؟")) { await deleteDoc(doc(db, "comments", id)); toast("تم حذف التعليق", "ok"); }
+      }
+    } catch { toast("تعذر تنفيذ العملية", "err"); }
+  });
+  CM.unsubs.push(onSnapshot(query(collection(db, "comments"), where("videoId", "==", v.id)), s => { CM.comments = s.docs.map(d => ({ id: d.id, ...d.data() })); paintComments(); }, e => console.warn("comments", e.code)));
+  CM.unsubs.push(onSnapshot(query(collection(db, "ratings"), where("videoId", "==", v.id)), s => { CM.ratings = s.docs.map(d => ({ id: d.id, ...d.data() })); paintComments(); }, e => console.warn("ratings", e.code)));
+  paintComments();
+}
+function paintComments() {
+  const cr = $("#cr"), cl = $("#cl"); if (!cr || !cl || !S.student) return;
+  const uid = S.student.id, mine = CM.ratings.find(r => r.uid === uid)?.value || 0, n = CM.ratings.length, avg = n ? CM.ratings.reduce((a, r) => a + r.value, 0) / n : 0, rd = Math.round(avg);
+  cr.innerHTML = `<div class="rate-avg"><b>${n ? avg.toFixed(1) : "—"}</b><span class="stars-ro">${"★".repeat(rd)}${"☆".repeat(5 - rd)}</span><small>${n} تقييم</small></div>
+    <div class="rate-me"><span>${mine ? "تقييمك:" : "قيّم هذا الدرس:"}</span><div class="stars">${[1, 2, 3, 4, 5].map(i => `<button type="button" class="star ${i <= mine ? "on" : ""}" data-r="${i}" aria-label="${i} من 5">★</button>`).join("")}</div>${mine ? `<button type="button" class="lnk" data-r="0">إلغاء تقييمي</button>` : ""}</div>`;
+  const list = [...CM.comments].sort((a, b) => (b.createdAt?.seconds ?? 9e12) - (a.createdAt?.seconds ?? 9e12));
+  cl.innerHTML = list.map(c => { const own = c.uid === uid, ed = CM.editing === c.id;
+    return `<article class="ci">${avatarHTML({ photo: c.photo, name: c.name }, 38)}<div class="cb"><div class="ch"><b>${esc(c.name)}</b>${own ? `<span class="badge">أنت</span>` : ""}<small>${ago(c.createdAt)}${c.edited ? " · تم التعديل" : ""}</small></div>
+      ${ed ? `<textarea class="et" maxlength="500">${esc(CM.editText)}</textarea><div class="acts"><button class="btn btn-fill btn-sm" data-c="save" data-id="${esc(c.id)}">حفظ</button><button class="btn btn-line btn-sm" data-c="cancel" data-id="${esc(c.id)}">إلغاء</button></div>`
+      : `<p>${esc(c.text)}</p>${own ? `<div class="acts"><button class="lnk" data-c="edit" data-id="${esc(c.id)}">تعديل</button><button class="lnk bad" data-c="del" data-id="${esc(c.id)}">حذف</button></div>` : ""}`}</div></article>`; }).join("") || `<p class="sub">لا توجد تعليقات بعد. كن أول من يعلّق!</p>`;
 }
 
 /* ---------- بياناتي ---------- */
@@ -989,7 +1073,7 @@ function renderAdminLogin() {
 function renderAdmin() {
   S.page = "admin";
   app.innerHTML = `<header class="hdr"><div class="wrap hdr-in">${brand()}<nav class="nav-a">
-    <button class="atab" data-t="overview">نظرة عامة</button><button class="atab" data-t="students">الطلاب</button><button class="atab" data-t="videos">الفيديوهات</button><button class="atab" data-t="files">الملفات</button></nav>
+    <button class="atab" data-t="overview">نظرة عامة</button><button class="atab" data-t="students">الطلاب</button><button class="atab" data-t="videos">الفيديوهات</button><button class="atab" data-t="files">الملفات</button><button class="atab" data-t="comments">التعليقات</button></nav>
     <button class="btn btn-line btn-sm" id="lo">خروج</button></div></header><main class="wrap sec" id="abody"></main>`;
   $("#lo").onclick = doLogout;
   $$(".atab").forEach(b => b.onclick = () => setTab(b.dataset.t));
@@ -1049,7 +1133,7 @@ const TABS = {
     init: b => { b.onclick = contentAction; bindFilter(b); },
     fill: b => {
       $("#vl", b).innerHTML = S.videos.filter(passFilter).map(v => `<div class="acard"><div class="thumb" style="border-radius:8px;overflow:hidden"><img loading="lazy" src="https://i.ytimg.com/vi/${esc(v.ytId)}/mqdefault.jpg" alt=""></div><h3>${esc(v.title)}</h3>
-        <div class="m"><span class="badge">${stageLabel(v.stage)}</span><span class="badge">${sysLabel(v.system)}</span><span class="badge good">${gradeLabel(v)}</span></div>
+        <div class="m"><span class="badge">${stageLabel(v.stage)}</span><span class="badge">${sysLabel(v.system)}</span><span class="badge good">${gradeLabel(v)}</span><span class="badge warn">⭐ ${vstat(v.id).avg} · 💬 ${vstat(v.id).c}</span></div>
         <div class="acts"><button class="btn btn-line btn-sm" data-a="vedit" data-id="${esc(v.id)}">تعديل</button><button class="btn btn-bad btn-sm" data-a="vdel" data-id="${esc(v.id)}">حذف</button></div></div>`).join("") || `<div class="empty">لم تُضف فيديوهات بعد</div>`;
     }
   },
@@ -1064,6 +1148,39 @@ const TABS = {
   }
 };
 
+const vTitle = id => S.videos.find(v => v.id === id)?.title || "فيديو محذوف";
+const vstat = id => { const rs = S.ratings.filter(r => r.videoId === id), n = rs.length; return { n, avg: n ? (rs.reduce((a, r) => a + r.value, 0) / n).toFixed(1) : "—", c: S.comments.filter(c => c.videoId === id).length }; };
+TABS.comments = {
+  skel: () => `<h2 style="margin-bottom:16px">التعليقات والتقييمات</h2><div class="agrid" id="cs" style="margin-bottom:22px"></div>
+    <div class="toolbar"><select id="cv"></select><input id="cq" placeholder="بحث في التعليقات أو أسماء الطلاب" value="${esc(A.cq)}"></div><div class="tw" id="cl2"></div>`,
+  init: b => { b.onclick = commentAction; $("#cq", b).oninput = e => { A.cq = e.target.value; fillTab(); }; $("#cv", b).onchange = e => { A.cvid = e.target.value; fillTab(); }; },
+  fill: b => {
+    $("#cs", b).innerHTML = S.videos.map(v => { const st = vstat(v.id); return `<div class="acard"><h3>${esc(v.title)}</h3><div class="m"><span class="badge warn">⭐ ${st.avg} (${st.n} تقييم)</span><span class="badge">💬 ${st.c} تعليق</span></div></div>`; }).join("") || `<div class="empty">لا توجد فيديوهات</div>`;
+    const sel = $("#cv", b), key = S.videos.map(v => v.id).join(",");
+    if (sel.dataset.k !== key) { sel.dataset.k = key; sel.innerHTML = `<option value="">كل الفيديوهات</option>` + S.videos.map(v => `<option value="${esc(v.id)}">${esc(v.title)}</option>`).join(""); }
+    sel.value = A.cvid;
+    const q = A.cq.trim().toLowerCase();
+    const l = S.comments.filter(c => (!A.cvid || c.videoId === A.cvid) && (!q || (c.text || "").toLowerCase().includes(q) || (c.name || "").toLowerCase().includes(q)));
+    $("#cl2", b).innerHTML = `<table><thead><tr><th>الطالب</th><th>التعليق</th><th>الفيديو</th><th>التقييم</th><th>التاريخ</th><th>إجراءات</th></tr></thead><tbody>${l.map(c => { const r = S.ratings.find(x => x.uid === c.uid && x.videoId === c.videoId);
+      return `<tr><td><div class="who">${avatarHTML({ photo: c.photo, name: c.name }, 34)}<span>${esc(c.name)}</span></div></td><td style="min-width:240px;white-space:pre-wrap">${esc(c.text)}${c.edited ? ` <span class="badge">معدّل</span>` : ""}</td><td>${esc(vTitle(c.videoId))}</td>
+      <td>${r ? `<span class="badge warn">${"★".repeat(r.value)}</span> <button class="btn btn-bad btn-sm" data-a="rdel" data-id="${esc(r.id)}" title="حذف التقييم">✕</button>` : "—"}</td><td>${fmtDate(c.createdAt)}</td>
+      <td><div class="acts"><button class="btn btn-line btn-sm" data-a="cedit" data-id="${esc(c.id)}">تعديل</button><button class="btn btn-bad btn-sm" data-a="cdel" data-id="${esc(c.id)}">حذف</button></div></td></tr>`; }).join("") || `<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:32px">لا توجد تعليقات</td></tr>`}</tbody></table>`;
+  }
+};
+async function commentAction(e) {
+  const btn = e.target.closest("[data-a]"); if (!btn) return;
+  const a = btn.dataset.a, id = btn.dataset.id;
+  try {
+    if (a === "cdel") { if (confirm("حذف هذا التعليق نهائيًا؟")) { await deleteDoc(doc(db, "comments", id)); toast("تم حذف التعليق", "ok"); } }
+    else if (a === "rdel") { if (confirm("حذف هذا التقييم؟")) { await deleteDoc(doc(db, "ratings", id)); toast("تم حذف التقييم", "ok"); } }
+    else if (a === "cedit") {
+      const c = S.comments.find(x => x.id === id); if (!c) return;
+      const m = openModal(`<h2>تعديل التعليق</h2><p class="sub">${esc(c.name)} — ${esc(vTitle(c.videoId))}</p><div class="alert" id="err" hidden></div><form id="cf"><textarea name="t" maxlength="500" style="min-height:120px">${esc(c.text)}</textarea><div class="mact"><button class="btn btn-fill" id="sb">حفظ</button><button type="button" class="btn btn-line" data-close>إلغاء</button></div></form>`);
+      $("#cf", m).addEventListener("submit", async ev => { ev.preventDefault(); const t = (new FormData(ev.target).get("t") || "").trim(); if (!t) return showErr("التعليق لا يمكن أن يكون فارغًا");
+        try { await updateDoc(doc(db, "comments", id), { text: t, edited: true, editedAt: serverTimestamp() }); m.remove(); toast("تم الحفظ", "ok"); } catch (er) { showErr("فشل الحفظ: " + (er.code || er.message)); } });
+    }
+  } catch (er) { toast("فشلت العملية: " + (er.code || er.message), "err"); }
+}
 const gradeLabel = x => x.grade && x.grade !== "all" ? x.grade : "كل الصفوف";
 const passFilter = x => (!A.cstage || x.stage === A.cstage || x.stage === "all") && (!A.cgrade || (x.grade || "all") === A.cgrade || (x.grade || "all") === "all");
 const filterBar = () => `<div class="toolbar cf"><select id="cfs"><option value="">كل المراحل</option>${Object.entries(STAGES).map(([k, v]) => `<option value="${k}" ${A.cstage === k ? "selected" : ""}>${v}</option>`).join("")}</select><select id="cfg"><option value="">كل الصفوف</option>${(GRADES[A.cstage] || []).map(g => `<option ${A.cgrade === g ? "selected" : ""}>${g}</option>`).join("")}</select></div>`;
