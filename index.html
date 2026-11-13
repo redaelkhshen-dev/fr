@@ -397,6 +397,21 @@ section[id]{scroll-margin-top:84px}
 .cb .acts{margin-top:6px;gap:14px}
 .lnk.bad{color:var(--bad)}
 .et{margin-top:8px;min-height:80px}
+/* ===== نشاطي ===== */
+.wk{display:flex;gap:8px;align-items:flex-end;justify-content:space-between;height:140px;margin-top:14px}
+.wk-d{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;height:100%}
+.wk-d i{display:block;width:100%;max-width:34px;border-radius:6px 6px 2px 2px;background:var(--line)}
+.wk-d i.on{background:linear-gradient(180deg,#f0cf6e,#b8862b)}
+.wk-n{font:700 .78rem var(--fd);color:var(--accent-text);min-height:1em}
+.wk-d small{color:var(--muted);font-size:.72rem}
+.arow{display:flex;gap:14px;align-items:center;padding:12px;margin-bottom:10px;border:1px solid var(--line);border-radius:12px;background:var(--card);transition:border-color .15s}
+.arow:hover{border-color:var(--accent)}
+.athumb{flex:none;width:140px;aspect-ratio:16/9;border-radius:8px;overflow:hidden;background:#000}
+.athumb img{width:100%;height:100%;object-fit:cover;display:block}
+.ainfo{flex:1;min-width:0}
+.ainfo h3{font-size:1rem}
+.ainfo small{color:var(--muted)}
+@media(max-width:600px){.athumb{width:96px}.arow{padding:10px;gap:10px}}
 </style>
 </head>
 <body>
@@ -644,13 +659,14 @@ const doLogout = async () => { try { await signOut(auth); } catch {} go("/"); };
 window.addEventListener("hashchange", () => { closeModals(); render(); window.scrollTo(0, 0); });
 function render() {
   if (!S.ready) return;
-  stopTracker(); previewStop(); stopCommentSubs();
+  stopTracker(); previewStop(); stopCommentSubs(); stopActivitySubs();
   const route = location.hash.slice(1) || "/";
   S.page = ""; S.watchOk = false;
   if (isAdminUser()) { if (route.startsWith("/admin") && route !== "/admin-login") return renderAdmin(); return go("/admin"); }
   if (route === "/admin-login") return renderAdminLogin();
   if (S.user && S.student) {
     if (S.student.status !== "active") return renderPending();
+    if (route === "/activity") return renderActivity();
     if (route === "/profile") return renderProfile();
     if (route.startsWith("/watch/")) return renderWatch(route.slice(7));
     return renderHome();
@@ -831,7 +847,7 @@ function renderRegister() {
 /* ---------- هيدر الطالب ---------- */
 function studentHeader(active) {
   const s = S.student;
-  return `<header class="hdr"><div class="wrap hdr-in">${brand(true)}<nav class="pnav" aria-label="التنقل"><a href="#/">الرئيسية</a><a href="#/profile">بياناتي</a></nav><div class="hdr-r">
+  return `<header class="hdr"><div class="wrap hdr-in">${brand(true)}<nav class="pnav" aria-label="التنقل"><a href="#/">الرئيسية</a><a href="#/activity">نشاطي</a><a href="#/profile">بياناتي</a></nav><div class="hdr-r">
     <a class="chipuser" href="#/profile" aria-label="بياناتي">${avatarHTML(s, 34)}<span class="n">${esc(s.name)}</span></a>
     <button class="btn btn-line btn-sm" id="lo">خروج</button></div></div></header>`;
 }
@@ -1014,6 +1030,61 @@ function paintComments() {
 }
 
 /* ---------- بياناتي ---------- */
+/* ---------- نشاطي وإحصائياتي ---------- */
+const AC = { unsubs: [], comments: [], ratings: [], tab: "videos" };
+function stopActivitySubs() { AC.unsubs.forEach(f => f()); AC.unsubs = []; AC.comments = []; AC.ratings = []; }
+const agoMs = ms => { if (!ms) return "—"; const d = (Date.now() - ms) / 1000; if (d < 60) return "الآن"; if (d < 3600) return `منذ ${Math.floor(d / 60)} دقيقة`; if (d < 86400) return `منذ ${Math.floor(d / 3600)} ساعة`; if (d < 604800) return `منذ ${Math.floor(d / 86400)} يوم`; return new Date(ms).toLocaleDateString("ar-EG", { year: "numeric", month: "short", day: "numeric" }); };
+const fmtDur = sec => { const m = Math.round(sec / 60); return m < 60 ? `${m} د` : `${Math.floor(m / 60)} س ${m % 60} د`; };
+const dayKey = ms => { const d = new Date(ms); return d.getFullYear() + "-" + d.getMonth() + "-" + d.getDate(); };
+function renderActivity() {
+  S.page = "activity"; const s = S.student;
+  app.innerHTML = `${studentHeader()}<main class="wrap sec">
+    <section class="banner"><div><h1>📊 نشاطي وإحصائياتي</h1><p>تابع تقدمك في الفيديوهات وتعليقاتك وتقييماتك على المنصة</p></div><a class="btn btn-fill" id="resume" href="#/" hidden>▶ تابع من حيث توقفت</a></section>
+    <div class="stats" id="as" style="margin-top:22px"></div>
+    <div class="pf"><div class="card"><h3 style="margin-bottom:12px">تقدمك العام</h3><div id="ovc"></div></div><div class="card"><h3 style="margin-bottom:4px">نشاط آخر 7 أيام</h3><small style="color:var(--muted)">فيديوهات شاهدتها وتعليقات كتبتها في كل يوم</small><div class="wk" id="wk"></div></div></div>
+    <div class="tabs"><button class="tab" data-t="videos">🎬 فيديوهاتي</button><button class="tab" data-t="comments">💬 تعليقاتي</button><button class="tab" data-t="ratings">⭐ تقييماتي</button></div>
+    <div id="al"></div></main>`;
+  $("#lo").onclick = doLogout;
+  $$(".tab").forEach(b => b.onclick = () => { AC.tab = b.dataset.t; paintActivity(); });
+  $("#al").addEventListener("click", async e => {
+    const d = e.target.closest("[data-del]"); if (!d) return;
+    if (confirm("حذف هذا التعليق؟")) { try { await deleteDoc(doc(db, "comments", d.dataset.del)); toast("تم حذف التعليق", "ok"); } catch { toast("تعذر الحذف", "err"); } }
+  });
+  AC.unsubs.push(onSnapshot(query(collection(db, "comments"), where("uid", "==", s.id)), q => { AC.comments = q.docs.map(d => ({ id: d.id, ...d.data() })); paintActivity(); }, e => console.warn("ac", e.code)));
+  AC.unsubs.push(onSnapshot(query(collection(db, "ratings"), where("uid", "==", s.id)), q => { AC.ratings = q.docs.map(d => ({ id: d.id, ...d.data() })); paintActivity(); }, e => console.warn("ar", e.code)));
+  paintActivity();
+}
+function paintActivity() {
+  if (S.page !== "activity" || !$("#as")) return;
+  const vis = visible(S.videos), byId = Object.fromEntries(S.videos.map(v => [v.id, v]));
+  const prog = vis.map(v => ({ v, ...getProg(v.id), at: Math.max(S.student.progress?.[v.id]?.at || 0, readLocal()[v.id]?.at || 0) }));
+  const done = prog.filter(p => p.done), going = prog.filter(p => p.p > 0 && !p.done), fresh = prog.filter(p => p.p <= 0);
+  const secs = prog.reduce((a, p) => a + (p.d ? p.d * Math.min(100, p.p) / 100 : 0), 0);
+  const avg = vis.length ? Math.round(prog.reduce((a, p) => a + Math.min(100, p.p), 0) / vis.length) : 0;
+  $("#as").innerHTML = [["✅", done.length, `فيديو أكملته من ${vis.length}`], ["▶️", going.length, "قيد المشاهدة"], ["🕒", fmtDur(secs), "مدة المشاهدة التقريبية"], ["💬", AC.comments.length, "تعليق"], ["⭐", AC.ratings.length, "تقييم"], ["📭", fresh.length, "لم تبدأها بعد"]].map(([i, n, l]) => `<div class="stat"><b>${n}</b><span>${i} ${l}</span></div>`).join("");
+  $("#ovc").innerHTML = `<div class="pbar-top"><span>${done.length} من ${vis.length} فيديو مكتمل</span><b>${avg}%</b></div><div class="pbar-track"><i style="width:${avg}%"></i></div>`;
+  const last = [...going].sort((a, b) => b.at - a.at)[0] || [...fresh][0];
+  const rb = $("#resume"); if (last) { rb.hidden = false; rb.href = "#/watch/" + last.v.id; rb.textContent = going.length ? "▶ تابع من حيث توقفت" : "▶ ابدأ أول فيديو"; } else rb.hidden = true;
+  // نشاط آخر 7 أيام
+  const days = [...Array(7)].map((_, i) => { const d = new Date(); d.setDate(d.getDate() - (6 - i)); return d; });
+  const cnt = days.map(d => { const k = dayKey(d.getTime()); return prog.filter(p => p.at && dayKey(p.at) === k).length + AC.comments.filter(c => c.createdAt?.toDate && dayKey(c.createdAt.toDate().getTime()) === k).length; });
+  const mx = Math.max(1, ...cnt);
+  $("#wk").innerHTML = days.map((d, i) => `<div class="wk-d"><span class="wk-n">${cnt[i] || ""}</span><i style="height:${Math.max(4, cnt[i] / mx * 90)}px" class="${cnt[i] ? "on" : ""}"></i><small>${d.toLocaleDateString("ar-EG", { weekday: "short" })}</small></div>`).join("");
+  $$(".tab").forEach(b => b.classList.toggle("on", b.dataset.t === AC.tab));
+  const al = $("#al"), row = (v, inner) => `<div class="arow"><a class="athumb" href="#/watch/${esc(v.id)}"><img loading="lazy" src="https://i.ytimg.com/vi/${esc(v.ytId)}/mqdefault.jpg" alt=""></a><div class="ainfo">${inner}</div></div>`;
+  if (AC.tab === "videos") {
+    const seen = [...done, ...going].sort((a, b) => b.at - a.at);
+    al.innerHTML = (seen.length ? seen.map(p => row(p.v, `<a href="#/watch/${esc(p.v.id)}"><h3>${esc(p.v.title)}</h3></a><div class="pbar-track" style="margin:6px 0"><i style="width:${p.p}%"></i></div><small>${p.done ? `<span class="badge good">✓ مكتمل</span>` : `<span class="badge warn">${Math.round(p.p)}%</span>`} · آخر مشاهدة ${agoMs(p.at)}</small>`)).join("") : `<div class="empty">لم تشاهد أي فيديو بعد. ابدأ الآن من الصفحة الرئيسية!</div>`)
+      + (fresh.length ? `<h3 style="margin:24px 0 10px">📭 لم تشاهدها بعد (${fresh.length})</h3>` + fresh.map(p => row(p.v, `<a href="#/watch/${esc(p.v.id)}"><h3>${esc(p.v.title)}</h3></a><small class="sub">ابدأ المشاهدة ←</small>`)).join("") : "");
+  } else if (AC.tab === "comments") {
+    const l = [...AC.comments].sort((a, b) => (b.createdAt?.seconds ?? 9e12) - (a.createdAt?.seconds ?? 9e12));
+    al.innerHTML = l.map(c => { const v = byId[c.videoId]; return `<div class="arow"><div class="ainfo"><a href="#/watch/${esc(c.videoId)}"><h3>${esc(v?.title || "فيديو محذوف")}</h3></a><p style="white-space:pre-wrap;margin:6px 0">${esc(c.text)}</p><small>${ago(c.createdAt)}${c.edited ? " · تم التعديل" : ""}</small> ${v ? `<a class="lnk" href="#/watch/${esc(c.videoId)}">عرض وتعديل</a>` : ""} <button class="lnk bad" data-del="${esc(c.id)}">حذف</button></div></div>`; }).join("") || `<div class="empty">لم تكتب أي تعليق بعد.</div>`;
+  } else {
+    const l = [...AC.ratings].sort((a, b) => (b.updatedAt?.seconds ?? 9e12) - (a.updatedAt?.seconds ?? 9e12));
+    al.innerHTML = l.map(r => { const v = byId[r.videoId]; return v ? row(v, `<a href="#/watch/${esc(v.id)}"><h3>${esc(v.title)}</h3></a><div class="stars-ro" style="margin:6px 0">${"★".repeat(r.value)}${"☆".repeat(5 - r.value)}</div><small>${ago(r.updatedAt)}</small>`) : ""; }).join("") || `<div class="empty">لم تقيّم أي فيديو بعد.</div>`;
+  }
+}
+
 function renderProfile() {
   S.page = "profile"; const s = S.student;
   app.innerHTML = `${studentHeader()}<main class="wrap sec"><p style="margin-bottom:16px"><a class="btn btn-line btn-sm" href="#/">← العودة</a></p><div class="pf">
