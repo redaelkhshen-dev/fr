@@ -3,6 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0b0a07">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="robots" content="noindex">
 <title>منصة مسيو رضا الخشن</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;600;700;800&family=Tajawal:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -372,7 +378,7 @@ section[id]{scroll-margin-top:84px}
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, updatePassword, reauthenticateWithCredential, EmailAuthProvider, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
@@ -421,6 +427,9 @@ if (firebaseConfig.apiKey.startsWith("PASTE")) {
 }
 const fbApp = initializeApp(firebaseConfig);
 const auth = getAuth(fbApp);
+// بقاء الدخول مفتوحًا على هذا الجهاز حتى يضغط المستخدم "خروج"
+setPersistence(auth, browserLocalPersistence).catch(() => {});
+try { navigator.storage?.persist?.(); } catch {}
 const db = getFirestore(fbApp);
 const storage = getStorage(fbApp);
 
@@ -430,7 +439,14 @@ const H = { tab: "videos", q: "" };
 const A = { cstage: "", cgrade: "", tab: "overview", q: "", fstage: "", fstatus: "" };
 
 const isAdminUser = () => !!S.user && S.user.email === ADMIN_EMAIL;
-const deviceId = () => { let d = ""; try { d = localStorage.getItem("rf_device") || ""; } catch {} if (!d) { d = (crypto.randomUUID ? crypto.randomUUID() : Date.now() + "-" + Math.random().toString(36).slice(2)); try { localStorage.setItem("rf_device", d); } catch {} } return d; };
+const deviceId = () => {
+  let d = ""; try { d = localStorage.getItem("rf_device") || ""; } catch {}
+  if (!d) { const m = document.cookie.match(/(?:^|; )rf_device=([\w-]+)/); d = m ? m[1] : ""; }
+  if (!d) d = crypto.randomUUID ? crypto.randomUUID() : Date.now() + "-" + Math.random().toString(36).slice(2);
+  try { localStorage.setItem("rf_device", d); } catch {}
+  try { document.cookie = `rf_device=${d}; max-age=31536000; path=/; SameSite=Lax`; } catch {}
+  return d;
+};
 
 /* ---------- مساعدات واجهة ---------- */
 const brand = (live) => `<a class="logo" href="#/"><span class="logo-mark${live ? " live" : ""}"><img src="${live ? "teacher.jpg" : "teacher.jpg"}" alt="مسيو رضا الخشن"></span><span dir="ltr">M. Reda Elkhshen<small dir="rtl">منصة تعليم اللغة الفرنسية</small></span></a>`;
@@ -547,15 +563,24 @@ function onData() {
   else if (S.page === "watch" && !S.watchOk) render();
 }
 async function kick(msg) { S.flash = msg; S.student = null; clearSubs(); try { await signOut(auth); } catch {} if (!S.user) render(); }
+let retryUser = null;
+function netRetry(u) { retryUser = u; S.net = true; S.ready = true; render(); }
+function renderRetry() {
+  app.innerHTML = `<div class="auth"><div class="card auth-card" style="text-align:center">${brand()}<h1>تعذر الاتصال بالإنترنت</h1><p class="sub">حسابك لا يزال مفتوحًا. تأكد من الاتصال ثم أعد المحاولة.</p><button class="btn btn-fill w100" id="rt">إعادة المحاولة</button><button class="btn btn-line w100" id="lo">تسجيل الخروج</button></div></div>`;
+  $("#rt").onclick = () => { S.net = false; render(); attachStudent(retryUser); };
+  $("#lo").onclick = doLogout;
+}
+window.addEventListener("online", () => { if (S.net && retryUser) { S.net = false; render(); attachStudent(retryUser); } });
 async function attachStudent(u) {
+  S.net = false;
   const dref = doc(db, "students", u.uid), dev = deviceId();
   let snap;
-  try { snap = await getDoc(dref); } catch { return kick("تعذر الاتصال بالخادم، حاول مرة أخرى"); }
+  try { snap = await getDoc(dref); } catch { return netRetry(u); }
   if (!snap.exists()) return kick("هذا الحساب غير موجود أو تم حذفه. تواصل مع المدرس.");
   const d = snap.data();
   if (d.status === "banned") return kick("تم حظر هذا الحساب. تواصل مع المدرس.");
   if (d.status === "rejected") return kick("تم رفض طلب تسجيلك. تواصل مع المدرس.");
-  if (!d.deviceId) { try { await updateDoc(dref, { deviceId: dev }); d.deviceId = dev; } catch { return kick("تعذر تثبيت الحساب على هذا الجهاز"); } }
+  if (!d.deviceId) { try { await updateDoc(dref, { deviceId: dev }); d.deviceId = dev; } catch (er) { return er.code === "permission-denied" ? kick("تعذر تثبيت الحساب على هذا الجهاز") : netRetry(u); } }
   else if (d.deviceId !== dev) return kick("هذا الحساب مسجّل على جهاز آخر. تواصل مع المدرس لفك ارتباطه.");
   S.student = { id: u.uid, ...d };
   clearSubs();
@@ -596,6 +621,7 @@ function render() {
     if (route.startsWith("/watch/")) return renderWatch(route.slice(7));
     return renderHome();
   }
+  if (S.user && !S.student && S.net) return renderRetry();
   if (S.user && !S.student) { app.innerHTML = `<div class="loading"><div><div class="spin"></div>جاري التحقق من الحساب...</div></div>`; return; }
   if (route === "/register") return renderRegister();
   if (route === "/login" || S.flash) return renderLogin();
@@ -692,7 +718,7 @@ function renderLogin() {
     <label class="fl">كلمة السر (أرقام فقط)<input name="pass" type="password" inputmode="numeric" dir="ltr" autocomplete="current-password" maxlength="12"></label>
     <button class="btn btn-fill w100" id="sb">دخول</button>
   </form>
-  <p class="alt">طالب جديد؟ <a href="#/register">أنشئ حسابك</a></p></div><a class="adm-link" href="#/admin-login">دخول المدرس</a>`, "login");
+  <p class="alt">طالب جديد؟ <a href="#/register">أنشئ حسابك</a></p><p class="alt" style="font-size:.82rem">🔒 يبقى حسابك مفتوحًا على هذا الجهاز حتى تضغط «خروج».</p></div><a class="adm-link" href="#/admin-login">دخول المدرس</a>`, "login");
   $("#f").addEventListener("submit", async e => {
     e.preventDefault(); showErr("");
     const f = new FormData(e.target), phone = toLatin(f.get("phone")).replace(/\s/g, ""), pass = toLatin(f.get("pass"));
