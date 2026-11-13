@@ -277,6 +277,30 @@ section[id]{scroll-margin-top:84px}
 .btn-fill{box-shadow:0 8px 24px -10px rgba(212,167,58,.7)}
 .btn-fill:not(:disabled):hover{filter:brightness(1.08)}
 .disc{box-shadow:0 30px 90px -20px rgba(212,167,58,.45)}
+
+/* ===== أنيميشن الصورة ===== */
+.disc-wrap{position:relative;width:min(100%,200px)}
+.aside .disc-wrap .disc{width:100%}
+.hero-visual::before,.hero-visual::after,.disc-wrap::before,.disc-wrap::after{content:"";position:absolute;inset:0;border-radius:50%;border:2px solid rgba(240,207,110,.6);pointer-events:none;animation:ripple 3.8s ease-out infinite}
+.hero-visual::after,.disc-wrap::after{animation-delay:1.9s}
+@keyframes ripple{0%{transform:scale(1);opacity:.75}100%{transform:scale(1.5);opacity:0}}
+.disc::after{content:"";position:absolute;inset:10px;border-radius:50%;pointer-events:none;background:linear-gradient(110deg,transparent 38%,rgba(255,244,200,.55) 50%,transparent 62%);background-size:260% 100%;background-position:160% 0;animation:shine 5.5s ease-in-out 1.6s infinite}
+@keyframes shine{0%{background-position:160% 0}45%,100%{background-position:-60% 0}}
+.orbit{position:absolute;inset:-12px;pointer-events:none;animation:ringspin 7s linear infinite}
+.orbit i{position:absolute;top:-5px;left:50%;width:12px;height:12px;margin-left:-6px;border-radius:50%;background:#fff6cf;box-shadow:0 0 14px 4px rgba(240,207,110,.9)}
+.disc{translate:var(--px,0px) var(--py,0px);transition:translate .35s ease-out}
+.disc.sm{translate:none}
+.disc.sm::after,.disc.sm .orbit{display:none}
+.dots{translate:calc(var(--px,0px) * -1.6) calc(var(--py,0px) * -1.6);transition:translate .5s ease-out}
+@keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+.hero-text>*,.aside-in>*:not(.disc-wrap){animation:rise .7s cubic-bezier(.2,.8,.2,1) both}
+.hero-text>*:nth-child(2),.aside-in>*:nth-child(2){animation-delay:.08s}
+.hero-text>*:nth-child(3),.aside-in>*:nth-child(3){animation-delay:.16s}
+.hero-text>*:nth-child(4),.aside-in>*:nth-child(4){animation-delay:.24s}
+.hero-text>*:nth-child(5),.aside-in>*:nth-child(5){animation-delay:.32s}
+.hero-text>*:nth-child(n+6),.aside-in>*:nth-child(n+6){animation-delay:.4s}
+.auth-card{animation:rise .7s .1s cubic-bezier(.2,.8,.2,1) both}
+@media(prefers-reduced-motion:reduce){.disc::after,.orbit,.hero-visual::before,.hero-visual::after,.disc-wrap::before,.disc-wrap::after,.hero-text>*,.aside-in>*,.auth-card{animation:none!important}.disc,.dots{translate:none!important}}
 </style>
 </head>
 <body>
@@ -507,7 +531,7 @@ function pubHeader() {
 function authShell(inner, mode) {
   const login = mode === "login";
   return `<div class="authx"><aside class="aside"><div class="aside-in">
-    <div class="disc"><img src="${PHOTO}" alt="مسيو رضا الخشن"></div>
+    <div class="disc-wrap"><div class="disc"><span class="orbit" aria-hidden="true"><i></i></span><img src="${PHOTO}" alt="مسيو رضا الخشن"></div></div>
     <h2>${login ? "أهلًا بعودتك 👋" : "ابدأ رحلتك مع الفرنسية"}</h2>
     <p>${login ? "كمّل من حيث توقفت: فيديوهاتك وملفاتك في انتظارك." : "حساب واحد يفتح لك محتوى مرحلتك ونظامك بالكامل."}</p>
     <ul class="pts"><li>🎬 فيديوهات شرح لكل مرحلة</li><li>📄 ملفات PDF وWord للتحميل</li><li>🔒 حساب شخصي مثبّت على جهازك</li></ul></div></aside>
@@ -530,7 +554,7 @@ function renderLanding() {
       <div class="cta-row"><a class="btn btn-fill" href="#/register">ابدأ التعلم الآن ${ARROW}</a><a class="btn btn-line" href="#/login">لديّ حساب</a></div>
       <p class="tag-label">المراحل المتاحة</p>
       <div class="tags"><span class="tag"><b>Primaire</b> الابتدائية</span><span class="tag"><b>Collège</b> الإعدادية</span><span class="tag"><b>Lycée</b> الثانوية</span></div></div>
-      <div class="hero-visual"><div class="dots" aria-hidden="true"></div><div class="disc"><img src="${PHOTO}" alt="مسيو رضا الخشن، معلم لغة فرنسية" width="640" height="640"></div></div></div></section>
+      <div class="hero-visual"><div class="dots" aria-hidden="true"></div><div class="disc"><span class="orbit" aria-hidden="true"><i></i></span><img src="${PHOTO}" alt="مسيو رضا الخشن، معلم لغة فرنسية" width="640" height="640"></div></div></div></section>
 
   <section id="s-about" class="band alt"><div class="wrap abt"><div class="abt-t"><span class="eyebrow">عن المنصة</span>
       <h2>كل ما يحتاجه طالب الفرنسية في مكان واحد.</h2>
@@ -947,6 +971,11 @@ function fileModal(fl) {
   });
 }
 
+
+/* حركة الصورة مع المؤشر (ديسكتوب فقط) */
+(() => { const rm = matchMedia("(prefers-reduced-motion:reduce)"); let raf = 0;
+  document.addEventListener("pointermove", e => { if (e.pointerType !== "mouse" || rm.matches || raf) return; raf = requestAnimationFrame(() => { raf = 0; const r = document.documentElement.style; r.setProperty("--px", ((e.clientX / innerWidth - .5) * -18).toFixed(1) + "px"); r.setProperty("--py", ((e.clientY / innerHeight - .5) * -14).toFixed(1) + "px"); }); });
+})();
 /* ---------- تشغيل ---------- */
 window.addEventListener("hashchange", () => {});
 document.addEventListener("click", e => { if (e.target.closest("#lo")) return; });
