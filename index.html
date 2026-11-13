@@ -329,6 +329,24 @@ section[id]{scroll-margin-top:84px}
 .ovp{width:min(100%,460px)}
 @keyframes barshine{to{background-position:-200% 0}}
 @media(prefers-reduced-motion:reduce){.vcard,.play i,.pbar-track i{animation:none!important}.thumb img.fr{transition:none}}
+
+/* ===== صورة المدرس في صفحات الطالب ===== */
+.logo-mark.live{position:relative;overflow:visible;border:0;box-shadow:none;animation:glowsm 3.6s ease-in-out infinite}
+.logo-mark.live img{border-radius:50%;border:2px solid var(--accent)}
+.logo-mark.live::before{content:"";position:absolute;inset:-5px;border-radius:50%;background:conic-gradient(from 0deg,transparent 0 30%,#f6dc8c 55%,#d4a73a 75%,transparent 100%);-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 2px),#000 calc(100% - 1px));mask:radial-gradient(farthest-side,transparent calc(100% - 2px),#000 calc(100% - 1px));animation:ringspin 3.2s linear infinite}
+.logo-mark.live::after{content:"";position:absolute;inset:0;border-radius:50%;pointer-events:none;background:linear-gradient(110deg,transparent 38%,rgba(255,244,200,.6) 50%,transparent 62%);background-size:260% 100%;background-position:160% 0;animation:shine 4.5s ease-in-out 1s infinite}
+@keyframes glowsm{0%,100%{box-shadow:0 0 0 0 rgba(212,167,58,.0)}50%{box-shadow:0 0 16px 2px rgba(212,167,58,.55)}}
+.tcard{display:flex;align-items:center;gap:18px;padding:18px 18px 18px 12px;margin-bottom:6px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(135deg,rgba(212,167,58,.16),var(--card) 70%)}
+.tcard .disc-wrap{width:84px;flex:none}
+.tcard .disc{width:100%;padding:5px;animation:glow 4s ease-in-out infinite;translate:none}
+.tcard .disc img{border-width:2px}
+.tcard .disc::before{inset:-8px}
+.tcard .disc::after{inset:5px}
+.tcard .orbit{inset:-8px;animation-duration:5s}
+.tcard .orbit i{width:9px;height:9px;margin-left:-4.5px;top:-4px}
+.tcard b{display:block;font:700 1.05rem var(--fd)}
+.tcard small{color:var(--muted)}
+@media(prefers-reduced-motion:reduce){.logo-mark.live,.logo-mark.live::before,.logo-mark.live::after{animation:none!important}}
 </style>
 </head>
 <body>
@@ -395,7 +413,7 @@ const isAdminUser = () => !!S.user && S.user.email === ADMIN_EMAIL;
 const deviceId = () => { let d = ""; try { d = localStorage.getItem("rf_device") || ""; } catch {} if (!d) { d = (crypto.randomUUID ? crypto.randomUUID() : Date.now() + "-" + Math.random().toString(36).slice(2)); try { localStorage.setItem("rf_device", d); } catch {} } return d; };
 
 /* ---------- مساعدات واجهة ---------- */
-const brand = () => `<a class="logo" href="#/"><span class="logo-mark"><img src="reda.jpg" alt="مسيو رضا الخشن"></span><span dir="ltr">M. Reda Elkhshen<small dir="rtl">منصة تعليم اللغة الفرنسية</small></span></a>`;
+const brand = (live) => `<a class="logo" href="#/"><span class="logo-mark${live ? " live" : ""}"><img src="${live ? "reda2.jpg" : "reda.jpg"}" alt="مسيو رضا الخشن"></span><span dir="ltr">M. Reda Elkhshen<small dir="rtl">منصة تعليم اللغة الفرنسية</small></span></a>`;
 const avatarHTML = (s, size = 40) => {
   const p = s?.photo || "", st = `width:${size}px;height:${size}px;font-size:${Math.round(size * .5)}px`;
   if (p.startsWith("data:image/")) return `<span class="av" style="${st}"><img src="${esc(p)}" alt=""></span>`;
@@ -702,7 +720,7 @@ function renderRegister() {
 /* ---------- هيدر الطالب ---------- */
 function studentHeader(active) {
   const s = S.student;
-  return `<header class="hdr"><div class="wrap hdr-in">${brand()}<nav class="pnav" aria-label="التنقل"><a href="#/">الرئيسية</a><a href="#/profile">بياناتي</a></nav><div class="hdr-r">
+  return `<header class="hdr"><div class="wrap hdr-in">${brand(true)}<nav class="pnav" aria-label="التنقل"><a href="#/">الرئيسية</a><a href="#/profile">بياناتي</a></nav><div class="hdr-r">
     <a class="chipuser" href="#/profile" aria-label="بياناتي">${avatarHTML(s, 34)}<span class="n">${esc(s.name)}</span></a>
     <button class="btn btn-line btn-sm" id="lo">خروج</button></div></div></header>`;
 }
@@ -821,7 +839,7 @@ function renderWatch(id) {
     <p class="sub" style="margin-top:6px">${v.description ? esc(v.description) : ""}</p>
     <p class="alt" style="text-align:start;margin-top:14px">🔒 هذا الفيديو يُعرض على حسابك فقط ويحمل بياناتك. تسجيله أو مشاركته مخالف للشروط.</p>
     <p style="margin-top:14px"><a class="btn btn-line btn-sm" href="#/">← العودة</a></p></div>
-    <aside class="side"><h3>فيديوهات أخرى</h3>${others.map(o => `<a href="#/watch/${esc(o.id)}"><img loading="lazy" src="https://i.ytimg.com/vi/${esc(o.ytId)}/mqdefault.jpg" alt=""><span>${esc(o.title)}</span></a>`).join("") || `<p class="sub">لا يوجد المزيد</p>`}</aside></div></main>`;
+    <aside class="side"><div class="tcard"><div class="disc-wrap"><div class="disc"><span class="orbit" aria-hidden="true"><i></i></span><img src="reda2.jpg" alt="مسيو رضا الخشن"></div></div><div><b>مسيو رضا الخشن</b><small>مدرّس اللغة الفرنسية</small></div></div><h3>فيديوهات أخرى</h3>${others.map(o => `<a href="#/watch/${esc(o.id)}"><img loading="lazy" src="https://i.ytimg.com/vi/${esc(o.ytId)}/mqdefault.jpg" alt=""><span>${esc(o.title)}</span></a>`).join("") || `<p class="sub">لا يوجد المزيد</p>`}</aside></div></main>`;
   $("#lo").onclick = doLogout;
   const pl = $("#pl");
   pl.addEventListener("contextmenu", e => e.preventDefault());
