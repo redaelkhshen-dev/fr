@@ -28,7 +28,7 @@ service cloud.firestore {
         request.auth != null
         && request.auth.uid == uid
         && resource.data.status == 'active'
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name','stage','system','grade','city','school','parentPhone','photo','deviceId'])
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name','stage','system','grade','city','school','parentPhone','photo','deviceId','progress'])
         && (request.resource.data.deviceId == resource.data.deviceId || resource.data.deviceId == '')
       );
 

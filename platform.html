@@ -301,6 +301,34 @@ section[id]{scroll-margin-top:84px}
 .hero-text>*:nth-child(n+6),.aside-in>*:nth-child(n+6){animation-delay:.4s}
 .auth-card{animation:rise .7s .1s cubic-bezier(.2,.8,.2,1) both}
 @media(prefers-reduced-motion:reduce){.disc::after,.orbit,.hero-visual::before,.hero-visual::after,.disc-wrap::before,.disc-wrap::after,.hero-text>*,.aside-in>*,.auth-card{animation:none!important}.disc,.dots{translate:none!important}}
+
+/* ===== تقدم الطالب + معاينة الفيديو ===== */
+.thumb{overflow:hidden}
+.thumb img.fr{position:absolute;inset:0;opacity:0;transition:opacity .5s ease,transform 5s ease-out}
+.thumb img.fr.on{opacity:1}
+.vcard.prev .thumb img.fr.on{transform:scale(1.12)}
+.play{background:linear-gradient(180deg,rgba(11,10,7,.05),rgba(11,10,7,.55))}
+.play i{font-style:normal;display:grid;place-items:center;width:54px;height:54px;border-radius:50%;background:rgba(212,167,58,.94);color:#1b1405;font-size:1.15rem;padding-inline-start:3px;animation:pulse 2.4s infinite;transition:transform .25s}
+.vcard:hover .play i{transform:scale(1.14)}
+.vcard.prev .play{background:rgba(11,10,7,.12)}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(212,167,58,.55)}70%{box-shadow:0 0 0 16px rgba(212,167,58,0)}100%{box-shadow:0 0 0 0 rgba(212,167,58,0)}}
+.thumb::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(110deg,transparent 40%,rgba(255,244,200,.25) 50%,transparent 60%);transform:translateX(-130%)}
+.vcard:hover .thumb::after{transition:transform .9s ease;transform:translateX(130%)}
+.thumb .play{z-index:1}
+.vp{position:absolute;inset-inline:0;bottom:0;z-index:2;height:4px;background:rgba(255,255,255,.18)}
+.vp i{display:block;height:100%;background:linear-gradient(90deg,#b8862b,#f0cf6e);border-radius:0 2px 2px 0}
+.done{position:absolute;top:10px;inset-inline-end:12px;z-index:2;background:rgba(61,220,132,.92);color:#06210f;font:700 .75rem var(--fd);padding:2px 10px;border-radius:6px}
+.resume{color:var(--accent-text);font-size:.8rem;margin-top:2px}
+.vcard{animation:rise .55s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0) * 60ms)}
+.pbar{margin-top:14px;padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+.pbar-top{display:flex;justify-content:space-between;gap:10px;font-size:.9rem;color:var(--muted);margin-bottom:8px}
+.pbar-top b{color:var(--accent-text);font-family:var(--fd)}
+.pbar-track{height:10px;border-radius:6px;background:rgba(255,255,255,.09);border:1px solid var(--line);overflow:hidden}
+.pbar-track i{display:block;height:100%;width:0;border-radius:6px;background:linear-gradient(90deg,#b8862b,#f6dc8c,#b8862b);background-size:200% 100%;transition:width .6s ease;animation:barshine 3s linear infinite}
+.pbar small{display:block;margin-top:6px;color:var(--muted);font-size:.82rem;min-height:1.2em}
+.ovp{width:min(100%,460px)}
+@keyframes barshine{to{background-position:-200% 0}}
+@media(prefers-reduced-motion:reduce){.vcard,.play i,.pbar-track i{animation:none!important}.thumb img.fr{transition:none}}
 </style>
 </head>
 <body>
@@ -500,6 +528,7 @@ const doLogout = async () => { try { await signOut(auth); } catch {} go("/"); };
 window.addEventListener("hashchange", () => { closeModals(); render(); window.scrollTo(0, 0); });
 function render() {
   if (!S.ready) return;
+  stopTracker(); previewStop();
   const route = location.hash.slice(1) || "/";
   S.page = ""; S.watchOk = false;
   if (isAdminUser()) { if (route.startsWith("/admin") && route !== "/admin-login") return renderAdmin(); return go("/admin"); }
@@ -678,13 +707,78 @@ function studentHeader(active) {
     <button class="btn btn-line btn-sm" id="lo">خروج</button></div></div></header>`;
 }
 
+/* ---------- تقدم الطالب ---------- */
+const lsKey = () => "rf_prog_" + (S.student?.id || "");
+const readLocal = () => { try { return JSON.parse(localStorage.getItem(lsKey()) || "{}"); } catch { return {}; } };
+const getProg = id => {
+  const a = S.student?.progress?.[id] || {}, b = readLocal()[id] || {}, best = (b.at || 0) > (a.at || 0) ? b : a, p = Math.max(a.p || 0, b.p || 0);
+  return { p, t: best.t || 0, d: best.d || 0, done: p >= 90 };
+};
+const T = { id: null, player: null, timer: 0, lastSave: 0 };
+function saveProg(id, t, d, flush) {
+  if (!S.student || !d || !isFinite(d)) return;
+  const p = Math.max(getProg(id).p, Math.min(100, Math.round(t / d * 1000) / 10));
+  const rec = { p, t: Math.floor(t), d: Math.floor(d), at: Date.now() };
+  try { const m = readLocal(); m[id] = rec; localStorage.setItem(lsKey(), JSON.stringify(m)); } catch {}
+  S.student.progress = { ...(S.student.progress || {}), [id]: rec };
+  const now = Date.now();
+  if (flush || now - T.lastSave > 15000) { T.lastSave = now; updateDoc(doc(db, "students", S.student.id), { ["progress." + id]: rec }).catch(() => {}); }
+}
+function stopTracker() {
+  if (T.timer) clearInterval(T.timer); T.timer = 0;
+  if (T.player && T.id) { try { saveProg(T.id, T.player.getCurrentTime(), T.player.getDuration(), true); } catch {} try { T.player.destroy(); } catch {} }
+  T.player = null; T.id = null;
+}
+window.addEventListener("pagehide", () => { if (T.player && T.id) { try { saveProg(T.id, T.player.getCurrentTime(), T.player.getDuration(), true); } catch {} } });
+let ytLoad;
+const loadYT = () => ytLoad || (ytLoad = new Promise(res => {
+  if (window.YT?.Player) return res(window.YT);
+  const prev = window.onYouTubeIframeAPIReady, tag = document.createElement("script");
+  window.onYouTubeIframeAPIReady = () => { try { prev?.(); } catch {} res(window.YT); };
+  tag.src = "https://www.youtube.com/iframe_api"; tag.onerror = () => res(null); document.head.append(tag);
+  setTimeout(() => res(null), 12000);
+}));
+async function startTracker(v) {
+  const YT = await loadYT(), ifr = $("#ytp");
+  if (!YT || !ifr || S.page !== "watch") return;
+  const my = v.id; T.id = my;
+  const paint = (t, d) => {
+    const pr = getProg(my), p = Math.round(Math.max(pr.p, d ? Math.min(100, t / d * 100) : 0));
+    const f = $("#pf"); if (!f) return;
+    f.style.width = p + "%"; $("#pp").textContent = p + "%";
+    $("#pt").textContent = p >= 90 ? "✅ أتممت مشاهدة هذا الفيديو" : d ? `شاهدت ${fmtTime(t)} من ${fmtTime(d)}` : "";
+  };
+  const tick = force => { try { const t = T.player.getCurrentTime(), d = T.player.getDuration(); if (!d) return; if (force || T.player.getPlayerState() === 1) saveProg(my, t, d, force); paint(t, d); } catch {} };
+  T.player = new YT.Player(ifr, { events: {
+    onReady: () => { tick(); T.timer = setInterval(tick, 1000); },
+    onStateChange: e => { if (e.data === 2 || e.data === 0) tick(true); }
+  } });
+}
+const fmtTime = n => { n = Math.max(0, Math.floor(n)); const h = Math.floor(n / 3600), m = Math.floor(n % 3600 / 60), s2 = n % 60; return (h ? h + ":" + String(m).padStart(2, "0") : m) + ":" + String(s2).padStart(2, "0"); };
+
+/* ---------- معاينة الفيديو قبل الفتح ---------- */
+const PV = { el: null, timer: 0 };
+function previewStop() {
+  clearInterval(PV.timer); PV.timer = 0;
+  if (PV.el) { $$("img.fr", PV.el).forEach((im, k) => im.classList.toggle("on", k === 0)); PV.el.classList.remove("prev"); }
+  PV.el = null;
+}
+function previewStart(card) {
+  if (PV.el === card) return; previewStop();
+  const th = $(".thumb", card), y = card.dataset.y; if (!th || !y) return;
+  PV.el = card; card.classList.add("prev");
+  if ($$("img.fr", th).length === 1) [1, 2, 3].forEach(n => { const im = new Image(); im.className = "fr"; im.alt = ""; im.src = `https://i.ytimg.com/vi/${y}/mq${n}.jpg`; th.insertBefore(im, $(".play", th)); });
+  let k = 0; PV.timer = setInterval(() => { const ims = $$("img.fr", th); k = (k + 1) % ims.length; ims.forEach((im, j) => im.classList.toggle("on", j === k)); }, 900);
+}
+document.addEventListener("mouseover", e => { const c = e.target.closest?.(".vcard"); if (c) previewStart(c); else if (PV.el) previewStop(); });
+
 /* ---------- الصفحة الرئيسية للطالب ---------- */
 const visible = list => { const s = S.student; return list.filter(x => (x.stage === "all" || x.stage === s.stage) && (x.system === "all" || x.system === s.system)); };
 function renderHome() {
   S.page = "home"; const s = S.student;
   app.innerHTML = `${studentHeader()}<section class="shero"><div class="wrap shero-in"><div class="st"><span class="eyebrow">${STAGES[s.stage]} · ${SYSTEMS[s.system]}</span>
       <h1>أهلًا يا <span class="hl">${esc(s.name.split(" ")[0])}</span> 👋</h1><p class="lead">${esc(s.grade)} — جاهز تكمل رحلتك مع الفرنسية؟</p>
-      <div class="mini"><div><b id="cv">0</b><span>فيديو متاح</span></div><div><b id="cf">0</b><span>ملف متاح</span></div><div><b>${SYSTEMS[s.system]}</b><span>${STAGES[s.stage]}</span></div></div></div>
+      <div class="mini"><div><b id="cv">0</b><span>فيديو متاح</span></div><div><b id="cf">0</b><span>ملف متاح</span></div><div><b>${SYSTEMS[s.system]}</b><span>${STAGES[s.stage]}</span></div></div><div class="ovp"><div class="pbar-top"><span id="ovt">تقدمك العام</span><b id="ovn">0%</b></div><div class="pbar-track"><i id="ovf"></i></div></div></div>
       <div class="sv"><div class="disc sm">${avatarHTML(s, 200)}</div></div></div></section><main class="wrap">
     <div class="tabs"><button class="tab" data-t="videos">🎬 الفيديوهات</button><button class="tab" data-t="files">📄 الملفات</button><input class="srch" id="q" placeholder="ابحث..." value="${esc(H.q)}"></div>
     <div class="grid" id="list"></div></main><footer class="foot">© منصة مسيو رضا الخشن — المحتوى للاستخدام الشخصي فقط</footer>`;
@@ -696,12 +790,13 @@ function renderHome() {
 function fillHome() {
   const list = $("#list"); if (!list) return;
   const cv = $("#cv"), cf = $("#cf"); if (cv) cv.textContent = visible(S.videos).length; if (cf) cf.textContent = visible(S.files).length;
+  if ($("#ovn")) { const vis = visible(S.videos), ps = vis.map(x => getProg(x.id)), dn = ps.filter(p => p.done).length, avg = vis.length ? Math.round(ps.reduce((a, p) => a + Math.min(100, p.p), 0) / vis.length) : 0; $("#ovn").textContent = avg + "%"; $("#ovf").style.width = avg + "%"; $("#ovt").textContent = `تقدمك العام · أكملت ${dn} من ${vis.length} فيديو`; }
   $$(".tab").forEach(b => b.classList.toggle("on", b.dataset.t === H.tab));
   const q = H.q.trim().toLowerCase();
   const m = x => !q || (x.title || "").toLowerCase().includes(q) || (x.description || "").toLowerCase().includes(q);
   if (H.tab === "videos") {
     const v = visible(S.videos).filter(m);
-    list.innerHTML = v.length ? v.map((x, i) => `<a class="vcard" href="#/watch/${esc(x.id)}"><div class="thumb"><span class="num">${String(i + 1).padStart(2, "0")}</span><img loading="lazy" src="https://i.ytimg.com/vi/${esc(x.ytId)}/mqdefault.jpg" alt=""><span class="play">▶</span></div><div class="vb"><h3>${esc(x.title)}</h3>${x.description ? `<p>${esc(x.description)}</p>` : ""}</div></a>`).join("") : `<div class="empty">لا توجد فيديوهات لمرحلتك حاليًا</div>`;
+    list.innerHTML = v.length ? v.map((x, i) => { const pr = getProg(x.id); return `<a class="vcard" style="--i:${i}" href="#/watch/${esc(x.id)}" data-y="${esc(x.ytId)}"><div class="thumb"><span class="num">${String(i + 1).padStart(2, "0")}</span><img class="fr on" loading="lazy" src="https://i.ytimg.com/vi/${esc(x.ytId)}/mqdefault.jpg" alt=""><span class="play"><i>▶</i></span>${pr.done ? `<span class="done">✓ تمت المشاهدة</span>` : ""}<span class="vp"><i style="width:${pr.p}%"></i></span></div><div class="vb"><h3>${esc(x.title)}</h3>${x.description ? `<p>${esc(x.description)}</p>` : ""}${pr.p > 0 && !pr.done ? `<small class="resume">أكملت ${Math.round(pr.p)}% · تابع من حيث توقفت</small>` : ""}</div></a>`; }).join("") : `<div class="empty">لا توجد فيديوهات لمرحلتك حاليًا</div>`;
   } else {
     const f = visible(S.files).filter(m);
     list.innerHTML = f.length ? f.map(x => `<div class="fcard"><div class="ficon">${esc((x.ext || "FILE").toUpperCase().slice(0, 4))}</div><div class="t"><h3>${esc(x.title)}</h3><small>${esc(fmtSize(x.size))}</small></div><a class="btn btn-fill btn-sm" href="${esc(x.url)}" target="_blank" rel="noopener" download>تحميل</a></div>`).join("") : `<div class="empty">لا توجد ملفات لمرحلتك حاليًا</div>`;
@@ -717,9 +812,11 @@ function renderWatch(id) {
   S.watchOk = true;
   const others = visible(S.videos).filter(x => x.id !== id).slice(0, 12);
   const wm = `${esc(s.name)} · ${esc(s.phone)}`;
+  const pr = getProg(id), st0 = pr.t > 5 && (!pr.d || pr.t < pr.d - 10) ? Math.floor(pr.t) : 0;
   app.innerHTML = `${studentHeader()}<main class="wrap sec"><div class="watch"><div>
-    <div class="player" id="pl"><iframe src="https://www.youtube-nocookie.com/embed/${esc(v.ytId)}?rel=0&modestbranding=1&fs=0&disablekb=1&iv_load_policy=3&playsinline=1&cc_load_policy=0" title="${esc(v.title)}" allow="autoplay; encrypted-media" referrerpolicy="strict-origin-when-cross-origin" sandbox="allow-scripts allow-same-origin allow-presentation"></iframe>
+    <div class="player" id="pl"><iframe id="ytp" src="https://www.youtube-nocookie.com/embed/${esc(v.ytId)}?rel=0&modestbranding=1&fs=0&disablekb=1&iv_load_policy=3&playsinline=1&cc_load_policy=0&enablejsapi=1&origin=${encodeURIComponent(location.origin)}${st0 ? "&start=" + st0 : ""}" title="${esc(v.title)}" allow="autoplay; encrypted-media" referrerpolicy="strict-origin-when-cross-origin" sandbox="allow-scripts allow-same-origin allow-presentation"></iframe>
       <div class="shield"></div><button class="fsbtn" id="fs" type="button">ملء الشاشة ⛶</button><div class="wm">${wm}</div><div class="wm b">${wm}</div></div>
+    <div class="pbar"><div class="pbar-top"><span>تقدمك في هذا الفيديو</span><b id="pp">${Math.round(pr.p)}%</b></div><div class="pbar-track"><i id="pf" style="width:${pr.p}%"></i></div><small id="pt">${pr.done ? "✅ أتممت مشاهدة هذا الفيديو" : st0 ? "سيبدأ الفيديو من حيث توقفت" : ""}</small></div>
     <h1 style="font-size:1.4rem;margin-top:16px">${esc(v.title)}</h1>
     <p class="sub" style="margin-top:6px">${v.description ? esc(v.description) : ""}</p>
     <p class="alt" style="text-align:start;margin-top:14px">🔒 هذا الفيديو يُعرض على حسابك فقط ويحمل بياناتك. تسجيله أو مشاركته مخالف للشروط.</p>
@@ -728,6 +825,7 @@ function renderWatch(id) {
   $("#lo").onclick = doLogout;
   const pl = $("#pl");
   pl.addEventListener("contextmenu", e => e.preventDefault());
+  startTracker(v);
   $("#fs").onclick = () => { const f = pl.requestFullscreen || pl.webkitRequestFullscreen; if (f) f.call(pl); else toast("المتصفح لا يدعم ملء الشاشة هنا", "err"); };
 }
 
@@ -833,16 +931,16 @@ const TABS = {
     fill: b => {
       const q = A.q.trim().toLowerCase();
       const l = S.students.filter(x => (!A.fstage || x.stage === A.fstage) && (!A.fstatus || (x.status || "active") === A.fstatus) && (!q || [x.name, x.phone, x.city].some(t => (t || "").toLowerCase().includes(q))));
-      $("#sl", b).innerHTML = `<table><thead><tr><th>الطالب</th><th>الواتس</th><th>المرحلة</th><th>المدينة</th><th>الحالة</th><th>الجهاز</th><th>التسجيل</th><th>إجراءات</th></tr></thead><tbody>${l.map(x => `<tr>
+      $("#sl", b).innerHTML = `<table><thead><tr><th>الطالب</th><th>الواتس</th><th>المرحلة</th><th>المدينة</th><th>الحالة</th><th>المشاهدة</th><th>الجهاز</th><th>التسجيل</th><th>إجراءات</th></tr></thead><tbody>${l.map(x => `<tr>
         <td><div class="who">${avatarHTML(x, 36)}<div><b>${esc(x.name)}</b><br><small style="color:var(--muted)">${esc(x.grade || "")}</small></div></div></td>
         <td class="ph">${esc(x.phone)}</td><td>${stageLabel(x.stage)}<br><small style="color:var(--muted)">${sysLabel(x.system)}</small></td><td>${esc(x.city || "—")}</td>
         <td>${x.status === "banned" ? `<span class="badge bad">محظور</span>` : `<span class="badge good">نشط</span>`}</td>
-        <td>${x.deviceId ? `<span class="badge">مثبّت</span>` : `<span class="badge warn">غير مثبّت</span>`}</td><td>${fmtDate(x.createdAt)}</td>
+        <td>${vidsDone(x)}</td><td>${x.deviceId ? `<span class="badge">مثبّت</span>` : `<span class="badge warn">غير مثبّت</span>`}</td><td>${fmtDate(x.createdAt)}</td>
         <td><div class="acts"><button class="btn btn-line btn-sm" data-a="edit" data-id="${esc(x.id)}">تعديل</button>
         <button class="btn btn-sm ${x.status === "banned" ? "btn-good" : "btn-bad"}" data-a="ban" data-id="${esc(x.id)}">${x.status === "banned" ? "فك الحظر" : "حظر"}</button>
         <button class="btn btn-line btn-sm" data-a="dev" data-id="${esc(x.id)}">فك الجهاز</button>
         <a class="btn btn-line btn-sm" target="_blank" rel="noopener" href="https://wa.me/2${esc(x.phone)}">واتس</a>
-        <button class="btn btn-bad btn-sm" data-a="del" data-id="${esc(x.id)}">حذف</button></div></td></tr>`).join("") || `<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:32px">لا يوجد طلاب</td></tr>`}</tbody></table>`;
+        <button class="btn btn-bad btn-sm" data-a="del" data-id="${esc(x.id)}">حذف</button></div></td></tr>`).join("") || `<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:32px">لا يوجد طلاب</td></tr>`}</tbody></table>`;
     }
   },
   videos: {
@@ -865,6 +963,7 @@ const TABS = {
   }
 };
 
+const vidsDone = x => { const vs = S.videos.filter(v => (v.stage === "all" || v.stage === x.stage) && (v.system === "all" || v.system === x.system)); const dn = vs.filter(v => (x.progress?.[v.id]?.p || 0) >= 90).length; return vs.length ? `<span class="badge ${dn === vs.length ? "good" : ""}">${dn} / ${vs.length}</span>` : "—"; };
 /* ---- إجراءات الطلاب ---- */
 async function studentAction(e) {
   const btn = e.target.closest("[data-a]"); if (!btn || btn.tagName === "A") return;
