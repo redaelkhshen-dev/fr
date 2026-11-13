@@ -21,15 +21,16 @@ service cloud.firestore {
         && request.auth.uid == uid
         && request.resource.data.status == 'pending'
         && request.auth.token.email == request.resource.data.phone + '@students.reda-fr.app'
-        && request.resource.data.keys().hasOnly(['name','phone','stage','system','grade','city','school','parentPhone','photo','status','deviceId','createdAt','termsAcceptedAt']);
+        && request.resource.data.keys().hasOnly(['name','phone','stage','system','grade','city','school','parentPhone','photo','status','devM','devD','createdAt','termsAcceptedAt']);
 
-      // الطالب يعدّل بياناته فقط (لا يغيّر الحالة ولا الرقم، والجهاز يُثبَّت مرة واحدة)
+      // الطالب يعدّل بياناته فقط (لا يغيّر الحالة ولا الرقم). يُثبَّت له جهاز واحد هاتف (devM) وجهاز واحد كمبيوتر (devD)
       allow update: if isAdmin() || (
         request.auth != null
         && request.auth.uid == uid
         && resource.data.status == 'active'
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name','stage','system','grade','city','school','parentPhone','photo','deviceId','progress'])
-        && (request.resource.data.deviceId == resource.data.deviceId || resource.data.deviceId == '')
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name','stage','system','grade','city','school','parentPhone','photo','devM','devD','progress'])
+        && (request.resource.data.get('devM','') == resource.data.get('devM','') || resource.data.get('devM','') == '')
+        && (request.resource.data.get('devD','') == resource.data.get('devD','') || resource.data.get('devD','') == '')
       );
 
       allow delete: if isAdmin();

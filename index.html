@@ -439,6 +439,9 @@ const H = { tab: "videos", q: "" };
 const A = { cstage: "", cgrade: "", tab: "overview", q: "", fstage: "", fstatus: "" };
 
 const isAdminUser = () => !!S.user && S.user.email === ADMIN_EMAIL;
+// نوع الجهاز: هاتف/تابلت (devM) أو كمبيوتر (devD) — لكل حساب جهاز واحد من كل نوع
+const deviceType = () => (/Android|iPhone|iPad|iPod|Mobile|Windows Phone/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && /Macintosh/.test(navigator.userAgent)) || (matchMedia("(pointer:coarse)").matches && navigator.maxTouchPoints > 0)) ? "devM" : "devD";
+const devName = t => t === "devM" ? "هاتف" : "كمبيوتر";
 const deviceId = () => {
   let d = ""; try { d = localStorage.getItem("rf_device") || ""; } catch {}
   if (!d) { const m = document.cookie.match(/(?:^|; )rf_device=([\w-]+)/); d = m ? m[1] : ""; }
@@ -580,8 +583,9 @@ async function attachStudent(u) {
   const d = snap.data();
   if (d.status === "banned") return kick("تم حظر هذا الحساب. تواصل مع المدرس.");
   if (d.status === "rejected") return kick("تم رفض طلب تسجيلك. تواصل مع المدرس.");
-  if (!d.deviceId) { try { await updateDoc(dref, { deviceId: dev }); d.deviceId = dev; } catch (er) { return er.code === "permission-denied" ? kick("تعذر تثبيت الحساب على هذا الجهاز") : netRetry(u); } }
-  else if (d.deviceId !== dev) return kick("هذا الحساب مسجّل على جهاز آخر. تواصل مع المدرس لفك ارتباطه.");
+  const typ = deviceType();
+  if (!d[typ]) { if (d.status === "active") { try { await updateDoc(dref, { [typ]: dev }); d[typ] = dev; } catch (er) { return er.code === "permission-denied" ? kick("تعذر تثبيت الحساب على هذا الجهاز") : netRetry(u); } } }
+  else if (d[typ] !== dev) return kick(`هذا الحساب مسجّل على ${devName(typ)} آخر. تواصل مع المدرس لفك ارتباطه.`);
   S.student = { id: u.uid, ...d };
   clearSubs();
   S.unsubSelf = onSnapshot(dref, s => {
@@ -589,10 +593,11 @@ async function attachStudent(u) {
     const x = s.data();
     if (x.status === "banned") return kick("تم حظر هذا الحساب. تواصل مع المدرس.");
     if (x.status === "rejected") return kick("تم رفض طلب تسجيلك. تواصل مع المدرس.");
-    if (x.deviceId && x.deviceId !== dev) return kick("تم تسجيل الدخول لهذا الحساب من جهاز آخر.");
+    if (x[typ] && x[typ] !== dev) return kick(`تم تسجيل الدخول لهذا الحساب من ${devName(typ)} آخر.`);
+    if (S.student?.[typ] && !x[typ]) return kick("تم فك ارتباط جهازك. سجّل الدخول مرة أخرى.");
     const prev = S.student?.status;
     S.student = { id: u.uid, ...x };
-    if (prev !== x.status) { if (x.status === "active") { startContent(); toast("🎉 تم قبول حسابك، أهلًا بك في المنصة", "ok"); } render(); }
+    if (prev !== x.status) { if (x.status === "active") { if (!x[typ]) updateDoc(dref, { [typ]: dev }).catch(() => {}); startContent(); toast("🎉 تم قبول حسابك، أهلًا بك في المنصة", "ok"); } render(); }
   }, () => {});
   if (S.student.status === "active") startContent();
   S.ready = true; render();
@@ -781,7 +786,7 @@ function renderRegister() {
         if (ex.exists()) { await signOut(auth); throw new Error("هذا الرقم مسجّل بالفعل. سجّل الدخول من الصفحة الرئيسية"); }
         cred = c2;
       }
-      await setDoc(doc(db, "students", cred.user.uid), { ...p, phone, photo: getPhoto(), status: "pending", deviceId: deviceId(), createdAt: serverTimestamp(), termsAcceptedAt: serverTimestamp() });
+      await setDoc(doc(db, "students", cred.user.uid), { ...p, phone, photo: getPhoto(), status: "pending", [deviceType()]: deviceId(), createdAt: serverTimestamp(), termsAcceptedAt: serverTimestamp() });
       S.busy = false;
       await attachStudent(cred.user);
       go("/");
@@ -1031,7 +1036,7 @@ const TABS = {
         <td><div class="who">${avatarHTML(x, 36)}<div><b>${esc(x.name)}</b><br><small style="color:var(--muted)">${esc(x.grade || "")}</small></div></div></td>
         <td class="ph">${esc(x.phone)}</td><td>${stageLabel(x.stage)}<br><small style="color:var(--muted)">${sysLabel(x.system)}</small></td><td>${esc(x.city || "—")}</td>
         <td>${statusBadge(x)}</td>
-        <td>${vidsDone(x)}</td><td>${x.deviceId ? `<span class="badge">مثبّت</span>` : `<span class="badge warn">غير مثبّت</span>`}</td><td>${fmtDate(x.createdAt)}</td>
+        <td>${vidsDone(x)}</td><td>${devBadges(x)}</td><td>${fmtDate(x.createdAt)}</td>
         <td><div class="acts"><button class="btn btn-line btn-sm" data-a="edit" data-id="${esc(x.id)}">تعديل</button>
         ${modBtns(x)}
         <button class="btn btn-line btn-sm" data-a="dev" data-id="${esc(x.id)}">فك الجهاز</button>
@@ -1066,6 +1071,7 @@ function bindFilter(b) {
   $("#cfs", b).onchange = e => { A.cstage = e.target.value; A.cgrade = ""; setTab(A.tab); };
   $("#cfg", b).onchange = e => { A.cgrade = e.target.value; fillTab(); };
 }
+const devBadges = x => `<span class="badge ${x.devM ? "" : "warn"}" title="الهاتف">📱 ${x.devM ? "مثبّت" : "—"}</span> <span class="badge ${x.devD ? "" : "warn"}" title="الكمبيوتر">💻 ${x.devD ? "مثبّت" : "—"}</span>`;
 const vidsDone = x => { const vs = S.videos.filter(v => fits(v, x)); const dn = vs.filter(v => (x.progress?.[v.id]?.p || 0) >= 90).length; return vs.length ? `<span class="badge ${dn === vs.length ? "good" : ""}">${dn} / ${vs.length}</span>` : "—"; };
 const statusBadge = x => x.status === "pending" ? `<span class="badge warn">قيد المراجعة</span>` : x.status === "rejected" ? `<span class="badge bad">مرفوض</span>` : x.status === "banned" ? `<span class="badge bad">محظور</span>` : `<span class="badge good">نشط</span>`;
 const modBtns = x => x.status === "pending" ? `<button class="btn btn-good btn-sm" data-a="accept" data-id="${esc(x.id)}">قبول</button><button class="btn btn-bad btn-sm" data-a="reject" data-id="${esc(x.id)}">رفض</button>`
@@ -1088,8 +1094,8 @@ async function studentAction(e) {
       if (!confirm(ban ? `حظر الطالب ${x.name}؟` : `فك الحظر عن ${x.name}؟`)) return;
       await updateDoc(dref, { status: ban ? "banned" : "active" }); toast(ban ? "تم الحظر" : "تم فك الحظر", "ok");
     } else if (btn.dataset.a === "dev") {
-      if (!confirm(`فك ارتباط جهاز ${x.name}؟ سيستطيع تسجيل الدخول من جهاز جديد.`)) return;
-      await updateDoc(dref, { deviceId: "" }); toast("تم فك ارتباط الجهاز", "ok");
+      if (!confirm(`فك ارتباط كل أجهزة ${x.name}؟ سيستطيع التسجيل من هاتف وكمبيوتر جديدين.`)) return;
+      await updateDoc(dref, { devM: "", devD: "", deviceId: "" }); toast("تم فك ارتباط الأجهزة", "ok");
     } else if (btn.dataset.a === "del") {
       if (!confirm(`حذف الطالب ${x.name} نهائيًا؟ لا يمكن التراجع.`)) return;
       await deleteDoc(dref); toast("تم حذف الطالب", "ok");
