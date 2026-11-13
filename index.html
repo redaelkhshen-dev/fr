@@ -359,6 +359,9 @@ section[id]{scroll-margin-top:84px}
 .reqs h3{margin-bottom:12px}
 .req{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 0;border-top:1px solid var(--line)}
 .req .who{min-width:0}
+.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.cf select{max-width:200px}
+@media(max-width:600px){.row3{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -390,10 +393,15 @@ const EMAIL_DOMAIN = "students.reda-fr.app";
 const STAGES = { primary: "الابتدائية", prep: "الإعدادية", secondary: "الثانوية" };
 const SYSTEMS = { lang: "لغات", gov: "حكومي" };
 const GRADES = {
-  primary: ["الصف الأول", "الصف الثاني", "الصف الثالث", "الصف الرابع", "الصف الخامس", "الصف السادس"],
-  prep: ["الأول الإعدادي", "الثاني الإعدادي", "الثالث الإعدادي"],
-  secondary: ["الأول الثانوي", "الثاني الثانوي", "الثالث الثانوي"]
+  primary: ["الصف الرابع الابتدائي", "الصف الخامس الابتدائي", "الصف السادس الابتدائي"],
+  prep: ["الصف الأول الإعدادي", "الصف الثاني الإعدادي", "الصف الثالث الإعدادي"],
+  secondary: ["الصف الأول الثانوي", "الصف الثاني الثانوي", "الصف الثالث الثانوي"]
 };
+// الأنظمة المتاحة لكل مرحلة (عدّلها هنا لو أردت إضافة نظام لمرحلة)
+const SYS_BY_STAGE = { secondary: ["gov", "lang"], prep: ["lang"], primary: ["lang"] };
+const gnum = g => { g = g || ""; const m = [["الأول", 1], ["الاول", 1], ["الثاني", 2], ["الثالث", 3], ["الرابع", 4], ["الخامس", 5], ["السادس", 6]].find(([k]) => g.includes(k)); return m ? m[1] : 0; };
+// هل المحتوى x مخصص للطالب st؟ (المرحلة + النظام + الصف)
+const fits = (x, st) => (x.stage === "all" || x.stage === st.stage) && (x.system === "all" || x.system === st.system) && (!x.grade || x.grade === "all" || gnum(x.grade) === gnum(st.grade));
 const CITIES = ["القاهرة","الجيزة","الإسكندرية","الدقهلية","البحيرة","الشرقية","الغربية","المنوفية","القليوبية","كفر الشيخ","دمياط","بورسعيد","الإسماعيلية","السويس","الفيوم","بني سويف","المنيا","أسيوط","سوهاج","قنا","الأقصر","أسوان","البحر الأحمر","الوادي الجديد","مطروح","شمال سيناء","جنوب سيناء","أخرى"];
 const AVATARS = ["🦁","🐯","🦊","🐼","🐨","🦄","🐬","🦉","🚀","⭐","🎨","⚽","🎮","📚","🌸","🐱"];
 const PHONE_RE = /^01[0125]\d{8}$/;
@@ -419,7 +427,7 @@ const storage = getStorage(fbApp);
 /* ---------- الحالة ---------- */
 const S = { ready: false, user: null, student: null, busy: false, flash: "", videos: [], files: [], students: [], unsubs: [], unsubSelf: null, page: "" };
 const H = { tab: "videos", q: "" };
-const A = { tab: "overview", q: "", fstage: "", fstatus: "" };
+const A = { cstage: "", cgrade: "", tab: "overview", q: "", fstage: "", fstatus: "" };
 
 const isAdminUser = () => !!S.user && S.user.email === ADMIN_EMAIL;
 const deviceId = () => { let d = ""; try { d = localStorage.getItem("rf_device") || ""; } catch {} if (!d) { d = (crypto.randomUUID ? crypto.randomUUID() : Date.now() + "-" + Math.random().toString(36).slice(2)); try { localStorage.setItem("rf_device", d); } catch {} } return d; };
@@ -467,11 +475,15 @@ function bindPicker(root, initial, name) {
   return () => val;
 }
 const gradeOpts = (stage, cur) => `<option value="">اختر الصف</option>` + (GRADES[stage] || []).map(g => `<option ${g === cur ? "selected" : ""}>${g}</option>`).join("");
+function sysChips(stage, cur) {
+  const allowed = SYS_BY_STAGE[stage] || Object.keys(SYSTEMS), pick = allowed.includes(cur) ? cur : allowed.length === 1 && stage ? allowed[0] : "";
+  return allowed.map(k => `<label class="chip"><input type="radio" name="system" value="${k}" ${pick === k ? "checked" : ""}><span>${SYSTEMS[k]}</span></label>`).join("");
+}
 function profileFields(s = {}) {
   return `
   <label class="fl">الاسم الكامل<input name="name" maxlength="60" autocomplete="name" value="${esc(s.name)}"></label>
   <div class="grp">المرحلة الدراسية<div class="chips">${Object.entries(STAGES).map(([k, v]) => `<label class="chip"><input type="radio" name="stage" value="${k}" ${s.stage === k ? "checked" : ""}><span>${v}</span></label>`).join("")}</div></div>
-  <div class="grp">نوع التعليم<div class="chips">${Object.entries(SYSTEMS).map(([k, v]) => `<label class="chip"><input type="radio" name="system" value="${k}" ${s.system === k ? "checked" : ""}><span>${v}</span></label>`).join("")}</div></div>
+  <div class="grp">نوع التعليم<div class="chips" id="sysbox">${sysChips(s.stage, s.system)}</div></div>
   <div class="row2">
     <label class="fl">الصف الدراسي<select name="grade">${gradeOpts(s.stage, s.grade)}</select></label>
     <label class="fl">المدينة / المحافظة<select name="city"><option value="">اختر</option>${CITIES.map(c => `<option ${c === s.city ? "selected" : ""}>${c}</option>`).join("")}</select></label>
@@ -482,7 +494,11 @@ function profileFields(s = {}) {
   </div>`;
 }
 function bindStageGrade(form) {
-  $$('input[name="stage"]', form).forEach(r => r.addEventListener("change", () => { $('select[name="grade"]', form).innerHTML = gradeOpts(r.value, ""); }));
+  $$('input[name="stage"]', form).forEach(r => r.addEventListener("change", () => {
+    $('select[name="grade"]', form).innerHTML = gradeOpts(r.value, "");
+    const cur = $('input[name="system"]:checked', form)?.value || "";
+    $("#sysbox", form).innerHTML = sysChips(r.value, cur);
+  }));
 }
 function readProfile(form) {
   const f = new FormData(form);
@@ -826,7 +842,7 @@ function previewStart(card) {
 document.addEventListener("mouseover", e => { const c = e.target.closest?.(".vcard"); if (c) previewStart(c); else if (PV.el) previewStop(); });
 
 /* ---------- الصفحة الرئيسية للطالب ---------- */
-const visible = list => { const s = S.student; return list.filter(x => (x.stage === "all" || x.stage === s.stage) && (x.system === "all" || x.system === s.system)); };
+const visible = list => list.filter(x => fits(x, S.student));
 function renderHome() {
   S.page = "home"; const s = S.student;
   app.innerHTML = `${studentHeader()}<section class="shero"><div class="wrap shero-in"><div class="st"><span class="eyebrow">${STAGES[s.stage]} · ${SYSTEMS[s.system]}</span>
@@ -998,26 +1014,33 @@ const TABS = {
     }
   },
   videos: {
-    skel: () => `<div class="toolbar"><h2 style="flex:1">إدارة الفيديوهات</h2><button class="btn btn-fill" data-a="vadd">+ إضافة فيديو</button></div><div class="agrid" id="vl"></div>`,
-    init: b => { b.onclick = contentAction; },
+    skel: () => `<div class="toolbar"><h2 style="flex:1">إدارة الفيديوهات</h2><button class="btn btn-fill" data-a="vadd">+ إضافة فيديو</button></div>${filterBar()}<div class="agrid" id="vl"></div>`,
+    init: b => { b.onclick = contentAction; bindFilter(b); },
     fill: b => {
-      $("#vl", b).innerHTML = S.videos.map(v => `<div class="acard"><div class="thumb" style="border-radius:8px;overflow:hidden"><img loading="lazy" src="https://i.ytimg.com/vi/${esc(v.ytId)}/mqdefault.jpg" alt=""></div><h3>${esc(v.title)}</h3>
-        <div class="m"><span class="badge">${stageLabel(v.stage)}</span><span class="badge">${sysLabel(v.system)}</span></div>
+      $("#vl", b).innerHTML = S.videos.filter(passFilter).map(v => `<div class="acard"><div class="thumb" style="border-radius:8px;overflow:hidden"><img loading="lazy" src="https://i.ytimg.com/vi/${esc(v.ytId)}/mqdefault.jpg" alt=""></div><h3>${esc(v.title)}</h3>
+        <div class="m"><span class="badge">${stageLabel(v.stage)}</span><span class="badge">${sysLabel(v.system)}</span><span class="badge good">${gradeLabel(v)}</span></div>
         <div class="acts"><button class="btn btn-line btn-sm" data-a="vedit" data-id="${esc(v.id)}">تعديل</button><button class="btn btn-bad btn-sm" data-a="vdel" data-id="${esc(v.id)}">حذف</button></div></div>`).join("") || `<div class="empty">لم تُضف فيديوهات بعد</div>`;
     }
   },
   files: {
-    skel: () => `<div class="toolbar"><h2 style="flex:1">إدارة الملفات</h2><button class="btn btn-fill" data-a="fadd">+ إضافة ملف</button></div><div class="agrid" id="fl"></div>`,
-    init: b => { b.onclick = contentAction; },
+    skel: () => `<div class="toolbar"><h2 style="flex:1">إدارة الملفات</h2><button class="btn btn-fill" data-a="fadd">+ إضافة ملف</button></div>${filterBar()}<div class="agrid" id="fl"></div>`,
+    init: b => { b.onclick = contentAction; bindFilter(b); },
     fill: b => {
-      $("#fl", b).innerHTML = S.files.map(f => `<div class="acard"><div class="fcard" style="border:0;padding:0"><div class="ficon">${esc((f.ext || "FILE").toUpperCase().slice(0, 4))}</div><div class="t"><h3>${esc(f.title)}</h3><small>${esc(fmtSize(f.size))}</small></div></div>
-        <div class="m"><span class="badge">${stageLabel(f.stage)}</span><span class="badge">${sysLabel(f.system)}</span></div>
+      $("#fl", b).innerHTML = S.files.filter(passFilter).map(f => `<div class="acard"><div class="fcard" style="border:0;padding:0"><div class="ficon">${esc((f.ext || "FILE").toUpperCase().slice(0, 4))}</div><div class="t"><h3>${esc(f.title)}</h3><small>${esc(fmtSize(f.size))}</small></div></div>
+        <div class="m"><span class="badge">${stageLabel(f.stage)}</span><span class="badge">${sysLabel(f.system)}</span><span class="badge good">${gradeLabel(f)}</span></div>
         <div class="acts"><a class="btn btn-line btn-sm" href="${esc(f.url)}" target="_blank" rel="noopener">فتح</a><button class="btn btn-line btn-sm" data-a="fedit" data-id="${esc(f.id)}">تعديل</button><button class="btn btn-bad btn-sm" data-a="fdel" data-id="${esc(f.id)}">حذف</button></div></div>`).join("") || `<div class="empty">لم تُضف ملفات بعد</div>`;
     }
   }
 };
 
-const vidsDone = x => { const vs = S.videos.filter(v => (v.stage === "all" || v.stage === x.stage) && (v.system === "all" || v.system === x.system)); const dn = vs.filter(v => (x.progress?.[v.id]?.p || 0) >= 90).length; return vs.length ? `<span class="badge ${dn === vs.length ? "good" : ""}">${dn} / ${vs.length}</span>` : "—"; };
+const gradeLabel = x => x.grade && x.grade !== "all" ? x.grade : "كل الصفوف";
+const passFilter = x => (!A.cstage || x.stage === A.cstage || x.stage === "all") && (!A.cgrade || (x.grade || "all") === A.cgrade || (x.grade || "all") === "all");
+const filterBar = () => `<div class="toolbar cf"><select id="cfs"><option value="">كل المراحل</option>${Object.entries(STAGES).map(([k, v]) => `<option value="${k}" ${A.cstage === k ? "selected" : ""}>${v}</option>`).join("")}</select><select id="cfg"><option value="">كل الصفوف</option>${(GRADES[A.cstage] || []).map(g => `<option ${A.cgrade === g ? "selected" : ""}>${g}</option>`).join("")}</select></div>`;
+function bindFilter(b) {
+  $("#cfs", b).onchange = e => { A.cstage = e.target.value; A.cgrade = ""; setTab(A.tab); };
+  $("#cfg", b).onchange = e => { A.cgrade = e.target.value; fillTab(); };
+}
+const vidsDone = x => { const vs = S.videos.filter(v => fits(v, x)); const dn = vs.filter(v => (x.progress?.[v.id]?.p || 0) >= 90).length; return vs.length ? `<span class="badge ${dn === vs.length ? "good" : ""}">${dn} / ${vs.length}</span>` : "—"; };
 const statusBadge = x => x.status === "pending" ? `<span class="badge warn">قيد المراجعة</span>` : x.status === "rejected" ? `<span class="badge bad">مرفوض</span>` : x.status === "banned" ? `<span class="badge bad">محظور</span>` : `<span class="badge good">نشط</span>`;
 const modBtns = x => x.status === "pending" ? `<button class="btn btn-good btn-sm" data-a="accept" data-id="${esc(x.id)}">قبول</button><button class="btn btn-bad btn-sm" data-a="reject" data-id="${esc(x.id)}">رفض</button>`
   : x.status === "rejected" ? `<button class="btn btn-good btn-sm" data-a="accept" data-id="${esc(x.id)}">قبول</button>`
@@ -1076,8 +1099,17 @@ async function contentAction(e) {
     }
   } catch (er) { toast("فشلت العملية: " + (er.code || er.message), "err"); }
 }
-const targetFields = c => `<div class="row2"><label class="fl">المرحلة<select name="stage">${opts(STAGES, c?.stage || "all", { all: "كل المراحل" })}</select></label>
-  <label class="fl">النظام<select name="system">${opts(SYSTEMS, c?.system || "all", { all: "لغات + حكومي" })}</select></label></div>`;
+const targetFields = c => `<div class="row3"><label class="fl">المرحلة<select name="stage"></select></label><label class="fl">النظام<select name="system"></select></label><label class="fl">الصف<select name="grade"></select></label></div>`;
+const sysOptsFor = stage => stage === "all" || !SYS_BY_STAGE[stage] ? [["all", "لغات + حكومي"], ["lang", "لغات فقط"], ["gov", "حكومي فقط"]] : SYS_BY_STAGE[stage].length === 1 ? [[SYS_BY_STAGE[stage][0], SYSTEMS[SYS_BY_STAGE[stage][0]]]] : [["all", "لغات + حكومي"], ...SYS_BY_STAGE[stage].map(k => [k, SYSTEMS[k] + " فقط"])];
+const gradeOptsFor = stage => [["all", stage === "all" ? "كل الصفوف" : "كل صفوف المرحلة"], ...(GRADES[stage] || []).map(g => [g, g])];
+const optHTML = (list, cur) => list.map(([k, v]) => `<option value="${esc(k)}" ${k === cur ? "selected" : ""}>${esc(v)}</option>`).join("");
+function bindTarget(form, c) {
+  const st = $('select[name="stage"]', form), sy = $('select[name="system"]', form), gr = $('select[name="grade"]', form);
+  st.innerHTML = optHTML([["all", "كل المراحل"], ...Object.entries(STAGES)], c?.stage || "all");
+  const fill = (keepSys, keepGr) => { sy.innerHTML = optHTML(sysOptsFor(st.value), keepSys); gr.innerHTML = optHTML(gradeOptsFor(st.value), keepGr); };
+  fill(c?.system || "all", c?.grade || "all");
+  st.addEventListener("change", () => fill("all", "all"));
+}
 function videoModal(v) {
   const m = openModal(`<h2>${v ? "تعديل فيديو" : "إضافة فيديو"}</h2><div class="alert" id="err" hidden></div>
     <form id="vf" novalidate><label class="fl">عنوان الفيديو<input name="title" maxlength="120" value="${esc(v?.title)}"></label>
@@ -1085,11 +1117,12 @@ function videoModal(v) {
     <p class="sub" style="margin-top:-6px;font-size:.84rem">اجعل الفيديو على يوتيوب <b>غير مدرج (Unlisted)</b> مع السماح بالتضمين.</p>
     ${targetFields(v)}<label class="fl">وصف (اختياري)<textarea name="description" maxlength="300">${esc(v?.description)}</textarea></label>
     <div class="mact"><button class="btn btn-fill" id="sb">حفظ</button><button type="button" class="btn btn-line" data-close>إلغاء</button></div></form>`);
+  bindTarget($("#vf", m), v);
   $("#vf", m).addEventListener("submit", async e => {
     e.preventDefault(); showErr(""); const f = new FormData(e.target), title = (f.get("title") || "").trim(), id = ytId(f.get("url"));
     if (!title) return showErr("اكتب عنوان الفيديو");
     if (!id) return showErr("رابط يوتيوب غير صحيح");
-    const data = { title, ytId: id, stage: f.get("stage"), system: f.get("system"), description: (f.get("description") || "").trim() };
+    const data = { title, ytId: id, stage: f.get("stage"), system: f.get("system"), grade: f.get("grade") || "all", description: (f.get("description") || "").trim() };
     $("#sb", m).disabled = true;
     try { if (v) await updateDoc(doc(db, "videos", v.id), data); else await addDoc(collection(db, "videos"), { ...data, createdAt: serverTimestamp() }); m.remove(); toast("تم الحفظ", "ok"); }
     catch (er) { showErr("فشل الحفظ: " + (er.code || er.message)); $("#sb", m).disabled = false; }
@@ -1102,13 +1135,14 @@ function fileModal(fl) {
     <label class="fl">أو ضع رابط مباشر (Google Drive مثلًا)<input name="url" dir="ltr" placeholder="https://drive.google.com/file/d/..." value="${fl && !fl.storagePath ? esc(fl.url) : ""}"></label>
     <div class="prog" id="pg" hidden><i></i></div>
     <div class="mact"><button class="btn btn-fill" id="sb">حفظ</button><button type="button" class="btn btn-line" data-close>إلغاء</button></div></form>`);
+  bindTarget($("#ff", m), fl);
   $("#ff", m).addEventListener("submit", async e => {
     e.preventDefault(); showErr(""); const f = new FormData(e.target), title = (f.get("title") || "").trim(), file = f.get("file"), link = (f.get("url") || "").trim();
     if (!title) return showErr("اكتب عنوان الملف");
     const has = file && file.size > 0;
     if (!fl && !has && !link) return showErr("ارفع ملفًا أو ضع رابطًا");
     if (has && file.size > 50 * 1048576) return showErr("الحد الأقصى لحجم الملف 50 ميجا");
-    const data = { title, stage: f.get("stage"), system: f.get("system") };
+    const data = { title, stage: f.get("stage"), system: f.get("system"), grade: f.get("grade") || "all" };
     $("#sb", m).disabled = true;
     try {
       if (has) {
