@@ -19,7 +19,7 @@ service cloud.firestore {
       // إنشاء الحساب: الطالب ينشئ وثيقته فقط، ورقم الواتس لازم يطابق بريده
       allow create: if request.auth != null
         && request.auth.uid == uid
-        && request.resource.data.status == 'active'
+        && request.resource.data.status == 'pending'
         && request.auth.token.email == request.resource.data.phone + '@students.reda-fr.app'
         && request.resource.data.keys().hasOnly(['name','phone','stage','system','grade','city','school','parentPhone','photo','status','deviceId','createdAt','termsAcceptedAt']);
 

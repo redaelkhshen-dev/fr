@@ -119,7 +119,7 @@ input[dir=ltr]{text-align:left}
 .nav-a{display:flex;gap:8px;flex-wrap:wrap}
 .atab{min-height:40px;padding:0 16px;border-radius:8px;border:1px solid transparent;background:transparent;color:var(--muted);font:600 .92rem var(--fd);cursor:pointer}
 .atab.on{background:var(--soft);color:var(--accent-text);border-color:var(--accent)}
-.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:22px}
+.stats{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-bottom:22px}
 .stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
 .stat b{display:block;font:800 1.8rem var(--fd)}
 .stat span{color:var(--muted);font-size:.86rem}
@@ -347,6 +347,18 @@ section[id]{scroll-margin-top:84px}
 .tcard b{display:block;font:700 1.05rem var(--fd)}
 .tcard small{color:var(--muted)}
 @media(prefers-reduced-motion:reduce){.logo-mark.live,.logo-mark.live::before,.logo-mark.live::after{animation:none!important}}
+/* ===== موافقة الطلاب ===== */
+.pbadge{display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:var(--bad);color:#fff;font:700 .72rem var(--fd);vertical-align:middle}
+.pend{max-width:580px;margin:32px auto;text-align:center;display:flex;flex-direction:column;align-items:center;gap:14px;animation:rise .6s both}
+.pend-ic{display:grid;place-items:center;width:84px;height:84px;border-radius:50%;font-size:2.4rem;background:var(--soft);border:2px solid var(--accent);animation:glowsm 3s ease-in-out infinite}
+.pend h1{font-size:1.7rem}
+.pend-info{width:100%;display:grid;gap:8px;margin-top:6px;text-align:start}
+.pend-info>div{display:flex;justify-content:space-between;gap:12px;padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
+.pend-info span{color:var(--muted)}
+.reqs{margin-bottom:22px;border-color:rgba(255,184,77,.45);background:linear-gradient(135deg,rgba(255,184,77,.08),var(--card) 60%)}
+.reqs h3{margin-bottom:12px}
+.req{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 0;border-top:1px solid var(--line)}
+.req .who{min-width:0}
 </style>
 </head>
 <body>
@@ -501,11 +513,18 @@ const stageLabel = v => v === "all" ? "كل المراحل" : STAGES[v] || "—"
 const sysLabel = v => v === "all" ? "لغات + حكومي" : SYSTEMS[v] || "—";
 
 /* ---------- المصادقة ---------- */
-function clearSubs() { S.unsubs.forEach(f => f()); S.unsubs = []; if (S.unsubSelf) { S.unsubSelf(); S.unsubSelf = null; } }
+function clearSubs() { S.contentOn = false; S.unsubs.forEach(f => f()); S.unsubs = []; if (S.unsubSelf) { S.unsubSelf(); S.unsubSelf = null; } }
 function sub(col, key) {
   const q = query(collection(db, col), orderBy("createdAt", "desc"));
-  S.unsubs.push(onSnapshot(q, s => { S[key] = s.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, e => console.warn(col, e.code)));
+  S.unsubs.push(onSnapshot(q, s => { S[key] = s.docs.map(d => ({ id: d.id, ...d.data() })); if (key === "students") checkNew(); onData(); }, e => console.warn(col, e.code)));
 }
+const startContent = () => { if (S.contentOn) return; S.contentOn = true; sub("videos", "videos"); sub("files", "files"); };
+function checkNew() {
+  const pn = S.students.filter(x => x.status === "pending").length;
+  if (S.pn === undefined ? pn > 0 : pn > S.pn) toast(`🔔 ${pn} طلب تسجيل بانتظار مراجعتك`, "ok");
+  S.pn = pn; tabBadge();
+}
+function tabBadge() { const t = $('.atab[data-t="students"]'); if (t) t.innerHTML = "الطلاب" + (S.pn ? ` <span class="pbadge">${S.pn}</span>` : ""); }
 function onData() {
   if (isAdminUser()) { if ($("#abody")) fillTab(); }
   else if (S.page === "home") fillHome();
@@ -519,6 +538,7 @@ async function attachStudent(u) {
   if (!snap.exists()) return kick("هذا الحساب غير موجود أو تم حذفه. تواصل مع المدرس.");
   const d = snap.data();
   if (d.status === "banned") return kick("تم حظر هذا الحساب. تواصل مع المدرس.");
+  if (d.status === "rejected") return kick("تم رفض طلب تسجيلك. تواصل مع المدرس.");
   if (!d.deviceId) { try { await updateDoc(dref, { deviceId: dev }); d.deviceId = dev; } catch { return kick("تعذر تثبيت الحساب على هذا الجهاز"); } }
   else if (d.deviceId !== dev) return kick("هذا الحساب مسجّل على جهاز آخر. تواصل مع المدرس لفك ارتباطه.");
   S.student = { id: u.uid, ...d };
@@ -527,10 +547,13 @@ async function attachStudent(u) {
     if (!s.exists()) return kick("تم حذف هذا الحساب.");
     const x = s.data();
     if (x.status === "banned") return kick("تم حظر هذا الحساب. تواصل مع المدرس.");
+    if (x.status === "rejected") return kick("تم رفض طلب تسجيلك. تواصل مع المدرس.");
     if (x.deviceId && x.deviceId !== dev) return kick("تم تسجيل الدخول لهذا الحساب من جهاز آخر.");
+    const prev = S.student?.status;
     S.student = { id: u.uid, ...x };
+    if (prev !== x.status) { if (x.status === "active") { startContent(); toast("🎉 تم قبول حسابك، أهلًا بك في المنصة", "ok"); } render(); }
   }, () => {});
-  sub("videos", "videos"); sub("files", "files");
+  if (S.student.status === "active") startContent();
   S.ready = true; render();
 }
 onAuthStateChanged(auth, async u => {
@@ -552,6 +575,7 @@ function render() {
   if (isAdminUser()) { if (route.startsWith("/admin") && route !== "/admin-login") return renderAdmin(); return go("/admin"); }
   if (route === "/admin-login") return renderAdminLogin();
   if (S.user && S.student) {
+    if (S.student.status !== "active") return renderPending();
     if (route === "/profile") return renderProfile();
     if (route.startsWith("/watch/")) return renderWatch(route.slice(7));
     return renderHome();
@@ -632,6 +656,17 @@ function renderLanding() {
   $$("[data-s]").forEach(b => b.onclick = () => document.getElementById("s-" + b.dataset.s)?.scrollIntoView({ behavior: "smooth", block: "start" }));
 }
 
+/* ---------- بانتظار موافقة المدرس ---------- */
+function renderPending() {
+  S.page = "pending"; const s = S.student;
+  app.innerHTML = `<header class="hdr"><div class="wrap hdr-in">${brand(true)}<div class="hdr-r"><button class="btn btn-line btn-sm" id="lo">خروج</button></div></div></header>
+  <main class="wrap sec"><div class="card pend"><div class="pend-ic" aria-hidden="true">⏳</div><h1>طلبك قيد المراجعة</h1>
+    <p class="lead">أهلًا يا ${esc(s.name.split(" ")[0])}، تم استلام طلب تسجيلك بنجاح. سيراجعه مسيو رضا ويقبله قريبًا، وستتحوّل هذه الصفحة تلقائيًا إلى المنصة بمجرد القبول.</p>
+    <div class="pend-info"><div><span>الاسم</span><b>${esc(s.name)}</b></div><div><span>المرحلة</span><b>${STAGES[s.stage] || "—"} · ${SYSTEMS[s.system] || "—"}</b></div><div><span>رقم الواتس</span><b dir="ltr">${esc(s.phone)}</b></div></div>
+    <div class="hero-b" style="justify-content:center"><a class="btn btn-fill" href="${esc(LINKS.wa)}" target="_blank" rel="noopener">💬 تواصل مع المدرس</a></div></div></main>`;
+  $("#lo").onclick = doLogout;
+}
+
 /* ---------- تسجيل الدخول ---------- */
 function renderLogin() {
   app.innerHTML = authShell(`<div class="card auth-card">${brand()}<h1>تسجيل الدخول</h1><p class="sub">ادخل برقم الواتس وكلمة السر الخاصة بك</p>${flash()}
@@ -704,11 +739,11 @@ function renderRegister() {
         if (ex.exists()) { await signOut(auth); throw new Error("هذا الرقم مسجّل بالفعل. سجّل الدخول من الصفحة الرئيسية"); }
         cred = c2;
       }
-      await setDoc(doc(db, "students", cred.user.uid), { ...p, phone, photo: getPhoto(), status: "active", deviceId: deviceId(), createdAt: serverTimestamp(), termsAcceptedAt: serverTimestamp() });
+      await setDoc(doc(db, "students", cred.user.uid), { ...p, phone, photo: getPhoto(), status: "pending", deviceId: deviceId(), createdAt: serverTimestamp(), termsAcceptedAt: serverTimestamp() });
       S.busy = false;
       await attachStudent(cred.user);
       go("/");
-      toast("تم إنشاء حسابك بنجاح، أهلًا بك 👋", "ok");
+      toast("تم استلام طلبك وبانتظار موافقة المدرس", "ok");
     } catch (er) {
       S.busy = false;
       showErr(er.code ? authMsg(er) : er.message);
@@ -911,7 +946,7 @@ function renderAdmin() {
     <button class="btn btn-line btn-sm" id="lo">خروج</button></div></header><main class="wrap sec" id="abody"></main>`;
   $("#lo").onclick = doLogout;
   $$(".atab").forEach(b => b.onclick = () => setTab(b.dataset.t));
-  setTab(A.tab);
+  setTab(A.tab); tabBadge();
 }
 function setTab(t) {
   A.tab = t; $$(".atab").forEach(b => b.classList.toggle("on", b.dataset.t === t));
@@ -923,13 +958,14 @@ const opts = (obj, cur, extra) => (extra ? Object.entries(extra) : []).concat(Ob
 const TABS = {
   overview: {
     skel: () => `<h2 style="margin-bottom:16px">نظرة عامة</h2><div id="ov"></div>`,
+    init: b => { b.onclick = studentAction; },
     fill: b => {
-      const st = S.students, act = st.filter(x => x.status !== "banned").length;
+      const st = S.students, act = st.filter(x => x.status === "active").length, pend = st.filter(x => x.status === "pending"), blk = st.filter(x => x.status === "banned" || x.status === "rejected").length;
       const by = k => Object.keys(k === "stage" ? STAGES : SYSTEMS).map(key => [(k === "stage" ? STAGES : SYSTEMS)[key], st.filter(x => x[k] === key).length]);
       const max = Math.max(1, ...by("stage").map(x => x[1]), ...by("system").map(x => x[1]));
       const bar = ([l, n]) => `<div class="bar"><span>${l}</span><div class="bg"><i style="width:${n / max * 100}%"></i></div><b>${n}</b></div>`;
-      $("#ov", b).innerHTML = `<div class="stats">
-        <div class="stat"><b>${st.length}</b><span>إجمالي الطلاب</span></div><div class="stat"><b>${act}</b><span>نشط</span></div><div class="stat"><b>${st.length - act}</b><span>محظور</span></div>
+      $("#ov", b).innerHTML = `${reqCard(pend)}<div class="stats">
+        <div class="stat"><b>${st.length}</b><span>إجمالي الطلاب</span></div><div class="stat"><b>${act}</b><span>نشط</span></div><div class="stat"><b>${pend.length}</b><span>قيد المراجعة</span></div><div class="stat"><b>${blk}</b><span>محظور / مرفوض</span></div>
         <div class="stat"><b>${S.videos.length}</b><span>فيديو</span></div><div class="stat"><b>${S.files.length}</b><span>ملف</span></div></div>
         <div class="pf"><div class="card"><h3 style="margin-bottom:12px">الطلاب حسب المرحلة</h3><div class="bars">${by("stage").map(bar).join("")}</div></div>
         <div class="card"><h3 style="margin-bottom:12px">الطلاب حسب النظام</h3><div class="bars">${by("system").map(bar).join("")}</div></div></div>
@@ -939,7 +975,7 @@ const TABS = {
   students: {
     skel: () => `<h2 style="margin-bottom:16px">إدارة الطلاب</h2><div class="toolbar"><input id="aq" placeholder="بحث بالاسم أو الرقم أو المدينة" value="${esc(A.q)}">
       <select id="as"><option value="">كل المراحل</option>${opts(STAGES, A.fstage)}</select>
-      <select id="at"><option value="">كل الحالات</option><option value="active" ${A.fstatus === "active" ? "selected" : ""}>نشط</option><option value="banned" ${A.fstatus === "banned" ? "selected" : ""}>محظور</option></select></div><div class="tw" id="sl"></div>`,
+      <select id="at"><option value="">كل الحالات</option><option value="active" ${A.fstatus === "active" ? "selected" : ""}>نشط</option><option value="pending" ${A.fstatus === "pending" ? "selected" : ""}>قيد المراجعة</option><option value="rejected" ${A.fstatus === "rejected" ? "selected" : ""}>مرفوض</option><option value="banned" ${A.fstatus === "banned" ? "selected" : ""}>محظور</option></select></div><div class="tw" id="sl"></div>`,
     init: b => {
       $("#aq", b).oninput = e => { A.q = e.target.value; fillTab(); };
       $("#as", b).onchange = e => { A.fstage = e.target.value; fillTab(); };
@@ -948,14 +984,14 @@ const TABS = {
     },
     fill: b => {
       const q = A.q.trim().toLowerCase();
-      const l = S.students.filter(x => (!A.fstage || x.stage === A.fstage) && (!A.fstatus || (x.status || "active") === A.fstatus) && (!q || [x.name, x.phone, x.city].some(t => (t || "").toLowerCase().includes(q))));
+      const l = [...S.students].sort((a, b) => (b.status === "pending") - (a.status === "pending")).filter(x => (!A.fstage || x.stage === A.fstage) && (!A.fstatus || (x.status || "active") === A.fstatus) && (!q || [x.name, x.phone, x.city].some(t => (t || "").toLowerCase().includes(q))));
       $("#sl", b).innerHTML = `<table><thead><tr><th>الطالب</th><th>الواتس</th><th>المرحلة</th><th>المدينة</th><th>الحالة</th><th>المشاهدة</th><th>الجهاز</th><th>التسجيل</th><th>إجراءات</th></tr></thead><tbody>${l.map(x => `<tr>
         <td><div class="who">${avatarHTML(x, 36)}<div><b>${esc(x.name)}</b><br><small style="color:var(--muted)">${esc(x.grade || "")}</small></div></div></td>
         <td class="ph">${esc(x.phone)}</td><td>${stageLabel(x.stage)}<br><small style="color:var(--muted)">${sysLabel(x.system)}</small></td><td>${esc(x.city || "—")}</td>
-        <td>${x.status === "banned" ? `<span class="badge bad">محظور</span>` : `<span class="badge good">نشط</span>`}</td>
+        <td>${statusBadge(x)}</td>
         <td>${vidsDone(x)}</td><td>${x.deviceId ? `<span class="badge">مثبّت</span>` : `<span class="badge warn">غير مثبّت</span>`}</td><td>${fmtDate(x.createdAt)}</td>
         <td><div class="acts"><button class="btn btn-line btn-sm" data-a="edit" data-id="${esc(x.id)}">تعديل</button>
-        <button class="btn btn-sm ${x.status === "banned" ? "btn-good" : "btn-bad"}" data-a="ban" data-id="${esc(x.id)}">${x.status === "banned" ? "فك الحظر" : "حظر"}</button>
+        ${modBtns(x)}
         <button class="btn btn-line btn-sm" data-a="dev" data-id="${esc(x.id)}">فك الجهاز</button>
         <a class="btn btn-line btn-sm" target="_blank" rel="noopener" href="https://wa.me/2${esc(x.phone)}">واتس</a>
         <button class="btn btn-bad btn-sm" data-a="del" data-id="${esc(x.id)}">حذف</button></div></td></tr>`).join("") || `<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:32px">لا يوجد طلاب</td></tr>`}</tbody></table>`;
@@ -982,13 +1018,23 @@ const TABS = {
 };
 
 const vidsDone = x => { const vs = S.videos.filter(v => (v.stage === "all" || v.stage === x.stage) && (v.system === "all" || v.system === x.system)); const dn = vs.filter(v => (x.progress?.[v.id]?.p || 0) >= 90).length; return vs.length ? `<span class="badge ${dn === vs.length ? "good" : ""}">${dn} / ${vs.length}</span>` : "—"; };
+const statusBadge = x => x.status === "pending" ? `<span class="badge warn">قيد المراجعة</span>` : x.status === "rejected" ? `<span class="badge bad">مرفوض</span>` : x.status === "banned" ? `<span class="badge bad">محظور</span>` : `<span class="badge good">نشط</span>`;
+const modBtns = x => x.status === "pending" ? `<button class="btn btn-good btn-sm" data-a="accept" data-id="${esc(x.id)}">قبول</button><button class="btn btn-bad btn-sm" data-a="reject" data-id="${esc(x.id)}">رفض</button>`
+  : x.status === "rejected" ? `<button class="btn btn-good btn-sm" data-a="accept" data-id="${esc(x.id)}">قبول</button>`
+  : `<button class="btn btn-sm ${x.status === "banned" ? "btn-good" : "btn-bad"}" data-a="ban" data-id="${esc(x.id)}">${x.status === "banned" ? "فك الحظر" : "حظر"}</button>`;
+const reqCard = list => list.length ? `<div class="card reqs"><h3>🔔 طلبات التسجيل الجديدة <span class="pbadge">${list.length}</span></h3>${list.map(x => `<div class="req"><div class="who">${avatarHTML(x, 42)}<div><b>${esc(x.name)}</b><br><small class="ph">${esc(x.phone)}</small> <small style="color:var(--muted)">· ${stageLabel(x.stage)} · ${sysLabel(x.system)} · ${esc(x.grade || "")} · ${esc(x.city || "")}</small></div></div><div class="acts"><button class="btn btn-good btn-sm" data-a="accept" data-id="${esc(x.id)}">قبول</button><button class="btn btn-bad btn-sm" data-a="reject" data-id="${esc(x.id)}">رفض</button></div></div>`).join("")}</div>` : "";
 /* ---- إجراءات الطلاب ---- */
 async function studentAction(e) {
   const btn = e.target.closest("[data-a]"); if (!btn || btn.tagName === "A") return;
   const id = btn.dataset.id, x = S.students.find(s => s.id === id); if (!x) return;
   const dref = doc(db, "students", id);
   try {
-    if (btn.dataset.a === "ban") {
+    if (btn.dataset.a === "accept") {
+      await updateDoc(dref, { status: "active" }); toast(`تم قبول ${x.name}`, "ok");
+    } else if (btn.dataset.a === "reject") {
+      if (!confirm(`رفض طلب تسجيل ${x.name}؟`)) return;
+      await updateDoc(dref, { status: "rejected" }); toast("تم رفض الطلب", "ok");
+    } else if (btn.dataset.a === "ban") {
       const ban = x.status !== "banned";
       if (!confirm(ban ? `حظر الطالب ${x.name}؟` : `فك الحظر عن ${x.name}؟`)) return;
       await updateDoc(dref, { status: ban ? "banned" : "active" }); toast(ban ? "تم الحظر" : "تم فك الحظر", "ok");
@@ -1003,7 +1049,7 @@ async function studentAction(e) {
 }
 function editStudent(x) {
   const m = openModal(`<h2>تعديل بيانات الطالب</h2><p class="sub" dir="ltr" style="text-align:start">${esc(x.phone)}</p><div class="alert" id="err" hidden></div>
-    <form id="ef" novalidate>${profileFields(x)}<label class="fl">الحالة<select name="status"><option value="active" ${x.status !== "banned" ? "selected" : ""}>نشط</option><option value="banned" ${x.status === "banned" ? "selected" : ""}>محظور</option></select></label>
+    <form id="ef" novalidate>${profileFields(x)}<label class="fl">الحالة<select name="status"><option value="active" ${x.status === "active" ? "selected" : ""}>نشط</option><option value="pending" ${x.status === "pending" ? "selected" : ""}>قيد المراجعة</option><option value="rejected" ${x.status === "rejected" ? "selected" : ""}>مرفوض</option><option value="banned" ${x.status === "banned" ? "selected" : ""}>محظور</option></select></label>
     <div class="mact"><button class="btn btn-fill" id="sb">حفظ</button><button type="button" class="btn btn-line" data-close>إلغاء</button></div></form>`, true);
   const form = $("#ef", m); bindStageGrade(form);
   form.addEventListener("submit", async e => {
