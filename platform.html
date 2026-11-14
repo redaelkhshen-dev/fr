@@ -412,6 +412,22 @@ section[id]{scroll-margin-top:84px}
 .ainfo h3{font-size:1rem}
 .ainfo small{color:var(--muted)}
 @media(max-width:600px){.athumb{width:96px}.arow{padding:10px;gap:10px}}
+/* ===== الدفع ===== */
+.steps3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:20px}
+.steps3>div{display:flex;gap:12px;align-items:center;padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+.steps3 b{display:grid;place-items:center;flex:none;width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#b8862b,#f0cf6e);color:#1b1405;font-family:var(--fd)}
+.steps3 span{font-size:.92rem;color:var(--muted)}
+.paym{display:grid;gap:14px}
+.payc{position:relative;display:block;cursor:pointer}
+.payc input{position:absolute;opacity:0}
+.payc>div{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;padding:18px;border:2px solid var(--line);border-radius:14px;background:var(--card);transition:border-color .15s,box-shadow .15s}
+.payc input:checked+div{border-color:var(--accent);box-shadow:0 0 0 4px rgba(212,167,58,.15);background:linear-gradient(135deg,rgba(212,167,58,.14),var(--card))}
+.payc input:focus-visible+div{outline:2px solid var(--accent-text)}
+.payi{font-size:1.8rem}
+.payc b{font:700 1.05rem var(--fd)}
+.payn{flex-basis:100%;order:3;font:700 1.5rem var(--fm);letter-spacing:.06em;color:var(--accent-text)}
+.payc .btn{margin-inline-start:auto}
+@media(max-width:700px){.steps3{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -478,7 +494,7 @@ const db = getFirestore(fbApp);
 const storage = getStorage(fbApp);
 
 /* ---------- الحالة ---------- */
-const S = { ready: false, user: null, student: null, busy: false, flash: "", videos: [], files: [], students: [], comments: [], ratings: [], unsubs: [], unsubSelf: null, page: "" };
+const S = { ready: false, user: null, student: null, busy: false, flash: "", videos: [], files: [], students: [], comments: [], ratings: [], payments: [], unsubs: [], unsubSelf: null, page: "" };
 const H = { tab: "videos", q: "" };
 const A = { cvid: "", cq: "", cstage: "", cgrade: "", tab: "overview", q: "", fstage: "", fstatus: "" };
 
@@ -595,14 +611,20 @@ const sysLabel = v => v === "all" ? "لغات + حكومي" : SYSTEMS[v] || "—
 function clearSubs() { S.contentOn = false; S.unsubs.forEach(f => f()); S.unsubs = []; if (S.unsubSelf) { S.unsubSelf(); S.unsubSelf = null; } }
 function sub(col, key) {
   const q = query(collection(db, col), orderBy("createdAt", "desc"));
-  S.unsubs.push(onSnapshot(q, s => { S[key] = s.docs.map(d => ({ id: d.id, ...d.data() })); if (key === "students") checkNew(); onData(); }, e => console.warn(col, e.code)));
+  S.unsubs.push(onSnapshot(q, s => { S[key] = s.docs.map(d => ({ id: d.id, ...d.data() })); if (key === "students") checkNew(); if (key === "payments") checkPay(); onData(); }, e => console.warn(col, e.code)));
 }
 const startContent = () => { if (S.contentOn) return; S.contentOn = true; sub("videos", "videos"); sub("files", "files"); };
 function checkNew() {
   const pn = S.students.filter(x => x.status === "pending").length;
   if (S.pn === undefined ? pn > 0 : pn > S.pn) toast(`🔔 ${pn} طلب تسجيل بانتظار مراجعتك`, "ok");
-  S.pn = pn; tabBadge();
+  S.pn = pn; tabBadge(); payTab();
 }
+function checkPay() {
+  const n = S.payments.filter(x => x.status === "pending").length;
+  if (S.pp === undefined ? n > 0 : n > S.pp) toast(`💳 ${n} تحويل بانتظار تأكيدك`, "ok");
+  S.pp = n; payTab();
+}
+function payTab() { const t = $('.atab[data-t="payments"]'); if (t) t.innerHTML = "المدفوعات" + (S.pp ? ` <span class="pbadge">${S.pp}</span>` : ""); }
 function tabBadge() { const t = $('.atab[data-t="students"]'); if (t) t.innerHTML = "الطلاب" + (S.pn ? ` <span class="pbadge">${S.pn}</span>` : ""); }
 function onData() {
   if (isAdminUser()) { if ($("#abody")) fillTab(); }
@@ -649,7 +671,7 @@ async function attachStudent(u) {
 onAuthStateChanged(auth, async u => {
   clearSubs(); S.user = u; S.student = null;
   if (!u) { S.ready = true; render(); return; }
-  if (u.email === ADMIN_EMAIL) { sub("students", "students"); sub("videos", "videos"); sub("files", "files"); sub("comments", "comments"); S.unsubs.push(onSnapshot(collection(db, "ratings"), s => { S.ratings = s.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.ready = true; render(); return; }
+  if (u.email === ADMIN_EMAIL) { sub("students", "students"); sub("videos", "videos"); sub("files", "files"); sub("comments", "comments"); sub("payments", "payments"); S.unsubs.push(onSnapshot(collection(db, "ratings"), s => { S.ratings = s.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.ready = true; render(); return; }
   if (S.busy) return;
   await attachStudent(u);
 });
@@ -659,13 +681,14 @@ const doLogout = async () => { try { await signOut(auth); } catch {} go("/"); };
 window.addEventListener("hashchange", () => { closeModals(); render(); window.scrollTo(0, 0); });
 function render() {
   if (!S.ready) return;
-  stopTracker(); previewStop(); stopCommentSubs(); stopActivitySubs();
+  stopTracker(); previewStop(); stopCommentSubs(); stopActivitySubs(); stopPaySubs();
   const route = location.hash.slice(1) || "/";
   S.page = ""; S.watchOk = false;
   if (isAdminUser()) { if (route.startsWith("/admin") && route !== "/admin-login") return renderAdmin(); return go("/admin"); }
   if (route === "/admin-login") return renderAdminLogin();
   if (S.user && S.student) {
     if (S.student.status !== "active") return renderPending();
+    if (route === "/pay") return renderPay();
     if (route === "/activity") return renderActivity();
     if (route === "/profile") return renderProfile();
     if (route.startsWith("/watch/")) return renderWatch(route.slice(7));
@@ -847,7 +870,7 @@ function renderRegister() {
 /* ---------- هيدر الطالب ---------- */
 function studentHeader(active) {
   const s = S.student;
-  return `<header class="hdr"><div class="wrap hdr-in">${brand(true)}<nav class="pnav" aria-label="التنقل"><a href="#/">الرئيسية</a><a href="#/activity">نشاطي</a><a href="#/profile">بياناتي</a></nav><div class="hdr-r">
+  return `<header class="hdr"><div class="wrap hdr-in">${brand(true)}<nav class="pnav" aria-label="التنقل"><a href="#/">الرئيسية</a><a href="#/activity">نشاطي</a><a href="#/profile">بياناتي</a><a href="#/pay">💳 الدفع</a></nav><div class="hdr-r">
     <a class="chipuser" href="#/profile" aria-label="بياناتي">${avatarHTML(s, 34)}<span class="n">${esc(s.name)}</span></a>
     <button class="btn btn-line btn-sm" id="lo">خروج</button></div></div></header>`;
 }
@@ -1030,6 +1053,64 @@ function paintComments() {
 }
 
 /* ---------- بياناتي ---------- */
+/* ---------- الدفع (الطالب) ---------- */
+const PAY = { vodafone: { name: "فودافون كاش", number: "01005664564", icon: "📱" }, instapay: { name: "إنستا باي (InstaPay)", number: "01558186187", icon: "🏦" } };
+const PAY_WA = "201558186187";
+const PY = { unsub: null, list: [], method: "vodafone" };
+function stopPaySubs() { if (PY.unsub) PY.unsub(); PY.unsub = null; PY.list = []; }
+const payStatus = st => st === "confirmed" ? `<span class="badge good">✅ تم التأكيد</span>` : st === "rejected" ? `<span class="badge bad">مرفوض</span>` : `<span class="badge warn">⏳ بانتظار التأكيد</span>`;
+const payMsg = p => `السلام عليكم مسيو رضا 👋
+أود تأكيد تحويل الدفع:
+👤 الاسم: ${p.name}
+📱 رقم الطالب: ${p.phone}
+🎓 المرحلة: ${STAGES[p.stage] || ""} · ${SYSTEMS[p.system] || ""} · ${p.grade || ""}
+💳 طريقة الدفع: ${PAY[p.method]?.name || p.method}
+💰 المبلغ: ${p.amount} جنيه
+📞 المحوّل منه: ${p.from}${p.note ? `\n📝 ملاحظة: ${p.note}` : ""}
+🕒 ${new Date().toLocaleString("ar-EG")}`;
+const openWA = text => { const u = `https://wa.me/${PAY_WA}?text=${encodeURIComponent(text)}`; const w = window.open(u, "_blank"); if (!w) location.href = u; };
+function renderPay() {
+  S.page = "pay"; const s = S.student;
+  app.innerHTML = `${studentHeader()}<main class="wrap sec">
+    <section class="banner"><div><h1>💳 الدفع الإلكتروني</h1><p>حوّل المبلغ بإحدى الطرق التالية ثم أكّد التحويل من هنا ليصل إشعار لمسيو رضا على واتساب</p></div></section>
+    <div class="steps3"><div><b>1</b><span>اختر طريقة الدفع وحوّل المبلغ</span></div><div><b>2</b><span>اكتب بيانات التحويل</span></div><div><b>3</b><span>اضغط «تم التحويل» لإرسال التأكيد على واتساب</span></div></div>
+    <div class="pf" style="margin-top:22px"><div>
+      <div class="paym" id="pm">${Object.entries(PAY).map(([k, m]) => `<label class="payc"><input type="radio" name="method" value="${k}" ${PY.method === k ? "checked" : ""}><div><span class="payi">${m.icon}</span><b>${m.name}</b><div class="payn" dir="ltr">${m.number}</div><button type="button" class="btn btn-line btn-sm" data-copy="${m.number}">نسخ الرقم</button></div></label>`).join("")}</div>
+      <p class="sub" style="margin-top:12px">⚠️ حوّل على الرقم الظاهر بالأعلى فقط، واحتفظ بصورة إيصال التحويل.</p></div>
+    <div class="card"><h3 style="margin-bottom:12px">بيانات التحويل</h3><div class="alert" id="err" hidden></div>
+      <form id="pf2" novalidate>
+        <label class="fl">المبلغ المحوّل (جنيه)<input name="amount" type="number" inputmode="decimal" min="1" max="100000" step="any" dir="ltr"></label>
+        <label class="fl">الرقم الذي حوّلت منه<input name="from" type="tel" inputmode="numeric" dir="ltr" maxlength="11" placeholder="01XXXXXXXXX" value="${esc(s.phone)}"></label>
+        <label class="fl">ملاحظة أو رقم العملية (اختياري)<input name="note" maxlength="200"></label>
+        <button class="btn btn-fill w100" id="sb">✅ تم التحويل — أرسل التأكيد لمسيو رضا</button>
+      </form></div></div>
+    <h3 style="margin:30px 0 12px">تحويلاتي السابقة</h3><div id="ph"></div></main>`;
+  $("#lo").onclick = doLogout;
+  $("#pm").addEventListener("change", e => { if (e.target.name === "method") PY.method = e.target.value; });
+  $("#pf2").addEventListener("submit", e => {
+    e.preventDefault(); showErr("");
+    const f = new FormData(e.target), amount = parseFloat(toLatin(f.get("amount"))), from = toLatin(f.get("from")).replace(/\s/g, ""), note = (f.get("note") || "").trim();
+    if (!(amount > 0 && amount <= 100000)) return showErr("اكتب المبلغ المحوّل بشكل صحيح");
+    if (!PHONE_RE.test(from)) return showErr("اكتب الرقم الذي حوّلت منه (11 رقم)");
+    const rec = { uid: s.id, name: s.name, phone: s.phone, stage: s.stage, system: s.system, grade: s.grade, method: PY.method, amount, from, note, status: "pending" };
+    openWA(payMsg(rec));
+    addDoc(collection(db, "payments"), { ...rec, createdAt: serverTimestamp() }).then(() => { toast("تم تسجيل التحويل وفتح واتساب للتأكيد", "ok"); e.target.reset(); }).catch(() => toast("تم فتح واتساب، لكن تعذر حفظ السجل", "err"));
+  });
+  PY.unsub = onSnapshot(query(collection(db, "payments"), where("uid", "==", s.id)), q => { PY.list = q.docs.map(d => ({ id: d.id, ...d.data() })); paintPay(); }, e => console.warn("pay", e.code));
+  paintPay();
+}
+function paintPay() {
+  const ph = $("#ph"); if (!ph || S.page !== "pay") return;
+  const l = [...PY.list].sort((a, b) => (b.createdAt?.seconds ?? 9e12) - (a.createdAt?.seconds ?? 9e12));
+  ph.innerHTML = l.map(p => `<div class="arow"><div class="ainfo"><h3>${PAY[p.method]?.icon || ""} ${esc(PAY[p.method]?.name || p.method)} · ${esc(p.amount)} جنيه</h3><small>${ago(p.createdAt)} · من <span dir="ltr">${esc(p.from)}</span>${p.note ? " · " + esc(p.note) : ""}</small></div><div class="acts">${payStatus(p.status)}${p.status === "pending" ? `<button class="btn btn-line btn-sm" data-wa="${esc(p.id)}">إعادة إرسال واتساب</button>` : ""}</div></div>`).join("") || `<div class="empty">لا توجد تحويلات مسجلة بعد.</div>`;
+  $$("[data-wa]", ph).forEach(b => b.onclick = () => { const p = PY.list.find(x => x.id === b.dataset.wa); if (p) openWA(payMsg(p)); });
+}
+async function copyHandler(e) {
+  const b = e.target.closest("[data-copy]"); if (!b) return;
+  try { await navigator.clipboard.writeText(b.dataset.copy); toast("تم نسخ الرقم", "ok"); } catch { toast("انسخ الرقم يدويًا: " + b.dataset.copy); }
+}
+document.addEventListener("click", copyHandler);
+
 /* ---------- نشاطي وإحصائياتي ---------- */
 const AC = { unsubs: [], comments: [], ratings: [], tab: "videos" };
 function stopActivitySubs() { AC.unsubs.forEach(f => f()); AC.unsubs = []; AC.comments = []; AC.ratings = []; }
@@ -1144,7 +1225,7 @@ function renderAdminLogin() {
 function renderAdmin() {
   S.page = "admin";
   app.innerHTML = `<header class="hdr"><div class="wrap hdr-in">${brand()}<nav class="nav-a">
-    <button class="atab" data-t="overview">نظرة عامة</button><button class="atab" data-t="students">الطلاب</button><button class="atab" data-t="videos">الفيديوهات</button><button class="atab" data-t="files">الملفات</button><button class="atab" data-t="comments">التعليقات</button></nav>
+    <button class="atab" data-t="overview">نظرة عامة</button><button class="atab" data-t="students">الطلاب</button><button class="atab" data-t="videos">الفيديوهات</button><button class="atab" data-t="files">الملفات</button><button class="atab" data-t="comments">التعليقات</button><button class="atab" data-t="payments">المدفوعات</button></nav>
     <button class="btn btn-line btn-sm" id="lo">خروج</button></div></header><main class="wrap sec" id="abody"></main>`;
   $("#lo").onclick = doLogout;
   $$(".atab").forEach(b => b.onclick = () => setTab(b.dataset.t));
@@ -1219,6 +1300,28 @@ const TABS = {
   }
 };
 
+TABS.payments = {
+  skel: () => `<h2 style="margin-bottom:16px">المدفوعات</h2><div class="stats" id="ps" style="grid-template-columns:repeat(3,1fr)"></div><div class="toolbar"><select id="pst"><option value="">كل الحالات</option><option value="pending">بانتظار التأكيد</option><option value="confirmed">مؤكد</option><option value="rejected">مرفوض</option></select><input id="pq" placeholder="بحث بالاسم أو الرقم" value="${esc(A.pq || "")}"></div><div class="tw" id="pl"></div>`,
+  init: b => { b.onclick = payAction; $("#pst", b).value = A.pst || ""; $("#pst", b).onchange = e => { A.pst = e.target.value; fillTab(); }; $("#pq", b).oninput = e => { A.pq = e.target.value; fillTab(); }; },
+  fill: b => {
+    const P = S.payments, conf = P.filter(p => p.status === "confirmed"), sum = conf.reduce((a, p) => a + (+p.amount || 0), 0);
+    $("#ps", b).innerHTML = `<div class="stat"><b>${P.filter(p => p.status === "pending").length}</b><span>بانتظار التأكيد</span></div><div class="stat"><b>${conf.length}</b><span>تحويل مؤكد</span></div><div class="stat"><b>${sum.toLocaleString("ar-EG")}</b><span>إجمالي المؤكد (جنيه)</span></div>`;
+    const q = (A.pq || "").trim().toLowerCase();
+    const l = P.filter(p => (!A.pst || p.status === A.pst) && (!q || [p.name, p.phone, p.from].some(t => (t || "").toLowerCase().includes(q)))).sort((a, b2) => (b2.status === "pending") - (a.status === "pending"));
+    $("#pl", b).innerHTML = `<table><thead><tr><th>الطالب</th><th>الطريقة</th><th>المبلغ</th><th>المحوّل منه</th><th>ملاحظة</th><th>التاريخ</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody>${l.map(p => `<tr>
+      <td><b>${esc(p.name)}</b><br><small class="ph">${esc(p.phone)}</small></td><td>${PAY[p.method]?.icon || ""} ${esc(PAY[p.method]?.name || p.method)}</td><td><b>${esc(p.amount)}</b> جنيه</td><td class="ph">${esc(p.from)}</td><td style="max-width:200px">${esc(p.note || "—")}</td><td>${fmtDate(p.createdAt)}</td><td>${payStatus(p.status)}</td>
+      <td><div class="acts">${p.status === "pending" ? `<button class="btn btn-good btn-sm" data-a="pconf" data-id="${esc(p.id)}">تأكيد</button><button class="btn btn-bad btn-sm" data-a="prej" data-id="${esc(p.id)}">رفض</button>` : ""}<a class="btn btn-line btn-sm" target="_blank" rel="noopener" href="https://wa.me/2${esc(p.phone)}">واتس</a><button class="btn btn-bad btn-sm" data-a="pdel" data-id="${esc(p.id)}">حذف</button></div></td></tr>`).join("") || `<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:32px">لا توجد تحويلات</td></tr>`}</tbody></table>`;
+  }
+};
+async function payAction(e) {
+  const btn = e.target.closest("[data-a]"); if (!btn || btn.tagName === "A") return;
+  const a = btn.dataset.a, id = btn.dataset.id, p = S.payments.find(x => x.id === id); if (!p) return;
+  try {
+    if (a === "pconf") { await updateDoc(doc(db, "payments", id), { status: "confirmed", confirmedAt: serverTimestamp() }); toast("تم تأكيد التحويل", "ok"); }
+    else if (a === "prej") { if (confirm(`رفض تحويل ${p.name}؟`)) { await updateDoc(doc(db, "payments", id), { status: "rejected" }); toast("تم رفض التحويل", "ok"); } }
+    else if (a === "pdel") { if (confirm("حذف سجل التحويل نهائيًا؟")) { await deleteDoc(doc(db, "payments", id)); toast("تم الحذف", "ok"); } }
+  } catch (er) { toast("فشلت العملية: " + (er.code || er.message), "err"); }
+}
 const vTitle = id => S.videos.find(v => v.id === id)?.title || "فيديو محذوف";
 const vstat = id => { const rs = S.ratings.filter(r => r.videoId === id), n = rs.length; return { n, avg: n ? (rs.reduce((a, r) => a + r.value, 0) / n).toFixed(1) : "—", c: S.comments.filter(c => c.videoId === id).length }; };
 TABS.comments = {
