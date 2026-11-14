@@ -131,6 +131,8 @@ input[dir=ltr]{text-align:left}
 @keyframes wm{0%{top:8%;left:6%}25%{top:72%;left:58%}50%{top:30%;left:66%}75%{top:76%;left:8%}100%{top:8%;left:6%}}
 .fsbtn{position:absolute;top:10px;left:10px;z-index:4;min-height:34px;padding:0 12px;border-radius:8px;border:1px solid rgba(255,255,255,.3);background:rgba(11,10,7,.7);color:#fff;font:600 .8rem var(--fd);cursor:pointer}
 .watch{display:grid;grid-template-columns:2fr 1fr;gap:24px;align-items:start}
+@media(min-width:1100px){.wrap.wide,body:has(.wide) .hdr .wrap{max-width:1480px}.watch{grid-template-columns:minmax(0,1fr) 380px;gap:32px}.side{position:sticky;top:84px}}
+@media(min-width:1700px){.wrap.wide,body:has(.wide) .hdr .wrap{max-width:1640px}.watch{grid-template-columns:minmax(0,1fr) 420px}}
 .side{display:flex;flex-direction:column;gap:12px}
 .side a{display:flex;gap:10px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px}
 .side a:hover,.side a.cur{border-color:var(--accent)}
@@ -1083,7 +1085,7 @@ function renderWatch(id) {
   const others = visible(S.videos).filter(x => x.id !== id).slice(0, 12);
   const wm = `${esc(s.name)} · ${esc(s.phone)}`;
   const pr = getProg(id), st0 = pr.t > 5 && (!pr.d || pr.t < pr.d - 10) ? Math.floor(pr.t) : 0;
-  app.innerHTML = `${studentHeader()}<main class="wrap sec"><div class="watch"><div>
+  app.innerHTML = `${studentHeader()}<main class="wrap sec wide"><div class="watch"><div>
     <div class="pbar wpb ${pr.p >= 90 ? "done" : ""}" style="--p:${pr.p}"><div class="ring" aria-hidden="true"><b id="pp">${Math.round(pr.p)}%</b></div><div class="vpm"><div class="vph"><span>🎯 تقدمك في هذا الفيديو</span><small id="pt">${pr.done ? "✅ أتممت مشاهدة هذا الفيديو" : st0 ? "سيبدأ الفيديو من حيث توقفت" : ""}</small></div>
       <div class="vtrack"><i id="pf" style="width:${pr.p}%"></i><u style="inset-inline-start:25%"></u><u style="inset-inline-start:50%"></u><u style="inset-inline-start:75%"></u><u class="fin" style="inset-inline-start:90%" title="يُحتسب مكتملًا عند 90%">🏁</u></div></div></div>
     <div class="player" id="pl"><iframe id="ytp" src="https://www.youtube-nocookie.com/embed/${esc(v.ytId)}?rel=0&modestbranding=1&fs=0&disablekb=1&iv_load_policy=3&playsinline=1&cc_load_policy=0&enablejsapi=1&origin=${encodeURIComponent(location.origin)}${st0 ? "&start=" + st0 : ""}" title="${esc(v.title)}" allow="autoplay; encrypted-media" referrerpolicy="strict-origin-when-cross-origin" sandbox="allow-scripts allow-same-origin allow-presentation"></iframe>
