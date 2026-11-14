@@ -518,14 +518,14 @@ const EMAIL_DOMAIN = "students.reda-fr.app";
 /* ================================================================================== */
 
 const STAGES = { primary: "الابتدائية", prep: "الإعدادية", secondary: "الثانوية" };
-const SYSTEMS = { lang: "لغات", gov: "حكومي" };
+const SYSTEMS = { gov: "حكومي", lang: "لغات", intl: "لغات إنترناشونال", natl: "لغات ناشيونال" };
 const GRADES = {
   primary: ["الصف الأول الابتدائي", "الصف الثاني الابتدائي", "الصف الثالث الابتدائي", "الصف الرابع الابتدائي", "الصف الخامس الابتدائي", "الصف السادس الابتدائي"],
   prep: ["الصف الأول الإعدادي", "الصف الثاني الإعدادي", "الصف الثالث الإعدادي"],
   secondary: ["الصف الأول الثانوي", "الصف الثاني الثانوي", "الصف الثالث الثانوي"]
 };
 // الأنظمة المتاحة لكل مرحلة (عدّلها هنا لو أردت إضافة نظام لمرحلة)
-const SYS_BY_STAGE = { secondary: ["gov", "lang"], prep: ["lang"], primary: ["gov", "lang"] };
+const SYS_BY_STAGE = { secondary: ["gov", "lang", "intl", "natl"], prep: ["gov", "lang", "intl", "natl"], primary: ["gov", "lang", "intl", "natl"] };
 const gnum = g => { g = g || ""; const m = [["الأول", 1], ["الاول", 1], ["الثاني", 2], ["الثالث", 3], ["الرابع", 4], ["الخامس", 5], ["السادس", 6]].find(([k]) => g.includes(k)); return m ? m[1] : 0; };
 // هل المحتوى x مخصص للطالب st؟ (المرحلة + النظام + الصف)
 const fits = (x, st) => (x.stage === "all" || x.stage === st.stage) && (x.system === "all" || x.system === st.system) && (!x.grade || x.grade === "all" || gnum(x.grade) === gnum(st.grade));
@@ -653,7 +653,7 @@ function readProfile(form) {
   const v = { name: (f.get("name") || "").trim().replace(/\s+/g, " "), stage: f.get("stage"), system: f.get("system"), grade: f.get("grade"), city: f.get("city"), school: (f.get("school") || "").trim(), parentPhone: toLatin(f.get("parentPhone") || "").replace(/[\s-]/g, "") };
   if (v.name.length < 3) throw new Error("اكتب اسمك بالكامل");
   if (!STAGES[v.stage]) throw new Error("اختر المرحلة الدراسية");
-  if (!SYSTEMS[v.system]) throw new Error("اختر نوع التعليم (لغات أو حكومي)");
+  if (!SYSTEMS[v.system]) throw new Error("اختر نوع التعليم");
   if (!v.grade) throw new Error("اختر الصف الدراسي");
   if (!v.city) throw new Error("اختر المدينة");
   if (v.parentPhone && !PHONE_RE.test(v.parentPhone)) throw new Error("رقم ولي الأمر غير صحيح");
@@ -674,7 +674,7 @@ const fmtDate = t => { try { return t?.toDate ? t.toDate().toLocaleDateString("a
 const ytId = u => { u = (u || "").trim(); if (/^[\w-]{11}$/.test(u)) return u; const m = u.match(/(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/|v\/))([\w-]{11})/); return m ? m[1] : ""; };
 const driveLink = u => { const m = (u || "").match(/drive\.google\.com\/file\/d\/([\w-]+)/) || (u || "").match(/drive\.google\.com\/open\?id=([\w-]+)/); return m ? `https://drive.google.com/uc?export=download&id=${m[1]}` : u; };
 const stageLabel = v => v === "all" ? "كل المراحل" : STAGES[v] || "—";
-const sysLabel = v => v === "all" ? "لغات + حكومي" : SYSTEMS[v] || "—";
+const sysLabel = v => v === "all" ? "كل الأنظمة" : SYSTEMS[v] || "—";
 
 /* ---------- المصادقة ---------- */
 function clearSubs() { S.hwsubs = []; S.attempts = []; S.examKeys = {}; S.contentOn = false; S.unsubs.forEach(f => f()); S.unsubs = []; if (S.unsubSelf) { S.unsubSelf(); S.unsubSelf = null; } }
@@ -809,7 +809,7 @@ function renderLanding() {
   const lvl = (n, top, t, d, chips) => `<article class="pcard"><div class="pc-top"><small>${n}</small>${top}</div><div class="pc-body"><h3>${t}</h3><p>${d}</p><div class="tags">${chips}</div><a class="more" href="#/register">سجّل الآن ←</a></div></article>`;
   const step = (n, t, d) => `<div class="step"><b>${n}</b><div><h3>${t}</h3><p>${d}</p></div></div>`;
   const soc = (k, u, t, s) => `<a class="soc s-${k}" href="${u}" target="_blank" rel="noopener"><span class="sic">${SVG[k]}</span><span class="stx"><b>${t}</b><small>${s}</small></span><i>↗</i></a>`;
-  const chipsAll = `<span class="tag">لغات</span><span class="tag">حكومي</span>`;
+  const chipsAll = Object.values(SYSTEMS).map(v => `<span class="tag">${v}</span>`).join("");
   app.innerHTML = `${pubHeader()}<main>
   <section id="s-home" class="hero"><div class="bgphoto" aria-hidden="true"><i style="background-image:url(${PHOTO})"></i></div>
     <div class="wrap hero-grid"><div class="hero-text">
@@ -1778,7 +1778,7 @@ async function contentAction(e) {
   } catch (er) { toast("فشلت العملية: " + (er.code || er.message), "err"); }
 }
 const targetFields = c => `<div class="row3"><label class="fl">المرحلة<select name="stage"></select></label><label class="fl">النظام<select name="system"></select></label><label class="fl">الصف<select name="grade"></select></label></div>`;
-const sysOptsFor = stage => stage === "all" || !SYS_BY_STAGE[stage] ? [["all", "لغات + حكومي"], ["lang", "لغات فقط"], ["gov", "حكومي فقط"]] : SYS_BY_STAGE[stage].length === 1 ? [[SYS_BY_STAGE[stage][0], SYSTEMS[SYS_BY_STAGE[stage][0]]]] : [["all", "لغات + حكومي"], ...SYS_BY_STAGE[stage].map(k => [k, SYSTEMS[k] + " فقط"])];
+const sysOptsFor = stage => stage === "all" || !SYS_BY_STAGE[stage] ? [["all", "كل الأنظمة"], ...Object.entries(SYSTEMS).map(([k, v]) => [k, v + " فقط"])] : SYS_BY_STAGE[stage].length === 1 ? [[SYS_BY_STAGE[stage][0], SYSTEMS[SYS_BY_STAGE[stage][0]]]] : [["all", "كل الأنظمة"], ...SYS_BY_STAGE[stage].map(k => [k, SYSTEMS[k] + " فقط"])];
 const gradeOptsFor = stage => [["all", stage === "all" ? "كل الصفوف" : "كل صفوف المرحلة"], ...(GRADES[stage] || []).map(g => [g, g])];
 const optHTML = (list, cur) => list.map(([k, v]) => `<option value="${esc(k)}" ${k === cur ? "selected" : ""}>${esc(v)}</option>`).join("");
 function bindTarget(form, c) {
