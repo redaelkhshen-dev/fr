@@ -487,12 +487,12 @@ const EMAIL_DOMAIN = "students.reda-fr.app";
 const STAGES = { primary: "الابتدائية", prep: "الإعدادية", secondary: "الثانوية" };
 const SYSTEMS = { lang: "لغات", gov: "حكومي" };
 const GRADES = {
-  primary: ["الصف الرابع الابتدائي", "الصف الخامس الابتدائي", "الصف السادس الابتدائي"],
+  primary: ["الصف الأول الابتدائي", "الصف الثاني الابتدائي", "الصف الثالث الابتدائي", "الصف الرابع الابتدائي", "الصف الخامس الابتدائي", "الصف السادس الابتدائي"],
   prep: ["الصف الأول الإعدادي", "الصف الثاني الإعدادي", "الصف الثالث الإعدادي"],
   secondary: ["الصف الأول الثانوي", "الصف الثاني الثانوي", "الصف الثالث الثانوي"]
 };
 // الأنظمة المتاحة لكل مرحلة (عدّلها هنا لو أردت إضافة نظام لمرحلة)
-const SYS_BY_STAGE = { secondary: ["gov", "lang"], prep: ["lang"], primary: ["lang"] };
+const SYS_BY_STAGE = { secondary: ["gov", "lang"], prep: ["lang"], primary: ["gov", "lang"] };
 const gnum = g => { g = g || ""; const m = [["الأول", 1], ["الاول", 1], ["الثاني", 2], ["الثالث", 3], ["الرابع", 4], ["الخامس", 5], ["السادس", 6]].find(([k]) => g.includes(k)); return m ? m[1] : 0; };
 // هل المحتوى x مخصص للطالب st؟ (المرحلة + النظام + الصف)
 const fits = (x, st) => (x.stage === "all" || x.stage === st.stage) && (x.system === "all" || x.system === st.system) && (!x.grade || x.grade === "all" || gnum(x.grade) === gnum(st.grade));
