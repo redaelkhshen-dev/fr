@@ -114,5 +114,33 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // الاختبارات: المدرس ينشئها. مفاتيح الإجابات لا يقرؤها الطالب إلا بعد تسليم إجاباته
+    match /exams/{id} {
+      allow read: if isAdmin() || isActiveStudent();
+      allow write: if isAdmin();
+    }
+    match /examKeys/{id} {
+      allow read: if isAdmin() || (isActiveStudent()
+        && exists(/databases/$(database)/documents/attempts/$(id + '_' + request.auth.uid)));
+      allow write: if isAdmin();
+    }
+
+    // محاولات الاختبارات (رقم المستند = examId_uid): محاولة واحدة لكل طالب، ثم تُسجَّل الدرجة مرة واحدة
+    match /attempts/{aid} {
+      allow read: if isAdmin() || (request.auth != null && resource.data.uid == request.auth.uid);
+      allow create: if isActiveStudent()
+        && request.resource.data.uid == request.auth.uid
+        && aid == request.resource.data.examId + '_' + request.auth.uid
+        && request.resource.data.status == 'submitted'
+        && request.resource.data.keys().hasOnly(['examId','uid','name','phone','stage','grade','title','answers','status','createdAt'])
+        && request.resource.data.answers is list && request.resource.data.answers.size() <= 100;
+      allow update: if isAdmin() || (isActiveStudent()
+        && resource.data.uid == request.auth.uid
+        && !('score' in resource.data)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['score','total','pendingEssay','status','scoredAt'])
+        && request.resource.data.status in ['graded','review']);
+      allow delete: if isAdmin();
+    }
+
   }
 }

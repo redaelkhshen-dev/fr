@@ -112,6 +112,13 @@ input[dir=ltr]{text-align:left}
 .badge{display:inline-block;padding:1px 10px;border-radius:6px;font-size:.78rem;background:var(--soft);color:var(--accent-text);white-space:nowrap}
 .hw{align-items:flex-start;flex-wrap:wrap}.hw .t{flex:1;min-width:200px}.hw .m{display:flex;gap:6px;flex-wrap:wrap}.hwa{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .hwrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 4px;border-bottom:1px solid var(--line)}.hwrow .who{flex:1;min-width:160px}.hwmid{flex:1.2;min-width:160px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.exam{max-width:820px;margin:0 auto}.xq{margin-bottom:14px}.xh{display:flex;gap:8px;align-items:flex-start;margin-bottom:10px;font-weight:600}.xh span{flex:1}.xq textarea{min-height:110px}
+.xo{display:flex;gap:10px;align-items:center;padding:10px 14px;margin-top:8px;border:1px solid var(--line);border-radius:10px;cursor:pointer;background:var(--bg2)}.xo:hover{border-color:var(--accent)}.xo input{accent-color:var(--accent);width:18px;height:18px;flex:none}
+.xo.r{cursor:default}.xo.right{border-color:var(--good);background:rgba(61,220,132,.1)}.xo.wrong{border-color:var(--bad);background:rgba(255,107,122,.1)}.xq.ok{border-inline-start:4px solid var(--good)}.xq.no{border-inline-start:4px solid var(--bad)}
+.xans{white-space:pre-wrap;padding:10px 14px;border-radius:10px;background:var(--bg2);margin:6px 0}
+.xres{text-align:center;margin-bottom:16px}.xbig{font:800 3.2rem/1.2 var(--fd);margin:6px 0}.xbig small{font-size:1.2rem;color:var(--muted)}.xbig.good{color:var(--good)}.xbig.warn{color:var(--warn)}.xbig.bad{color:var(--bad)}
+.qb{margin-bottom:12px;padding:14px}.qbh{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px}.qbh .qn{color:var(--accent-text)}.qbh select{flex:1;min-width:140px}.qpl{display:flex;gap:6px;align-items:center;font-size:.85rem}.qb .qpl input.qp{width:76px;flex:none}.qbh select{width:auto}
+.qo{display:flex;gap:8px;align-items:center;margin-top:8px}.qo .qc{width:18px;height:18px;flex:none;accent-color:var(--accent)}.qo .qopt{flex:1}
 .hwfb{margin-top:8px;padding:8px 12px;border-radius:8px;background:var(--soft);font-size:.9rem}
 .badge.good{background:rgba(61,220,132,.14);color:var(--good)}
 .badge.bad{background:rgba(255,107,122,.14);color:var(--bad)}
@@ -522,7 +529,7 @@ const db = getFirestore(fbApp);
 const storage = getStorage(fbApp);
 
 /* ---------- الحالة ---------- */
-const S = { ready: false, user: null, student: null, busy: false, flash: "", videos: [], files: [], homework: [], hwsubs: [], students: [], comments: [], ratings: [], payments: [], unsubs: [], unsubSelf: null, page: "" };
+const S = { ready: false, user: null, student: null, busy: false, flash: "", videos: [], files: [], homework: [], hwsubs: [], exams: [], attempts: [], examKeys: {}, students: [], comments: [], ratings: [], payments: [], unsubs: [], unsubSelf: null, page: "" };
 const H = { tab: "videos", q: "" };
 const A = { cvid: "", cq: "", cstage: "", cgrade: "", tab: "overview", q: "", fstage: "", fstatus: "" };
 
@@ -644,12 +651,12 @@ const stageLabel = v => v === "all" ? "كل المراحل" : STAGES[v] || "—"
 const sysLabel = v => v === "all" ? "لغات + حكومي" : SYSTEMS[v] || "—";
 
 /* ---------- المصادقة ---------- */
-function clearSubs() { S.hwsubs = []; S.contentOn = false; S.unsubs.forEach(f => f()); S.unsubs = []; if (S.unsubSelf) { S.unsubSelf(); S.unsubSelf = null; } }
+function clearSubs() { S.hwsubs = []; S.attempts = []; S.examKeys = {}; S.contentOn = false; S.unsubs.forEach(f => f()); S.unsubs = []; if (S.unsubSelf) { S.unsubSelf(); S.unsubSelf = null; } }
 function sub(col, key) {
   const q = query(collection(db, col), orderBy("createdAt", "desc"));
   S.unsubs.push(onSnapshot(q, s => { S[key] = s.docs.map(d => ({ id: d.id, ...d.data() })); if (key === "students") checkNew(); if (key === "payments") checkPay(); onData(); }, e => console.warn(col, e.code)));
 }
-const startContent = () => { if (S.contentOn) return; S.contentOn = true; sub("videos", "videos"); sub("files", "files"); sub("homework", "homework"); if (S.student?.id) S.unsubs.push(onSnapshot(query(collection(db, "hwsubs"), where("uid", "==", S.student.id)), q => { S.hwsubs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, e => console.warn("hwsubs", e.code))); };
+const startContent = () => { if (S.contentOn) return; S.contentOn = true; sub("videos", "videos"); sub("files", "files"); sub("homework", "homework"); sub("exams", "exams"); if (S.student?.id) S.unsubs.push(onSnapshot(query(collection(db, "attempts"), where("uid", "==", S.student.id)), q => { S.attempts = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, e => console.warn("attempts", e.code))); if (S.student?.id) S.unsubs.push(onSnapshot(query(collection(db, "hwsubs"), where("uid", "==", S.student.id)), q => { S.hwsubs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, e => console.warn("hwsubs", e.code))); };
 function checkNew() {
   const pn = S.students.filter(x => x.status === "pending").length;
   if (S.pn === undefined ? pn > 0 : pn > S.pn) toast(`🔔 ${pn} طلب تسجيل بانتظار مراجعتك`, "ok");
@@ -666,6 +673,8 @@ function onData() {
   if (isAdminUser()) { if ($("#abody")) fillTab(); paintHwModal(); }
   else if (S.page === "home") fillHome();
   else if (S.page === "watch" && !S.watchOk) render();
+  else if (S.page === "activity") paintActivity();
+  else if (S.page === "exam" && !S.examOk) render();
 }
 async function kick(msg) { S.flash = msg; S.student = null; clearSubs(); try { await signOut(auth); } catch {} if (!S.user) render(); }
 let retryUser = null;
@@ -707,7 +716,7 @@ async function attachStudent(u) {
 onAuthStateChanged(auth, async u => {
   clearSubs(); S.user = u; S.student = null;
   if (!u) { S.ready = true; render(); return; }
-  if (u.email === ADMIN_EMAIL) { sub("students", "students"); sub("videos", "videos"); sub("files", "files"); sub("homework", "homework"); S.unsubs.push(onSnapshot(collection(db, "hwsubs"), q => { S.hwsubs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); sub("comments", "comments"); sub("payments", "payments"); S.unsubs.push(onSnapshot(collection(db, "ratings"), s => { S.ratings = s.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.ready = true; render(); return; }
+  if (u.email === ADMIN_EMAIL) { sub("students", "students"); sub("videos", "videos"); sub("files", "files"); sub("homework", "homework"); sub("exams", "exams"); S.unsubs.push(onSnapshot(collection(db, "attempts"), q => { S.attempts = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "examKeys"), q => { S.examKeys = Object.fromEntries(q.docs.map(d => [d.id, d.data().keys])); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "hwsubs"), q => { S.hwsubs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); sub("comments", "comments"); sub("payments", "payments"); S.unsubs.push(onSnapshot(collection(db, "ratings"), s => { S.ratings = s.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.ready = true; render(); return; }
   if (S.busy) return;
   await attachStudent(u);
 });
@@ -726,6 +735,7 @@ function render() {
     if (S.student.status !== "active") return renderPending();
     if (route === "/pay") return renderPay();
     if (route === "/activity") return renderActivity();
+    if (route.startsWith("/exam/")) return renderExam(route.slice(6));
     if (route === "/profile") return renderProfile();
     if (route.startsWith("/watch/")) return renderWatch(route.slice(7));
     return renderHome();
@@ -991,7 +1001,7 @@ function renderHome() {
       <h1>أهلًا يا <span class="hl">${esc(s.name.split(" ")[0])}</span> 👋</h1><p class="lead">${esc(s.grade)} — جاهز تكمل رحلتك مع الفرنسية؟</p>
       <div class="mini"><div><b id="cv">0</b><span>فيديو متاح</span></div><div><b id="cf">0</b><span>ملف متاح</span></div><div><b>${SYSTEMS[s.system]}</b><span>${STAGES[s.stage]}</span></div></div><div class="ovp"><div class="pbar-top"><span id="ovt">تقدمك العام</span><b id="ovn">0%</b></div><div class="pbar-track"><i id="ovf"></i></div></div></div>
       <div class="sv"><div class="disc sm">${avatarHTML(s, 200)}</div></div></div></section><main class="wrap">
-    <div class="tabs"><button class="tab" data-t="videos">🎬 الفيديوهات</button><button class="tab" data-t="files">📄 الملفات</button><button class="tab" data-t="hw" id="tabhw">📝 الواجبات</button><input class="srch" id="q" placeholder="ابحث..." value="${esc(H.q)}"></div>
+    <div class="tabs"><button class="tab" data-t="videos">🎬 الفيديوهات</button><button class="tab" data-t="files">📄 الملفات</button><button class="tab" data-t="hw" id="tabhw">📝 الواجبات</button><button class="tab" data-t="exams" id="tabex">📋 الاختبارات</button><input class="srch" id="q" placeholder="ابحث..." value="${esc(H.q)}"></div>
     <div class="grid" id="list"></div></main><footer class="foot">© منصة مسيو رضا الخشن — المحتوى للاستخدام الشخصي فقط</footer>`;
   $("#lo").onclick = doLogout;
   $$(".tab").forEach(b => b.onclick = () => { H.tab = b.dataset.t; fillHome(); });
@@ -1033,11 +1043,15 @@ function fillHome() {
   if ($("#ovn")) { const vis = visible(S.videos), ps = vis.map(x => getProg(x.id)), dn = ps.filter(p => p.done).length, avg = vis.length ? Math.round(ps.reduce((a, p) => a + Math.min(100, p.p), 0) / vis.length) : 0; $("#ovn").textContent = avg + "%"; $("#ovf").style.width = avg + "%"; $("#ovt").textContent = `تقدمك العام · أكملت ${dn} من ${vis.length} فيديو`; }
   $$(".tab").forEach(b => b.classList.toggle("on", b.dataset.t === H.tab));
   { const th = $("#tabhw"); if (th) { const n = visible(S.homework).filter(h => hwStatus(h.id) !== "graded").length; th.innerHTML = "📝 الواجبات" + (n ? ` <span class="pbadge">${n}</span>` : ""); } }
+  { const te = $("#tabex"); if (te) { const n = visible(S.exams).filter(examOpen).filter(x => !attOf(x.id)).length; te.innerHTML = "📋 الاختبارات" + (n ? ` <span class="pbadge">${n}</span>` : ""); } }
   const q = H.q.trim().toLowerCase();
   const m = x => !q || (x.title || "").toLowerCase().includes(q) || (x.description || "").toLowerCase().includes(q);
   if (H.tab === "videos") {
     const v = visible(S.videos).filter(m);
     list.innerHTML = v.length ? v.map((x, i) => { const pr = getProg(x.id); return `<a class="vcard" style="--i:${i}" href="#/watch/${esc(x.id)}" data-y="${esc(x.ytId)}"><div class="thumb"><span class="num">${String(i + 1).padStart(2, "0")}</span><img class="fr on" loading="lazy" src="https://i.ytimg.com/vi/${esc(x.ytId)}/mqdefault.jpg" alt=""><span class="play"><i>▶</i></span>${pr.done ? `<span class="done">✓ تمت المشاهدة</span>` : ""}<span class="vp"><i style="width:${pr.p}%"></i></span></div><div class="vb"><h3>${esc(x.title)}</h3>${x.description ? `<p>${esc(x.description)}</p>` : ""}${pr.p > 0 && !pr.done ? `<small class="resume">أكملت ${Math.round(pr.p)}% · تابع من حيث توقفت</small>` : ""}</div></a>`; }).join("") : `<div class="empty">لا توجد فيديوهات لمرحلتك حاليًا</div>`;
+  } else if (H.tab === "exams") {
+    const xs = visible(S.exams).filter(examOpen).filter(m);
+    list.innerHTML = xs.length ? xs.map(examCard).join("") : `<div class="empty">لا توجد اختبارات لمرحلتك حاليًا</div>`;
   } else if (H.tab === "hw") {
     const hs = visible(S.homework).filter(m);
     list.innerHTML = hs.length ? hs.map(hwCard).join("") : `<div class="empty">لا توجد واجبات لمرحلتك حاليًا</div>`;
@@ -1187,6 +1201,77 @@ async function copyHandler(e) {
 }
 document.addEventListener("click", copyHandler);
 
+/* ---------- الاختبارات (الطالب) ---------- */
+const todayStr = () => { const d = new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); };
+const examOpen = e => !e.publishAt || e.publishAt <= todayStr();
+const normTxt = t => String(t || "").toLowerCase().normalize("NFD").replace(/[̀-ًͯ-ٟـ]/g, "").replace(/[أإآ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي").replace(/\s+/g, " ").trim();
+const r2 = n => Math.round(n * 100) / 100;
+const attOf = id => S.attempts.find(a => a.examId === id);
+const pctOf = a => a.total ? Math.round(a.score / a.total * 100) : 0;
+const pctCls = p => p >= 85 ? "good" : p >= 50 ? "warn" : "bad";
+// التصحيح التلقائي: الاختيار من متعدد بمطابقة الإجابة، والمقالي بالكلمات المفتاحية (لو لم تُحدد كلمات يبقى للتصحيح اليدوي)
+function gradeExam(ex, keys, answers) {
+  let score = 0, total = 0, pending = false; const per = [];
+  ex.questions.forEach((q, i) => {
+    const pts = Number(q.pts) || 1, k = keys?.[i] || {}, a = answers[i]; total += pts; let got = 0, ok = null;
+    if (q.t === "mcq") { ok = a === k.c; got = ok ? pts : 0; }
+    else { const kw = (k.k || []).filter(Boolean); if (kw.length) { const m = kw.filter(w => normTxt(a).includes(normTxt(w))).length; got = r2(pts * m / kw.length); ok = m === kw.length; } else pending = true; }
+    score += got; per.push({ pts, got, ok });
+  });
+  return { score: r2(score), total, pending, per };
+}
+const keyCache = {};
+async function getKeys(id) { if (S.examKeys?.[id]) return S.examKeys[id]; if (keyCache[id]) return keyCache[id]; const d = await getDoc(doc(db, "examKeys", id)); const k = d.exists() ? d.data().keys : null; if (k) keyCache[id] = k; return k; }
+function examCard(e) {
+  const a = attOf(e.id), n = e.questions?.length || 0, tot = (e.questions || []).reduce((s, q) => s + (Number(q.pts) || 1), 0);
+  const st = !a ? `<span class="badge warn">لم تحلّه بعد</span>` : a.score === undefined ? `<span class="badge">جاري التصحيح…</span>` : `<span class="badge ${pctCls(pctOf(a))}">الدرجة: ${a.score}/${a.total} (${pctOf(a)}%)</span>${a.pendingEssay ? `<span class="badge warn">بانتظار تصحيح المقالي</span>` : ""}`;
+  return `<div class="fcard hw"><div class="ficon">📋</div><div class="t"><h3>${esc(e.title)}</h3><div class="m" style="margin-top:6px"><span class="badge">${n} سؤال</span><span class="badge">${tot} درجة</span>${e.publishAt ? `<span class="badge">📅 ${esc(e.publishAt)}</span>` : ""}${st}</div></div>
+    <div class="hwa"><a class="btn ${a ? "btn-line" : "btn-fill"} btn-sm" href="#/exam/${esc(e.id)}">${a ? "عرض النتيجة" : "ابدأ الاختبار"}</a></div></div>`;
+}
+function renderExam(id) {
+  S.page = "exam"; S.examOk = false; const s = S.student, ex = S.exams.find(x => x.id === id);
+  const msg = t => { app.innerHTML = `${studentHeader()}<main class="wrap sec"><div class="empty">${t}</div><p style="margin-top:16px"><a class="btn btn-line btn-sm" href="#/">← العودة</a></p></main>`; $("#lo").onclick = doLogout; };
+  if (!ex) return msg(S.exams.length ? "الاختبار غير موجود" : "جاري التحميل...");
+  if (!fits(ex, s) || !examOpen(ex)) return msg("هذا الاختبار غير متاح لك حاليًا");
+  S.examOk = true; const a = attOf(id);
+  if (a) return showExamResult(ex, a);
+  app.innerHTML = `${studentHeader()}<main class="wrap sec"><div class="exam"><div class="banner" style="margin:0 0 18px"><div><h1>📋 ${esc(ex.title)}</h1><p>${ex.questions.length} سؤال · ${ex.questions.reduce((t, q) => t + (Number(q.pts) || 1), 0)} درجة — يُحَل مرة واحدة فقط، وتظهر الدرجة فور الإرسال</p></div></div>
+    <div class="alert" id="err" hidden></div><form id="xf" novalidate>${ex.questions.map((q, i) => `<div class="card xq"><div class="xh"><b>${i + 1}.</b> <span>${esc(q.q)}</span><small class="badge">${Number(q.pts) || 1} درجة</small></div>
+      ${q.t === "mcq" ? q.opts.map((o, j) => `<label class="xo"><input type="radio" name="q${i}" value="${j}"><span>${esc(o)}</span></label>`).join("") : `<textarea name="q${i}" maxlength="1500" placeholder="اكتب إجابتك هنا..."></textarea>`}</div>`).join("")}
+    <div class="mact"><button class="btn btn-fill" id="sb">إرسال الإجابات</button><a class="btn btn-line" href="#/">إلغاء</a></div></form></div></main>`;
+  $("#lo").onclick = doLogout;
+  $("#xf").addEventListener("submit", async e => {
+    e.preventDefault(); showErr(""); const f = new FormData(e.target);
+    const answers = ex.questions.map((q, i) => q.t === "mcq" ? (f.get("q" + i) === null ? -1 : Number(f.get("q" + i))) : String(f.get("q" + i) || "").trim());
+    const miss = answers.filter((x, i) => x === -1 || x === "").length;
+    if (!confirm(miss ? `لم تجب عن ${miss} سؤال. هل تريد الإرسال؟ لا يمكن التعديل بعد الإرسال.` : "إرسال الإجابات؟ لا يمكن التعديل بعد الإرسال.")) return;
+    $("#sb").disabled = true;
+    try {
+      const aid = id + "_" + s.id, base = { examId: id, uid: s.id, name: s.name, phone: s.phone, stage: s.stage, grade: s.grade, title: ex.title, answers, status: "submitted", createdAt: serverTimestamp() };
+      await setDoc(doc(db, "attempts", aid), base);
+      const keys = await getKeys(id), g = gradeExam(ex, keys, answers);
+      const res = { score: g.score, total: g.total, pendingEssay: g.pending, status: g.pending ? "review" : "graded", scoredAt: serverTimestamp() };
+      await updateDoc(doc(db, "attempts", aid), res);
+      showExamResult(ex, { ...base, ...res, id: aid, createdAt: null }, keys);
+    } catch (er) { showErr("تعذر إرسال الاختبار: " + (er.code || er.message)); $("#sb").disabled = false; }
+  });
+}
+async function showExamResult(ex, a, keys) {
+  if (S.page !== "exam") return;
+  if (!keys) { try { keys = await getKeys(ex.id); } catch { keys = null; } }
+  if (S.page !== "exam") return;
+  let sc = a.score, tot = a.total, pend = a.pendingEssay, per = null;
+  if (keys) { const g = gradeExam(ex, keys, a.answers || []); per = g.per; if (sc === undefined) { sc = g.score; tot = g.total; pend = g.pending; try { await updateDoc(doc(db, "attempts", a.id), { score: sc, total: tot, pendingEssay: pend, status: pend ? "review" : "graded", scoredAt: serverTimestamp() }); } catch {} } }
+  if (a.manual) per = null;
+  const p = tot ? Math.round(sc / tot * 100) : 0;
+  app.innerHTML = `${studentHeader()}<main class="wrap sec"><div class="exam"><div class="card xres"><small class="sub">${esc(ex.title)}</small><div class="xbig ${pctCls(p)}">${sc ?? "—"}<small> / ${tot ?? "—"}</small></div><b>${p}%</b>
+    ${pend ? `<p class="sub">⏳ الدرجة مبدئية — فيها أسئلة مقالية بانتظار تصحيح المدرس</p>` : `<p class="sub">✅ تم حفظ درجتك في صفحة "نشاطي"</p>`}</div>
+    ${ex.questions.map((q, i) => { const r = per?.[i], ans = a.answers?.[i]; return `<div class="card xq ${r?.ok === true ? "ok" : r?.ok === false ? "no" : ""}"><div class="xh"><b>${i + 1}.</b> <span>${esc(q.q)}</span><small class="badge ${r ? (r.ok ? "good" : r.ok === false ? "bad" : "warn") : ""}">${r ? r.got : "—"} / ${Number(q.pts) || 1}</small></div>
+      ${q.t === "mcq" ? q.opts.map((o, j) => `<div class="xo r ${keys && keys[i]?.c === j ? "right" : ""} ${ans === j && keys?.[i]?.c !== j ? "wrong" : ""}"><span>${ans === j ? "●" : "○"} ${esc(o)}${keys && keys[i]?.c === j ? " ✓" : ""}</span></div>`).join("") : `<p class="xans">${ans ? esc(ans) : "<i>لم تُجب</i>"}</p>${keys?.[i]?.k?.length ? `<small class="sub">الكلمات المطلوبة: ${esc(keys[i].k.join("، "))}</small>` : `<small class="sub">يصحّحه المدرس</small>`}`}</div>`; }).join("")}
+    <p><a class="btn btn-line" href="#/">← العودة</a> <a class="btn btn-fill" href="#/activity">نشاطي</a></p></div></main>`;
+  $("#lo").onclick = doLogout;
+}
+
 /* ---------- نشاطي وإحصائياتي ---------- */
 const AC = { unsubs: [], comments: [], ratings: [], tab: "videos" };
 function stopActivitySubs() { AC.unsubs.forEach(f => f()); AC.unsubs = []; AC.comments = []; AC.ratings = []; }
@@ -1197,9 +1282,9 @@ function renderActivity() {
   S.page = "activity"; const s = S.student;
   app.innerHTML = `${studentHeader()}<main class="wrap sec">
     <section class="banner"><div><h1>📊 نشاطي وإحصائياتي</h1><p>تابع تقدمك في الفيديوهات وتعليقاتك وتقييماتك على المنصة</p></div><a class="btn btn-fill" id="resume" href="#/" hidden>▶ تابع من حيث توقفت</a></section>
-    <div class="stats" id="as" style="margin-top:22px"></div>
+    <div class="stats" id="as" style="margin-top:22px;grid-template-columns:repeat(auto-fit,minmax(140px,1fr))"></div>
     <div class="pf"><div class="card"><h3 style="margin-bottom:12px">تقدمك العام</h3><div id="ovc"></div></div><div class="card"><h3 style="margin-bottom:4px">نشاط آخر 7 أيام</h3><small style="color:var(--muted)">فيديوهات شاهدتها وتعليقات كتبتها في كل يوم</small><div class="wk" id="wk"></div></div></div>
-    <div class="tabs"><button class="tab" data-t="videos">🎬 فيديوهاتي</button><button class="tab" data-t="comments">💬 تعليقاتي</button><button class="tab" data-t="ratings">⭐ تقييماتي</button></div>
+    <div class="tabs"><button class="tab" data-t="videos">🎬 فيديوهاتي</button><button class="tab" data-t="comments">💬 تعليقاتي</button><button class="tab" data-t="ratings">⭐ تقييماتي</button><button class="tab" data-t="exams">📋 اختباراتي</button></div>
     <div id="al"></div></main>`;
   $("#lo").onclick = doLogout;
   $$(".tab").forEach(b => b.onclick = () => { AC.tab = b.dataset.t; paintActivity(); });
@@ -1218,7 +1303,7 @@ function paintActivity() {
   const done = prog.filter(p => p.done), going = prog.filter(p => p.p > 0 && !p.done), fresh = prog.filter(p => p.p <= 0);
   const secs = prog.reduce((a, p) => a + (p.d ? p.d * Math.min(100, p.p) / 100 : 0), 0);
   const avg = vis.length ? Math.round(prog.reduce((a, p) => a + Math.min(100, p.p), 0) / vis.length) : 0;
-  $("#as").innerHTML = [["✅", done.length, `فيديو أكملته من ${vis.length}`], ["▶️", going.length, "قيد المشاهدة"], ["🕒", fmtDur(secs), "مدة المشاهدة التقريبية"], ["💬", AC.comments.length, "تعليق"], ["⭐", AC.ratings.length, "تقييم"], ["📭", fresh.length, "لم تبدأها بعد"]].map(([i, n, l]) => `<div class="stat"><b>${n}</b><span>${i} ${l}</span></div>`).join("");
+  $("#as").innerHTML = [["✅", done.length, `فيديو أكملته من ${vis.length}`], ["▶️", going.length, "قيد المشاهدة"], ["🕒", fmtDur(secs), "مدة المشاهدة التقريبية"], ["💬", AC.comments.length, "تعليق"], ["⭐", AC.ratings.length, "تقييم"], ["📋", S.attempts.length, "اختبار حللته"], ["🎯", (S.attempts.filter(a => a.score !== undefined).length ? Math.round(S.attempts.filter(a => a.score !== undefined).reduce((t, a) => t + pctOf(a), 0) / S.attempts.filter(a => a.score !== undefined).length) + "%" : "—"), "متوسط درجاتك"], ["📭", fresh.length, "لم تبدأها بعد"]].map(([i, n, l]) => `<div class="stat"><b>${n}</b><span>${i} ${l}</span></div>`).join("");
   $("#ovc").innerHTML = `<div class="pbar-top"><span>${done.length} من ${vis.length} فيديو مكتمل</span><b>${avg}%</b></div><div class="pbar-track"><i style="width:${avg}%"></i></div>`;
   const last = [...going].sort((a, b) => b.at - a.at)[0] || [...fresh][0];
   const rb = $("#resume"); if (last) { rb.hidden = false; rb.href = "#/watch/" + last.v.id; rb.textContent = going.length ? "▶ تابع من حيث توقفت" : "▶ ابدأ أول فيديو"; } else rb.hidden = true;
@@ -1236,6 +1321,9 @@ function paintActivity() {
   } else if (AC.tab === "comments") {
     const l = [...AC.comments].sort((a, b) => (b.createdAt?.seconds ?? 9e12) - (a.createdAt?.seconds ?? 9e12));
     al.innerHTML = l.map(c => { const v = byId[c.videoId]; return `<div class="arow"><div class="ainfo"><a href="#/watch/${esc(c.videoId)}"><h3>${esc(v?.title || "فيديو محذوف")}</h3></a><p style="white-space:pre-wrap;margin:6px 0">${esc(c.text)}</p><small>${ago(c.createdAt)}${c.edited ? " · تم التعديل" : ""}</small> ${v ? `<a class="lnk" href="#/watch/${esc(c.videoId)}">عرض وتعديل</a>` : ""} <button class="lnk bad" data-del="${esc(c.id)}">حذف</button></div></div>`; }).join("") || `<div class="empty">لم تكتب أي تعليق بعد.</div>`;
+  } else if (AC.tab === "exams") {
+    const l = [...S.attempts].sort((a, b) => (b.createdAt?.seconds ?? 9e12) - (a.createdAt?.seconds ?? 9e12));
+    al.innerHTML = l.map(a => { const p = pctOf(a); return `<div class="arow"><div class="ainfo"><a href="#/exam/${esc(a.examId)}"><h3>📋 ${esc(a.title)}</h3></a><div style="margin:6px 0">${a.score === undefined ? `<span class="badge">جاري التصحيح…</span>` : `<span class="badge ${pctCls(p)}">الدرجة: ${a.score}/${a.total} · ${p}%</span>`}${a.status === "review" ? ` <span class="badge warn">⏳ بانتظار تصحيح المقالي</span>` : ""}</div><small>${ago(a.createdAt)} · ${a.createdAt?.toDate ? a.createdAt.toDate().toLocaleDateString("ar-EG", { weekday: "long", day: "numeric", month: "long", year: "numeric" }) : ""}</small></div></div>`; }).join("") || `<div class="empty">لم تحل أي اختبار بعد.</div>`;
   } else {
     const l = [...AC.ratings].sort((a, b) => (b.updatedAt?.seconds ?? 9e12) - (a.updatedAt?.seconds ?? 9e12));
     al.innerHTML = l.map(r => { const v = byId[r.videoId]; return v ? row(v, `<a href="#/watch/${esc(v.id)}"><h3>${esc(v.title)}</h3></a><div class="stars-ro" style="margin:6px 0">${"★".repeat(r.value)}${"☆".repeat(5 - r.value)}</div><small>${ago(r.updatedAt)}</small>`) : ""; }).join("") || `<div class="empty">لم تقيّم أي فيديو بعد.</div>`;
@@ -1301,7 +1389,7 @@ function renderAdminLogin() {
 function renderAdmin() {
   S.page = "admin";
   app.innerHTML = `<header class="hdr"><div class="wrap hdr-in">${brand()}<nav class="nav-a">
-    <button class="atab" data-t="overview">نظرة عامة</button><button class="atab" data-t="students">الطلاب</button><button class="atab" data-t="videos">الفيديوهات</button><button class="atab" data-t="files">الملفات</button><button class="atab" data-t="homework">الواجبات</button><button class="atab" data-t="comments">التعليقات</button><button class="atab" data-t="payments">المدفوعات</button></nav>
+    <button class="atab" data-t="overview">نظرة عامة</button><button class="atab" data-t="students">الطلاب</button><button class="atab" data-t="videos">الفيديوهات</button><button class="atab" data-t="files">الملفات</button><button class="atab" data-t="homework">الواجبات</button><button class="atab" data-t="exams">الاختبارات</button><button class="atab" data-t="grades">رصد الدرجات</button><button class="atab" data-t="comments">التعليقات</button><button class="atab" data-t="payments">المدفوعات</button></nav>
     <button class="btn btn-line btn-sm" id="lo">خروج</button></div></header><main class="wrap sec" id="abody"></main>`;
   $("#lo").onclick = doLogout;
   $$(".atab").forEach(b => b.onclick = () => setTab(b.dataset.t));
@@ -1440,6 +1528,104 @@ function paintHwModal() {
     return `<div class="hwrow"><div class="who">${avatarHTML(x, 34)}<span>${esc(x.name)}<br><small class="ph">${esc(x.phone)}</small></span></div>
     <div class="hwmid">${g ? `<span class="badge good">✅ تم التصحيح${sb.grade ? " · " + esc(sb.grade) : ""}</span>` : `<span class="badge warn">⏳ لم يتم التصحيح</span>`} ${sb?.link ? `<a href="${esc(sb.link)}" target="_blank" rel="noopener" class="badge">📎 فتح الحل</a>` : sb ? "" : `<small class="sub">لم يسلّم</small>`}${sb?.note ? `<br><small class="sub">${esc(sb.note)}</small>` : ""}</div>
     ${g ? `<button class="btn btn-line btn-sm" data-hs="undo" data-uid="${esc(x.id)}">إلغاء التصحيح</button>` : `<button class="btn btn-fill btn-sm" data-hs="grade" data-uid="${esc(x.id)}">تم التصحيح</button>`}</div>`; }).join("") || `<div class="empty">لا يوجد طلاب نشطون في هذه المرحلة</div>`;
+}
+
+/* ---------- الاختبارات (الأدمن) ---------- */
+TABS.exams = {
+  skel: () => `<div class="toolbar"><h2 style="flex:1">إدارة الاختبارات</h2><button class="btn btn-fill" data-a="xadd">+ إضافة اختبار</button></div>${filterBar()}<div class="agrid" id="xl"></div>`,
+  init: b => { b.onclick = examAction; bindFilter(b); },
+  fill: b => {
+    $("#xl", b).innerHTML = S.exams.filter(passFilter).map(x => { const at = S.attempts.filter(a => a.examId === x.id), tot = x.questions.reduce((s, q) => s + (Number(q.pts) || 1), 0), avg = at.length ? Math.round(at.reduce((s, a) => s + pctOf(a), 0) / at.length) : 0, fut = !examOpen(x);
+      return `<div class="acard"><div class="fcard" style="border:0;padding:0"><div class="ficon">📋</div><div class="t"><h3>${esc(x.title)}</h3><small>${x.questions.length} سؤال · ${tot} درجة</small></div></div>
+        <div class="m"><span class="badge">${stageLabel(x.stage)}</span><span class="badge">${sysLabel(x.system)}</span><span class="badge good">${gradeLabel(x)}</span><span class="badge ${fut ? "warn" : ""}">📅 ${esc(x.publishAt || "فورًا")}${fut ? " (لم يُنشر)" : ""}</span></div>
+        <div class="m"><span class="badge">👥 ${at.length} حلّوه</span><span class="badge good">متوسط ${avg}%</span></div>
+        <div class="acts"><button class="btn btn-line btn-sm" data-a="xedit" data-id="${esc(x.id)}">تعديل</button><button class="btn btn-bad btn-sm" data-a="xdel" data-id="${esc(x.id)}">حذف</button></div></div>`; }).join("") || `<div class="empty">لم تُضف اختبارات بعد</div>`;
+  }
+};
+async function examAction(e) {
+  const btn = e.target.closest("[data-a]"); if (!btn) return; const a = btn.dataset.a, id = btn.dataset.id;
+  try {
+    if (a === "xadd") return examModal();
+    if (a === "xedit") return examModal(S.exams.find(x => x.id === id));
+    if (a === "xdel") { const x = S.exams.find(x => x.id === id); if (!x || !confirm(`حذف الاختبار "${x.title}"؟ (درجات الطلاب السابقة تبقى محفوظة)`)) return; await deleteDoc(doc(db, "exams", id)); try { await deleteDoc(doc(db, "examKeys", id)); } catch {} toast("تم الحذف", "ok"); }
+  } catch (er) { toast("فشلت العملية: " + (er.code || er.message), "err"); }
+}
+let qSeq = 0;
+function qBlock(q, key) {
+  const n = ++qSeq, t = q?.t || "mcq", opts = [...(q?.opts || []), "", "", "", ""].slice(0, 4);
+  return `<div class="qb card" data-n="${n}"><div class="qbh"><b class="qn"></b><select class="qt"><option value="mcq" ${t === "mcq" ? "selected" : ""}>اختيار من متعدد</option><option value="essay" ${t === "essay" ? "selected" : ""}>مقالي / كتابي</option></select><label class="qpl">الدرجة <input class="qp" type="number" min="0.5" step="0.5" value="${esc(q?.pts ?? 1)}"></label><button type="button" class="btn btn-bad btn-sm" data-rm>حذف</button></div>
+    <textarea class="qq" maxlength="600" placeholder="نص السؤال">${esc(q?.q)}</textarea>
+    <div class="qmcq" ${t === "essay" ? "hidden" : ""}>${opts.map((o, j) => `<label class="qo"><input type="radio" name="c${n}" class="qc" value="${j}" ${key?.c === j ? "checked" : ""}><input class="qopt" maxlength="200" placeholder="الاختيار ${j + 1}" value="${esc(o)}"></label>`).join("")}<small class="sub">حدّد الدائرة بجانب الإجابة الصحيحة (اترك الاختيارات الزائدة فارغة)</small></div>
+    <div class="qess" ${t === "essay" ? "" : "hidden"}><input class="qk" maxlength="400" placeholder="كلمات مفتاحية للتصحيح التلقائي، افصل بينها بفاصلة (اتركها فارغة للتصحيح اليدوي)" value="${esc((key?.k || []).join("، "))}"></div></div>`;
+}
+function examModal(ex) {
+  const keys = ex ? S.examKeys?.[ex.id] : null;
+  const m = openModal(`<h2>${ex ? "تعديل اختبار" : "إضافة اختبار"}</h2><div class="alert" id="err" hidden></div>
+    <form id="xf" novalidate><label class="fl">عنوان الاختبار<input name="title" maxlength="120" value="${esc(ex?.title)}"></label>${targetFields(ex)}
+    <label class="fl">تاريخ النشر (يظهر للطلاب من هذا اليوم)<input type="date" name="publishAt" value="${esc(ex?.publishAt || todayStr())}"></label>
+    <h3 style="margin:14px 0 8px">الأسئلة</h3><div id="qs">${(ex?.questions || [null]).map((q, i) => qBlock(q, keys?.[i])).join("")}</div>
+    <button type="button" class="btn btn-line btn-sm" id="qa">+ إضافة سؤال</button>
+    <div class="mact"><button class="btn btn-fill" id="sb">حفظ الاختبار</button><button type="button" class="btn btn-line" data-close>إلغاء</button></div></form>`, true);
+  const form = $("#xf", m), qs = $("#qs", m); bindTarget(form, ex);
+  const num = () => $$(".qb", qs).forEach((b, i) => $(".qn", b).textContent = "س" + (i + 1));
+  num();
+  $("#qa", m).onclick = () => { qs.insertAdjacentHTML("beforeend", qBlock()); num(); };
+  qs.addEventListener("click", e => { if (e.target.closest("[data-rm]")) { if ($$(".qb", qs).length > 1) { e.target.closest(".qb").remove(); num(); } else toast("لازم سؤال واحد على الأقل", "err"); } });
+  qs.addEventListener("change", e => { if (e.target.classList.contains("qt")) { const b = e.target.closest(".qb"), es = e.target.value === "essay"; $(".qmcq", b).hidden = es; $(".qess", b).hidden = !es; } });
+  form.addEventListener("submit", async e => {
+    e.preventDefault(); showErr(""); const f = new FormData(form), title = (f.get("title") || "").trim(); if (!title) return showErr("اكتب عنوان الاختبار");
+    const questions = [], ks = [];
+    for (const [i, b] of $$(".qb", qs).entries()) {
+      const t = $(".qt", b).value, q = $(".qq", b).value.trim(), pts = Number($(".qp", b).value) || 1; if (!q) return showErr(`اكتب نص السؤال ${i + 1}`);
+      if (t === "mcq") {
+        const raw = $$(".qopt", b).map(x => x.value.trim()), ci = Number($(".qc:checked", b)?.value ?? -1), opts = [], map = {}; raw.forEach((o, j) => { if (o) { map[j] = opts.length; opts.push(o); } });
+        if (opts.length < 2) return showErr(`السؤال ${i + 1}: أضف اختيارين على الأقل`);
+        if (!(ci in map)) return showErr(`السؤال ${i + 1}: حدّد الإجابة الصحيحة`);
+        questions.push({ t, q, pts, opts }); ks.push({ c: map[ci] });
+      } else { questions.push({ t, q, pts, opts: [] }); ks.push({ k: $(".qk", b).value.split(/[,،]/).map(x => x.trim()).filter(Boolean) }); }
+    }
+    const data = { title, stage: f.get("stage"), system: f.get("system"), grade: f.get("grade") || "all", publishAt: f.get("publishAt") || todayStr(), questions };
+    $("#sb", m).disabled = true;
+    try {
+      const r = ex ? doc(db, "exams", ex.id) : doc(collection(db, "exams"));
+      if (ex) await updateDoc(r, data); else await setDoc(r, { ...data, createdAt: serverTimestamp() });
+      await setDoc(doc(db, "examKeys", r.id), { keys: ks }); m.remove(); toast("تم حفظ الاختبار", "ok");
+    } catch (er) { showErr("فشل الحفظ: " + (er.code || er.message)); $("#sb", m).disabled = false; }
+  });
+}
+
+/* ---------- رصد الدرجات الشهري ---------- */
+const attDate = a => a.createdAt?.toDate ? a.createdAt.toDate() : new Date();
+const monthOf = d => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0");
+const gradesRows = () => S.attempts.filter(a => monthOf(attDate(a)) === (A.xm || monthOf(new Date())) && (!A.xq || (a.name + a.phone + a.title).includes(A.xq))).sort((a, b) => attDate(b) - attDate(a));
+TABS.grades = {
+  skel: () => `<h2 style="margin-bottom:16px">رصد الدرجات الشهري</h2><div class="toolbar"><input type="month" id="xm" value="${esc(A.xm || monthOf(new Date()))}"><input id="xq" placeholder="بحث باسم الطالب أو الاختبار" value="${esc(A.xq || "")}"><button class="btn btn-line btn-sm" id="xcsv">⬇ تصدير Excel</button></div><div class="stats" id="xs" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr))"></div><div class="tw" id="xt"></div>`,
+  init: b => { $("#xm", b).onchange = e => { A.xm = e.target.value; fillTab(); }; $("#xq", b).oninput = e => { A.xq = e.target.value; fillTab(); }; $("#xcsv", b).onclick = exportGrades; $("#xt", b).onclick = gradeAction; },
+  fill: b => {
+    const rows = gradesRows(), avg = rows.length ? Math.round(rows.reduce((s, a) => s + pctOf(a), 0) / rows.length) : 0, ps = rows.filter(a => a.status === "review").length;
+    $("#xs", b).innerHTML = [[rows.length, "محاولة في الشهر"], [new Set(rows.map(a => a.uid)).size, "طالب"], [avg + "%", "متوسط النسب"], [ps, "مقالي بانتظار التصحيح"]].map(([n, l]) => `<div class="stat"><b>${n}</b><span>${l}</span></div>`).join("");
+    $("#xt", b).innerHTML = `<table><thead><tr><th>التاريخ</th><th>الطالب</th><th>الصف</th><th>الاختبار</th><th>الدرجة</th><th></th></tr></thead><tbody>${rows.map(a => { const d = attDate(a), p = pctOf(a);
+      return `<tr><td>${d.toLocaleDateString("ar-EG", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</td><td>${esc(a.name)}<br><small class="ph">${esc(a.phone)}</small></td><td>${esc(a.grade || "")}</td><td>${esc(a.title)}</td>
+      <td>${a.score === undefined ? "—" : `<span class="badge ${pctCls(p)}">${a.score}/${a.total} · ${p}%</span>`}${a.status === "review" ? `<br><small class="sub">⏳ مقالي</small>` : ""}${a.manual ? `<br><small class="sub">عُدّلت يدويًا</small>` : ""}</td>
+      <td class="acts"><button class="btn btn-line btn-sm" data-g="view" data-id="${esc(a.id)}">الإجابات</button><button class="btn btn-fill btn-sm" data-g="edit" data-id="${esc(a.id)}">تعديل الدرجة</button><button class="btn btn-bad btn-sm" data-g="del" data-id="${esc(a.id)}">حذف</button></td></tr>`; }).join("") || `<tr><td colspan="6">لا توجد اختبارات محلولة في هذا الشهر</td></tr>`}</tbody></table>`;
+  }
+};
+function exportGrades() {
+  const rows = gradesRows(), esq = v => `"${String(v ?? "").replace(/"/g, '""')}"`;
+  const csv = "﻿" + [["التاريخ", "اليوم", "الطالب", "الهاتف", "الصف", "الاختبار", "الدرجة", "من", "النسبة"], ...rows.map(a => { const d = attDate(a); return [d.toLocaleDateString("en-CA"), d.toLocaleDateString("ar-EG", { weekday: "long" }), a.name, a.phone, a.grade, a.title, a.score ?? "", a.total ?? "", a.score === undefined ? "" : pctOf(a) + "%"]; })].map(r => r.map(esq).join(",")).join("\n");
+  const u = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" })), l = document.createElement("a"); l.href = u; l.download = `grades-${A.xm || monthOf(new Date())}.csv`; l.click(); setTimeout(() => URL.revokeObjectURL(u), 2000);
+}
+async function gradeAction(e) {
+  const b = e.target.closest("[data-g]"); if (!b) return; const a = S.attempts.find(x => x.id === b.dataset.id); if (!a) return;
+  try {
+    if (b.dataset.g === "del") { if (confirm(`حذف محاولة ${a.name}؟ سيستطيع الطالب إعادة الاختبار.`)) { await deleteDoc(doc(db, "attempts", a.id)); toast("تم الحذف", "ok"); } return; }
+    if (b.dataset.g === "edit") { const v = prompt(`الدرجة الجديدة لـ ${a.name} (من ${a.total ?? "?"}):`, a.score ?? ""); if (v === null) return; const n = Number(v); if (!isFinite(n) || n < 0 || (a.total && n > a.total)) return toast("درجة غير صحيحة", "err"); await updateDoc(doc(db, "attempts", a.id), { score: n, status: "graded", pendingEssay: false, manual: true, scoredAt: serverTimestamp() }); toast("تم تعديل الدرجة", "ok"); return; }
+    const ex = S.exams.find(x => x.id === a.examId), keys = S.examKeys?.[a.examId];
+    if (!ex) return toast("الاختبار محذوف، لا يمكن عرض الأسئلة", "err");
+    const g = gradeExam(ex, keys, a.answers || []);
+    openModal(`<h2>${esc(a.name)} — ${esc(a.title)}</h2>${ex.questions.map((q, i) => { const ans = a.answers?.[i], r = g.per[i]; return `<div class="card xq"><div class="xh"><b>${i + 1}.</b> <span>${esc(q.q)}</span><small class="badge ${r.ok ? "good" : r.ok === false ? "bad" : "warn"}">${r.got}/${r.pts}</small></div>
+      ${q.t === "mcq" ? `<p>إجابة الطالب: <b>${ans >= 0 ? esc(q.opts[ans]) : "لم يجب"}</b> ${r.ok ? "✓" : ""}</p><small class="sub">الصحيحة: ${esc(q.opts[keys?.[i]?.c] ?? "—")}</small>` : `<p class="xans">${ans ? esc(ans) : "<i>لم يجب</i>"}</p>`}</div>`; }).join("")}<div class="mact"><button class="btn btn-line" data-close>إغلاق</button></div>`, true);
+  } catch (er) { toast("فشلت العملية: " + (er.code || er.message), "err"); }
 }
 
 TABS.payments = {
