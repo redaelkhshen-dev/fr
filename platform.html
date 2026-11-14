@@ -366,6 +366,18 @@ section[id]{scroll-margin-top:84px}
 .pbar-top b{color:var(--accent-text);font-family:var(--fd)}
 .pbar-track{height:10px;border-radius:6px;background:rgba(255,255,255,.09);border:1px solid var(--line);overflow:hidden}
 .pbar-track i{display:block;height:100%;width:0;border-radius:6px;background:linear-gradient(90deg,#b8862b,#f6dc8c,#b8862b);background-size:200% 100%;transition:width .6s ease;animation:barshine 3s linear infinite}
+.pbar.wpb{display:flex;align-items:center;gap:18px;margin:0 0 14px;padding:16px 20px;border-radius:16px;background:linear-gradient(135deg,var(--card),var(--bg2));box-shadow:0 10px 30px -18px rgba(0,0,0,.6)}
+.ring{flex:none;width:68px;height:68px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--accent-2) calc(var(--p)*1%),var(--line) 0);position:relative;transition:background .5s}
+.ring:before{content:"";position:absolute;inset:6px;border-radius:50%;background:var(--card)}
+.ring b{position:relative;font:800 1.05rem var(--fd);color:var(--accent-text)}
+.vpm{flex:1;min-width:0}.vph{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.vph span{font:700 1rem var(--fd)}.vph small{margin:0!important;min-height:0!important;color:var(--muted)}
+.vtrack{position:relative;height:12px;border-radius:8px;background:var(--line)}
+.vtrack i{position:absolute;inset-block:0;inset-inline-start:0;width:0;border-radius:8px;background:linear-gradient(90deg,#b8862b,#f6dc8c,#b8862b);background-size:200% 100%;transition:width .6s ease;animation:barshine 3s linear infinite;box-shadow:0 0 12px rgba(212,167,58,.5)}
+.vtrack u{position:absolute;top:2px;bottom:2px;width:2px;margin-inline-start:-1px;background:var(--bg);opacity:.6;text-decoration:none}
+.vtrack u.fin{top:-18px;bottom:auto;width:auto;background:none;opacity:.9;font-size:.8rem;margin-inline-start:-6px}
+.pbar.wpb.done{border-color:var(--good)}.pbar.wpb.done .ring b{color:var(--good)}
+@media(max-width:600px){.pbar.wpb{padding:12px 14px;gap:12px}.ring{width:56px;height:56px}.ring b{font-size:.9rem}}
 .pbar small{display:block;margin-top:6px;color:var(--muted);font-size:.82rem;min-height:1.2em}
 .ovp{width:min(100%,460px)}
 @keyframes barshine{to{background-position:-200% 0}}
@@ -966,7 +978,7 @@ async function startTracker(v) {
   const paint = (t, d) => {
     const pr = getProg(my), p = Math.round(Math.max(pr.p, d ? Math.min(100, t / d * 100) : 0));
     const f = $("#pf"); if (!f) return;
-    f.style.width = p + "%"; $("#pp").textContent = p + "%";
+    f.style.width = p + "%"; $("#pp").textContent = p + "%"; f.closest(".pbar")?.style.setProperty("--p", p); f.closest(".pbar")?.classList.toggle("done", p >= 90);
     $("#pt").textContent = p >= 90 ? "✅ أتممت مشاهدة هذا الفيديو" : d ? `شاهدت ${fmtTime(t)} من ${fmtTime(d)}` : "";
   };
   const tick = force => { try { const t = T.player.getCurrentTime(), d = T.player.getDuration(); if (!d) return; if (force || T.player.getPlayerState() === 1) saveProg(my, t, d, force); paint(t, d); } catch {} };
@@ -1072,9 +1084,10 @@ function renderWatch(id) {
   const wm = `${esc(s.name)} · ${esc(s.phone)}`;
   const pr = getProg(id), st0 = pr.t > 5 && (!pr.d || pr.t < pr.d - 10) ? Math.floor(pr.t) : 0;
   app.innerHTML = `${studentHeader()}<main class="wrap sec"><div class="watch"><div>
+    <div class="pbar wpb ${pr.p >= 90 ? "done" : ""}" style="--p:${pr.p}"><div class="ring" aria-hidden="true"><b id="pp">${Math.round(pr.p)}%</b></div><div class="vpm"><div class="vph"><span>🎯 تقدمك في هذا الفيديو</span><small id="pt">${pr.done ? "✅ أتممت مشاهدة هذا الفيديو" : st0 ? "سيبدأ الفيديو من حيث توقفت" : ""}</small></div>
+      <div class="vtrack"><i id="pf" style="width:${pr.p}%"></i><u style="inset-inline-start:25%"></u><u style="inset-inline-start:50%"></u><u style="inset-inline-start:75%"></u><u class="fin" style="inset-inline-start:90%" title="يُحتسب مكتملًا عند 90%">🏁</u></div></div></div>
     <div class="player" id="pl"><iframe id="ytp" src="https://www.youtube-nocookie.com/embed/${esc(v.ytId)}?rel=0&modestbranding=1&fs=0&disablekb=1&iv_load_policy=3&playsinline=1&cc_load_policy=0&enablejsapi=1&origin=${encodeURIComponent(location.origin)}${st0 ? "&start=" + st0 : ""}" title="${esc(v.title)}" allow="autoplay; encrypted-media" referrerpolicy="strict-origin-when-cross-origin" sandbox="allow-scripts allow-same-origin allow-presentation"></iframe>
       <div class="shield"></div><button class="fsbtn" id="fs" type="button">ملء الشاشة ⛶</button><div class="wm">${wm}</div><div class="wm b">${wm}</div></div>
-    <div class="pbar"><div class="pbar-top"><span>تقدمك في هذا الفيديو</span><b id="pp">${Math.round(pr.p)}%</b></div><div class="pbar-track"><i id="pf" style="width:${pr.p}%"></i></div><small id="pt">${pr.done ? "✅ أتممت مشاهدة هذا الفيديو" : st0 ? "سيبدأ الفيديو من حيث توقفت" : ""}</small></div>
     <h1 style="font-size:1.4rem;margin-top:16px">${esc(v.title)}</h1>
     <p class="sub" style="margin-top:6px">${v.description ? esc(v.description) : ""}</p>
     <p class="alt" style="text-align:start;margin-top:14px">🔒 هذا الفيديو يُعرض على حسابك فقط ويحمل بياناتك. تسجيله أو مشاركته مخالف للشروط.</p>
