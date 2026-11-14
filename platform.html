@@ -206,6 +206,18 @@ section[id]{scroll-margin-top:84px}
 .hero-text{display:flex;flex-direction:column;align-items:flex-start;gap:20px;min-width:0}
 .hero h1{font-size:clamp(2.1rem,5.4vw,3.5rem);font-weight:800;line-height:1.25}
 .hero h1 .hl,.shero h1 .hl{color:var(--accent-text)}
+/* تأثير اسم المنصة */
+.hero h1 .hl-fx{position:relative;display:inline-block;padding:0 .08em;background:none;color:transparent;-webkit-background-clip:initial;background-clip:initial;filter:drop-shadow(0 0 18px rgba(212,167,58,.45));animation:hlIn 1s cubic-bezier(.2,.8,.2,1) both,hlGlow 4s ease-in-out 1s infinite}
+.hl-fx b{font:inherit;background:linear-gradient(100deg,#9a6b12 0%,#f6dc8c 20%,#fff6d2 32%,#d4a73a 46%,#f6dc8c 62%,#9a6b12 80%,#f6dc8c 100%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:hlShine 4.5s linear infinite}
+.hl-fx::after{content:"";position:absolute;inset-inline:0;bottom:-.08em;height:.09em;border-radius:6px;background:linear-gradient(90deg,transparent,#f6dc8c,#d4a73a,transparent);transform-origin:right;transform:scaleX(0);animation:hlLine 1s .6s cubic-bezier(.2,.8,.2,1) forwards}
+.hl-fx::before{content:"✦";position:absolute;top:-.55em;inset-inline-start:-.35em;font-size:.38em;color:#f6dc8c;opacity:0;animation:hlStar 3.2s 1.2s ease-in-out infinite}
+@keyframes hlShine{to{background-position:-250% 0}}
+@keyframes hlIn{from{opacity:0;transform:translateY(18px) scale(.92);filter:blur(8px) drop-shadow(0 0 0 transparent)}to{opacity:1;transform:none}}
+@keyframes hlGlow{50%{filter:drop-shadow(0 0 30px rgba(246,220,140,.65))}}
+@keyframes hlLine{to{transform:scaleX(1)}}
+@keyframes hlStar{0%,100%{opacity:0;transform:scale(.3) rotate(0)}40%{opacity:1;transform:scale(1.2) rotate(90deg)}70%{opacity:0}}
+html[data-theme=light] .hl-fx b{background-image:linear-gradient(100deg,#7a520a 0%,#c8932a 25%,#f0cf6e 38%,#a06f14 55%,#7a520a 100%)}
+@media(prefers-reduced-motion:reduce){.hero h1 .hl-fx,.hl-fx b,.hl-fx::before{animation:none!important}.hl-fx::after{animation:none!important;transform:scaleX(1)}}
 .hero h1 .sub{display:block;font-size:.62em;font-weight:700;margin-top:6px}
 .lead{color:var(--muted);font-size:1.08rem;max-width:48ch}
 .cta-row{display:flex;flex-wrap:wrap;gap:14px}
@@ -802,7 +814,7 @@ function renderLanding() {
   <section id="s-home" class="hero"><div class="bgphoto" aria-hidden="true"><i style="background-image:url(${PHOTO})"></i></div>
     <div class="wrap hero-grid"><div class="hero-text">
       <span class="eyebrow">منصة تعليمية · اللغة الفرنسية</span>
-      <h1>Bonjour، أهلًا بك في منصة <span class="hl">مسيو رضا</span><span class="sub">تعلّم الفرنسية بثقة ووضوح.</span></h1>
+      <h1>Bonjour، أهلًا بك في منصة <span class="hl hl-fx" data-t="مسيو رضا"><b>مسيو رضا</b></span><span class="sub">تعلّم الفرنسية بثقة ووضوح.</span></h1>
       <p class="lead">شروحات فيديو وملفات لكل مرحلة، من الابتدائية للثانوية، لطلاب اللغات والحكومي ونظام البكالوريا، كلها في حساب شخصي واحد.</p>
       <div class="cta-row"><a class="btn btn-fill" href="#/register">ابدأ التعلم الآن ${ARROW}</a><a class="btn btn-line" href="#/login">لديّ حساب</a></div>
       <p class="tag-label">المراحل المتاحة</p>
