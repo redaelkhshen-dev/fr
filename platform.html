@@ -789,8 +789,7 @@ function renderLanding() {
     <div class="steps">${step("1", "سجّل حسابك", "اكتب رقم الواتس وبياناتك واختر كلمة سر من أرقام.")}${step("2", "ادخل لمرحلتك", "يفتح لك المحتوى المناسب لمرحلتك ونظامك مباشرة.")}${step("3", "شاهد وحمّل", "شاهد الفيديوهات من حسابك وحمّل الملفات على جهازك.")}</div></div></section>
 
   <section id="s-contact" class="band alt"><div class="wrap ctab"><div class="ctab-t"><span class="eyebrow">تواصل معي</span><h2>Une question ؟ راسلني.</h2>
-      <p>للاستفسار عن المواعيد والمستويات أو لو واجهتك مشكلة في الحساب، راسلني على أي منصة وسأرد في أقرب وقت.</p>
-      <a class="btn btn-fill" href="${LINKS.wa}" target="_blank" rel="noopener">راسلني على واتس اب ${ARROW}</a></div>
+      <p>للاستفسار عن المواعيد والمستويات أو لو واجهتك مشكلة في الحساب، راسلني على أي منصة وسأرد في أقرب وقت.</p></div>
     <div class="socials">${soc("wa", LINKS.wa, "واتس اب", "01558186187")}${soc("fb", LINKS.fb, "فيس بوك", "حسابي الشخصي")}${soc("page", LINKS.page, "صفحة الفيس بوك", "الدورات والإعلانات")}${soc("ig", LINKS.ig, "إنستجرام", "Instagram")}</div></div></section>
   </main><footer class="foot"><div class="wrap foot-in"><span>© 2026 مسيو رضا الخشن. جميع الحقوق محفوظة.</span><div class="srow sm">${socRow()}</div></div></footer>`;
   $$("[data-s]").forEach(b => b.onclick = () => document.getElementById("s-" + b.dataset.s)?.scrollIntoView({ behavior: "smooth", block: "start" }));
