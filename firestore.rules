@@ -87,5 +87,32 @@ service cloud.firestore {
         && request.resource.data.note is string && request.resource.data.note.size() <= 200;
       allow update, delete: if isAdmin();
     }
+    // الواجبات: المدرس يضيفها، والطالب النشط يقرؤها
+    match /homework/{id} {
+      allow read: if isAdmin() || isActiveStudent();
+      allow write: if isAdmin();
+    }
+
+    // تسليمات الواجبات (رقم المستند = hwId_uid): الطالب يسلّم حلّه ويعدّله قبل التصحيح، والمدرس يصحّح
+    match /hwsubs/{sid} {
+      allow read: if isAdmin() || (request.auth != null && resource.data.uid == request.auth.uid);
+      allow create: if isActiveStudent()
+        && request.resource.data.uid == request.auth.uid
+        && sid == request.resource.data.hwId + '_' + request.auth.uid
+        && request.resource.data.status == 'submitted'
+        && request.resource.data.keys().hasOnly(['hwId','uid','name','phone','status','link','note','updatedAt'])
+        && request.resource.data.link is string && request.resource.data.link.size() <= 500
+        && request.resource.data.note is string && request.resource.data.note.size() <= 300;
+      allow update: if isAdmin() || (isActiveStudent()
+        && resource.data.uid == request.auth.uid
+        && resource.data.status == 'submitted'
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.status == 'submitted'
+        && request.resource.data.keys().hasOnly(['hwId','uid','name','phone','status','link','note','updatedAt'])
+        && request.resource.data.link is string && request.resource.data.link.size() <= 500
+        && request.resource.data.note is string && request.resource.data.note.size() <= 300);
+      allow delete: if isAdmin();
+    }
+
   }
 }

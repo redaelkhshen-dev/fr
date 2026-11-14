@@ -110,6 +110,9 @@ input[dir=ltr]{text-align:left}
 .fcard small{color:var(--muted)}
 .empty{grid-column:1/-1;text-align:center;color:var(--muted);padding:48px 16px;border:1px dashed var(--line);border-radius:14px}
 .badge{display:inline-block;padding:1px 10px;border-radius:6px;font-size:.78rem;background:var(--soft);color:var(--accent-text);white-space:nowrap}
+.hw{align-items:flex-start;flex-wrap:wrap}.hw .t{flex:1;min-width:200px}.hw .m{display:flex;gap:6px;flex-wrap:wrap}.hwa{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.hwrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 4px;border-bottom:1px solid var(--line)}.hwrow .who{flex:1;min-width:160px}.hwmid{flex:1.2;min-width:160px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.hwfb{margin-top:8px;padding:8px 12px;border-radius:8px;background:var(--soft);font-size:.9rem}
 .badge.good{background:rgba(61,220,132,.14);color:var(--good)}
 .badge.bad{background:rgba(255,107,122,.14);color:var(--bad)}
 .badge.warn{background:rgba(255,184,77,.14);color:var(--warn)}
@@ -519,7 +522,7 @@ const db = getFirestore(fbApp);
 const storage = getStorage(fbApp);
 
 /* ---------- الحالة ---------- */
-const S = { ready: false, user: null, student: null, busy: false, flash: "", videos: [], files: [], students: [], comments: [], ratings: [], payments: [], unsubs: [], unsubSelf: null, page: "" };
+const S = { ready: false, user: null, student: null, busy: false, flash: "", videos: [], files: [], homework: [], hwsubs: [], students: [], comments: [], ratings: [], payments: [], unsubs: [], unsubSelf: null, page: "" };
 const H = { tab: "videos", q: "" };
 const A = { cvid: "", cq: "", cstage: "", cgrade: "", tab: "overview", q: "", fstage: "", fstatus: "" };
 
@@ -641,12 +644,12 @@ const stageLabel = v => v === "all" ? "كل المراحل" : STAGES[v] || "—"
 const sysLabel = v => v === "all" ? "لغات + حكومي" : SYSTEMS[v] || "—";
 
 /* ---------- المصادقة ---------- */
-function clearSubs() { S.contentOn = false; S.unsubs.forEach(f => f()); S.unsubs = []; if (S.unsubSelf) { S.unsubSelf(); S.unsubSelf = null; } }
+function clearSubs() { S.hwsubs = []; S.contentOn = false; S.unsubs.forEach(f => f()); S.unsubs = []; if (S.unsubSelf) { S.unsubSelf(); S.unsubSelf = null; } }
 function sub(col, key) {
   const q = query(collection(db, col), orderBy("createdAt", "desc"));
   S.unsubs.push(onSnapshot(q, s => { S[key] = s.docs.map(d => ({ id: d.id, ...d.data() })); if (key === "students") checkNew(); if (key === "payments") checkPay(); onData(); }, e => console.warn(col, e.code)));
 }
-const startContent = () => { if (S.contentOn) return; S.contentOn = true; sub("videos", "videos"); sub("files", "files"); };
+const startContent = () => { if (S.contentOn) return; S.contentOn = true; sub("videos", "videos"); sub("files", "files"); sub("homework", "homework"); if (S.student?.id) S.unsubs.push(onSnapshot(query(collection(db, "hwsubs"), where("uid", "==", S.student.id)), q => { S.hwsubs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, e => console.warn("hwsubs", e.code))); };
 function checkNew() {
   const pn = S.students.filter(x => x.status === "pending").length;
   if (S.pn === undefined ? pn > 0 : pn > S.pn) toast(`🔔 ${pn} طلب تسجيل بانتظار مراجعتك`, "ok");
@@ -660,7 +663,7 @@ function checkPay() {
 function payTab() { const t = $('.atab[data-t="payments"]'); if (t) t.innerHTML = "المدفوعات" + (S.pp ? ` <span class="pbadge">${S.pp}</span>` : ""); }
 function tabBadge() { const t = $('.atab[data-t="students"]'); if (t) t.innerHTML = "الطلاب" + (S.pn ? ` <span class="pbadge">${S.pn}</span>` : ""); }
 function onData() {
-  if (isAdminUser()) { if ($("#abody")) fillTab(); }
+  if (isAdminUser()) { if ($("#abody")) fillTab(); paintHwModal(); }
   else if (S.page === "home") fillHome();
   else if (S.page === "watch" && !S.watchOk) render();
 }
@@ -704,7 +707,7 @@ async function attachStudent(u) {
 onAuthStateChanged(auth, async u => {
   clearSubs(); S.user = u; S.student = null;
   if (!u) { S.ready = true; render(); return; }
-  if (u.email === ADMIN_EMAIL) { sub("students", "students"); sub("videos", "videos"); sub("files", "files"); sub("comments", "comments"); sub("payments", "payments"); S.unsubs.push(onSnapshot(collection(db, "ratings"), s => { S.ratings = s.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.ready = true; render(); return; }
+  if (u.email === ADMIN_EMAIL) { sub("students", "students"); sub("videos", "videos"); sub("files", "files"); sub("homework", "homework"); S.unsubs.push(onSnapshot(collection(db, "hwsubs"), q => { S.hwsubs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); sub("comments", "comments"); sub("payments", "payments"); S.unsubs.push(onSnapshot(collection(db, "ratings"), s => { S.ratings = s.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.ready = true; render(); return; }
   if (S.busy) return;
   await attachStudent(u);
 });
@@ -988,23 +991,56 @@ function renderHome() {
       <h1>أهلًا يا <span class="hl">${esc(s.name.split(" ")[0])}</span> 👋</h1><p class="lead">${esc(s.grade)} — جاهز تكمل رحلتك مع الفرنسية؟</p>
       <div class="mini"><div><b id="cv">0</b><span>فيديو متاح</span></div><div><b id="cf">0</b><span>ملف متاح</span></div><div><b>${SYSTEMS[s.system]}</b><span>${STAGES[s.stage]}</span></div></div><div class="ovp"><div class="pbar-top"><span id="ovt">تقدمك العام</span><b id="ovn">0%</b></div><div class="pbar-track"><i id="ovf"></i></div></div></div>
       <div class="sv"><div class="disc sm">${avatarHTML(s, 200)}</div></div></div></section><main class="wrap">
-    <div class="tabs"><button class="tab" data-t="videos">🎬 الفيديوهات</button><button class="tab" data-t="files">📄 الملفات</button><input class="srch" id="q" placeholder="ابحث..." value="${esc(H.q)}"></div>
+    <div class="tabs"><button class="tab" data-t="videos">🎬 الفيديوهات</button><button class="tab" data-t="files">📄 الملفات</button><button class="tab" data-t="hw" id="tabhw">📝 الواجبات</button><input class="srch" id="q" placeholder="ابحث..." value="${esc(H.q)}"></div>
     <div class="grid" id="list"></div></main><footer class="foot">© منصة مسيو رضا الخشن — المحتوى للاستخدام الشخصي فقط</footer>`;
   $("#lo").onclick = doLogout;
   $$(".tab").forEach(b => b.onclick = () => { H.tab = b.dataset.t; fillHome(); });
   $("#q").oninput = e => { H.q = e.target.value; fillHome(); };
   fillHome();
 }
+const hwSub = id => S.hwsubs.find(x => x.hwId === id);
+const hwStatus = id => hwSub(id)?.status === "graded" ? "graded" : hwSub(id) ? "submitted" : "none";
+const hwDue = d => d ? new Date(d + "T23:59:59") : null;
+function hwCard(h) {
+  const sb = hwSub(h.id), st = hwStatus(h.id), due = hwDue(h.due), late = due && due < new Date() && st !== "graded";
+  const badge = st === "graded" ? `<span class="badge good">✅ تم التصحيح</span>` : `<span class="badge warn">⏳ لم يتم التصحيح</span>`;
+  return `<div class="fcard hw"><div class="ficon">${esc((h.ext || "HW").toUpperCase().slice(0, 4))}</div><div class="t"><h3>${esc(h.title)}</h3>
+    ${h.description ? `<small>${esc(h.description)}</small>` : ""}
+    <div class="m" style="margin-top:6px">${badge}${st === "submitted" ? `<span class="badge">📤 تم تسليم حلّك</span>` : ""}${h.due ? `<span class="badge ${late ? "bad" : ""}">📅 آخر موعد ${esc(h.due)}</span>` : ""}${st === "graded" && sb.grade ? `<span class="badge good">الدرجة: ${esc(sb.grade)}</span>` : ""}</div>
+    ${st === "graded" && sb.feedback ? `<p class="hwfb">💬 ${esc(sb.feedback)}</p>` : ""}</div>
+    <div class="hwa"><a class="btn btn-fill btn-sm" href="${esc(h.url)}" target="_blank" rel="noopener" download>تحميل الواجب</a>${st !== "graded" ? `<button class="btn btn-line btn-sm" data-hw="${esc(h.id)}">${st === "submitted" ? "تعديل التسليم" : "تسليم حلّي"}</button>` : ""}</div></div>`;
+}
+document.addEventListener("click", e => { const b = e.target.closest("[data-hw]"); if (b && S.student) hwSubmitModal(b.dataset.hw); });
+function hwSubmitModal(id) {
+  const h = S.homework.find(x => x.id === id); if (!h || hwStatus(id) === "graded") return; const sb = hwSub(id);
+  const m = openModal(`<h2>تسليم الواجب</h2><p class="sub" style="margin-bottom:10px">${esc(h.title)}</p><div class="alert" id="err" hidden></div>
+    <form id="hf" novalidate><label class="fl">رابط حلّك (Google Drive أو صورة/ملف على أي موقع)<input name="link" dir="ltr" placeholder="https://drive.google.com/..." value="${esc(sb?.link)}"></label>
+    <label class="fl">ملاحظة للمدرس (اختياري)<textarea name="note" maxlength="300">${esc(sb?.note)}</textarea></label>
+    <p class="sub" style="font-size:.84rem">ارفع حلّك على Google Drive واجعل الرابط "أي شخص لديه الرابط"، ثم ضعه هنا.</p>
+    <div class="mact"><button class="btn btn-fill" id="sb">${sb ? "حفظ التعديل" : "إرسال"}</button><button type="button" class="btn btn-line" data-close>إلغاء</button></div></form>`);
+  $("#hf", m).addEventListener("submit", async e => {
+    e.preventDefault(); showErr(""); const f = new FormData(e.target), link = (f.get("link") || "").trim(), note = (f.get("note") || "").trim();
+    if (!link && !note) return showErr("ضع رابط الحل أو اكتب ملاحظة");
+    if (link && !/^https?:\/\//i.test(link)) return showErr("الرابط يجب أن يبدأ بـ https://");
+    const s = S.student; $("#sb", m).disabled = true;
+    try { await setDoc(doc(db, "hwsubs", id + "_" + s.id), { hwId: id, uid: s.id, name: s.name, phone: s.phone, status: "submitted", link, note, updatedAt: serverTimestamp() }); m.remove(); toast("تم إرسال حلّك للمدرس", "ok"); }
+    catch (er) { showErr("فشل الإرسال: " + (er.code || er.message)); $("#sb", m).disabled = false; }
+  });
+}
 function fillHome() {
   const list = $("#list"); if (!list) return;
   const cv = $("#cv"), cf = $("#cf"); if (cv) cv.textContent = visible(S.videos).length; if (cf) cf.textContent = visible(S.files).length;
   if ($("#ovn")) { const vis = visible(S.videos), ps = vis.map(x => getProg(x.id)), dn = ps.filter(p => p.done).length, avg = vis.length ? Math.round(ps.reduce((a, p) => a + Math.min(100, p.p), 0) / vis.length) : 0; $("#ovn").textContent = avg + "%"; $("#ovf").style.width = avg + "%"; $("#ovt").textContent = `تقدمك العام · أكملت ${dn} من ${vis.length} فيديو`; }
   $$(".tab").forEach(b => b.classList.toggle("on", b.dataset.t === H.tab));
+  { const th = $("#tabhw"); if (th) { const n = visible(S.homework).filter(h => hwStatus(h.id) !== "graded").length; th.innerHTML = "📝 الواجبات" + (n ? ` <span class="pbadge">${n}</span>` : ""); } }
   const q = H.q.trim().toLowerCase();
   const m = x => !q || (x.title || "").toLowerCase().includes(q) || (x.description || "").toLowerCase().includes(q);
   if (H.tab === "videos") {
     const v = visible(S.videos).filter(m);
     list.innerHTML = v.length ? v.map((x, i) => { const pr = getProg(x.id); return `<a class="vcard" style="--i:${i}" href="#/watch/${esc(x.id)}" data-y="${esc(x.ytId)}"><div class="thumb"><span class="num">${String(i + 1).padStart(2, "0")}</span><img class="fr on" loading="lazy" src="https://i.ytimg.com/vi/${esc(x.ytId)}/mqdefault.jpg" alt=""><span class="play"><i>▶</i></span>${pr.done ? `<span class="done">✓ تمت المشاهدة</span>` : ""}<span class="vp"><i style="width:${pr.p}%"></i></span></div><div class="vb"><h3>${esc(x.title)}</h3>${x.description ? `<p>${esc(x.description)}</p>` : ""}${pr.p > 0 && !pr.done ? `<small class="resume">أكملت ${Math.round(pr.p)}% · تابع من حيث توقفت</small>` : ""}</div></a>`; }).join("") : `<div class="empty">لا توجد فيديوهات لمرحلتك حاليًا</div>`;
+  } else if (H.tab === "hw") {
+    const hs = visible(S.homework).filter(m);
+    list.innerHTML = hs.length ? hs.map(hwCard).join("") : `<div class="empty">لا توجد واجبات لمرحلتك حاليًا</div>`;
   } else {
     const f = visible(S.files).filter(m);
     list.innerHTML = f.length ? f.map(x => `<div class="fcard"><div class="ficon">${esc((x.ext || "FILE").toUpperCase().slice(0, 4))}</div><div class="t"><h3>${esc(x.title)}</h3><small>${esc(fmtSize(x.size))}</small></div><a class="btn btn-fill btn-sm" href="${esc(x.url)}" target="_blank" rel="noopener" download>تحميل</a></div>`).join("") : `<div class="empty">لا توجد ملفات لمرحلتك حاليًا</div>`;
@@ -1265,7 +1301,7 @@ function renderAdminLogin() {
 function renderAdmin() {
   S.page = "admin";
   app.innerHTML = `<header class="hdr"><div class="wrap hdr-in">${brand()}<nav class="nav-a">
-    <button class="atab" data-t="overview">نظرة عامة</button><button class="atab" data-t="students">الطلاب</button><button class="atab" data-t="videos">الفيديوهات</button><button class="atab" data-t="files">الملفات</button><button class="atab" data-t="comments">التعليقات</button><button class="atab" data-t="payments">المدفوعات</button></nav>
+    <button class="atab" data-t="overview">نظرة عامة</button><button class="atab" data-t="students">الطلاب</button><button class="atab" data-t="videos">الفيديوهات</button><button class="atab" data-t="files">الملفات</button><button class="atab" data-t="homework">الواجبات</button><button class="atab" data-t="comments">التعليقات</button><button class="atab" data-t="payments">المدفوعات</button></nav>
     <button class="btn btn-line btn-sm" id="lo">خروج</button></div></header><main class="wrap sec" id="abody"></main>`;
   $("#lo").onclick = doLogout;
   $$(".atab").forEach(b => b.onclick = () => setTab(b.dataset.t));
@@ -1339,6 +1375,72 @@ const TABS = {
     }
   }
 };
+
+TABS.homework = {
+  skel: () => `<div class="toolbar"><h2 style="flex:1">إدارة الواجبات</h2><button class="btn btn-fill" data-a="hadd">+ إضافة واجب</button></div>${filterBar()}<div class="agrid" id="hl"></div>`,
+  init: b => { b.onclick = hwAction; bindFilter(b); },
+  fill: b => {
+    $("#hl", b).innerHTML = S.homework.filter(passFilter).map(h => { const el = hwEligible(h), sb = S.hwsubs.filter(x => x.hwId === h.id), g = sb.filter(x => x.status === "graded").length, tw = sb.filter(x => x.status === "submitted").length;
+      return `<div class="acard"><div class="fcard" style="border:0;padding:0"><div class="ficon">${esc((h.ext || "HW").toUpperCase().slice(0, 4))}</div><div class="t"><h3>${esc(h.title)}</h3><small>${h.due ? "آخر موعد " + esc(h.due) : "بدون موعد"}</small></div></div>
+        <div class="m"><span class="badge">${stageLabel(h.stage)}</span><span class="badge">${sysLabel(h.system)}</span><span class="badge good">${gradeLabel(h)}</span></div>
+        <div class="m"><span class="badge good">✅ مصحَّح ${g}</span><span class="badge warn">📤 بانتظار التصحيح ${tw}</span><span class="badge">👥 ${el.length} طالب</span></div>
+        <div class="acts"><button class="btn btn-fill btn-sm" data-a="hstu" data-id="${esc(h.id)}">الطلاب والتصحيح</button><a class="btn btn-line btn-sm" href="${esc(h.url)}" target="_blank" rel="noopener">فتح</a><button class="btn btn-line btn-sm" data-a="hedit" data-id="${esc(h.id)}">تعديل</button><button class="btn btn-bad btn-sm" data-a="hdel" data-id="${esc(h.id)}">حذف</button></div></div>`; }).join("") || `<div class="empty">لم تُضف واجبات بعد</div>`;
+  }
+};
+const hwEligible = h => S.students.filter(x => x.status === "active" && fits(h, x));
+async function hwAction(e) {
+  const btn = e.target.closest("[data-a]"); if (!btn || btn.tagName === "A") return; const a = btn.dataset.a, id = btn.dataset.id;
+  try {
+    if (a === "hadd") return hwModal();
+    if (a === "hedit") return hwModal(S.homework.find(x => x.id === id));
+    if (a === "hstu") return hwStudentsModal(id);
+    if (a === "hdel") { const h = S.homework.find(x => x.id === id); if (!h || !confirm(`حذف الواجب "${h.title}" وكل تسليماته؟`)) return;
+      for (const x of S.hwsubs.filter(x => x.hwId === id)) await deleteDoc(doc(db, "hwsubs", x.id));
+      await deleteDoc(doc(db, "homework", id)); toast("تم الحذف", "ok"); }
+  } catch (er) { toast("فشلت العملية: " + (er.code || er.message), "err"); }
+}
+function hwModal(h) {
+  const m = openModal(`<h2>${h ? "تعديل واجب" : "إضافة واجب"}</h2><div class="alert" id="err" hidden></div>
+    <form id="hwf" novalidate><label class="fl">عنوان الواجب<input name="title" maxlength="120" value="${esc(h?.title)}"></label>${targetFields(h)}
+    <label class="fl">رابط ملف الواجب (PDF أو Word على Google Drive)<input name="url" dir="ltr" placeholder="https://drive.google.com/file/d/..." value="${esc(h?.url)}"></label>
+    <div class="row3"><label class="fl">الصيغة<select name="ext"><option value="pdf" ${h?.ext === "pdf" ? "selected" : ""}>PDF</option><option value="docx" ${h?.ext === "docx" || h?.ext === "doc" ? "selected" : ""}>Word</option><option value="link" ${h?.ext === "link" ? "selected" : ""}>أخرى</option></select></label>
+    <label class="fl">آخر موعد (اختياري)<input type="date" name="due" value="${esc(h?.due)}"></label></div>
+    <label class="fl">وصف / تعليمات (اختياري)<textarea name="description" maxlength="300">${esc(h?.description)}</textarea></label>
+    <div class="mact"><button class="btn btn-fill" id="sb">حفظ</button><button type="button" class="btn btn-line" data-close>إلغاء</button></div></form>`);
+  bindTarget($("#hwf", m), h);
+  $("#hwf", m).addEventListener("submit", async e => {
+    e.preventDefault(); showErr(""); const f = new FormData(e.target), title = (f.get("title") || "").trim(), link = (f.get("url") || "").trim();
+    if (!title) return showErr("اكتب عنوان الواجب");
+    if (!/^https?:\/\//i.test(link)) return showErr("ضع رابط الملف (يبدأ بـ https://)");
+    const data = { title, url: driveLink(link), ext: f.get("ext"), due: f.get("due") || "", stage: f.get("stage"), system: f.get("system"), grade: f.get("grade") || "all", description: (f.get("description") || "").trim() };
+    $("#sb", m).disabled = true;
+    try { if (h) await updateDoc(doc(db, "homework", h.id), data); else await addDoc(collection(db, "homework"), { ...data, createdAt: serverTimestamp() }); m.remove(); toast("تم الحفظ", "ok"); }
+    catch (er) { showErr("فشل الحفظ: " + (er.code || er.message)); $("#sb", m).disabled = false; }
+  });
+}
+const HWM = { id: "", el: null };
+function hwStudentsModal(id) {
+  const m = openModal(`<h2 id="hwt"></h2><div id="hwb"></div><div class="mact"><button type="button" class="btn btn-line" data-close>إغلاق</button></div>`, true);
+  HWM.id = id; HWM.el = m;
+  m.addEventListener("click", async e => {
+    const b = e.target.closest("[data-hs]"); if (!b) return; const uid = b.dataset.uid, act = b.dataset.hs, sid = id + "_" + uid, st = S.students.find(x => x.id === uid), sb = S.hwsubs.find(x => x.id === sid);
+    try {
+      if (act === "grade") { const g = prompt("الدرجة (اختياري، مثال 9/10):", sb?.grade || ""); if (g === null) return; const fb = prompt("تعليق للطالب (اختياري):", sb?.feedback || ""); if (fb === null) return;
+        await setDoc(doc(db, "hwsubs", sid), { hwId: id, uid, name: st?.name || sb?.name || "", phone: st?.phone || sb?.phone || "", status: "graded", grade: g.trim(), feedback: fb.trim(), gradedAt: serverTimestamp(), updatedAt: serverTimestamp(), ...(sb?.link ? { link: sb.link } : {}), ...(sb?.note ? { note: sb.note } : {}) }); toast("تم التصحيح", "ok"); }
+      else if (act === "undo") { if (sb?.link || sb?.note) await setDoc(doc(db, "hwsubs", sid), { hwId: id, uid, name: sb.name, phone: sb.phone, status: "submitted", link: sb.link || "", note: sb.note || "", updatedAt: serverTimestamp() }); else await deleteDoc(doc(db, "hwsubs", sid)); toast("أُلغي التصحيح", "ok"); }
+    } catch (er) { toast("فشلت العملية: " + (er.code || er.message), "err"); }
+  });
+  paintHwModal();
+}
+function paintHwModal() {
+  if (!HWM.el || !HWM.el.isConnected) { HWM.el = null; return; }
+  const h = S.homework.find(x => x.id === HWM.id); if (!h) return; const el = hwEligible(h);
+  $("#hwt", HWM.el).textContent = "تصحيح: " + h.title;
+  $("#hwb", HWM.el).innerHTML = el.map(x => { const sb = S.hwsubs.find(y => y.id === h.id + "_" + x.id), g = sb?.status === "graded";
+    return `<div class="hwrow"><div class="who">${avatarHTML(x, 34)}<span>${esc(x.name)}<br><small class="ph">${esc(x.phone)}</small></span></div>
+    <div class="hwmid">${g ? `<span class="badge good">✅ تم التصحيح${sb.grade ? " · " + esc(sb.grade) : ""}</span>` : `<span class="badge warn">⏳ لم يتم التصحيح</span>`} ${sb?.link ? `<a href="${esc(sb.link)}" target="_blank" rel="noopener" class="badge">📎 فتح الحل</a>` : sb ? "" : `<small class="sub">لم يسلّم</small>`}${sb?.note ? `<br><small class="sub">${esc(sb.note)}</small>` : ""}</div>
+    ${g ? `<button class="btn btn-line btn-sm" data-hs="undo" data-uid="${esc(x.id)}">إلغاء التصحيح</button>` : `<button class="btn btn-fill btn-sm" data-hs="grade" data-uid="${esc(x.id)}">تم التصحيح</button>`}</div>`; }).join("") || `<div class="empty">لا يوجد طلاب نشطون في هذه المرحلة</div>`;
+}
 
 TABS.payments = {
   skel: () => `<h2 style="margin-bottom:16px">المدفوعات</h2><div class="stats" id="ps" style="grid-template-columns:repeat(3,1fr)"></div><div class="toolbar"><select id="pst"><option value="">كل الحالات</option><option value="pending">بانتظار التأكيد</option><option value="confirmed">مؤكد</option><option value="rejected">مرفوض</option></select><input id="pq" placeholder="بحث بالاسم أو الرقم" value="${esc(A.pq || "")}"></div><div class="tw" id="pl"></div>`,
