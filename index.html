@@ -555,7 +555,7 @@ const db = getFirestore(fbApp);
 const storage = getStorage(fbApp);
 
 /* ---------- الحالة ---------- */
-const S = { ready: false, user: null, student: null, busy: false, flash: "", videos: [], files: [], homework: [], hwsubs: [], exams: [], attempts: [], examKeys: {}, students: [], comments: [], ratings: [], payments: [], unsubs: [], unsubSelf: null, page: "" };
+const S = { ready: false, user: null, student: null, busy: false, flash: "", videos: [], files: [], homework: [], hwsubs: [], exams: [], attempts: [], examKeys: {}, hwKeys: {}, students: [], comments: [], ratings: [], payments: [], unsubs: [], unsubSelf: null, page: "" };
 const H = { tab: "videos", q: "" };
 const A = { cvid: "", cq: "", cstage: "", cgrade: "", tab: "overview", q: "", fstage: "", fstatus: "" };
 
@@ -677,7 +677,7 @@ const stageLabel = v => v === "all" ? "كل المراحل" : STAGES[v] || "—"
 const sysLabel = v => v === "all" ? "كل الأنظمة" : SYSTEMS[v] || "—";
 
 /* ---------- المصادقة ---------- */
-function clearSubs() { S.hwsubs = []; S.attempts = []; S.examKeys = {}; S.contentOn = false; S.unsubs.forEach(f => f()); S.unsubs = []; if (S.unsubSelf) { S.unsubSelf(); S.unsubSelf = null; } }
+function clearSubs() { S.hwsubs = []; S.attempts = []; S.examKeys = {}; S.hwKeys = {}; S.contentOn = false; S.unsubs.forEach(f => f()); S.unsubs = []; if (S.unsubSelf) { S.unsubSelf(); S.unsubSelf = null; } }
 function sub(col, key) {
   const q = query(collection(db, col), orderBy("createdAt", "desc"));
   S.unsubs.push(onSnapshot(q, s => { S[key] = s.docs.map(d => ({ id: d.id, ...d.data() })); if (key === "students") checkNew(); if (key === "payments") checkPay(); onData(); }, e => console.warn(col, e.code)));
@@ -700,7 +700,7 @@ function onData() {
   else if (S.page === "home") fillHome();
   else if (S.page === "watch" && !S.watchOk) render();
   else if (S.page === "activity") paintActivity();
-  else if (S.page === "exam" && !S.examOk) render();
+  else if ((S.page === "exam" || S.page === "hw") && !S.examOk) render();
 }
 async function kick(msg) { S.flash = msg; S.student = null; clearSubs(); try { await signOut(auth); } catch {} if (!S.user) render(); }
 let retryUser = null;
@@ -742,7 +742,7 @@ async function attachStudent(u) {
 onAuthStateChanged(auth, async u => {
   clearSubs(); S.user = u; S.student = null;
   if (!u) { S.ready = true; render(); return; }
-  if (u.email === ADMIN_EMAIL) { sub("students", "students"); sub("videos", "videos"); sub("files", "files"); sub("homework", "homework"); sub("exams", "exams"); S.unsubs.push(onSnapshot(collection(db, "attempts"), q => { S.attempts = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "examKeys"), q => { S.examKeys = Object.fromEntries(q.docs.map(d => [d.id, d.data().keys])); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "hwsubs"), q => { S.hwsubs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); sub("comments", "comments"); sub("payments", "payments"); S.unsubs.push(onSnapshot(collection(db, "ratings"), s => { S.ratings = s.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.ready = true; render(); return; }
+  if (u.email === ADMIN_EMAIL) { sub("students", "students"); sub("videos", "videos"); sub("files", "files"); sub("homework", "homework"); sub("exams", "exams"); S.unsubs.push(onSnapshot(collection(db, "attempts"), q => { S.attempts = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "hwKeys"), q => { S.hwKeys = Object.fromEntries(q.docs.map(d => [d.id, d.data().keys])); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "examKeys"), q => { S.examKeys = Object.fromEntries(q.docs.map(d => [d.id, d.data().keys])); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "hwsubs"), q => { S.hwsubs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); sub("comments", "comments"); sub("payments", "payments"); S.unsubs.push(onSnapshot(collection(db, "ratings"), s => { S.ratings = s.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.ready = true; render(); return; }
   if (S.busy) return;
   await attachStudent(u);
 });
@@ -762,6 +762,7 @@ function render() {
     if (route === "/pay") return renderPay();
     if (route === "/activity") return renderActivity();
     if (route.startsWith("/exam/")) return renderExam(route.slice(6));
+    if (route.startsWith("/hw/")) return renderHwQuiz(route.slice(4));
     if (route === "/profile") return renderProfile();
     if (route.startsWith("/watch/")) return renderWatch(route.slice(7));
     return renderHome();
@@ -1038,13 +1039,50 @@ const hwSub = id => S.hwsubs.find(x => x.hwId === id);
 const hwStatus = id => hwSub(id)?.status === "graded" ? "graded" : hwSub(id) ? "submitted" : "none";
 const hwDue = d => d ? new Date(d + "T23:59:59") : null;
 function hwCard(h) {
-  const sb = hwSub(h.id), st = hwStatus(h.id), due = hwDue(h.due), late = due && due < new Date() && st !== "graded";
+  const sb = hwSub(h.id), st = hwStatus(h.id), due = hwDue(h.due), late = due && due < new Date() && st !== "graded", qz = h.questions?.length, solved = !!sb?.answers;
   const badge = st === "graded" ? `<span class="badge good">✅ تم التصحيح</span>` : `<span class="badge warn">⏳ لم يتم التصحيح</span>`;
-  return `<div class="fcard hw"><div class="ficon">${esc((h.ext || "HW").toUpperCase().slice(0, 4))}</div><div class="t"><h3>${esc(h.title)}</h3>
+  return `<div class="fcard hw"><div class="ficon">${qz && !h.url ? "❓" : esc((h.ext || "HW").toUpperCase().slice(0, 4))}</div><div class="t"><h3>${esc(h.title)}</h3>
     ${h.description ? `<small>${esc(h.description)}</small>` : ""}
-    <div class="m" style="margin-top:6px">${badge}${st === "submitted" ? `<span class="badge">📤 تم تسليم حلّك</span>` : ""}${h.due ? `<span class="badge ${late ? "bad" : ""}">📅 آخر موعد ${esc(h.due)}</span>` : ""}${st === "graded" && sb.grade ? `<span class="badge good">الدرجة: ${esc(sb.grade)}</span>` : ""}</div>
+    <div class="m" style="margin-top:6px">${badge}${qz ? `<span class="badge">${qz} سؤال</span>` : ""}${st === "submitted" ? `<span class="badge">📤 تم تسليم حلّك</span>` : ""}${h.due ? `<span class="badge ${late ? "bad" : ""}">📅 آخر موعد ${esc(h.due)}</span>` : ""}${st === "graded" && sb.grade ? `<span class="badge good">الدرجة: ${esc(sb.grade)}</span>` : ""}</div>
     ${st === "graded" && sb.feedback ? `<p class="hwfb">💬 ${esc(sb.feedback)}</p>` : ""}</div>
-    <div class="hwa"><a class="btn btn-fill btn-sm" href="${esc(h.url)}" target="_blank" rel="noopener" download>تحميل الواجب</a>${st !== "graded" ? `<button class="btn btn-line btn-sm" data-hw="${esc(h.id)}">${st === "submitted" ? "تعديل التسليم" : "تسليم حلّي"}</button>` : ""}</div></div>`;
+    <div class="hwa">${h.url ? `<a class="btn ${qz ? "btn-line" : "btn-fill"} btn-sm" href="${esc(h.url)}" target="_blank" rel="noopener" download>تحميل الواجب</a>` : ""}${qz ? `<a class="btn ${solved ? "btn-line" : "btn-fill"} btn-sm" href="#/hw/${esc(h.id)}">${solved ? "النتيجة والأخطاء" : "حل الأسئلة"}</a>` : st !== "graded" ? `<button class="btn btn-line btn-sm" data-hw="${esc(h.id)}">${st === "submitted" ? "تعديل التسليم" : "تسليم حلّي"}</button>` : ""}</div></div>`;
+}
+const hwKeyCache = {};
+async function getHwKeys(id) { if (S.hwKeys?.[id]) return S.hwKeys[id]; if (hwKeyCache[id]) return hwKeyCache[id]; const d = await getDoc(doc(db, "hwKeys", id)); const k = d.exists() ? d.data().keys : null; if (k) hwKeyCache[id] = k; return k; }
+function renderHwQuiz(id) {
+  S.page = "hw"; S.examOk = false; const s = S.student, h = S.homework.find(x => x.id === id);
+  const msg = t => { app.innerHTML = `${studentHeader()}<main class="wrap sec"><div class="empty">${t}</div><p style="margin-top:16px"><a class="btn btn-line btn-sm" href="#/">← العودة</a></p></main>`; $("#lo").onclick = doLogout; };
+  if (!h) return msg(S.homework.length ? "الواجب غير موجود" : "جاري التحميل...");
+  if (!fits(h, s) || !h.questions?.length) return msg("هذا الواجب غير متاح لك");
+  S.examOk = true; const sb = hwSub(id);
+  if (sb?.answers) return showHwResult(h, sb);
+  app.innerHTML = `${studentHeader()}<main class="wrap sec"><div class="exam"><div class="banner" style="margin:0 0 18px"><div><h1>📝 ${esc(h.title)}</h1><p>${h.questions.length} سؤال · ${h.questions.reduce((t, q) => t + (Number(q.pts) || 1), 0)} درجة — يُحَل مرة واحدة، وتظهر الدرجة والأخطاء فور الإرسال</p></div></div>
+    <div class="alert" id="err" hidden></div><form id="xf" novalidate>${h.questions.map((q, i) => `<div class="card xq"><div class="xh"><b>${i + 1}.</b> <span>${esc(q.q)}</span><small class="badge">${Number(q.pts) || 1} درجة</small></div>
+      ${q.t === "mcq" ? q.opts.map((o, j) => `<label class="xo"><input type="radio" name="q${i}" value="${j}"><span>${esc(o)}</span></label>`).join("") : `<textarea name="q${i}" maxlength="1500" placeholder="اكتب إجابتك هنا..."></textarea>`}</div>`).join("")}
+    <div class="mact"><button class="btn btn-fill" id="sb">إرسال الإجابات</button><a class="btn btn-line" href="#/">إلغاء</a></div></form></div></main>`;
+  $("#lo").onclick = doLogout;
+  $("#xf").addEventListener("submit", async e => {
+    e.preventDefault(); showErr(""); const f = new FormData(e.target);
+    const answers = h.questions.map((q, i) => q.t === "mcq" ? (f.get("q" + i) === null ? -1 : Number(f.get("q" + i))) : String(f.get("q" + i) || "").trim());
+    const miss = answers.filter(x => x === -1 || x === "").length;
+    if (!confirm(miss ? `لم تجب عن ${miss} سؤال. هل تريد الإرسال؟ لا يمكن التعديل بعد الإرسال.` : "إرسال الإجابات؟ لا يمكن التعديل بعد الإرسال.")) return;
+    $("#sb").disabled = true;
+    try {
+      const aid = id + "_" + s.id, base = { hwId: id, uid: s.id, name: s.name, phone: s.phone, status: "submitted", link: "", note: "", answers, updatedAt: serverTimestamp() };
+      await setDoc(doc(db, "hwsubs", aid), base);
+      const keys = await getHwKeys(id), g = gradeExam(h, keys, answers);
+      const res = { score: g.score, total: g.total, pendingEssay: g.pending, status: g.pending ? "submitted" : "graded", grade: g.pending ? "" : `${g.score}/${g.total}`, scoredAt: serverTimestamp() };
+      await updateDoc(doc(db, "hwsubs", aid), res);
+      showHwResult(h, { ...base, ...res, id: aid }, keys);
+    } catch (er) { showErr("تعذر إرسال الواجب: " + (er.code || er.message)); $("#sb").disabled = false; }
+  });
+}
+async function showHwResult(h, sb, keys) {
+  if (S.page !== "hw") return;
+  if (!keys) { try { keys = await getHwKeys(h.id); } catch { keys = null; } }
+  if (S.page !== "hw") return;
+  const g = keys ? gradeExam(h, keys, sb.answers || []) : null, sc = sb.score ?? g?.score, tot = sb.total ?? g?.total, p = tot ? Math.round(sc / tot * 100) : 0;
+  quizResultPage({ title: h.title, ex: h, keys, answers: sb.answers || [], per: sb.manual ? null : g?.per, sc, tot, p, pend: sb.status !== "graded" && (sb.pendingEssay ?? g?.pending) });
 }
 document.addEventListener("click", e => { const b = e.target.closest("[data-hw]"); if (b && S.student) hwSubmitModal(b.dataset.hw); });
 function hwSubmitModal(id) {
@@ -1283,6 +1321,22 @@ function renderExam(id) {
     } catch (er) { showErr("تعذر إرسال الاختبار: " + (er.code || er.message)); $("#sb").disabled = false; }
   });
 }
+function mistakesHTML(ex, keys, answers, per) {
+  if (!per || !keys) return "";
+  const bad = ex.questions.map((q, i) => ({ q, i, r: per[i], a: answers[i], k: keys[i] })).filter(x => x.r.ok === false || (x.r.ok === null && x.q.t === "essay" && !(keys[x.i]?.k || []).length ? false : x.r.ok !== true));
+  if (!bad.length) return `<div class="card xres"><b>🎉 ممتاز! لا توجد أخطاء</b></div>`;
+  return `<h2 style="margin:22px 0 12px">❌ أخطاؤك (${bad.length})</h2>${bad.map(x => `<div class="card xq no"><div class="xh"><b>${x.i + 1}.</b> <span>${esc(x.q.q)}</span><small class="badge bad">${x.r.got} / ${x.r.pts}</small></div>
+    ${x.q.t === "mcq" ? `<p>إجابتك: <b style="color:var(--bad)">${x.a >= 0 ? esc(x.q.opts[x.a]) : "لم تُجب"}</b></p><p>الإجابة الصحيحة: <b style="color:var(--good)">${esc(x.q.opts[x.k?.c] ?? "—")}</b></p>` : `<p class="xans">${x.a ? esc(x.a) : "<i>لم تُجب</i>"}</p>${x.k?.k?.length ? `<small class="sub">الكلمات المطلوبة: ${esc(x.k.k.join("، "))}</small>` : ""}`}</div>`).join("")}`;
+}
+function quizResultPage({ title, ex, keys, answers, per, sc, tot, p, pend, back = "#/" }) {
+  app.innerHTML = `${studentHeader()}<main class="wrap sec"><div class="exam"><div class="card xres"><small class="sub">${esc(title)}</small><div class="xbig ${pctCls(p)}">${sc ?? "—"}<small> / ${tot ?? "—"}</small></div><b>${p}%</b>
+    ${pend ? `<p class="sub">⏳ الدرجة مبدئية — فيها أسئلة مقالية بانتظار تصحيح المدرس</p>` : `<p class="sub">✅ تم التصحيح وحفظ درجتك</p>`}</div>
+    ${ex.questions.map((q, i) => { const r = per?.[i], ans = answers?.[i]; return `<div class="card xq ${r?.ok === true ? "ok" : r?.ok === false ? "no" : ""}"><div class="xh"><b>${i + 1}.</b> <span>${esc(q.q)}</span><small class="badge ${r ? (r.ok ? "good" : r.ok === false ? "bad" : "warn") : ""}">${r ? r.got : "—"} / ${Number(q.pts) || 1}</small></div>
+      ${q.t === "mcq" ? q.opts.map((o, j) => `<div class="xo r ${keys && keys[i]?.c === j ? "right" : ""} ${ans === j && keys?.[i]?.c !== j ? "wrong" : ""}"><span>${ans === j ? "●" : "○"} ${esc(o)}${keys && keys[i]?.c === j ? " ✓" : ""}</span></div>`).join("") : `<p class="xans">${ans ? esc(ans) : "<i>لم تُجب</i>"}</p>${keys?.[i]?.k?.length ? `<small class="sub">الكلمات المطلوبة: ${esc(keys[i].k.join("، "))}</small>` : `<small class="sub">يصحّحه المدرس</small>`}`}</div>`; }).join("")}
+    ${mistakesHTML(ex, keys, answers || [], per)}
+    <p style="margin-top:18px"><a class="btn btn-line" href="${back}">← العودة</a> <a class="btn btn-fill" href="#/activity">نشاطي</a></p></div></main>`;
+  $("#lo").onclick = doLogout;
+}
 async function showExamResult(ex, a, keys) {
   if (S.page !== "exam") return;
   if (!keys) { try { keys = await getKeys(ex.id); } catch { keys = null; } }
@@ -1291,11 +1345,7 @@ async function showExamResult(ex, a, keys) {
   if (keys) { const g = gradeExam(ex, keys, a.answers || []); per = g.per; if (sc === undefined) { sc = g.score; tot = g.total; pend = g.pending; try { await updateDoc(doc(db, "attempts", a.id), { score: sc, total: tot, pendingEssay: pend, status: pend ? "review" : "graded", scoredAt: serverTimestamp() }); } catch {} } }
   if (a.manual) per = null;
   const p = tot ? Math.round(sc / tot * 100) : 0;
-  app.innerHTML = `${studentHeader()}<main class="wrap sec"><div class="exam"><div class="card xres"><small class="sub">${esc(ex.title)}</small><div class="xbig ${pctCls(p)}">${sc ?? "—"}<small> / ${tot ?? "—"}</small></div><b>${p}%</b>
-    ${pend ? `<p class="sub">⏳ الدرجة مبدئية — فيها أسئلة مقالية بانتظار تصحيح المدرس</p>` : `<p class="sub">✅ تم حفظ درجتك في صفحة "نشاطي"</p>`}</div>
-    ${ex.questions.map((q, i) => { const r = per?.[i], ans = a.answers?.[i]; return `<div class="card xq ${r?.ok === true ? "ok" : r?.ok === false ? "no" : ""}"><div class="xh"><b>${i + 1}.</b> <span>${esc(q.q)}</span><small class="badge ${r ? (r.ok ? "good" : r.ok === false ? "bad" : "warn") : ""}">${r ? r.got : "—"} / ${Number(q.pts) || 1}</small></div>
-      ${q.t === "mcq" ? q.opts.map((o, j) => `<div class="xo r ${keys && keys[i]?.c === j ? "right" : ""} ${ans === j && keys?.[i]?.c !== j ? "wrong" : ""}"><span>${ans === j ? "●" : "○"} ${esc(o)}${keys && keys[i]?.c === j ? " ✓" : ""}</span></div>`).join("") : `<p class="xans">${ans ? esc(ans) : "<i>لم تُجب</i>"}</p>${keys?.[i]?.k?.length ? `<small class="sub">الكلمات المطلوبة: ${esc(keys[i].k.join("، "))}</small>` : `<small class="sub">يصحّحه المدرس</small>`}`}</div>`; }).join("")}
-    <p><a class="btn btn-line" href="#/">← العودة</a> <a class="btn btn-fill" href="#/activity">نشاطي</a></p></div></main>`;
+  quizResultPage({ title: ex.title, ex, keys, answers: a.answers || [], per, sc, tot, p, pend });
   $("#lo").onclick = doLogout;
 }
 
@@ -1517,19 +1567,23 @@ async function hwAction(e) {
 function hwModal(h) {
   const m = openModal(`<h2>${h ? "تعديل واجب" : "إضافة واجب"}</h2><div class="alert" id="err" hidden></div>
     <form id="hwf" novalidate><label class="fl">عنوان الواجب<input name="title" maxlength="120" value="${esc(h?.title)}"></label>${targetFields(h)}
-    <label class="fl">رابط ملف الواجب (PDF أو Word على Google Drive)<input name="url" dir="ltr" placeholder="https://drive.google.com/file/d/..." value="${esc(h?.url)}"></label>
+    <label class="fl">رابط ملف الواجب (PDF أو Word على Google Drive) — اختياري لو أضفت أسئلة<input name="url" dir="ltr" placeholder="https://drive.google.com/file/d/..." value="${esc(h?.url)}"></label>
     <div class="row3"><label class="fl">الصيغة<select name="ext"><option value="pdf" ${h?.ext === "pdf" ? "selected" : ""}>PDF</option><option value="docx" ${h?.ext === "docx" || h?.ext === "doc" ? "selected" : ""}>Word</option><option value="link" ${h?.ext === "link" ? "selected" : ""}>أخرى</option></select></label>
     <label class="fl">آخر موعد (اختياري)<input type="date" name="due" value="${esc(h?.due)}"></label></div>
     <label class="fl">وصف / تعليمات (اختياري)<textarea name="description" maxlength="300">${esc(h?.description)}</textarea></label>
+    <h3 style="margin:14px 0 4px">أسئلة تفاعلية (اختياري)</h3><p class="sub" style="margin-bottom:8px;font-size:.85rem">أضف أسئلة اختيار من متعدد أو مقالية، وتُصحَّح تلقائيًا وتظهر للطالب أخطاؤه في الآخر.</p>
+    <div id="qs">${(h?.questions || []).map((q, i) => qBlock(q, S.hwKeys?.[h.id]?.[i])).join("")}</div><button type="button" class="btn btn-line btn-sm" id="qa">+ إضافة سؤال</button>
     <div class="mact"><button class="btn btn-fill" id="sb">حفظ</button><button type="button" class="btn btn-line" data-close>إلغاء</button></div></form>`);
-  bindTarget($("#hwf", m), h);
+  bindTarget($("#hwf", m), h); bindQs(m, $("#qs", m), 0);
   $("#hwf", m).addEventListener("submit", async e => {
     e.preventDefault(); showErr(""); const f = new FormData(e.target), title = (f.get("title") || "").trim(), link = (f.get("url") || "").trim();
     if (!title) return showErr("اكتب عنوان الواجب");
-    if (!/^https?:\/\//i.test(link)) return showErr("ضع رابط الملف (يبدأ بـ https://)");
-    const data = { title, url: driveLink(link), ext: f.get("ext"), due: f.get("due") || "", stage: f.get("stage"), system: f.get("system"), grade: f.get("grade") || "all", description: (f.get("description") || "").trim() };
+    const rq = readQs($("#qs", m)); if (rq.err) return showErr(rq.err);
+    if (!link && !rq.questions.length) return showErr("ضع رابط ملف الواجب أو أضف أسئلة");
+    if (link && !/^https?:\/\//i.test(link)) return showErr("الرابط يجب أن يبدأ بـ https://");
+    const data = { title, questions: rq.questions, url: link ? driveLink(link) : "", ext: f.get("ext"), due: f.get("due") || "", stage: f.get("stage"), system: f.get("system"), grade: f.get("grade") || "all", description: (f.get("description") || "").trim() };
     $("#sb", m).disabled = true;
-    try { if (h) await updateDoc(doc(db, "homework", h.id), data); else await addDoc(collection(db, "homework"), { ...data, createdAt: serverTimestamp() }); m.remove(); toast("تم الحفظ", "ok"); }
+    try { const r = h ? doc(db, "homework", h.id) : doc(collection(db, "homework")); if (h) await updateDoc(r, data); else await setDoc(r, { ...data, createdAt: serverTimestamp() }); if (rq.questions.length) await setDoc(doc(db, "hwKeys", r.id), { keys: rq.ks }); m.remove(); toast("تم الحفظ", "ok"); }
     catch (er) { showErr("فشل الحفظ: " + (er.code || er.message)); $("#sb", m).disabled = false; }
   });
 }
@@ -1541,8 +1595,9 @@ function hwStudentsModal(id) {
     const b = e.target.closest("[data-hs]"); if (!b) return; const uid = b.dataset.uid, act = b.dataset.hs, sid = id + "_" + uid, st = S.students.find(x => x.id === uid), sb = S.hwsubs.find(x => x.id === sid);
     try {
       if (act === "grade") { const g = prompt("الدرجة (اختياري، مثال 9/10):", sb?.grade || ""); if (g === null) return; const fb = prompt("تعليق للطالب (اختياري):", sb?.feedback || ""); if (fb === null) return;
-        await setDoc(doc(db, "hwsubs", sid), { hwId: id, uid, name: st?.name || sb?.name || "", phone: st?.phone || sb?.phone || "", status: "graded", grade: g.trim(), feedback: fb.trim(), gradedAt: serverTimestamp(), updatedAt: serverTimestamp(), ...(sb?.link ? { link: sb.link } : {}), ...(sb?.note ? { note: sb.note } : {}) }); toast("تم التصحيح", "ok"); }
-      else if (act === "undo") { if (sb?.link || sb?.note) await setDoc(doc(db, "hwsubs", sid), { hwId: id, uid, name: sb.name, phone: sb.phone, status: "submitted", link: sb.link || "", note: sb.note || "", updatedAt: serverTimestamp() }); else await deleteDoc(doc(db, "hwsubs", sid)); toast("أُلغي التصحيح", "ok"); }
+        await setDoc(doc(db, "hwsubs", sid), { hwId: id, uid, name: st?.name || sb?.name || "", phone: st?.phone || sb?.phone || "", status: "graded", grade: g.trim(), feedback: fb.trim(), gradedAt: serverTimestamp(), updatedAt: serverTimestamp() }, { merge: true }); toast("تم التصحيح", "ok"); }
+      else if (act === "ans") { const hw = S.homework.find(x => x.id === id); if (hw && sb?.answers) answersModal(sb.name || st?.name || "", hw.title, hw, S.hwKeys?.[id], sb.answers); }
+      else if (act === "undo") { if (sb?.answers) await updateDoc(doc(db, "hwsubs", sid), { status: "submitted", grade: "", feedback: "" }); else if (sb?.link || sb?.note) await setDoc(doc(db, "hwsubs", sid), { hwId: id, uid, name: sb.name, phone: sb.phone, status: "submitted", link: sb.link || "", note: sb.note || "", updatedAt: serverTimestamp() }); else await deleteDoc(doc(db, "hwsubs", sid)); toast("أُلغي التصحيح", "ok"); }
     } catch (er) { toast("فشلت العملية: " + (er.code || er.message), "err"); }
   });
   paintHwModal();
@@ -1553,7 +1608,7 @@ function paintHwModal() {
   $("#hwt", HWM.el).textContent = "تصحيح: " + h.title;
   $("#hwb", HWM.el).innerHTML = el.map(x => { const sb = S.hwsubs.find(y => y.id === h.id + "_" + x.id), g = sb?.status === "graded";
     return `<div class="hwrow"><div class="who">${avatarHTML(x, 34)}<span>${esc(x.name)}<br><small class="ph">${esc(x.phone)}</small></span></div>
-    <div class="hwmid">${g ? `<span class="badge good">✅ تم التصحيح${sb.grade ? " · " + esc(sb.grade) : ""}</span>` : `<span class="badge warn">⏳ لم يتم التصحيح</span>`} ${sb?.link ? `<a href="${esc(sb.link)}" target="_blank" rel="noopener" class="badge">📎 فتح الحل</a>` : sb ? "" : `<small class="sub">لم يسلّم</small>`}${sb?.note ? `<br><small class="sub">${esc(sb.note)}</small>` : ""}</div>
+    <div class="hwmid">${g ? `<span class="badge good">✅ تم التصحيح${sb.grade ? " · " + esc(sb.grade) : ""}</span>` : `<span class="badge warn">⏳ لم يتم التصحيح</span>`} ${sb?.answers ? `<span class="badge">📝 ${sb.score ?? "—"}/${sb.total ?? "—"}</span><button class="btn btn-line btn-sm" data-hs="ans" data-uid="${esc(x.id)}">الإجابات</button>` : ""}${sb?.link ? `<a href="${esc(sb.link)}" target="_blank" rel="noopener" class="badge">📎 فتح الحل</a>` : sb ? "" : `<small class="sub">لم يسلّم</small>`}${sb?.note ? `<br><small class="sub">${esc(sb.note)}</small>` : ""}</div>
     ${g ? `<button class="btn btn-line btn-sm" data-hs="undo" data-uid="${esc(x.id)}">إلغاء التصحيح</button>` : `<button class="btn btn-fill btn-sm" data-hs="grade" data-uid="${esc(x.id)}">تم التصحيح</button>`}</div>`; }).join("") || `<div class="empty">لا يوجد طلاب نشطون في هذه المرحلة</div>`;
 }
 
@@ -1585,6 +1640,26 @@ function qBlock(q, key) {
     <div class="qmcq" ${t === "essay" ? "hidden" : ""}>${opts.map((o, j) => `<label class="qo"><input type="radio" name="c${n}" class="qc" value="${j}" ${key?.c === j ? "checked" : ""}><input class="qopt" maxlength="200" placeholder="الاختيار ${j + 1}" value="${esc(o)}"></label>`).join("")}<small class="sub">حدّد الدائرة بجانب الإجابة الصحيحة (اترك الاختيارات الزائدة فارغة)</small></div>
     <div class="qess" ${t === "essay" ? "" : "hidden"}><input class="qk" maxlength="400" placeholder="كلمات مفتاحية للتصحيح التلقائي، افصل بينها بفاصلة (اتركها فارغة للتصحيح اليدوي)" value="${esc((key?.k || []).join("، "))}"></div></div>`;
 }
+function bindQs(m, qs, min) {
+  const num = () => $$(".qb", qs).forEach((b, i) => $(".qn", b).textContent = "س" + (i + 1));
+  num();
+  $("#qa", m).onclick = () => { qs.insertAdjacentHTML("beforeend", qBlock()); num(); };
+  qs.addEventListener("click", e => { if (e.target.closest("[data-rm]")) { if ($$(".qb", qs).length > min) { e.target.closest(".qb").remove(); num(); } else toast("لازم سؤال واحد على الأقل", "err"); } });
+  qs.addEventListener("change", e => { if (e.target.classList.contains("qt")) { const b = e.target.closest(".qb"), es = e.target.value === "essay"; $(".qmcq", b).hidden = es; $(".qess", b).hidden = !es; } });
+}
+function readQs(qs) {
+  const questions = [], ks = [];
+  for (const [i, b] of $$(".qb", qs).entries()) {
+    const t = $(".qt", b).value, q = $(".qq", b).value.trim(), pts = Number($(".qp", b).value) || 1; if (!q) return { err: `اكتب نص السؤال ${i + 1}` };
+    if (t === "mcq") {
+      const raw = $$(".qopt", b).map(x => x.value.trim()), ci = Number($(".qc:checked", b)?.value ?? -1), opts = [], map = {}; raw.forEach((o, j) => { if (o) { map[j] = opts.length; opts.push(o); } });
+      if (opts.length < 2) return { err: `السؤال ${i + 1}: أضف اختيارين على الأقل` };
+      if (!(ci in map)) return { err: `السؤال ${i + 1}: حدّد الإجابة الصحيحة` };
+      questions.push({ t, q, pts, opts }); ks.push({ c: map[ci] });
+    } else { questions.push({ t, q, pts, opts: [] }); ks.push({ k: $(".qk", b).value.split(/[,،]/).map(x => x.trim()).filter(Boolean) }); }
+  }
+  return { questions, ks };
+}
 function examModal(ex) {
   const keys = ex ? S.examKeys?.[ex.id] : null;
   const m = openModal(`<h2>${ex ? "تعديل اختبار" : "إضافة اختبار"}</h2><div class="alert" id="err" hidden></div>
@@ -1594,23 +1669,10 @@ function examModal(ex) {
     <button type="button" class="btn btn-line btn-sm" id="qa">+ إضافة سؤال</button>
     <div class="mact"><button class="btn btn-fill" id="sb">حفظ الاختبار</button><button type="button" class="btn btn-line" data-close>إلغاء</button></div></form>`, true);
   const form = $("#xf", m), qs = $("#qs", m); bindTarget(form, ex);
-  const num = () => $$(".qb", qs).forEach((b, i) => $(".qn", b).textContent = "س" + (i + 1));
-  num();
-  $("#qa", m).onclick = () => { qs.insertAdjacentHTML("beforeend", qBlock()); num(); };
-  qs.addEventListener("click", e => { if (e.target.closest("[data-rm]")) { if ($$(".qb", qs).length > 1) { e.target.closest(".qb").remove(); num(); } else toast("لازم سؤال واحد على الأقل", "err"); } });
-  qs.addEventListener("change", e => { if (e.target.classList.contains("qt")) { const b = e.target.closest(".qb"), es = e.target.value === "essay"; $(".qmcq", b).hidden = es; $(".qess", b).hidden = !es; } });
+  bindQs(m, qs, 1);
   form.addEventListener("submit", async e => {
     e.preventDefault(); showErr(""); const f = new FormData(form), title = (f.get("title") || "").trim(); if (!title) return showErr("اكتب عنوان الاختبار");
-    const questions = [], ks = [];
-    for (const [i, b] of $$(".qb", qs).entries()) {
-      const t = $(".qt", b).value, q = $(".qq", b).value.trim(), pts = Number($(".qp", b).value) || 1; if (!q) return showErr(`اكتب نص السؤال ${i + 1}`);
-      if (t === "mcq") {
-        const raw = $$(".qopt", b).map(x => x.value.trim()), ci = Number($(".qc:checked", b)?.value ?? -1), opts = [], map = {}; raw.forEach((o, j) => { if (o) { map[j] = opts.length; opts.push(o); } });
-        if (opts.length < 2) return showErr(`السؤال ${i + 1}: أضف اختيارين على الأقل`);
-        if (!(ci in map)) return showErr(`السؤال ${i + 1}: حدّد الإجابة الصحيحة`);
-        questions.push({ t, q, pts, opts }); ks.push({ c: map[ci] });
-      } else { questions.push({ t, q, pts, opts: [] }); ks.push({ k: $(".qk", b).value.split(/[,،]/).map(x => x.trim()).filter(Boolean) }); }
-    }
+    const rq = readQs(qs); if (rq.err) return showErr(rq.err); const { questions, ks } = rq;
     const data = { title, stage: f.get("stage"), system: f.get("system"), grade: f.get("grade") || "all", publishAt: f.get("publishAt") || todayStr(), questions };
     $("#sb", m).disabled = true;
     try {
@@ -1642,6 +1704,11 @@ function exportGrades() {
   const csv = "﻿" + [["التاريخ", "اليوم", "الطالب", "الهاتف", "الصف", "الاختبار", "الدرجة", "من", "النسبة"], ...rows.map(a => { const d = attDate(a); return [d.toLocaleDateString("en-CA"), d.toLocaleDateString("ar-EG", { weekday: "long" }), a.name, a.phone, a.grade, a.title, a.score ?? "", a.total ?? "", a.score === undefined ? "" : pctOf(a) + "%"]; })].map(r => r.map(esq).join(",")).join("\n");
   const u = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" })), l = document.createElement("a"); l.href = u; l.download = `grades-${A.xm || monthOf(new Date())}.csv`; l.click(); setTimeout(() => URL.revokeObjectURL(u), 2000);
 }
+function answersModal(name, title, ex, keys, answers) {
+  const g = gradeExam(ex, keys, answers);
+  openModal(`<h2>${esc(name)} — ${esc(title)}</h2>${ex.questions.map((q, i) => { const ans = answers[i], r = g.per[i]; return `<div class="card xq"><div class="xh"><b>${i + 1}.</b> <span>${esc(q.q)}</span><small class="badge ${r.ok ? "good" : r.ok === false ? "bad" : "warn"}">${r.got}/${r.pts}</small></div>
+    ${q.t === "mcq" ? `<p>إجابة الطالب: <b>${ans >= 0 ? esc(q.opts[ans]) : "لم يجب"}</b> ${r.ok ? "✓" : ""}</p><small class="sub">الصحيحة: ${esc(q.opts[keys?.[i]?.c] ?? "—")}</small>` : `<p class="xans">${ans ? esc(ans) : "<i>لم يجب</i>"}</p>`}</div>`; }).join("")}<div class="mact"><button class="btn btn-line" data-close>إغلاق</button></div>`, true);
+}
 async function gradeAction(e) {
   const b = e.target.closest("[data-g]"); if (!b) return; const a = S.attempts.find(x => x.id === b.dataset.id); if (!a) return;
   try {
@@ -1649,9 +1716,7 @@ async function gradeAction(e) {
     if (b.dataset.g === "edit") { const v = prompt(`الدرجة الجديدة لـ ${a.name} (من ${a.total ?? "?"}):`, a.score ?? ""); if (v === null) return; const n = Number(v); if (!isFinite(n) || n < 0 || (a.total && n > a.total)) return toast("درجة غير صحيحة", "err"); await updateDoc(doc(db, "attempts", a.id), { score: n, status: "graded", pendingEssay: false, manual: true, scoredAt: serverTimestamp() }); toast("تم تعديل الدرجة", "ok"); return; }
     const ex = S.exams.find(x => x.id === a.examId), keys = S.examKeys?.[a.examId];
     if (!ex) return toast("الاختبار محذوف، لا يمكن عرض الأسئلة", "err");
-    const g = gradeExam(ex, keys, a.answers || []);
-    openModal(`<h2>${esc(a.name)} — ${esc(a.title)}</h2>${ex.questions.map((q, i) => { const ans = a.answers?.[i], r = g.per[i]; return `<div class="card xq"><div class="xh"><b>${i + 1}.</b> <span>${esc(q.q)}</span><small class="badge ${r.ok ? "good" : r.ok === false ? "bad" : "warn"}">${r.got}/${r.pts}</small></div>
-      ${q.t === "mcq" ? `<p>إجابة الطالب: <b>${ans >= 0 ? esc(q.opts[ans]) : "لم يجب"}</b> ${r.ok ? "✓" : ""}</p><small class="sub">الصحيحة: ${esc(q.opts[keys?.[i]?.c] ?? "—")}</small>` : `<p class="xans">${ans ? esc(ans) : "<i>لم يجب</i>"}</p>`}</div>`; }).join("")}<div class="mact"><button class="btn btn-line" data-close>إغلاق</button></div>`, true);
+    answersModal(a.name, a.title, ex, keys, a.answers || []);
   } catch (er) { toast("فشلت العملية: " + (er.code || er.message), "err"); }
 }
 

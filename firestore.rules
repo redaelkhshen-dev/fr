@@ -100,18 +100,32 @@ service cloud.firestore {
         && request.resource.data.uid == request.auth.uid
         && sid == request.resource.data.hwId + '_' + request.auth.uid
         && request.resource.data.status == 'submitted'
-        && request.resource.data.keys().hasOnly(['hwId','uid','name','phone','status','link','note','updatedAt'])
+        && request.resource.data.keys().hasOnly(['hwId','uid','name','phone','status','link','note','answers','updatedAt'])
         && request.resource.data.link is string && request.resource.data.link.size() <= 500
-        && request.resource.data.note is string && request.resource.data.note.size() <= 300;
+        && request.resource.data.note is string && request.resource.data.note.size() <= 300
+        && (!('answers' in request.resource.data) || (request.resource.data.answers is list && request.resource.data.answers.size() <= 100));
       allow update: if isAdmin() || (isActiveStudent()
         && resource.data.uid == request.auth.uid
         && resource.data.status == 'submitted'
-        && request.resource.data.uid == request.auth.uid
-        && request.resource.data.status == 'submitted'
-        && request.resource.data.keys().hasOnly(['hwId','uid','name','phone','status','link','note','updatedAt'])
-        && request.resource.data.link is string && request.resource.data.link.size() <= 500
-        && request.resource.data.note is string && request.resource.data.note.size() <= 300);
+        && !('score' in resource.data)
+        && (
+          // تعديل رابط الحل / الملاحظة قبل التصحيح
+          (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['link','note','updatedAt','name','phone'])
+            && request.resource.data.status == 'submitted'
+            && request.resource.data.link is string && request.resource.data.link.size() <= 500
+            && request.resource.data.note is string && request.resource.data.note.size() <= 300)
+          // تسجيل درجة التصحيح التلقائي مرة واحدة
+          || (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['score','total','pendingEssay','status','scoredAt','grade'])
+            && request.resource.data.status in ['graded','submitted'])
+        ));
       allow delete: if isAdmin();
+    }
+
+    // مفاتيح أسئلة الواجبات: لا يقرؤها الطالب إلا بعد تسليم إجاباته
+    match /hwKeys/{id} {
+      allow read: if isAdmin() || (isActiveStudent()
+        && exists(/databases/$(database)/documents/hwsubs/$(id + '_' + request.auth.uid)));
+      allow write: if isAdmin();
     }
 
     // الاختبارات: المدرس ينشئها. مفاتيح الإجابات لا يقرؤها الطالب إلا بعد تسليم إجاباته
