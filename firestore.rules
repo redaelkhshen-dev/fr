@@ -156,5 +156,11 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // شهادات التقدير: المدرس يصدرها، والطالب يقرأ شهاداته فقط
+    match /certs/{id} {
+      allow read: if isAdmin() || (request.auth != null && resource.data.uid == request.auth.uid);
+      allow write: if isAdmin();
+    }
+
   }
 }
