@@ -142,7 +142,6 @@ input[dir=ltr]{text-align:left}
 .cert-ov{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.86);overflow:auto;display:flex;flex-direction:column;align-items:center;padding:16px}
 .cert-bar{display:flex;gap:10px;margin-bottom:14px}.cert-wrap{flex:none;transform-origin:top center}
 @media(max-width:940px){.cert-wrap{zoom:.8}}@media(max-width:760px){.cert-wrap{zoom:.55}}@media(max-width:480px){.cert-wrap{zoom:.38}}
-@media print{@page{size:A4 landscape;margin:0}body>*:not(#certprint){display:none!important}.cert-ov{position:static;background:none;padding:0;overflow:visible}.cert-bar{display:none}.cert-wrap{zoom:1!important;width:100%}.cert{width:100%!important;height:100vh;aspect-ratio:auto;-webkit-print-color-adjust:exact;print-color-adjust:exact}}
 [hidden]{display:none!important}
 .rcp-h{display:flex;justify-content:space-between;align-items:center;margin:6px 0}.rcp{max-height:240px;overflow:auto;border:1px solid var(--line);border-radius:12px;padding:6px}
 .rc{display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:8px;cursor:pointer}.rc:hover{background:var(--soft)}.rc input,.rcp-h input{width:18px;height:18px;accent-color:var(--accent);flex:none}
@@ -1395,14 +1394,49 @@ function certHTML(c) {
     <p class="cert-p cert-r">${esc(c.reason || "تقديرًا لاجتهاده وتميّزه في دراسة اللغة الفرنسية، متمنين له دوام التوفيق والنجاح")}</p>
     <div class="cert-f"><div><small>التاريخ</small><b>${esc(certDate(c))}</b></div><div class="cert-mid"><div class="cert-seal"><img src="teacher.jpg" alt=""></div><div class="cert-no"><span>رقم الشهادة</span><bdi dir="ltr">${esc(c.serial || "")}</bdi></div></div><div><small>مدرّس اللغة الفرنسية</small><b class="sig">مسيو رضا الخشن</b></div></div></div></div>`;
 }
+const loadImg = src => new Promise((ok, no) => { const i = new Image(); i.onload = () => ok(i); i.onerror = no; i.src = src; });
+async function certCanvas(c) {
+  const k = 2.4, W = 900 * k, H = 636 * k, cv = document.createElement("canvas"); cv.width = W; cv.height = H; const x = cv.getContext("2d");
+  const fam = (getComputedStyle(document.body).fontFamily.split(",")[0] || "sans-serif").trim();
+  try { await Promise.all([`800 40px ${fam}`, `700 20px ${fam}`, `400 16px ${fam}`].map(f => document.fonts.load(f, "مسيو رضا الخشن"))); } catch {}
+  const img = await loadImg("teacher.jpg"); x.scale(k, k); x.direction = "rtl"; x.textBaseline = "middle";
+  const F = (w, z, f) => `${w} ${z}px ${f || fam}, "Segoe UI", Tahoma, sans-serif`, T = (t, px, py, o = {}) => { x.font = F(o.w || 400, o.z || 16, o.f); x.fillStyle = o.c || "#2a2310"; x.textAlign = o.a || "center"; x.direction = o.d || "rtl"; x.fillText(t, px, py); };
+  x.fillStyle = "#fffdf5"; x.fillRect(0, 0, 900, 636);
+  const g = x.createRadialGradient(450, 250, 20, 450, 250, 420); g.addColorStop(0, "#fffbe8"); g.addColorStop(1, "#fffdf5"); x.fillStyle = g; x.fillRect(22, 22, 856, 592);
+  x.strokeStyle = "#b8862b"; x.lineWidth = 3; x.strokeRect(23.5, 23.5, 853, 589); x.lineWidth = 1; x.strokeStyle = "#d4a73a"; x.strokeRect(28, 28, 844, 580); x.lineWidth = 1; x.strokeRect(36, 36, 828, 564);
+  x.strokeStyle = "#b8862b"; x.lineWidth = 3; [[36, 36, 1, 1], [864, 36, -1, 1], [36, 600, 1, -1], [864, 600, -1, -1]].forEach(([cx, cy, dx, dy]) => { x.beginPath(); x.moveTo(cx + 46 * dx, cy); x.lineTo(cx, cy); x.lineTo(cx, cy + 46 * dy); x.stroke(); });
+  const circ = (cx, cy, r, bw, bc) => { x.save(); x.beginPath(); x.arc(cx, cy, r, 0, 7); x.closePath(); x.clip(); x.drawImage(img, cx - r, cy - r, r * 2, r * 2); x.restore(); x.beginPath(); x.arc(cx, cy, r, 0, 7); x.lineWidth = bw; x.strokeStyle = bc; x.stroke(); };
+  circ(560, 80, 28, 2, "#b8862b"); T("منصة مسيو رضا الخشن", 522, 72, { a: "right", w: 700, z: 18, c: "#7a520a" }); T("لتعليم اللغة الفرنسية", 522, 94, { a: "right", z: 12.5, c: "#8a7a50" });
+  const tg = x.createLinearGradient(300, 0, 600, 0); tg.addColorStop(0, "#8a5f0a"); tg.addColorStop(.5, "#d4a73a"); tg.addColorStop(1, "#8a5f0a"); T(c.title, 450, 165, { w: 800, z: 46, c: tg });
+  T("✦   ✦   ✦", 450, 204, { z: 14, c: "#b8862b" });
+  T("تتقدّم منصة مسيو رضا الخشن بخالص الشكر والتقدير للطالب / الطالبة", 450, 245, { z: 18, c: "#5b4a1d" });
+  T(c.name, 450, 305, { w: 800, z: 40 }); x.strokeStyle = "#d4a73a"; x.lineWidth = 2; x.beginPath(); x.moveTo(280, 332); x.lineTo(620, 332); x.stroke();
+  T(`${STAGES[c.stage] || ""}${c.grade ? " — " + c.grade : ""}${SYSTEMS[c.system] ? " — " + SYSTEMS[c.system] : ""}`, 450, 354, { z: 15, c: "#7a6a3a" });
+  const reason = c.reason || "تقديرًا لاجتهاده وتميّزه في دراسة اللغة الفرنسية، متمنين له دوام التوفيق والنجاح"; x.font = F(400, 17); const words = reason.split(/\s+/), lines = []; let ln = "";
+  words.forEach(w => { const t = ln ? ln + " " + w : w; if (x.measureText(t).width > 640 && ln) { lines.push(ln); ln = w; } else ln = t; }); if (ln) lines.push(ln);
+  lines.slice(0, 4).forEach((l, i) => T(l, 450, 398 + i * 30, { z: 17, c: "#5b4a1d" }));
+  const sg = x.createLinearGradient(408, 458, 492, 542); ["#f6dc8c", "#b8862b", "#f6dc8c", "#b8862b"].forEach((cl, i) => sg.addColorStop(i / 3, cl)); x.beginPath(); x.arc(450, 500, 42, 0, 7); x.fillStyle = sg; x.fill(); x.beginPath(); x.arc(450, 500, 37, 0, 7); x.fillStyle = "#fffdf5"; x.fill(); circ(450, 500, 34.5, 0, "#fffdf5");
+  T("رقم الشهادة", 450, 556, { z: 12, c: "#8a7a50" }); T(c.serial || "", 450, 574, { w: 700, z: 14, f: "monospace", c: "#5b4a1d", d: "ltr" });
+  T("التاريخ", 697, 548, { z: 12.5, c: "#8a7a50" }); T(certDate(c), 697, 574, { w: 700, z: 16.5 });
+  T("مدرّس اللغة الفرنسية", 225, 548, { z: 12.5, c: "#8a7a50" }); T("مسيو رضا الخشن", 225, 576, { w: 700, z: 21, c: "#7a520a" });
+  return cv;
+}
+async function downloadCert(c, btn) {
+  const old = btn?.innerHTML; if (btn) { btn.disabled = true; btn.innerHTML = "جاري التجهيز…"; }
+  try {
+    const cv = await certCanvas(c), blob = await new Promise(r => cv.toBlob(r, "image/png")), u = URL.createObjectURL(blob), a = document.createElement("a");
+    a.href = u; a.download = `شهادة-${(c.name || "").replace(/\s+/g, "-")}.png`; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 4000); toast("تم تحميل الشهادة", "ok");
+  } catch (er) { toast("تعذر تحميل الشهادة", "err"); }
+  if (btn) { btn.disabled = false; btn.innerHTML = old; }
+}
 function openCert(c) {
   document.getElementById("certprint")?.remove();
   const ov = document.createElement("div"); ov.id = "certprint"; ov.className = "cert-ov";
-  ov.innerHTML = `<div class="cert-bar"><button class="btn btn-fill" data-cp="print">🖨️ طباعة / حفظ PDF</button><button class="btn btn-line" data-cp="close">إغلاق</button></div><div class="cert-wrap">${certHTML(c)}</div>`;
-  ov.addEventListener("click", e => { const b = e.target.closest("[data-cp]"); if (!b) { if (e.target === ov) ov.remove(); return; } if (b.dataset.cp === "close") ov.remove(); else window.print(); });
+  ov.innerHTML = `<div class="cert-bar"><button class="btn btn-fill" data-cp="dl">⬇ تحميل الشهادة</button><button class="btn btn-line" data-cp="close">إغلاق</button></div><div class="cert-wrap">${certHTML(c)}</div>`;
+  ov.addEventListener("click", e => { const b = e.target.closest("[data-cp]"); if (!b) { if (e.target === ov) ov.remove(); return; } if (b.dataset.cp === "close") ov.remove(); else downloadCert(c, b); });
   document.body.appendChild(ov);
 }
-const certThumb = c => `<div class="cthumb"><div class="cprev">${certHTML(c)}</div><div class="cinfo"><h3>${esc(c.title)}</h3><small>${esc(certDate(c))}</small><div style="margin-top:10px"><button class="btn btn-fill btn-sm" data-cv="${esc(c.id)}">عرض وطباعة</button></div></div></div>`;
+const certThumb = c => `<div class="cthumb"><div class="cprev">${certHTML(c)}</div><div class="cinfo"><h3>${esc(c.title)}</h3><small>${esc(certDate(c))}</small><div style="margin-top:10px"><button class="btn btn-fill btn-sm" data-cv="${esc(c.id)}">عرض</button> <button class="btn btn-line btn-sm" data-cd="${esc(c.id)}" title="تحميل الشهادة" aria-label="تحميل الشهادة">⬇ تحميل</button></div></div></div>`;
 const myCerts = () => [...S.certs].sort((a, b) => (b.issuedAt || "").localeCompare(a.issuedAt || ""));
 function renderCerts() {
   S.page = "certs";
@@ -1413,7 +1447,7 @@ function paintCerts() {
   const l = $("#cl"); if (!l || S.page !== "certs") return; const cs = myCerts(); $("#cn").textContent = cs.length;
   l.innerHTML = cs.map(certThumb).join("") || `<div class="empty">لا توجد شهادات بعد — اجتهد وستصلك شهادة تقدير 🌟</div>`;
 }
-document.addEventListener("click", e => { const b = e.target.closest("[data-cv]"); if (b) { const c = S.certs.find(x => x.id === b.dataset.cv); if (c) openCert(c); } });
+document.addEventListener("click", e => { const d = e.target.closest("[data-cd]"); if (d) { const c = S.certs.find(x => x.id === d.dataset.cd); if (c) downloadCert(c, d); return; } const b = e.target.closest("[data-cv]"); if (b) { const c = S.certs.find(x => x.id === b.dataset.cv); if (c) openCert(c); } });
 
 /* ---------- نشاطي وإحصائياتي ---------- */
 const AC = { unsubs: [], comments: [], ratings: [], tab: "videos" };
