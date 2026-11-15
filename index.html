@@ -461,6 +461,8 @@ html[data-theme=light] .hl-fx b{background-image:linear-gradient(100deg,#7a520a 
 .tcard small{color:var(--muted)}
 @media(prefers-reduced-motion:reduce){.logo-mark.live,.logo-mark.live::before,.logo-mark.live::after{animation:none!important}}
 /* ===== موافقة الطلاب ===== */
+.tbtn.bell{position:relative}.tbtn.bell:hover{transform:none}.tbtn.bell .pbadge{position:absolute;top:-5px;inset-inline-end:-5px;min-width:19px;height:19px;font-size:.68rem}
+.nrow{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--bg2);margin-top:10px;color:var(--fg)}.nrow:hover{border-color:var(--accent)}.nrow.un{border-color:var(--accent);background:linear-gradient(135deg,rgba(212,167,58,.16),var(--bg2))}.nrow .ni{font-size:1.5rem;line-height:1.2}.nrow b{display:block;font:700 .98rem var(--fd)}.nrow small{color:var(--muted)}.nrow.late{border-inline-start:4px solid var(--bad)}.nrow.soon{border-inline-start:4px solid var(--warn)}
 .pbadge{display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:var(--bad);color:#fff;font:700 .72rem var(--fd);vertical-align:middle}
 .pend{max-width:580px;margin:32px auto;text-align:center;display:flex;flex-direction:column;align-items:center;gap:14px;animation:rise .6s both}
 .pend-ic{display:grid;place-items:center;width:84px;height:84px;border-radius:50%;font-size:2.4rem;background:var(--soft);border:2px solid var(--accent);animation:glowsm 3s ease-in-out infinite}
@@ -742,6 +744,7 @@ function checkPay() {
 function payTab() { const t = $('.atab[data-t="payments"]'); if (t) t.innerHTML = "المدفوعات" + (S.pp ? ` <span class="pbadge">${S.pp}</span>` : ""); }
 function tabBadge() { const t = $('.atab[data-t="students"]'); if (t) t.innerHTML = "الطلاب" + (S.pn ? ` <span class="pbadge">${S.pn}</span>` : ""); }
 function onData() {
+  if (!isAdminUser() && S.student) { paintBell(); maybeNotify(); }
   if (isAdminUser()) { if ($("#abody")) fillTab(); paintHwModal(); }
   else if (S.page === "home") fillHome();
   else if (S.page === "watch" && !S.watchOk) render();
@@ -998,9 +1001,65 @@ function renderRegister() {
 /* ---------- هيدر الطالب ---------- */
 function studentHeader(active) {
   const s = S.student;
-  return `<header class="hdr"><div class="wrap hdr-in">${brand(true)}<nav class="pnav" aria-label="التنقل"><a href="#/">الرئيسية</a><a href="#/activity">نشاطي</a><a href="#/profile">بياناتي</a><a href="#/pay">💳 الدفع</a></nav><div class="hdr-r">${themeBtn()}
+  return `<header class="hdr"><div class="wrap hdr-in">${brand(true)}<nav class="pnav" aria-label="التنقل"><a href="#/">الرئيسية</a><a href="#/activity">نشاطي</a><a href="#/profile">بياناتي</a><a href="#/pay">💳 الدفع</a></nav><div class="hdr-r">${bellBtn()}${themeBtn()}
     <a class="chipuser" href="#/profile" aria-label="بياناتي">${avatarHTML(s, 34)}<span class="n">${esc(s.name)}</span></a>
     <button class="btn btn-line btn-sm" id="lo">خروج</button></div></div></header>`;
+}
+
+/* ---------- الإشعارات والتذكير بالواجبات والاختبارات ---------- */
+const BELL = `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>`;
+const bellBtn = () => { const seen = lsSet(seenKey()), n = notifItems().filter(x => !seen.has(x.id)).length; return `<button class="tbtn bell" type="button" data-bell aria-label="الإشعارات" title="الإشعارات">${BELL}<span class="pbadge" ${n ? "" : "hidden"}>${n > 9 ? "9+" : n}</span></button>`; };
+const lsSet = k => { try { return new Set(JSON.parse(localStorage.getItem(k) || "[]")); } catch { return new Set(); } };
+const lsSave = (k, st) => { try { localStorage.setItem(k, JSON.stringify([...st].slice(-300))); } catch {} };
+const seenKey = () => "rf_nseen_" + (S.student?.id || ""), notifKey = () => "rf_nshown_" + (S.student?.id || "");
+function notifItems() {
+  if (!S.student) return [];
+  const out = [], now = Date.now(), WEEK = 7 * 864e5, td = todayStr();
+  for (const h of visible(S.homework || [])) {
+    const st = hwStatus(h.id), due = hwDue(h.due), cr = h.createdAt?.seconds ? h.createdAt.seconds * 1000 : 0, href = h.questions?.length ? "#/hw/" + h.id : "#/";
+    if (st === "none" && due) {
+      const days = Math.round((new Date(h.due) - new Date(td)) / 864e5);
+      if (due < now) out.push({ id: `late:h:${h.id}`, pr: 0, cls: "late", ic: "⚠️", t: `فات موعد تسليم الواجب: ${h.title}`, s: "سلّمه بأسرع وقت أو كلّم مسيو رضا", href });
+      else if (days <= 3) out.push({ id: `due:h:${h.id}:${td}`, pr: 1, cls: "soon", ic: "⏰", t: `تذكير: آخر موعد لتسليم "${h.title}" ${days <= 0 ? "اليوم" : days === 1 ? "غدًا" : "بعد " + days + " أيام"}`, s: "موعد التسليم: " + h.due, href });
+    }
+    if (st === "none" && cr && now - cr < WEEK) out.push({ id: `new:h:${h.id}`, pr: 3, ic: "📝", t: `واجب جديد: ${h.title}`, s: h.due ? "آخر موعد: " + h.due : "تم رفع واجب جديد", href });
+    const sb = hwSub(h.id); if (st === "graded" && sb?.scoredAt?.seconds && now - sb.scoredAt.seconds * 1000 < WEEK) out.push({ id: `gr:h:${h.id}`, pr: 4, ic: "✅", t: `تم تصحيح واجبك: ${h.title}`, s: sb.grade ? "درجتك: " + sb.grade : "شاهد النتيجة", href });
+  }
+  for (const e of visible(S.exams || []).filter(examOpen)) {
+    if (attOf(e.id)) continue;
+    const isNew = e.publishAt && (new Date(td) - new Date(e.publishAt)) / 864e5 <= 7, href = "#/exam/" + e.id;
+    out.push(isNew ? { id: `new:e:${e.id}`, pr: 2, ic: "📋", t: `اختبار جديد: ${e.title}`, s: "متاح الآن — يُحَل مرة واحدة", href } : { id: `ex:${e.id}:${td}`, pr: 2, cls: "soon", ic: "📋", t: `تذكير: لم تحلّ اختبار "${e.title}" بعد`, s: "ادخل وحلّه الآن", href });
+  }
+  return out.sort((a, b) => a.pr - b.pr);
+}
+function paintBell() {
+  const seen = lsSet(seenKey()), n = notifItems().filter(x => !seen.has(x.id)).length;
+  $$(".bell .pbadge").forEach(b => { b.hidden = !n; b.textContent = n > 9 ? "9+" : n; });
+}
+function openBell() {
+  const items = notifItems(), seen = lsSet(seenKey()), can = "Notification" in window, perm = can ? Notification.permission : "denied";
+  const m = openModal(`<h2>🔔 الإشعارات والتذكيرات</h2>${items.length ? items.map(n => `<a class="nrow ${n.cls || ""} ${seen.has(n.id) ? "" : "un"}" href="${esc(n.href)}" data-close><span class="ni">${n.ic}</span><div><b>${esc(n.t)}</b><small>${esc(n.s)}</small></div></a>`).join("") : `<div class="empty" style="margin-top:12px">لا توجد إشعارات الآن 🎉 أنت مواكب لكل الواجبات والاختبارات</div>`}
+    ${can && perm === "default" ? `<div class="mact" style="margin-top:16px"><button class="btn btn-fill btn-sm" id="nen">🔔 تفعيل تنبيهات المتصفح</button></div>` : ""}
+    <p class="sub" style="font-size:.82rem;margin-top:12px">${perm === "granted" ? "✅ تنبيهات المتصفح مفعّلة — تصلك عند فتح الموقع ولو في تبويب آخر." : perm === "denied" && can ? "تنبيهات المتصفح محظورة من إعدادات الموقع في متصفحك." : "التنبيهات تعمل أثناء فتح الموقع في المتصفح."}</p>
+    <div class="mact"><button class="btn btn-line" data-close>إغلاق</button></div>`);
+  items.forEach(n => seen.add(n.id)); lsSave(seenKey(), seen); paintBell();
+  const b = $("#nen", m); if (b) b.onclick = async () => { try { const r = await Notification.requestPermission(); toast(r === "granted" ? "تم تفعيل التنبيهات" : "لم يتم السماح بالتنبيهات", r === "granted" ? "ok" : "err"); if (r === "granted") m.remove(); } catch {} };
+}
+document.addEventListener("click", e => { if (e.target.closest("[data-bell]") && S.student) openBell(); });
+const BN = { t0: 0, base: new Set(), toasted: false };
+function maybeNotify() {
+  if (!S.student || !(S.homework?.length || S.exams?.length)) return;
+  const now = Date.now(), items = notifItems(); if (!BN.t0) BN.t0 = now;
+  if (now - BN.t0 < 3000) { items.forEach(x => BN.base.add(x.id)); setTimeout(() => { if (S.student) maybeNotify(); }, 3100); return; }
+  const seen = lsSet(seenKey());
+  if (!BN.toasted) { BN.toasted = true; const n = items.filter(x => !seen.has(x.id)).length; if (n) toast(`🔔 لديك ${n} ${n === 1 ? "تنبيه" : "تنبيهات"} — اضغط على الجرس`, "ok"); }
+  const fresh = items.filter(x => !BN.base.has(x.id)); if (!fresh.length) return; fresh.forEach(x => BN.base.add(x.id));
+  if (!document.hidden) toast(fresh[0].ic + " " + fresh[0].t, "ok");
+  else if ("Notification" in window && Notification.permission === "granted") {
+    const sh = lsSet(notifKey()), todo = fresh.filter(x => !sh.has(x.id)); if (!todo.length) return;
+    try { new Notification(todo.length === 1 ? todo[0].t : `لديك ${todo.length} تنبيهات جديدة`, { body: todo.length === 1 ? todo[0].s : todo.map(x => x.t).slice(0, 3).join(" • "), icon: "icon-192.png", tag: "rf-" + todo[0].id }); } catch {}
+    todo.forEach(x => sh.add(x.id)); lsSave(notifKey(), sh);
+  }
 }
 
 /* ---------- تقدم الطالب ---------- */
