@@ -145,6 +145,10 @@ input[dir=ltr]{text-align:left}
 [hidden]{display:none!important}
 .rcp-h{display:flex;justify-content:space-between;align-items:center;margin:6px 0}.rcp{max-height:240px;overflow:auto;border:1px solid var(--line);border-radius:12px;padding:6px}
 .rc{display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:8px;cursor:pointer}.rc:hover{background:var(--soft)}.rc input,.rcp-h input{width:18px;height:18px;accent-color:var(--accent);flex:none}
+.payb{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.payb .btn{flex:1 1 130px;white-space:nowrap}
+.payg.vf{background:linear-gradient(135deg,#e60000,#a80000);border-color:#e60000;color:#fff}.payg.ip{background:linear-gradient(135deg,#8b3fd9,#5b21b6);border-color:#7c3aed;color:#fff}
+.payq{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}.payq summary{cursor:pointer;color:var(--accent-text);font:600 .9rem var(--fd)}
+.payq img{display:block;width:min(240px,100%);aspect-ratio:1;object-fit:contain;margin:12px auto;border-radius:12px;background:#fff;padding:6px}.payq .btn{width:100%}
 .hwfb{margin-top:8px;padding:8px 12px;border-radius:8px;background:var(--soft);font-size:.9rem}
 .badge.good{background:rgba(61,220,132,.14);color:var(--good)}
 .badge.bad{background:rgba(255,107,122,.14);color:var(--bad)}
@@ -1241,7 +1245,7 @@ function paintComments() {
 
 /* ---------- بياناتي ---------- */
 /* ---------- الدفع (الطالب) ---------- */
-const PAY = { vodafone: { name: "فودافون كاش", number: "01005664564", icon: "📱" }, instapay: { name: "إنستا باي (InstaPay)", number: "01558186187", icon: "🏦" } };
+const PAY = { vodafone: { name: "فودافون كاش", number: "01005664564", icon: "📱", link: "http://vf.eg/vfcash?id=mt&qrId=ojDCHl", qr: "qr-vodafone.jpg", cls: "vf" }, instapay: { name: "إنستا باي (InstaPay)", number: "01558186187", icon: "🏦", link: "https://ipn.eg/S/redaelkhshen/instapay/6Jcs4X", qr: "qr-instapay.jpg", cls: "ip" } };
 const PAY_WA = "201558186187";
 const PY = { unsub: null, list: [], method: "vodafone" };
 function stopPaySubs() { if (PY.unsub) PY.unsub(); PY.unsub = null; PY.list = []; }
@@ -1262,7 +1266,7 @@ function renderPay() {
     <section class="banner"><div><h1>💳 الدفع الإلكتروني</h1><p>حوّل المبلغ بإحدى الطرق التالية ثم أكّد التحويل من هنا ليصل إشعار لمسيو رضا على واتساب</p></div></section>
     <div class="steps3"><div><b>1</b><span>اختر طريقة الدفع وحوّل المبلغ</span></div><div><b>2</b><span>اكتب بيانات التحويل</span></div><div><b>3</b><span>اضغط «تم التحويل» لإرسال التأكيد على واتساب</span></div></div>
     <div class="pf" style="margin-top:22px"><div>
-      <div class="paym" id="pm">${Object.entries(PAY).map(([k, m]) => `<label class="payc"><input type="radio" name="method" value="${k}" ${PY.method === k ? "checked" : ""}><div><span class="payi">${m.icon}</span><b>${m.name}</b><div class="payn" dir="ltr">${m.number}</div><button type="button" class="btn btn-line btn-sm" data-copy="${m.number}">نسخ الرقم</button></div></label>`).join("")}</div>
+      <div class="paym" id="pm">${Object.entries(PAY).map(([k, m]) => `<label class="payc"><input type="radio" name="method" value="${k}" ${PY.method === k ? "checked" : ""}><div><span class="payi">${m.icon}</span><b>${m.name}</b><div class="payn" dir="ltr">${m.number}</div><div class="payb"><button type="button" class="btn btn-line btn-sm" data-copy="${m.number}">📋 نسخ الرقم</button><a class="btn btn-fill btn-sm payg ${m.cls}" href="${m.link}" target="_blank" rel="noopener">⚡ اضغط للدفع مباشرة</a></div><details class="payq"><summary>عرض QR للمسح</summary><img src="${m.qr}" alt="QR ${m.name}" loading="lazy"><a class="btn btn-line btn-sm" href="${m.qr}" download="${m.cls === "vf" ? "qr-vodafone-cash" : "qr-instapay"}.jpg">⬇ حفظ الصورة</a></details></div></label>`).join("")}</div>
       <p class="sub" style="margin-top:12px">⚠️ حوّل على الرقم الظاهر بالأعلى فقط، واحتفظ بصورة إيصال التحويل.</p></div>
     <div class="card"><h3 style="margin-bottom:12px">بيانات التحويل</h3><div class="alert" id="err" hidden></div>
       <form id="pf2" novalidate>
