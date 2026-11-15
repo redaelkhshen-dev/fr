@@ -133,10 +133,10 @@ input[dir=ltr]{text-align:left}
 .cert-p{font-size:1.1rem;color:#5b4a1d;margin-top:12px;line-height:1.9}.cert-r{max-width:680px;font-size:1.05rem}
 .cert-n{font-size:2.5rem;font-weight:800;color:#2a2310;margin-top:6px;padding:0 40px 4px;border-bottom:2px solid #d4a73a}
 .cert-s{color:#7a6a3a;margin-top:6px;font-size:.95rem}
-.cert-f{margin-top:auto;display:flex;justify-content:space-between;align-items:flex-end;width:100%;padding:0 20px}
+.cert-f{margin-top:auto;display:grid;grid-template-columns:1fr auto 1fr;align-items:end;width:100%;padding:0 20px}.cert-f>div:first-child{text-align:right}.cert-f>div:last-child{text-align:left}.cert-mid{display:flex;flex-direction:column;align-items:center;gap:6px}
 .cert-f small{display:block;color:#8a7a50;font-size:.8rem}.cert-f b{font-size:1.05rem;color:#2a2310}.cert-f .sig{font-family:"Cairo",var(--fd);font-size:1.3rem;color:#7a520a}
 .cert-seal{width:84px;height:84px;border-radius:50%;padding:4px;background:conic-gradient(#f6dc8c,#b8862b,#f6dc8c,#b8862b,#f6dc8c);box-shadow:0 4px 14px rgba(120,80,10,.35)}.cert-seal img{width:100%;height:100%;border-radius:50%;object-fit:cover;border:3px solid #fffdf5}
-.cert-no{margin-top:10px;font-size:.75rem;color:#8a7a50;direction:ltr}
+.cert-no{display:flex;flex-direction:column;align-items:center;font-size:.78rem;color:#8a7a50;line-height:1.4}.cert-no bdi{font:600 .85rem monospace;color:#5b4a1d;letter-spacing:.06em}
 .cert-ov{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.86);overflow:auto;display:flex;flex-direction:column;align-items:center;padding:16px}
 .cert-bar{display:flex;gap:10px;margin-bottom:14px}.cert-wrap{flex:none;transform-origin:top center}
 @media(max-width:940px){.cert-wrap{zoom:.8}}@media(max-width:760px){.cert-wrap{zoom:.55}}@media(max-width:480px){.cert-wrap{zoom:.38}}
@@ -1387,8 +1387,7 @@ function certHTML(c) {
     <p class="cert-p">تتقدّم منصة مسيو رضا الخشن بخالص الشكر والتقدير للطالب / الطالبة</p>
     <div class="cert-n">${esc(c.name)}</div><div class="cert-s">${esc(stg)}</div>
     <p class="cert-p cert-r">${esc(c.reason || "تقديرًا لاجتهاده وتميّزه في دراسة اللغة الفرنسية، متمنين له دوام التوفيق والنجاح")}</p>
-    <div class="cert-f"><div><small>التاريخ</small><b>${esc(certDate(c))}</b></div><div class="cert-seal"><img src="teacher.jpg" alt=""></div><div><small>مدرّس اللغة الفرنسية</small><b class="sig">مسيو رضا الخشن</b></div></div>
-    <div class="cert-no">رقم الشهادة: ${esc(c.serial || "")}</div></div></div>`;
+    <div class="cert-f"><div><small>التاريخ</small><b>${esc(certDate(c))}</b></div><div class="cert-mid"><div class="cert-seal"><img src="teacher.jpg" alt=""></div><div class="cert-no"><span>رقم الشهادة</span><bdi dir="ltr">${esc(c.serial || "")}</bdi></div></div><div><small>مدرّس اللغة الفرنسية</small><b class="sig">مسيو رضا الخشن</b></div></div></div></div>`;
 }
 function openCert(c) {
   document.getElementById("certprint")?.remove();
