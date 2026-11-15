@@ -1776,10 +1776,11 @@ async function commentAction(e) {
   } catch (er) { toast("فشلت العملية: " + (er.code || er.message), "err"); }
 }
 const gradeLabel = x => x.grade && x.grade !== "all" ? x.grade : "كل الصفوف";
-const passFilter = x => (!A.cstage || x.stage === A.cstage || x.stage === "all") && (!A.cgrade || (x.grade || "all") === A.cgrade || (x.grade || "all") === "all");
-const filterBar = () => `<div class="toolbar cf"><select id="cfs"><option value="">كل المراحل</option>${Object.entries(STAGES).map(([k, v]) => `<option value="${k}" ${A.cstage === k ? "selected" : ""}>${v}</option>`).join("")}</select><select id="cfg"><option value="">كل الصفوف</option>${(GRADES[A.cstage] || []).map(g => `<option ${A.cgrade === g ? "selected" : ""}>${g}</option>`).join("")}</select></div>`;
+const passFilter = x => (!A.cstage || x.stage === A.cstage || x.stage === "all") && (!A.csys || (x.system || "all") === A.csys || (x.system || "all") === "all") && (!A.cgrade || (x.grade || "all") === A.cgrade || (x.grade || "all") === "all");
+const filterBar = () => `<div class="toolbar cf"><select id="cfs"><option value="">كل المراحل</option>${Object.entries(STAGES).map(([k, v]) => `<option value="${k}" ${A.cstage === k ? "selected" : ""}>${v}</option>`).join("")}</select><select id="cfy"><option value="">كل الأنظمة</option>${Object.entries(SYSTEMS).map(([k, v]) => `<option value="${k}" ${A.csys === k ? "selected" : ""}>${v} فقط</option>`).join("")}</select><select id="cfg"><option value="">كل الصفوف</option>${(GRADES[A.cstage] || []).map(g => `<option ${A.cgrade === g ? "selected" : ""}>${g}</option>`).join("")}</select></div>`;
 function bindFilter(b) {
   $("#cfs", b).onchange = e => { A.cstage = e.target.value; A.cgrade = ""; setTab(A.tab); };
+  $("#cfy", b).onchange = e => { A.csys = e.target.value; fillTab(); };
   $("#cfg", b).onchange = e => { A.cgrade = e.target.value; fillTab(); };
 }
 const devBadges = x => `<span class="badge ${x.devM ? "" : "warn"}" title="الهاتف">📱 ${x.devM ? "مثبّت" : "—"}</span> <span class="badge ${x.devD ? "" : "warn"}" title="الكمبيوتر">💻 ${x.devD ? "مثبّت" : "—"}</span>`;
