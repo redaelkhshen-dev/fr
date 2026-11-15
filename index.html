@@ -1055,7 +1055,7 @@ function renderHome() {
       <h1>أهلًا يا <span class="hl">${esc(s.name.split(" ")[0])}</span> 👋</h1><p class="lead">${esc(s.grade)} — جاهز تكمل رحلتك مع الفرنسية؟</p>
       <div class="mini"><div><b id="cv">0</b><span>فيديو متاح</span></div><div><b id="cf">0</b><span>ملف متاح</span></div><div><b>${SYSTEMS[s.system]}</b><span>${STAGES[s.stage]}</span></div></div><div class="ovp"><div class="pbar-top"><span id="ovt">تقدمك العام</span><b id="ovn">0%</b></div><div class="pbar-track"><i id="ovf"></i></div></div></div>
       <div class="sv"><div class="disc sm">${avatarHTML(s, 200)}</div></div></div></section><main class="wrap">
-    <div class="tabs"><button class="tab" data-t="videos">🎬 الفيديوهات</button><button class="tab" data-t="files">📄 الملفات</button><button class="tab" data-t="hw" id="tabhw">📝 الواجبات</button><button class="tab" data-t="exams" id="tabex">📋 الاختبارات</button><input class="srch" id="q" placeholder="ابحث..." value="${esc(H.q)}"></div>
+    <div class="tabs"><button class="tab" data-t="videos">🎬 الفيديوهات</button><button class="tab" data-t="files">📄 الملفات</button><button class="tab" data-t="hw" id="tabhw">📝 الواجبات</button><button class="tab" data-t="exams" id="tabex">📋 الاختبارات</button><button class="tab" data-t="certs" id="tabce">🏅 شهاداتي</button><input class="srch" id="q" placeholder="ابحث..." value="${esc(H.q)}"></div>
     <div class="grid" id="list"></div></main><footer class="foot">© منصة مسيو رضا الخشن — المحتوى للاستخدام الشخصي فقط</footer>`;
   $("#lo").onclick = doLogout;
   $$(".tab").forEach(b => b.onclick = () => { H.tab = b.dataset.t; fillHome(); });
@@ -1134,12 +1134,15 @@ function fillHome() {
   if ($("#ovn")) { const vis = visible(S.videos), ps = vis.map(x => getProg(x.id)), dn = ps.filter(p => p.done).length, avg = vis.length ? Math.round(ps.reduce((a, p) => a + Math.min(100, p.p), 0) / vis.length) : 0; $("#ovn").textContent = avg + "%"; $("#ovf").style.width = avg + "%"; $("#ovt").textContent = `تقدمك العام · أكملت ${dn} من ${vis.length} فيديو`; }
   $$(".tab").forEach(b => b.classList.toggle("on", b.dataset.t === H.tab));
   { const th = $("#tabhw"); if (th) { const n = visible(S.homework).filter(h => hwStatus(h.id) !== "graded").length; th.innerHTML = "📝 الواجبات" + (n ? ` <span class="pbadge">${n}</span>` : ""); } }
+  { const tc = $("#tabce"); if (tc) tc.innerHTML = "🏅 شهاداتي" + (S.certs.length ? ` <span class="pbadge">${S.certs.length}</span>` : ""); }
   { const te = $("#tabex"); if (te) { const n = visible(S.exams).filter(examOpen).filter(x => !attOf(x.id)).length; te.innerHTML = "📋 الاختبارات" + (n ? ` <span class="pbadge">${n}</span>` : ""); } }
   const q = H.q.trim().toLowerCase();
   const m = x => !q || (x.title || "").toLowerCase().includes(q) || (x.description || "").toLowerCase().includes(q);
   if (H.tab === "videos") {
     const v = visible(S.videos).filter(m);
     list.innerHTML = v.length ? v.map((x, i) => { const pr = getProg(x.id); return `<a class="vcard" style="--i:${i}" href="#/watch/${esc(x.id)}" data-y="${esc(x.ytId)}"><div class="thumb"><span class="num">${String(i + 1).padStart(2, "0")}</span><img class="fr on" loading="lazy" src="https://i.ytimg.com/vi/${esc(x.ytId)}/mqdefault.jpg" alt=""><span class="play"><i>▶</i></span>${pr.done ? `<span class="done">✓ تمت المشاهدة</span>` : ""}<span class="vp"><i style="width:${pr.p}%"></i></span></div><div class="vb"><h3>${esc(x.title)}</h3>${x.description ? `<p>${esc(x.description)}</p>` : ""}${pr.p > 0 && !pr.done ? `<small class="resume">أكملت ${Math.round(pr.p)}% · تابع من حيث توقفت</small>` : ""}</div></a>`; }).join("") : `<div class="empty">لا توجد فيديوهات لمرحلتك حاليًا</div>`;
+  } else if (H.tab === "certs") {
+    list.innerHTML = myCerts().map(certThumb).join("") || `<div class="empty">لا توجد شهادات بعد — اجتهد وستصلك شهادة تقدير 🌟</div>`;
   } else if (H.tab === "exams") {
     const xs = visible(S.exams).filter(examOpen).filter(m);
     list.innerHTML = xs.length ? xs.map(examCard).join("") : `<div class="empty">لا توجد اختبارات لمرحلتك حاليًا</div>`;
@@ -1396,6 +1399,7 @@ function openCert(c) {
   ov.addEventListener("click", e => { const b = e.target.closest("[data-cp]"); if (!b) { if (e.target === ov) ov.remove(); return; } if (b.dataset.cp === "close") ov.remove(); else window.print(); });
   document.body.appendChild(ov);
 }
+const certThumb = c => `<div class="cthumb"><div class="cprev">${certHTML(c)}</div><div class="cinfo"><h3>${esc(c.title)}</h3><small>${esc(certDate(c))}</small><div style="margin-top:10px"><button class="btn btn-fill btn-sm" data-cv="${esc(c.id)}">عرض وطباعة</button></div></div></div>`;
 const myCerts = () => [...S.certs].sort((a, b) => (b.issuedAt || "").localeCompare(a.issuedAt || ""));
 function renderCerts() {
   S.page = "certs";
@@ -1404,7 +1408,7 @@ function renderCerts() {
 }
 function paintCerts() {
   const l = $("#cl"); if (!l || S.page !== "certs") return; const cs = myCerts(); $("#cn").textContent = cs.length;
-  l.innerHTML = cs.map(c => `<div class="cthumb"><div class="cprev">${certHTML(c)}</div><div class="cinfo"><h3>${esc(c.title)}</h3><small>${esc(certDate(c))}</small><div style="margin-top:10px"><button class="btn btn-fill btn-sm" data-cv="${esc(c.id)}">عرض وطباعة</button></div></div></div>`).join("") || `<div class="empty">لا توجد شهادات بعد — اجتهد وستصلك شهادة تقدير 🌟</div>`;
+  l.innerHTML = cs.map(certThumb).join("") || `<div class="empty">لا توجد شهادات بعد — اجتهد وستصلك شهادة تقدير 🌟</div>`;
 }
 document.addEventListener("click", e => { const b = e.target.closest("[data-cv]"); if (b) { const c = S.certs.find(x => x.id === b.dataset.cv); if (c) openCert(c); } });
 
