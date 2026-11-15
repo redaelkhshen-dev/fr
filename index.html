@@ -1784,16 +1784,29 @@ TABS.certs = {
   skel: () => `<div class="toolbar"><h2 style="flex:1">شهادات التقدير</h2><button class="btn btn-fill" data-a="cadd">+ إصدار شهادة</button></div>${filterBar()}<input id="cq" placeholder="بحث باسم الطالب" style="margin-bottom:12px" value="${esc(A.cq || "")}"><div class="agrid" id="cl2"></div>`,
   init: b => { bindFilter(b); $("#cq", b).oninput = e => { A.cq = e.target.value; fillTab(); }; b.onclick = async e => {
     const x = e.target.closest("[data-a]"); if (!x) return; const id = x.dataset.id, c = S.certs.find(k => k.id === id);
-    try { if (x.dataset.a === "cadd") return certModal(); if (x.dataset.a === "cview" && c) return openCert(c);
+    try { if (x.dataset.a === "cadd") return certModal(); if (x.dataset.a === "cview" && c) return openCert(c); if (x.dataset.a === "cedit" && c) return certEditModal(c);
       if (x.dataset.a === "cdel" && c && confirm(`حذف شهادة ${c.name}؟`)) { await deleteDoc(doc(db, "certs", id)); toast("تم الحذف", "ok"); } }
     catch (er) { toast("فشلت العملية: " + (er.code || er.message), "err"); } }; },
   fill: b => {
     const l = [...S.certs].filter(c => passFilter(c) && (!A.cq || (c.name + c.phone).includes(A.cq))).sort((a, b) => (b.issuedAt || "").localeCompare(a.issuedAt || ""));
     $("#cl2", b).innerHTML = l.map(c => `<div class="acard"><div class="fcard" style="border:0;padding:0"><div class="ficon">🏅</div><div class="t"><h3>${esc(c.name)}</h3><small>${esc(c.title)} · ${esc(certDate(c))}</small></div></div>
       <div class="m"><span class="badge">${stageLabel(c.stage)}</span><span class="badge">${sysLabel(c.system)}</span><span class="badge good">${esc(c.grade || "")}</span></div>
-      <div class="acts"><button class="btn btn-line btn-sm" data-a="cview" data-id="${esc(c.id)}">معاينة</button><button class="btn btn-bad btn-sm" data-a="cdel" data-id="${esc(c.id)}">حذف</button></div></div>`).join("") || `<div class="empty">لم تُصدر شهادات بعد</div>`;
+      <div class="acts"><button class="btn btn-line btn-sm" data-a="cview" data-id="${esc(c.id)}">معاينة</button><button class="btn btn-fill btn-sm" data-a="cedit" data-id="${esc(c.id)}">تعديل</button><button class="btn btn-bad btn-sm" data-a="cdel" data-id="${esc(c.id)}">حذف</button></div></div>`).join("") || `<div class="empty">لم تُصدر شهادات بعد</div>`;
   }
 };
+function certEditModal(c) {
+  const m = openModal(`<h2>تعديل شهادة ${esc(c.name)}</h2><div class="alert" id="err" hidden></div>
+    <form id="ce" novalidate><label class="fl">عنوان الشهادة<input name="title" maxlength="60" value="${esc(c.title)}" list="ctl"><datalist id="ctl">${CERT_TITLES.map(t => `<option value="${t}">`).join("")}</datalist></label>
+    <label class="fl">سبب التقدير<textarea name="reason" maxlength="200">${esc(c.reason)}</textarea></label>
+    <label class="fl">تاريخ الشهادة<input type="date" name="issuedAt" value="${esc(c.issuedAt)}"></label>
+    <div class="mact"><button class="btn btn-fill" id="sb">حفظ</button><button type="button" class="btn btn-line" data-close>إلغاء</button></div></form>`);
+  $("#ce", m).addEventListener("submit", async e => {
+    e.preventDefault(); showErr(""); const f = new FormData(e.target), title = (f.get("title") || "").trim(); if (!title) return showErr("اكتب عنوان الشهادة");
+    $("#sb", m).disabled = true;
+    try { await updateDoc(doc(db, "certs", c.id), { title, reason: (f.get("reason") || "").trim(), issuedAt: f.get("issuedAt") || c.issuedAt }); m.remove(); toast("تم تعديل الشهادة", "ok"); }
+    catch (er) { showErr("فشل الحفظ: " + (er.code || er.message)); $("#sb", m).disabled = false; }
+  });
+}
 function certModal() {
   const m = openModal(`<h2>إصدار شهادة تقدير</h2><div class="alert" id="err" hidden></div>
     <form id="cf" novalidate>
