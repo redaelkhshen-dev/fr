@@ -167,6 +167,10 @@ input[dir=ltr]{text-align:left}
 .xtimer.warn .tring{--rc:#ff9f43}.xtimer.crit .rt b{color:#ff6b7a}
 .xgate{text-align:center;padding:30px 20px}.xtimer.big{position:static;justify-content:center;border:0;background:none;box-shadow:none;margin:0 0 6px;padding:0}.xtimer.big .tring{width:150px;height:150px}.xtimer.big .rt b{font-size:1.9rem}
 .xrules{list-style:none;margin:16px auto 20px;padding:0;max-width:440px;text-align:start;display:grid;gap:8px;color:var(--muted);font-size:.92rem}.xrules li{padding:9px 14px;border-radius:10px;background:var(--bg2);border:1px solid var(--line)}.xrules li::before{content:"✓";color:var(--accent-text);margin-inline-end:8px;font-weight:800}
+.secc{max-width:600px;padding:22px}.sech{display:flex;align-items:center;gap:14px;margin-bottom:16px}.sech h3{margin:0}.sech small{color:var(--muted)}.seci{flex:none;width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent-2),var(--accent));color:#1a1405;box-shadow:0 8px 20px rgba(212,167,58,.3)}
+.pwi{position:relative;display:block}.pwi input{padding-right:48px;padding-left:14px}.pwe{position:absolute;top:50%;right:8px;left:auto;transform:translateY(-50%);width:36px;height:36px;border:0;border-radius:10px;background:transparent;cursor:pointer;font-size:1.05rem;opacity:.6}.pwe:hover{background:var(--soft)}
+.pws{display:flex;gap:6px;margin:8px 0 6px}.pws i{flex:1;height:6px;border-radius:6px;background:var(--line);transition:background .25s}
+.secn{margin:18px 0 0;padding:14px 18px;border-radius:12px;background:var(--bg2);border:1px solid var(--line);color:var(--muted);font-size:.88rem;line-height:1.9}
 .cwrap{grid-column:1/-1;display:flex;flex-direction:column;align-items:center;gap:24px;width:100%;padding:8px 0 10px}
 .chead{text-align:center}.cmed{width:78px;height:78px;border-radius:50%;display:grid;place-items:center;margin:0 auto 12px;background:linear-gradient(135deg,var(--accent-2),var(--accent));color:#1a1405;box-shadow:0 0 0 7px rgba(212,167,58,.14),0 12px 32px rgba(212,167,58,.35);animation:cmed 3s ease-in-out infinite}.cmed.dim{background:var(--card);color:var(--accent-text);box-shadow:0 0 0 1px var(--line);animation:none}
 @keyframes cmed{50%{box-shadow:0 0 0 12px rgba(212,167,58,.06),0 14px 36px rgba(212,167,58,.45)}}
@@ -1940,9 +1944,10 @@ const AD_IC = {
   certs: '<circle cx="12" cy="9" r="6"/><path d="m8.5 14.2-1.5 7 5-2.7 5 2.7-1.5-7"/>',
   comments: '<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/>',
   notices: '<path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/>',
+  security: '<rect x="4.5" y="10.5" width="15" height="10.5" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/><circle cx="12" cy="15.5" r="1.3"/>',
   payments: '<rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19"/><path d="M6.5 15h4"/>'
 };
-const AD_GROUPS = [["الرئيسية", [["overview", "نظرة عامة"], ["students", "الطلاب"]]], ["المحتوى", [["courses", "الكورسات"], ["videos", "الفيديوهات"], ["files", "الملفات"], ["homework", "الواجبات"], ["exams", "الاختبارات"]]], ["التواصل", [["lives", "البث المباشر"], ["notices", "الإشعارات"], ["comments", "التعليقات"]]], ["التقييم", [["grades", "رصد الدرجات"], ["certs", "الشهادات"]]], ["المالية", [["payments", "المدفوعات"]]]];
+const AD_GROUPS = [["الرئيسية", [["overview", "نظرة عامة"], ["students", "الطلاب"]]], ["المحتوى", [["courses", "الكورسات"], ["videos", "الفيديوهات"], ["files", "الملفات"], ["homework", "الواجبات"], ["exams", "الاختبارات"]]], ["التواصل", [["lives", "البث المباشر"], ["notices", "الإشعارات"], ["comments", "التعليقات"]]], ["التقييم", [["grades", "رصد الدرجات"], ["certs", "الشهادات"]]], ["المالية", [["payments", "المدفوعات"]]], ["الإعدادات", [["security", "الأمان وكلمة السر"]]]];
 function renderAdmin() {
   S.page = "admin";
   const nav = AD_GROUPS.map(([g, items], gi) => `${gi ? '<div class="sep"></div>' : ""}<div class="asg">${g}</div>${items.map(([k, t]) => `<button class="atab" data-t="${k}" title="${t}"><i class="ai"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${AD_IC[k]}</svg></i><span class="al">${t}</span><span class="ab"></span></button>`).join("")}`).join("");
@@ -2412,6 +2417,47 @@ function courseModal(c) {
     catch (er) { showErr("فشل الحفظ: " + (er.code || er.message)); $("#sb", m).disabled = false; }
   });
 }
+
+/* ---------- الأمان وكلمة سر الأدمن ---------- */
+const pwScore = p => { let n = 0; if (p.length >= 8) n++; if (p.length >= 12) n++; if (/[a-z]/.test(p) && /[A-Z]/.test(p)) n++; if (/\d/.test(p)) n++; if (/[^A-Za-z0-9]/.test(p)) n++; return Math.min(4, n); };
+TABS.security = {
+  skel: () => `<div class="toolbar"><h2 style="flex:1">الأمان وكلمة السر</h2></div>
+    <div class="card secc"><div class="sech"><span class="seci">${ico(AD_IC.security, 26)}</span><div><h3>تغيير كلمة سر دخول الأدمن</h3><small>الحساب: ${esc(ADMIN_EMAIL)}</small></div></div>
+    <div class="alert" id="err" hidden></div>
+    <form id="pwf" novalidate autocomplete="off">
+      <label class="fl">كلمة السر الحالية<span class="pwi"><input type="password" name="cur" autocomplete="current-password" dir="ltr"><button type="button" class="pwe" data-eye aria-label="إظهار">👁</button></span></label>
+      <label class="fl">كلمة السر الجديدة<span class="pwi"><input type="password" name="nw" autocomplete="new-password" dir="ltr" maxlength="64"><button type="button" class="pwe" data-eye aria-label="إظهار">👁</button></span></label>
+      <div class="pws" id="pws"><i></i><i></i><i></i><i></i></div><small class="sub" id="pwt">8 أحرف على الأقل — الأفضل خليط من الحروف الكبيرة والصغيرة والأرقام والرموز.</small>
+      <label class="fl" style="margin-top:12px">تأكيد كلمة السر الجديدة<span class="pwi"><input type="password" name="cf" autocomplete="new-password" dir="ltr" maxlength="64"><button type="button" class="pwe" data-eye aria-label="إظهار">👁</button></span></label>
+      <div class="mact"><button class="btn btn-fill" id="pwb">🔒 حفظ كلمة السر الجديدة</button></div></form>
+    <ul class="secn"><li>تُحفظ كلمة السر مشفّرة داخل Firebase Authentication فقط، ولا تُكتب في الكود ولا في قاعدة البيانات.</li><li>بعد التغيير تظل مسجّل الدخول هنا، وتستخدم الكلمة الجديدة في المرة القادمة.</li><li>احفظها في مكان آمن. لو نسيتها يمكن إعادة تعيينها من Firebase Console ← Authentication ← Users.</li></ul></div>`,
+  init: b => {
+    const f = $("#pwf", b), nw = f.nw, cols = ["#ff4d5e", "#ff9f43", "#e0c34a", "#3ddc84"], names = ["ضعيفة جدًا", "ضعيفة", "جيدة", "قوية"];
+    $$("[data-eye]", b).forEach(x => x.onclick = () => { const i = x.previousElementSibling; i.type = i.type === "password" ? "text" : "password"; x.style.opacity = i.type === "text" ? 1 : .6; });
+    nw.addEventListener("input", () => { const sc = nw.value ? pwScore(nw.value) : -1; $$("#pws i", b).forEach((i, k) => i.style.background = k <= sc - 1 && sc > 0 ? cols[sc - 1] : ""); $("#pwt", b).textContent = nw.value ? "قوة كلمة السر: " + names[Math.max(0, sc - 1)] : "8 أحرف على الأقل — الأفضل خليط من الحروف الكبيرة والصغيرة والأرقام والرموز."; });
+    f.addEventListener("submit", async e => {
+      e.preventDefault(); showErr(""); const cur = f.cur.value, n = f.nw.value, c = f.cf.value, u = auth.currentUser;
+      if (!u || u.email !== ADMIN_EMAIL) return showErr("سجّل الدخول كأدمن أولًا");
+      if (!cur) return showErr("اكتب كلمة السر الحالية");
+      if (n.length < 8) return showErr("كلمة السر الجديدة لازم تكون 8 أحرف على الأقل");
+      if (n === cur) return showErr("كلمة السر الجديدة لازم تختلف عن الحالية");
+      if (n !== c) return showErr("تأكيد كلمة السر غير مطابق");
+      if (!confirm("تغيير كلمة سر الأدمن؟")) return;
+      $("#pwb", b).disabled = true;
+      try {
+        await reauthenticateWithCredential(u, EmailAuthProvider.credential(u.email, cur));
+        await updatePassword(u, n);
+        f.reset(); $$("#pws i", b).forEach(i => i.style.background = ""); $("#pwt", b).textContent = "✅ تم تغيير كلمة السر وحفظها";
+        toast("تم تغيير كلمة سر الأدمن وحفظها", "ok");
+      } catch (er) {
+        const m = { "auth/wrong-password": "كلمة السر الحالية غير صحيحة", "auth/invalid-credential": "كلمة السر الحالية غير صحيحة", "auth/weak-password": "كلمة السر الجديدة ضعيفة، اختر أقوى", "auth/too-many-requests": "محاولات كثيرة، انتظر قليلًا ثم أعد المحاولة", "auth/requires-recent-login": "سجّل الخروج ثم الدخول من جديد وأعد المحاولة", "auth/network-request-failed": "تعذر الاتصال بالإنترنت" }[er.code];
+        showErr(m || "تعذر تغيير كلمة السر: " + (er.code || er.message));
+      }
+      $("#pwb", b).disabled = false;
+    });
+  },
+  fill: () => {}
+};
 
 TABS.payments = {
   skel: () => `<h2 style="margin-bottom:16px">المدفوعات</h2><div class="stats" id="ps" style="grid-template-columns:repeat(3,1fr)"></div><div class="toolbar"><select id="pst"><option value="">كل الحالات</option><option value="pending">بانتظار التأكيد</option><option value="confirmed">مؤكد</option><option value="rejected">مرفوض</option></select><input id="pq" placeholder="بحث بالاسم أو الرقم" value="${esc(A.pq || "")}"></div><div class="tw" id="pl"></div>`,
