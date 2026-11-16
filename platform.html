@@ -168,7 +168,7 @@ input[dir=ltr]{text-align:left}
 .xgate{text-align:center;padding:30px 20px}.xtimer.big{position:static;justify-content:center;border:0;background:none;box-shadow:none;margin:0 0 6px;padding:0}.xtimer.big .tring{width:150px;height:150px}.xtimer.big .rt b{font-size:1.9rem}
 .xrules{list-style:none;margin:16px auto 20px;padding:0;max-width:440px;text-align:start;display:grid;gap:8px;color:var(--muted);font-size:.92rem}.xrules li{padding:9px 14px;border-radius:10px;background:var(--bg2);border:1px solid var(--line)}.xrules li::before{content:"✓";color:var(--accent-text);margin-inline-end:8px;font-weight:800}
 .secc{max-width:600px;padding:22px}.sech{display:flex;align-items:center;gap:14px;margin-bottom:16px}.sech h3{margin:0}.sech small{color:var(--muted)}.seci{flex:none;width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent-2),var(--accent));color:#1a1405;box-shadow:0 8px 20px rgba(212,167,58,.3)}
-.pwi{position:relative;display:block}.pwi input{padding-right:48px;padding-left:14px}.pwe{position:absolute;top:50%;right:8px;left:auto;transform:translateY(-50%);width:36px;height:36px;border:0;border-radius:10px;background:transparent;cursor:pointer;font-size:1.05rem;opacity:.6}.pwe:hover{background:var(--soft)}
+.pwi{position:relative;display:block;width:100%}.pwi input{padding-right:50px!important;padding-left:14px;width:100%}.pwe{position:absolute;top:50%;right:6px;left:auto;transform:translateY(-50%);width:40px;height:40px;display:grid;place-items:center;border:0;border-radius:10px;background:transparent;color:var(--muted);cursor:pointer;padding:0;transition:.15s}.pwe:hover{background:var(--soft);color:var(--fg)}.pwe.on{color:var(--accent-text)}.pwe svg{pointer-events:none}
 .pws{display:flex;gap:6px;margin:8px 0 6px}.pws i{flex:1;height:6px;border-radius:6px;background:var(--line);transition:background .25s}
 .secn{margin:18px 0 0;padding:14px 18px;border-radius:12px;background:var(--bg2);border:1px solid var(--line);color:var(--muted);font-size:.88rem;line-height:1.9}
 .cwrap{grid-column:1/-1;display:flex;flex-direction:column;align-items:center;gap:24px;width:100%;padding:8px 0 10px}
@@ -1100,6 +1100,19 @@ function studentHeader(active) {
 }
 
 /* ---------- الإشعارات والتذكير بالواجبات والاختبارات ---------- */
+/* ---------- عين إظهار/إخفاء كلمة السر لكل حقول الباسورد ---------- */
+const EYE_ON = '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>', EYE_OFF = '<path d="M3 3l18 18"/><path d="M10.6 5.2A10 10 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.2 4"/><path d="M6.6 6.6C3.8 8.4 2 12 2 12s3.6 7 10 7c1.6 0 3-.4 4.3-1"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/>';
+const eyeSvg = d => `<svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+function enhancePw(root) {
+  root.querySelectorAll('input[type="password"]').forEach(inp => {
+    if (inp.dataset.pw || inp.closest(".pwi")) return; inp.dataset.pw = "1";
+    const w = document.createElement("span"); w.className = "pwi"; inp.parentNode.insertBefore(w, inp); w.appendChild(inp);
+    const b = document.createElement("button"); b.type = "button"; b.className = "pwe"; b.title = "إظهار / إخفاء كلمة السر"; b.setAttribute("aria-label", "إظهار كلمة السر"); b.innerHTML = eyeSvg(EYE_ON);
+    b.addEventListener("click", () => { const show = inp.type === "password"; inp.type = show ? "text" : "password"; b.innerHTML = eyeSvg(show ? EYE_OFF : EYE_ON); b.classList.toggle("on", show); b.setAttribute("aria-label", show ? "إخفاء كلمة السر" : "إظهار كلمة السر"); inp.focus(); });
+    w.appendChild(b);
+  });
+}
+new MutationObserver(() => enhancePw(document)).observe(document.body, { childList: true, subtree: true }); enhancePw(document);
 const BELL = `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>`;
 const bellBtn = () => { const seen = lsSet(seenKey()), n = notifItems().filter(x => !seen.has(x.id)).length; return `<button class="tbtn bell" type="button" data-bell aria-label="الإشعارات" title="الإشعارات">${BELL}<span class="pbadge" ${n ? "" : "hidden"}>${n > 9 ? "9+" : n}</span></button>`; };
 const lsSet = k => { try { return new Set(JSON.parse(localStorage.getItem(k) || "[]")); } catch { return new Set(); } };
@@ -2425,15 +2438,14 @@ TABS.security = {
     <div class="card secc"><div class="sech"><span class="seci">${ico(AD_IC.security, 26)}</span><div><h3>تغيير كلمة سر دخول الأدمن</h3><small>الحساب: ${esc(ADMIN_EMAIL)}</small></div></div>
     <div class="alert" id="err" hidden></div>
     <form id="pwf" novalidate autocomplete="off">
-      <label class="fl">كلمة السر الحالية<span class="pwi"><input type="password" name="cur" autocomplete="current-password" dir="ltr"><button type="button" class="pwe" data-eye aria-label="إظهار">👁</button></span></label>
-      <label class="fl">كلمة السر الجديدة<span class="pwi"><input type="password" name="nw" autocomplete="new-password" dir="ltr" maxlength="64"><button type="button" class="pwe" data-eye aria-label="إظهار">👁</button></span></label>
+      <label class="fl">كلمة السر الحالية<input type="password" name="cur" autocomplete="current-password" dir="ltr"></label>
+      <label class="fl">كلمة السر الجديدة<input type="password" name="nw" autocomplete="new-password" dir="ltr" maxlength="64"></label>
       <div class="pws" id="pws"><i></i><i></i><i></i><i></i></div><small class="sub" id="pwt">8 أحرف على الأقل — الأفضل خليط من الحروف الكبيرة والصغيرة والأرقام والرموز.</small>
-      <label class="fl" style="margin-top:12px">تأكيد كلمة السر الجديدة<span class="pwi"><input type="password" name="cf" autocomplete="new-password" dir="ltr" maxlength="64"><button type="button" class="pwe" data-eye aria-label="إظهار">👁</button></span></label>
+      <label class="fl" style="margin-top:12px">تأكيد كلمة السر الجديدة<input type="password" name="cf" autocomplete="new-password" dir="ltr" maxlength="64"></label>
       <div class="mact"><button class="btn btn-fill" id="pwb">🔒 حفظ كلمة السر الجديدة</button></div></form>
     <ul class="secn"><li>تُحفظ كلمة السر مشفّرة داخل Firebase Authentication فقط، ولا تُكتب في الكود ولا في قاعدة البيانات.</li><li>بعد التغيير تظل مسجّل الدخول هنا، وتستخدم الكلمة الجديدة في المرة القادمة.</li><li>احفظها في مكان آمن. لو نسيتها يمكن إعادة تعيينها من Firebase Console ← Authentication ← Users.</li></ul></div>`,
   init: b => {
     const f = $("#pwf", b), nw = f.nw, cols = ["#ff4d5e", "#ff9f43", "#e0c34a", "#3ddc84"], names = ["ضعيفة جدًا", "ضعيفة", "جيدة", "قوية"];
-    $$("[data-eye]", b).forEach(x => x.onclick = () => { const i = x.previousElementSibling; i.type = i.type === "password" ? "text" : "password"; x.style.opacity = i.type === "text" ? 1 : .6; });
     nw.addEventListener("input", () => { const sc = nw.value ? pwScore(nw.value) : -1; $$("#pws i", b).forEach((i, k) => i.style.background = k <= sc - 1 && sc > 0 ? cols[sc - 1] : ""); $("#pwt", b).textContent = nw.value ? "قوة كلمة السر: " + names[Math.max(0, sc - 1)] : "8 أحرف على الأقل — الأفضل خليط من الحروف الكبيرة والصغيرة والأرقام والرموز."; });
     f.addEventListener("submit", async e => {
       e.preventDefault(); showErr(""); const cur = f.cur.value, n = f.nw.value, c = f.cf.value, u = auth.currentUser;
