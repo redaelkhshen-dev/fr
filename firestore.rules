@@ -145,6 +145,12 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // الإشعارات: يرسلها المدرس (يدويًا أو تلقائيًا عند إضافة محتوى) ويقرؤها الطلاب
+    match /notices/{id} {
+      allow read: if isAdmin() || isActiveStudent();
+      allow write: if isAdmin();
+    }
+
     match /examKeys/{id} {
       allow read: if isAdmin() || (isActiveStudent()
         && exists(/databases/$(database)/documents/attempts/$(id + '_' + request.auth.uid)));

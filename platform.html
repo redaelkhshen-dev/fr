@@ -629,7 +629,7 @@ const db = getFirestore(fbApp);
 const storage = getStorage(fbApp);
 
 /* ---------- الحالة ---------- */
-const S = { ready: false, user: null, student: null, busy: false, flash: "", videos: [], files: [], homework: [], hwsubs: [], exams: [], lives: [], attempts: [], examKeys: {}, hwKeys: {}, certs: [], students: [], comments: [], ratings: [], payments: [], unsubs: [], unsubSelf: null, page: "" };
+const S = { ready: false, user: null, student: null, busy: false, flash: "", videos: [], files: [], homework: [], hwsubs: [], exams: [], lives: [], notices: [], attempts: [], examKeys: {}, hwKeys: {}, certs: [], students: [], comments: [], ratings: [], payments: [], unsubs: [], unsubSelf: null, page: "" };
 const H = { tab: "videos", q: "" };
 const A = { cvid: "", cq: "", cstage: "", cgrade: "", tab: "overview", q: "", fstage: "", fstatus: "" };
 
@@ -762,7 +762,7 @@ function sub(col, key) {
   const q = query(collection(db, col), orderBy("createdAt", "desc"));
   S.unsubs.push(onSnapshot(q, s => { S[key] = s.docs.map(d => ({ id: d.id, ...d.data() })); if (key === "students") checkNew(); if (key === "payments") checkPay(); onData(); }, e => console.warn(col, e.code)));
 }
-const startContent = () => { if (S.contentOn) return; S.contentOn = true; sub("videos", "videos"); sub("files", "files"); sub("homework", "homework"); sub("exams", "exams"); sub("lives", "lives"); if (S.student?.id) S.unsubs.push(onSnapshot(query(collection(db, "certs"), where("uid", "==", S.student.id)), q => { S.certs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, e => console.warn("certs", e.code))); if (S.student?.id) S.unsubs.push(onSnapshot(query(collection(db, "attempts"), where("uid", "==", S.student.id)), q => { S.attempts = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, e => console.warn("attempts", e.code))); if (S.student?.id) S.unsubs.push(onSnapshot(query(collection(db, "hwsubs"), where("uid", "==", S.student.id)), q => { S.hwsubs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, e => console.warn("hwsubs", e.code))); };
+const startContent = () => { if (S.contentOn) return; S.contentOn = true; sub("videos", "videos"); sub("files", "files"); sub("homework", "homework"); sub("exams", "exams"); sub("lives", "lives"); sub("notices", "notices"); if (S.student?.id) S.unsubs.push(onSnapshot(query(collection(db, "certs"), where("uid", "==", S.student.id)), q => { S.certs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, e => console.warn("certs", e.code))); if (S.student?.id) S.unsubs.push(onSnapshot(query(collection(db, "attempts"), where("uid", "==", S.student.id)), q => { S.attempts = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, e => console.warn("attempts", e.code))); if (S.student?.id) S.unsubs.push(onSnapshot(query(collection(db, "hwsubs"), where("uid", "==", S.student.id)), q => { S.hwsubs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, e => console.warn("hwsubs", e.code))); };
 function checkNew() {
   const pn = S.students.filter(x => x.status === "pending").length;
   if (S.pn === undefined ? pn > 0 : pn > S.pn) toast(`🔔 ${pn} طلب تسجيل بانتظار مراجعتك`, "ok");
@@ -826,7 +826,7 @@ async function attachStudent(u) {
 onAuthStateChanged(auth, async u => {
   clearSubs(); S.user = u; S.student = null;
   if (!u) { S.ready = true; render(); return; }
-  if (u.email === ADMIN_EMAIL) { sub("students", "students"); sub("videos", "videos"); sub("files", "files"); sub("homework", "homework"); sub("exams", "exams"); sub("lives", "lives"); S.unsubs.push(onSnapshot(collection(db, "certs"), q => { S.certs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "attempts"), q => { S.attempts = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "hwKeys"), q => { S.hwKeys = Object.fromEntries(q.docs.map(d => [d.id, d.data().keys])); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "examKeys"), q => { S.examKeys = Object.fromEntries(q.docs.map(d => [d.id, d.data().keys])); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "hwsubs"), q => { S.hwsubs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); sub("comments", "comments"); sub("payments", "payments"); S.unsubs.push(onSnapshot(collection(db, "ratings"), s => { S.ratings = s.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.ready = true; render(); return; }
+  if (u.email === ADMIN_EMAIL) { sub("students", "students"); sub("videos", "videos"); sub("files", "files"); sub("homework", "homework"); sub("exams", "exams"); sub("lives", "lives"); sub("notices", "notices"); S.unsubs.push(onSnapshot(collection(db, "certs"), q => { S.certs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "attempts"), q => { S.attempts = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "hwKeys"), q => { S.hwKeys = Object.fromEntries(q.docs.map(d => [d.id, d.data().keys])); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "examKeys"), q => { S.examKeys = Object.fromEntries(q.docs.map(d => [d.id, d.data().keys])); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "hwsubs"), q => { S.hwsubs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); sub("comments", "comments"); sub("payments", "payments"); S.unsubs.push(onSnapshot(collection(db, "ratings"), s => { S.ratings = s.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.ready = true; render(); return; }
   if (S.busy) return;
   await attachStudent(u);
 });
@@ -1061,6 +1061,11 @@ const seenKey = () => "rf_nseen_" + (S.student?.id || ""), notifKey = () => "rf_
 function notifItems() {
   if (!S.student) return [];
   const out = [], now = Date.now(), WEEK = 7 * 864e5, td = todayStr();
+  for (const n of visible(S.notices || [])) {
+    if (n.showFrom && n.showFrom > td) continue;
+    const cr = n.createdAt?.seconds ? n.createdAt.seconds * 1000 : now; if (now - cr > 30 * 864e5) continue;
+    out.push({ id: `n:${n.id}:${n.updatedAt || 0}`, pr: n.kind === "auto" ? 3 : 0.5, cls: n.kind === "auto" ? "" : "soon", ic: n.ic || "📢", t: n.title, s: n.body || "", href: n.href || "#/" });
+  }
   for (const l of visible(S.lives || [])) if (l.status === "live") out.push({ id: `live:${l.id}:${l.liveAt || ""}`, pr: -1, cls: "late", ic: "🔴", t: `بث مباشر الآن: ${l.title}`, s: "اضغط للانضمام للحصة", href: "#/live/" + l.id });
   for (const h of visible(S.homework || [])) {
     const st = hwStatus(h.id), due = hwDue(h.due), cr = h.createdAt?.seconds ? h.createdAt.seconds * 1000 : 0, href = h.questions?.length ? "#/hw/" + h.id : "#/";
@@ -1069,12 +1074,11 @@ function notifItems() {
       if (due < now) out.push({ id: `late:h:${h.id}`, pr: 0, cls: "late", ic: "⚠️", t: `فات موعد تسليم الواجب: ${h.title}`, s: "سلّمه بأسرع وقت أو كلّم مسيو رضا", href });
       else if (days <= 3) out.push({ id: `due:h:${h.id}:${td}`, pr: 1, cls: "soon", ic: "⏰", t: `تذكير: آخر موعد لتسليم "${h.title}" ${days <= 0 ? "اليوم" : days === 1 ? "غدًا" : "بعد " + days + " أيام"}`, s: "موعد التسليم: " + h.due, href });
     }
-    if (st === "none" && cr && now - cr < WEEK) out.push({ id: `new:h:${h.id}`, pr: 3, ic: "📝", t: `واجب جديد: ${h.title}`, s: h.due ? "آخر موعد: " + h.due : "تم رفع واجب جديد", href });
     const sb = hwSub(h.id); if (st === "graded" && sb?.scoredAt?.seconds && now - sb.scoredAt.seconds * 1000 < WEEK) out.push({ id: `gr:h:${h.id}`, pr: 4, ic: "✅", t: `تم تصحيح واجبك: ${h.title}`, s: sb.grade ? "درجتك: " + sb.grade : "شاهد النتيجة", href });
   }
   for (const e of visible(S.exams || []).filter(examOpen)) {
     if (attOf(e.id)) continue;
-    const isNew = e.publishAt && (new Date(td) - new Date(e.publishAt)) / 864e5 <= 7, href = "#/exam/" + e.id;
+    const isNew = false, href = "#/exam/" + e.id;
     out.push(isNew ? { id: `new:e:${e.id}`, pr: 2, ic: "📋", t: `اختبار جديد: ${e.title}`, s: "متاح الآن — يُحَل مرة واحدة", href } : { id: `ex:${e.id}:${td}`, pr: 2, cls: "soon", ic: "📋", t: `تذكير: لم تحلّ اختبار "${e.title}" بعد`, s: "ادخل وحلّه الآن", href });
   }
   return out.sort((a, b) => a.pr - b.pr);
@@ -1083,6 +1087,9 @@ function paintBell() {
   const seen = lsSet(seenKey()), n = notifItems().filter(x => !seen.has(x.id)).length;
   $$(".bell .pbadge").forEach(b => { b.hidden = !n; b.textContent = n > 9 ? "9+" : n; });
   $$(".lvn .ldot").forEach(d => d.hidden = !liveNow().length);
+}
+async function autoNotice(o, t) {
+  try { await addDoc(collection(db, "notices"), { title: o.title, body: o.body || "", ic: o.ic || "🔔", href: o.href || "#/", kind: "auto", stage: t.stage || "all", system: t.system || "all", grade: t.grade || "all", showFrom: o.showFrom || "", createdAt: serverTimestamp() }); } catch (e) { console.warn("notice", e.code); }
 }
 function openBell() {
   const items = notifItems(), seen = lsSet(seenKey()), can = "Notification" in window, perm = can ? Notification.permission : "denied";
@@ -1816,9 +1823,10 @@ const AD_IC = {
   grades: '<path d="M4 20V11M10 20V4M16 20v-6M21 20H3"/>',
   certs: '<circle cx="12" cy="9" r="6"/><path d="m8.5 14.2-1.5 7 5-2.7 5 2.7-1.5-7"/>',
   comments: '<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/>',
+  notices: '<path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/>',
   payments: '<rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19"/><path d="M6.5 15h4"/>'
 };
-const AD_GROUPS = [["الرئيسية", [["overview", "نظرة عامة"], ["students", "الطلاب"]]], ["المحتوى", [["videos", "الفيديوهات"], ["files", "الملفات"], ["homework", "الواجبات"], ["exams", "الاختبارات"], ["lives", "البث المباشر"]]], ["التقييم", [["grades", "رصد الدرجات"], ["certs", "الشهادات"], ["comments", "التعليقات"]]], ["المالية", [["payments", "المدفوعات"]]]];
+const AD_GROUPS = [["الرئيسية", [["overview", "نظرة عامة"], ["students", "الطلاب"]]], ["المحتوى", [["videos", "الفيديوهات"], ["files", "الملفات"], ["homework", "الواجبات"], ["exams", "الاختبارات"]]], ["التواصل", [["lives", "البث المباشر"], ["notices", "الإشعارات"], ["comments", "التعليقات"]]], ["التقييم", [["grades", "رصد الدرجات"], ["certs", "الشهادات"]]], ["المالية", [["payments", "المدفوعات"]]]];
 function renderAdmin() {
   S.page = "admin";
   const nav = AD_GROUPS.map(([g, items], gi) => `${gi ? '<div class="sep"></div>' : ""}<div class="asg">${g}</div>${items.map(([k, t]) => `<button class="atab" data-t="${k}" title="${t}"><i class="ai"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${AD_IC[k]}</svg></i><span class="al">${t}</span><span class="ab"></span></button>`).join("")}`).join("");
@@ -1939,7 +1947,7 @@ function hwModal(h) {
     if (link && !/^https?:\/\//i.test(link)) return showErr("الرابط يجب أن يبدأ بـ https://");
     const data = { title, questions: rq.questions, url: link ? driveLink(link) : "", ext: f.get("ext"), due: f.get("due") || "", stage: f.get("stage"), system: f.get("system"), grade: f.get("grade") || "all", description: (f.get("description") || "").trim() };
     $("#sb", m).disabled = true;
-    try { const r = h ? doc(db, "homework", h.id) : doc(collection(db, "homework")); if (h) await updateDoc(r, data); else await setDoc(r, { ...data, createdAt: serverTimestamp() }); if (rq.questions.length) await setDoc(doc(db, "hwKeys", r.id), { keys: rq.ks }); m.remove(); toast("تم الحفظ", "ok"); }
+    try { const r = h ? doc(db, "homework", h.id) : doc(collection(db, "homework")); if (h) await updateDoc(r, data); else { await setDoc(r, { ...data, createdAt: serverTimestamp() }); await autoNotice({ ic: "📝", title: "واجب جديد: " + title, body: data.due ? "آخر موعد: " + data.due : "تم رفع واجب جديد", href: rq.questions.length ? "#/hw/" + r.id : "#/" }, data); } if (rq.questions.length) await setDoc(doc(db, "hwKeys", r.id), { keys: rq.ks }); m.remove(); toast("تم الحفظ", "ok"); }
     catch (er) { showErr("فشل الحفظ: " + (er.code || er.message)); $("#sb", m).disabled = false; }
   });
 }
@@ -2058,7 +2066,7 @@ function examModal(ex) {
     $("#sb", m).disabled = true;
     try {
       const r = ex ? doc(db, "exams", ex.id) : doc(collection(db, "exams"));
-      if (ex) await updateDoc(r, data); else await setDoc(r, { ...data, createdAt: serverTimestamp() });
+      if (ex) await updateDoc(r, data); else { await setDoc(r, { ...data, createdAt: serverTimestamp() }); await autoNotice({ ic: "📋", title: "اختبار جديد: " + title, body: "متاح للحل — يُحَل مرة واحدة", href: "#/exam/" + r.id, showFrom: data.publishAt }, data); }
       await setDoc(doc(db, "examKeys", r.id), { keys: ks }); m.remove(); toast("تم حفظ الاختبار", "ok");
     } catch (er) { showErr("فشل الحفظ: " + (er.code || er.message)); $("#sb", m).disabled = false; }
   });
@@ -2204,8 +2212,48 @@ function liveModal(l) {
     $("#sb", m).disabled = true;
     try {
       const r = l ? doc(db, "lives", l.id) : doc(collection(db, "lives"));
-      if (l) await updateDoc(r, data); else await setDoc(r, { ...data, status: "scheduled", createdAt: serverTimestamp() });
+      if (l) await updateDoc(r, data); else { await setDoc(r, { ...data, status: "scheduled", createdAt: serverTimestamp() }); await autoNotice({ ic: "📡", title: "حصة بث مباشر قادمة: " + title, body: data.startAt ? "الموعد: " + lvWhen(data) : "سيتم الإعلان عند بدء البث" }, data); }
       await setDoc(doc(db, "liveKeys", r.id), { url: raw }); m.remove(); toast("تم حفظ البث", "ok");
+    } catch (er) { showErr("فشل الحفظ: " + (er.code || er.message)); $("#sb", m).disabled = false; }
+  });
+}
+
+/* ---------- الإشعارات (الأدمن) ---------- */
+const ntDate = n => { try { const d = n.createdAt?.toDate ? n.createdAt.toDate() : new Date(); return d.toLocaleString("ar-EG", { day: "numeric", month: "long", hour: "numeric", minute: "2-digit" }); } catch { return ""; } };
+TABS.notices = {
+  skel: () => `<div class="toolbar"><h2 style="flex:1">الإشعارات</h2><button class="btn btn-fill" data-a="nadd">+ إرسال إشعار</button></div>${filterBar()}<p class="sub" style="margin-bottom:12px">الإشعار يصل لطلاب المرحلة والنظام والصف المحددين في جرس الإشعارات (وكتنبيه بالمتصفح لمن فعّله). وأي فيديو أو ملف أو واجب أو اختبار أو بث تضيفه يُرسَل تلقائيًا كإشعار لمرحلته.</p><div class="agrid" id="nl"></div>`,
+  init: b => { b.onclick = noticeAction; bindFilter(b); },
+  fill: b => {
+    $("#nl", b).innerHTML = S.notices.filter(passFilter).map(n => `<div class="acard"><div class="fcard" style="border:0;padding:0"><div class="ficon">${esc(n.ic || "📢")}</div><div class="t"><h3>${esc(n.title)}</h3><small>${esc(ntDate(n))}</small></div></div>
+      ${n.body ? `<p class="sub" style="margin:8px 0;white-space:pre-wrap">${esc(n.body)}</p>` : ""}
+      <div class="m"><span class="badge ${n.kind === "auto" ? "" : "warn"}">${n.kind === "auto" ? "تلقائي" : "يدوي"}</span><span class="badge">${stageLabel(n.stage)}</span><span class="badge">${sysLabel(n.system)}</span><span class="badge good">${gradeLabel(n)}</span></div>
+      <div class="acts"><button class="btn btn-line btn-sm" data-a="nedit" data-id="${esc(n.id)}">تعديل</button><button class="btn btn-bad btn-sm" data-a="ndel" data-id="${esc(n.id)}">حذف</button></div></div>`).join("") || `<div class="empty">لا توجد إشعارات — اضغط «إرسال إشعار»</div>`;
+  }
+};
+async function noticeAction(e) {
+  const btn = e.target.closest("[data-a]"); if (!btn || btn.tagName === "A") return; const a = btn.dataset.a, id = btn.dataset.id, n = S.notices.find(x => x.id === id);
+  try {
+    if (a === "nadd") return noticeModal();
+    if (a === "nedit") return noticeModal(n);
+    if (a === "ndel") { if (!n || !confirm(`حذف الإشعار "${n.title}"؟ سيختفي من عند الطلاب.`)) return; await deleteDoc(doc(db, "notices", id)); toast("تم الحذف", "ok"); }
+  } catch (er) { toast("فشلت العملية: " + (er.code || er.message), "err"); }
+}
+function noticeModal(n) {
+  const m = openModal(`<h2>${n ? "تعديل إشعار" : "إرسال إشعار"}</h2><div class="alert" id="err" hidden></div>
+    <form id="nf" novalidate><label class="fl">عنوان الإشعار<input name="title" maxlength="100" value="${esc(n?.title)}"></label>
+    <label class="fl">نص الإشعار<textarea name="body" maxlength="500" style="min-height:110px">${esc(n?.body)}</textarea></label>${targetFields(n)}
+    <p class="sub" style="font-size:.84rem">يصل الإشعار فورًا لكل طلاب المرحلة والنظام والصف المحددين${n ? "، وعند التعديل يظهر لهم من جديد" : ""}.</p>
+    <div class="mact"><button class="btn btn-fill" id="sb">${n ? "حفظ التعديل" : "إرسال الإشعار"}</button><button type="button" class="btn btn-line" data-close>إلغاء</button></div></form>`);
+  const form = $("#nf", m); bindTarget(form, n);
+  form.addEventListener("submit", async e => {
+    e.preventDefault(); showErr(""); const f = new FormData(form), title = (f.get("title") || "").trim(), body = (f.get("body") || "").trim();
+    if (!title) return showErr("اكتب عنوان الإشعار");
+    const data = { title, body, stage: f.get("stage"), system: f.get("system"), grade: f.get("grade") || "all" };
+    $("#sb", m).disabled = true;
+    try {
+      if (n) await updateDoc(doc(db, "notices", n.id), { ...data, updatedAt: Date.now() });
+      else await addDoc(collection(db, "notices"), { ...data, ic: "📢", href: "#/", kind: "manual", showFrom: "", createdAt: serverTimestamp() });
+      m.remove(); toast(n ? "تم تعديل الإشعار" : "تم إرسال الإشعار للطلاب", "ok");
     } catch (er) { showErr("فشل الحفظ: " + (er.code || er.message)); $("#sb", m).disabled = false; }
   });
 }
@@ -2358,7 +2406,7 @@ function videoModal(v) {
     if (!id) return showErr("رابط يوتيوب غير صحيح");
     const data = { title, ytId: id, stage: f.get("stage"), system: f.get("system"), grade: f.get("grade") || "all", description: (f.get("description") || "").trim() };
     $("#sb", m).disabled = true;
-    try { if (v) await updateDoc(doc(db, "videos", v.id), data); else await addDoc(collection(db, "videos"), { ...data, createdAt: serverTimestamp() }); m.remove(); toast("تم الحفظ", "ok"); }
+    try { if (v) await updateDoc(doc(db, "videos", v.id), data); else { const nr = await addDoc(collection(db, "videos"), { ...data, createdAt: serverTimestamp() }); await autoNotice({ ic: "🎬", title: "فيديو جديد: " + title, body: "تمت إضافة درس جديد لمرحلتك", href: "#/watch/" + nr.id }, data); } m.remove(); toast("تم الحفظ", "ok"); }
     catch (er) { showErr("فشل الحفظ: " + (er.code || er.message)); $("#sb", m).disabled = false; }
   });
 }
@@ -2392,7 +2440,7 @@ function fileModal(fl) {
         if (fl?.storagePath && link !== fl.url) { try { await deleteObject(ref(storage, fl.storagePath)); } catch {} }
         if (!fl || link !== fl.url) Object.assign(data, { url: driveLink(link), storagePath: "", ext: (link.split("?")[0].split(".").pop() || "").length <= 4 ? link.split("?")[0].split(".").pop().toLowerCase() : "link", size: 0 });
       }
-      if (fl) await updateDoc(doc(db, "files", fl.id), data); else await addDoc(collection(db, "files"), { ...data, createdAt: serverTimestamp() });
+      if (fl) await updateDoc(doc(db, "files", fl.id), data); else { await addDoc(collection(db, "files"), { ...data, createdAt: serverTimestamp() }); await autoNotice({ ic: "📄", title: "ملف جديد: " + (data.title || "ملف"), body: "تمت إضافة ملف جديد لمرحلتك" }, data); }
       m.remove(); toast("تم الحفظ", "ok");
     } catch (er) {
       const stor = (er.code || "").startsWith("storage/");
