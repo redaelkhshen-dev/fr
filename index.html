@@ -104,6 +104,15 @@ input[dir=ltr]{text-align:left}
 .tab.on{background:var(--accent);border-color:var(--accent);color:#1b1405}
 .srch{flex:1;min-width:180px;max-width:320px;margin-inline-start:auto}
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.crs{grid-column:1/-1;margin-bottom:6px}.crd{border:1px solid var(--line);border-radius:18px;background:linear-gradient(180deg,var(--card),var(--bg2));overflow:hidden}
+.crh{list-style:none;display:flex;align-items:center;gap:14px;padding:16px 18px;cursor:pointer;user-select:none}.crh::-webkit-details-marker{display:none}
+.crI{flex:none;width:50px;height:50px;border-radius:15px;display:grid;place-items:center;font-size:1.5rem;background:linear-gradient(135deg,var(--accent-2),var(--accent));box-shadow:0 6px 16px rgba(212,167,58,.28)}
+.crT{flex:1;min-width:0}.crT b{display:block;font:800 1.12rem/1.4 var(--fd)}.crT small{display:block;color:var(--muted);margin-top:2px;line-height:1.6}
+.crM{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px;color:var(--muted);font-size:.82rem}.crM em{font-style:normal;color:var(--accent-text);font-weight:700}
+.crP{width:110px;max-width:34vw;height:6px;border-radius:6px;background:var(--line);overflow:hidden}.crP i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));border-radius:6px;transition:width .4s}
+.crA{flex:none;font-size:1.5rem;color:var(--accent-text);transition:transform .25s}.crd[open] .crA{transform:rotate(180deg)}
+.crg{padding:6px 16px 18px}.crd:not([open]) .crg{display:none}
+.crl{margin:8px 0 0;padding:0;list-style:none;display:grid;gap:4px;font-size:.88rem;color:var(--muted)}.crl li{padding:6px 10px;border-radius:8px;background:var(--bg2);border:1px solid var(--line)}
 .vcard{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;transition:border-color .15s,transform .15s}
 .vcard:hover{border-color:var(--accent);transform:translateY(-2px)}
 .thumb{position:relative;aspect-ratio:16/9;background:#000}
@@ -641,8 +650,8 @@ const db = getFirestore(fbApp);
 const storage = getStorage(fbApp);
 
 /* ---------- الحالة ---------- */
-const S = { ready: false, user: null, student: null, busy: false, flash: "", videos: [], files: [], homework: [], hwsubs: [], exams: [], lives: [], notices: [], attempts: [], examKeys: {}, hwKeys: {}, certs: [], students: [], comments: [], ratings: [], payments: [], unsubs: [], unsubSelf: null, page: "" };
-const H = { tab: "videos", q: "" };
+const S = { ready: false, user: null, student: null, busy: false, flash: "", videos: [], files: [], homework: [], hwsubs: [], exams: [], lives: [], notices: [], courses: [], attempts: [], examKeys: {}, hwKeys: {}, certs: [], students: [], comments: [], ratings: [], payments: [], unsubs: [], unsubSelf: null, page: "" };
+const H = { tab: "videos", q: "", closed: new Set() };
 const A = { cvid: "", cq: "", cstage: "", cgrade: "", tab: "overview", q: "", fstage: "", fstatus: "" };
 
 const isAdminUser = () => !!S.user && S.user.email === ADMIN_EMAIL;
@@ -774,7 +783,7 @@ function sub(col, key) {
   const q = query(collection(db, col), orderBy("createdAt", "desc"));
   S.unsubs.push(onSnapshot(q, s => { S[key] = s.docs.map(d => ({ id: d.id, ...d.data() })); if (key === "students") checkNew(); if (key === "payments") checkPay(); onData(); }, e => console.warn(col, e.code)));
 }
-const startContent = () => { if (S.contentOn) return; S.contentOn = true; sub("videos", "videos"); sub("files", "files"); sub("homework", "homework"); sub("exams", "exams"); sub("lives", "lives"); sub("notices", "notices"); if (S.student?.id) S.unsubs.push(onSnapshot(query(collection(db, "certs"), where("uid", "==", S.student.id)), q => { S.certs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, e => console.warn("certs", e.code))); if (S.student?.id) S.unsubs.push(onSnapshot(query(collection(db, "attempts"), where("uid", "==", S.student.id)), q => { S.attempts = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, e => console.warn("attempts", e.code))); if (S.student?.id) S.unsubs.push(onSnapshot(query(collection(db, "hwsubs"), where("uid", "==", S.student.id)), q => { S.hwsubs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, e => console.warn("hwsubs", e.code))); };
+const startContent = () => { if (S.contentOn) return; S.contentOn = true; sub("videos", "videos"); sub("files", "files"); sub("homework", "homework"); sub("exams", "exams"); sub("lives", "lives"); sub("notices", "notices"); sub("courses", "courses"); if (S.student?.id) S.unsubs.push(onSnapshot(query(collection(db, "certs"), where("uid", "==", S.student.id)), q => { S.certs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, e => console.warn("certs", e.code))); if (S.student?.id) S.unsubs.push(onSnapshot(query(collection(db, "attempts"), where("uid", "==", S.student.id)), q => { S.attempts = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, e => console.warn("attempts", e.code))); if (S.student?.id) S.unsubs.push(onSnapshot(query(collection(db, "hwsubs"), where("uid", "==", S.student.id)), q => { S.hwsubs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, e => console.warn("hwsubs", e.code))); };
 function checkNew() {
   const pn = S.students.filter(x => x.status === "pending").length;
   if (S.pn === undefined ? pn > 0 : pn > S.pn) toast(`🔔 ${pn} طلب تسجيل بانتظار مراجعتك`, "ok");
@@ -838,7 +847,7 @@ async function attachStudent(u) {
 onAuthStateChanged(auth, async u => {
   clearSubs(); S.user = u; S.student = null;
   if (!u) { S.ready = true; render(); return; }
-  if (u.email === ADMIN_EMAIL) { sub("students", "students"); sub("videos", "videos"); sub("files", "files"); sub("homework", "homework"); sub("exams", "exams"); sub("lives", "lives"); sub("notices", "notices"); S.unsubs.push(onSnapshot(collection(db, "certs"), q => { S.certs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "attempts"), q => { S.attempts = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "hwKeys"), q => { S.hwKeys = Object.fromEntries(q.docs.map(d => [d.id, d.data().keys])); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "examKeys"), q => { S.examKeys = Object.fromEntries(q.docs.map(d => [d.id, d.data().keys])); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "hwsubs"), q => { S.hwsubs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); sub("comments", "comments"); sub("payments", "payments"); S.unsubs.push(onSnapshot(collection(db, "ratings"), s => { S.ratings = s.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.ready = true; render(); return; }
+  if (u.email === ADMIN_EMAIL) { sub("students", "students"); sub("videos", "videos"); sub("files", "files"); sub("homework", "homework"); sub("exams", "exams"); sub("lives", "lives"); sub("notices", "notices"); sub("courses", "courses"); S.unsubs.push(onSnapshot(collection(db, "certs"), q => { S.certs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "attempts"), q => { S.attempts = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "hwKeys"), q => { S.hwKeys = Object.fromEntries(q.docs.map(d => [d.id, d.data().keys])); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "examKeys"), q => { S.examKeys = Object.fromEntries(q.docs.map(d => [d.id, d.data().keys])); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "hwsubs"), q => { S.hwsubs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); sub("comments", "comments"); sub("payments", "payments"); S.unsubs.push(onSnapshot(collection(db, "ratings"), s => { S.ratings = s.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.ready = true; render(); return; }
   if (S.busy) return;
   await attachStudent(u);
 });
@@ -1338,6 +1347,7 @@ function hwSubmitModal(id) {
     catch (er) { showErr("فشل الإرسال: " + (er.code || er.message)); $("#sb", m).disabled = false; }
   });
 }
+const vCard = (x, i) => { const pr = getProg(x.id); return `<a class="vcard" style="--i:${i}" href="#/watch/${esc(x.id)}" data-y="${esc(x.ytId)}"><div class="thumb"><span class="num">${String(i + 1).padStart(2, "0")}</span><img class="fr on" loading="lazy" src="https://i.ytimg.com/vi/${esc(x.ytId)}/mqdefault.jpg" alt=""><span class="play"><i>▶</i></span>${pr.done ? `<span class="done">✓ تمت المشاهدة</span>` : ""}<span class="vp"><i style="width:${pr.p}%"></i></span></div><div class="vb"><h3>${esc(x.title)}</h3>${x.description ? `<p>${esc(x.description)}</p>` : ""}${pr.p > 0 && !pr.done ? `<small class="resume">أكملت ${Math.round(pr.p)}% · تابع من حيث توقفت</small>` : ""}</div></a>`; };
 function fillHome() {
   const list = $("#list"); if (!list) return;
   const cv = $("#cv"), cf = $("#cf"); if (cv) cv.textContent = visible(S.videos).length; if (cf) cf.textContent = visible(S.files).length;
@@ -1352,7 +1362,16 @@ function fillHome() {
   const m = x => !q || (x.title || "").toLowerCase().includes(q) || (x.description || "").toLowerCase().includes(q);
   if (H.tab === "videos") {
     const v = visible(S.videos).filter(m);
-    list.innerHTML = v.length ? v.map((x, i) => { const pr = getProg(x.id); return `<a class="vcard" style="--i:${i}" href="#/watch/${esc(x.id)}" data-y="${esc(x.ytId)}"><div class="thumb"><span class="num">${String(i + 1).padStart(2, "0")}</span><img class="fr on" loading="lazy" src="https://i.ytimg.com/vi/${esc(x.ytId)}/mqdefault.jpg" alt=""><span class="play"><i>▶</i></span>${pr.done ? `<span class="done">✓ تمت المشاهدة</span>` : ""}<span class="vp"><i style="width:${pr.p}%"></i></span></div><div class="vb"><h3>${esc(x.title)}</h3>${x.description ? `<p>${esc(x.description)}</p>` : ""}${pr.p > 0 && !pr.done ? `<small class="resume">أكملت ${Math.round(pr.p)}% · تابع من حيث توقفت</small>` : ""}</div></a>`; }).join("") : `<div class="empty">لا توجد فيديوهات لمرحلتك حاليًا</div>`;
+    const cs = visible(S.courses || []).slice().reverse(), cids = new Set(cs.map(c => c.id));
+    if (!cs.length) list.innerHTML = v.length ? v.map(vCard).join("") : `<div class="empty">لا توجد فيديوهات لمرحلتك حاليًا</div>`;
+    else {
+      const sect = (id, ic, title, desc, vids) => { const dn = vids.filter(x => getProg(x.id).done).length, pc = vids.length ? Math.round(vids.reduce((a, x) => a + Math.min(100, getProg(x.id).p), 0) / vids.length) : 0;
+        return `<section class="crs"><details class="crd" data-id="${esc(id)}" ${H.closed.has(id) ? "" : "open"}><summary class="crh"><span class="crI">${ic}</span><div class="crT"><b>${esc(title)}</b>${desc ? `<small>${esc(desc)}</small>` : ""}<div class="crM"><span>${vids.length} ${vids.length === 1 ? "درس" : "دروس"}</span><span>·</span><span>أكملت ${dn} من ${vids.length}</span><span class="crP"><i style="width:${pc}%"></i></span><em>${pc}%</em></div></div><span class="crA" aria-hidden="true">⌄</span></summary><div class="grid crg">${vids.map(vCard).join("")}</div></details></section>`; };
+      const html = cs.map(c => ({ c, vids: v.filter(x => x.courseId === c.id) })).filter(g => g.vids.length).map(g => sect(g.c.id, "📚", g.c.title, g.c.description, g.vids));
+      const other = v.filter(x => !x.courseId || !cids.has(x.courseId)); if (other.length) html.push(sect("_other", "🎬", "فيديوهات أخرى", "", other));
+      list.innerHTML = html.join("") || `<div class="empty">لا توجد فيديوهات لمرحلتك حاليًا</div>`;
+      $$("details.crd", list).forEach(d => d.addEventListener("toggle", () => { if (d.open) H.closed.delete(d.dataset.id); else H.closed.add(d.dataset.id); }));
+    }
   } else if (H.tab === "live") {
     list.innerHTML = liveCardsHTML();
   } else if (H.tab === "certs") {
@@ -1845,6 +1864,7 @@ function renderAdminLogin() {
 const AD_IC = {
   overview: '<rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/>',
   students: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8"/><path d="M18 14.3c2.2.7 3.5 2.6 3.5 5.7"/>',
+  courses: '<path d="m12 3 9 5-9 5-9-5z"/><path d="m3 13 9 5 9-5"/><path d="m3 17.5 9 5 9-5"/>',
   videos: '<circle cx="12" cy="12" r="9"/><path d="m10 8.8 5 3.2-5 3.2z"/>',
   files: '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h6"/>',
   homework: '<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 11h6M9 15h4"/>',
@@ -1856,7 +1876,7 @@ const AD_IC = {
   notices: '<path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/>',
   payments: '<rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19"/><path d="M6.5 15h4"/>'
 };
-const AD_GROUPS = [["الرئيسية", [["overview", "نظرة عامة"], ["students", "الطلاب"]]], ["المحتوى", [["videos", "الفيديوهات"], ["files", "الملفات"], ["homework", "الواجبات"], ["exams", "الاختبارات"]]], ["التواصل", [["lives", "البث المباشر"], ["notices", "الإشعارات"], ["comments", "التعليقات"]]], ["التقييم", [["grades", "رصد الدرجات"], ["certs", "الشهادات"]]], ["المالية", [["payments", "المدفوعات"]]]];
+const AD_GROUPS = [["الرئيسية", [["overview", "نظرة عامة"], ["students", "الطلاب"]]], ["المحتوى", [["courses", "الكورسات"], ["videos", "الفيديوهات"], ["files", "الملفات"], ["homework", "الواجبات"], ["exams", "الاختبارات"]]], ["التواصل", [["lives", "البث المباشر"], ["notices", "الإشعارات"], ["comments", "التعليقات"]]], ["التقييم", [["grades", "رصد الدرجات"], ["certs", "الشهادات"]]], ["المالية", [["payments", "المدفوعات"]]]];
 function renderAdmin() {
   S.page = "admin";
   const nav = AD_GROUPS.map(([g, items], gi) => `${gi ? '<div class="sep"></div>' : ""}<div class="asg">${g}</div>${items.map(([k, t]) => `<button class="atab" data-t="${k}" title="${t}"><i class="ai"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${AD_IC[k]}</svg></i><span class="al">${t}</span><span class="ab"></span></button>`).join("")}`).join("");
@@ -1920,7 +1940,7 @@ const TABS = {
     init: b => { b.onclick = contentAction; bindFilter(b); },
     fill: b => {
       $("#vl", b).innerHTML = S.videos.filter(passFilter).map(v => `<div class="acard"><div class="thumb" style="border-radius:8px;overflow:hidden"><img loading="lazy" src="https://i.ytimg.com/vi/${esc(v.ytId)}/mqdefault.jpg" alt=""></div><h3>${esc(v.title)}</h3>
-        <div class="m"><span class="badge">${stageLabel(v.stage)}</span><span class="badge">${sysLabel(v.system)}</span><span class="badge good">${gradeLabel(v)}</span><span class="badge warn">⭐ ${vstat(v.id).avg} · 💬 ${vstat(v.id).c}</span></div>
+        <div class="m">${v.courseId && S.courses.find(c => c.id === v.courseId) ? `<span class="badge warn">📚 ${esc(S.courses.find(c => c.id === v.courseId).title)}</span>` : ""}<span class="badge">${stageLabel(v.stage)}</span><span class="badge">${sysLabel(v.system)}</span><span class="badge good">${gradeLabel(v)}</span><span class="badge warn">⭐ ${vstat(v.id).avg} · 💬 ${vstat(v.id).c}</span></div>
         <div class="acts"><button class="btn btn-line btn-sm" data-a="vedit" data-id="${esc(v.id)}">تعديل</button><button class="btn btn-bad btn-sm" data-a="vdel" data-id="${esc(v.id)}">حذف</button></div></div>`).join("") || `<div class="empty">لم تُضف فيديوهات بعد</div>`;
     }
   },
@@ -2288,6 +2308,43 @@ function noticeModal(n) {
   });
 }
 
+/* ---------- الكورسات (الأدمن) ---------- */
+TABS.courses = {
+  skel: () => `<div class="toolbar"><h2 style="flex:1">الكورسات</h2><button class="btn btn-fill" data-a="cadd">+ إضافة كورس</button></div>${filterBar()}<p class="sub" style="margin-bottom:12px">أنشئ كورسًا بعنوان، ثم أضف إليه فيديوهاته. يرى الطالب الكورس كقسم مستقل يضم دروسه مع نسبة تقدمه.</p><div class="agrid" id="cl"></div>`,
+  init: b => { b.onclick = courseAction; bindFilter(b); },
+  fill: b => {
+    $("#cl", b).innerHTML = S.courses.filter(passFilter).map(c => { const vs = S.videos.filter(v => v.courseId === c.id).slice().reverse();
+      return `<div class="acard"><div class="fcard" style="border:0;padding:0"><div class="ficon">📚</div><div class="t"><h3>${esc(c.title)}</h3><small>${vs.length} ${vs.length === 1 ? "فيديو" : "فيديوهات"}</small></div></div>
+        ${c.description ? `<p class="sub" style="margin:8px 0;white-space:pre-wrap">${esc(c.description)}</p>` : ""}
+        <div class="m"><span class="badge">${stageLabel(c.stage)}</span><span class="badge">${sysLabel(c.system)}</span><span class="badge good">${gradeLabel(c)}</span></div>
+        ${vs.length ? `<ol class="crl">${vs.map((v, i) => `<li>${i + 1}. ${esc(v.title)}</li>`).join("")}</ol>` : ""}
+        <div class="acts"><button class="btn btn-fill btn-sm" data-a="cvid" data-id="${esc(c.id)}">+ فيديو للكورس</button><button class="btn btn-line btn-sm" data-a="cedit" data-id="${esc(c.id)}">تعديل</button><button class="btn btn-bad btn-sm" data-a="cdel" data-id="${esc(c.id)}">حذف</button></div></div>`; }).join("") || `<div class="empty">لا توجد كورسات — اضغط «إضافة كورس»</div>`;
+  }
+};
+async function courseAction(e) {
+  const btn = e.target.closest("[data-a]"); if (!btn || btn.tagName === "A") return; const a = btn.dataset.a, id = btn.dataset.id, c = S.courses.find(x => x.id === id);
+  try {
+    if (a === "cadd") return courseModal();
+    if (a === "cedit") return courseModal(c);
+    if (a === "cvid") return videoModal(null, c);
+    if (a === "cdel") { if (!c) return; const n = S.videos.filter(v => v.courseId === id).length; if (!confirm(`حذف الكورس "${c.title}"؟${n ? `\\nفيديوهاته (${n}) لن تُحذف وستظهر للطلاب تحت «فيديوهات أخرى».` : ""}`)) return; await deleteDoc(doc(db, "courses", id)); toast("تم حذف الكورس", "ok"); }
+  } catch (er) { toast("فشلت العملية: " + (er.code || er.message), "err"); }
+}
+function courseModal(c) {
+  const m = openModal(`<h2>${c ? "تعديل كورس" : "إضافة كورس"}</h2><div class="alert" id="err" hidden></div>
+    <form id="cf2" novalidate><label class="fl">عنوان الكورس<input name="title" maxlength="120" placeholder="مثال: كورس القواعد — الترم الأول" value="${esc(c?.title)}"></label>
+    <label class="fl">وصف الكورس (اختياري)<textarea name="description" maxlength="300">${esc(c?.description)}</textarea></label>${targetFields(c)}
+    <div class="mact"><button class="btn btn-fill" id="sb">حفظ</button><button type="button" class="btn btn-line" data-close>إلغاء</button></div></form>`);
+  const form = $("#cf2", m); bindTarget(form, c);
+  form.addEventListener("submit", async e => {
+    e.preventDefault(); showErr(""); const f = new FormData(form), title = (f.get("title") || "").trim(); if (!title) return showErr("اكتب عنوان الكورس");
+    const data = { title, description: (f.get("description") || "").trim(), stage: f.get("stage"), system: f.get("system"), grade: f.get("grade") || "all" };
+    $("#sb", m).disabled = true;
+    try { if (c) await updateDoc(doc(db, "courses", c.id), data); else await addDoc(collection(db, "courses"), { ...data, createdAt: serverTimestamp() }); m.remove(); toast("تم حفظ الكورس", "ok"); }
+    catch (er) { showErr("فشل الحفظ: " + (er.code || er.message)); $("#sb", m).disabled = false; }
+  });
+}
+
 TABS.payments = {
   skel: () => `<h2 style="margin-bottom:16px">المدفوعات</h2><div class="stats" id="ps" style="grid-template-columns:repeat(3,1fr)"></div><div class="toolbar"><select id="pst"><option value="">كل الحالات</option><option value="pending">بانتظار التأكيد</option><option value="confirmed">مؤكد</option><option value="rejected">مرفوض</option></select><input id="pq" placeholder="بحث بالاسم أو الرقم" value="${esc(A.pq || "")}"></div><div class="tw" id="pl"></div>`,
   init: b => { b.onclick = payAction; $("#pst", b).value = A.pst || ""; $("#pst", b).onchange = e => { A.pst = e.target.value; fillTab(); }; $("#pq", b).oninput = e => { A.pq = e.target.value; fillTab(); }; },
@@ -2422,21 +2479,22 @@ function bindTarget(form, c) {
   fill(c?.system || "all", c?.grade || "all");
   st.addEventListener("change", () => fill("all", "all"));
 }
-function videoModal(v) {
+function videoModal(v, preset) {
   const m = openModal(`<h2>${v ? "تعديل فيديو" : "إضافة فيديو"}</h2><div class="alert" id="err" hidden></div>
     <form id="vf" novalidate><label class="fl">عنوان الفيديو<input name="title" maxlength="120" value="${esc(v?.title)}"></label>
     <label class="fl">رابط YouTube<input name="url" dir="ltr" placeholder="https://youtu.be/XXXXXXXXXXX" value="${v ? `https://youtu.be/${esc(v.ytId)}` : ""}"></label>
     <p class="sub" style="margin-top:-6px;font-size:.84rem">اجعل الفيديو على يوتيوب <b>غير مدرج (Unlisted)</b> مع السماح بالتضمين.</p>
-    ${targetFields(v)}<label class="fl">وصف (اختياري)<textarea name="description" maxlength="300">${esc(v?.description)}</textarea></label>
+    <label class="fl">الكورس (اختياري)<select name="courseId"><option value="">بدون كورس</option>${S.courses.slice().reverse().map(c => `<option value="${esc(c.id)}" ${(v?.courseId || preset?.id) === c.id ? "selected" : ""}>📚 ${esc(c.title)}</option>`).join("")}</select></label>${targetFields(v || preset)}<label class="fl">وصف (اختياري)<textarea name="description" maxlength="300">${esc(v?.description)}</textarea></label>
     <div class="mact"><button class="btn btn-fill" id="sb">حفظ</button><button type="button" class="btn btn-line" data-close>إلغاء</button></div></form>`);
-  bindTarget($("#vf", m), v);
+  bindTarget($("#vf", m), v || preset);
+  $('select[name="courseId"]', $("#vf", m)).addEventListener("change", e => { const c = S.courses.find(x => x.id === e.target.value); if (!c) return; const f = $("#vf", m), st = $('select[name="stage"]', f), sy = $('select[name="system"]', f), gr = $('select[name="grade"]', f); st.value = c.stage || "all"; st.dispatchEvent(new Event("change")); sy.value = c.system || "all"; gr.value = c.grade || "all"; });
   $("#vf", m).addEventListener("submit", async e => {
     e.preventDefault(); showErr(""); const f = new FormData(e.target), title = (f.get("title") || "").trim(), id = ytId(f.get("url"));
     if (!title) return showErr("اكتب عنوان الفيديو");
     if (!id) return showErr("رابط يوتيوب غير صحيح");
-    const data = { title, ytId: id, stage: f.get("stage"), system: f.get("system"), grade: f.get("grade") || "all", description: (f.get("description") || "").trim() };
+    const data = { title, ytId: id, courseId: f.get("courseId") || "", stage: f.get("stage"), system: f.get("system"), grade: f.get("grade") || "all", description: (f.get("description") || "").trim() };
     $("#sb", m).disabled = true;
-    try { if (v) await updateDoc(doc(db, "videos", v.id), data); else { const nr = await addDoc(collection(db, "videos"), { ...data, createdAt: serverTimestamp() }); await autoNotice({ ic: "🎬", title: "فيديو جديد: " + title, body: "تمت إضافة درس جديد لمرحلتك", href: "#/watch/" + nr.id }, data); } m.remove(); toast("تم الحفظ", "ok"); }
+    try { if (v) await updateDoc(doc(db, "videos", v.id), data); else { const nr = await addDoc(collection(db, "videos"), { ...data, createdAt: serverTimestamp() }); await autoNotice({ ic: "🎬", title: "فيديو جديد: " + title, body: data.courseId ? "ضمن كورس: " + (S.courses.find(c => c.id === data.courseId)?.title || "") : "تمت إضافة درس جديد لمرحلتك", href: "#/watch/" + nr.id }, data); } m.remove(); toast("تم الحفظ", "ok"); }
     catch (er) { showErr("فشل الحفظ: " + (er.code || er.message)); $("#sb", m).disabled = false; }
   });
 }
