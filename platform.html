@@ -19,7 +19,7 @@ html[data-theme=light]{--bg:#fbf7ec;--bg2:#f3ecd8;--card:#fffdf6;--line:#e2d4a8;
 html[data-theme=light] .hdr{background:rgba(251,247,236,.94)}
 html[data-theme=light] .hero .bgphoto{opacity:.18}
 .tbtn{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--accent-text);cursor:pointer;transition:border-color .15s,transform .2s}
-.tbtn:hover{border-color:var(--accent);transform:rotate(20deg)}
+.tbtn:hover{border-color:var(--accent)}@media(hover:hover) and (pointer:fine){.tbtn:hover{transform:rotate(20deg)}.tbtn.bell:hover{transform:none}}.tbtn:active{transform:scale(.92)}
 ::view-transition-old(root),::view-transition-new(root){animation:none;mix-blend-mode:normal}::view-transition-old(root){z-index:1}::view-transition-new(root){z-index:2}
 .tbtn{position:relative}.tbtn::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0}
 .tbtn.tfx{animation:tspin .75s cubic-bezier(.3,1.4,.5,1)}.tbtn.tfx svg{animation:tpop .75s cubic-bezier(.3,1.5,.5,1)}.tbtn.tfx::after{animation:tring .8s ease-out;border:2px solid var(--accent-2)}
