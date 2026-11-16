@@ -271,6 +271,8 @@ tr:last-child td{border-bottom:0}
 .modal.wide{width:min(100%,640px)}
 .modal h2{font-size:1.2rem}
 .mact{display:flex;gap:10px;justify-content:flex-start;flex-wrap:wrap}
+.atl{display:grid;gap:8px;margin:8px 0}.atr{display:flex;align-items:center;gap:10px;background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:10px 12px}.atr .atn{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600;font-size:.92rem}.atr small{color:var(--muted)}.ficon.sm{width:40px;height:40px;font-size:.66rem;flex:none}
+.vatt{margin-top:18px;padding:16px;border:1px solid var(--line);border-radius:16px;background:var(--card);display:grid;gap:10px}.vatt h3{font-size:1.05rem}
 .prog{height:8px;border-radius:6px;background:var(--bg);overflow:hidden}
 .prog i{display:block;height:100%;width:0;background:var(--accent);transition:width .2s}
 #toast{position:fixed;bottom:18px;inset-inline:0;display:flex;flex-direction:column;align-items:center;gap:8px;z-index:90;pointer-events:none}
@@ -1456,6 +1458,7 @@ function renderWatch(id) {
       <div class="shield"></div><button class="fsbtn" id="fs" type="button">ملء الشاشة ⛶</button><div class="wm">${wm}</div><div class="wm b">${wm}</div></div>
     <h1 style="font-size:1.4rem;margin-top:16px">${esc(v.title)}</h1>
     <p class="sub" style="margin-top:6px">${v.description ? esc(v.description) : ""}</p>
+    ${(v.attachments || []).length ? `<section class="vatt"><h3>📎 ملفات الشرح للتحميل</h3><p class="sub" style="font-size:.86rem">حمّل الملفات بعد مشاهدة الفيديو للمراجعة</p>${v.attachments.map(a => `<div class="atr"><span class="ficon sm">${esc((a.ext || "link").toUpperCase().slice(0, 4))}</span><span class="atn">${esc(a.name)}</span><small>${esc(fmtSize(a.size))}</small><a class="btn btn-fill btn-sm" href="${esc(a.url)}" target="_blank" rel="noopener" download>⬇ تحميل</a></div>`).join("")}</section>` : ""}
     <p class="alt" style="text-align:start;margin-top:14px">🔒 هذا الفيديو يُعرض على حسابك فقط ويحمل بياناتك. تسجيله أو مشاركته مخالف للشروط.</p>
     <p style="margin-top:14px"><a class="btn btn-line btn-sm" href="#/">← العودة</a></p>
     <section class="cm" id="cm"></section></div>
@@ -2609,7 +2612,7 @@ async function contentAction(e) {
   try {
     if (a === "vadd") return videoModal();
     if (a === "vedit") return videoModal(S.videos.find(v => v.id === id));
-    if (a === "vdel") { const v = S.videos.find(v => v.id === id); if (v && confirm(`حذف الفيديو "${v.title}"؟`)) { await deleteDoc(doc(db, "videos", id)); toast("تم الحذف", "ok"); } return; }
+    if (a === "vdel") { const v = S.videos.find(v => v.id === id); if (v && confirm(`حذف الفيديو "${v.title}"؟`)) { for (const a of v.attachments || []) if (a.storagePath) { try { await deleteObject(ref(storage, a.storagePath)); } catch {} } await deleteDoc(doc(db, "videos", id)); toast("تم الحذف", "ok"); } return; }
     if (a === "fadd") return fileModal();
     if (a === "fedit") return fileModal(S.files.find(f => f.id === id));
     if (a === "fdel") {
@@ -2636,7 +2639,14 @@ function videoModal(v, preset) {
     <label class="fl">رابط YouTube<input name="url" dir="ltr" placeholder="https://youtu.be/XXXXXXXXXXX" value="${v ? `https://youtu.be/${esc(v.ytId)}` : ""}"></label>
     <p class="sub" style="margin-top:-6px;font-size:.84rem">اجعل الفيديو على يوتيوب <b>غير مدرج (Unlisted)</b> مع السماح بالتضمين.</p>
     <label class="fl">الكورس (اختياري)<select name="courseId"><option value="">بدون كورس</option>${S.courses.slice().reverse().map(c => `<option value="${esc(c.id)}" ${(v?.courseId || preset?.id) === c.id ? "selected" : ""}>📚 ${esc(c.title)}</option>`).join("")}</select></label>${targetFields(v || preset)}<label class="fl">وصف (اختياري)<textarea name="description" maxlength="300">${esc(v?.description)}</textarea></label>
+    <div class="fl"><span>📎 ملفات الشرح للتحميل (PDF, Word, PowerPoint, Excel, صور, ZIP...)</span><div id="atl" class="atl"></div>
+    <input type="file" name="atf" multiple accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.zip,.rar,.png,.jpg,.jpeg,.mp3" style="padding:10px 0"></div>
+    <label class="fl">أو روابط تحميل (رابط في كل سطر، Google Drive مثلًا)<textarea name="atu" dir="ltr" rows="2" placeholder="https://drive.google.com/file/d/..."></textarea></label>
+    <div class="prog" id="pg" hidden><i></i></div>
     <div class="mact"><button class="btn btn-fill" id="sb">حفظ</button><button type="button" class="btn btn-line" data-close>إلغاء</button></div></form>`);
+  let att = (v?.attachments || []).slice(); const removed = [];
+  const drawAtt = () => { $("#atl", m).innerHTML = att.map((a, i) => `<div class="atr"><span class="ficon sm">${esc((a.ext || "link").toUpperCase().slice(0, 4))}</span><span class="atn">${esc(a.name)}</span><small>${esc(fmtSize(a.size))}</small><button type="button" class="btn btn-bad btn-sm" data-rm="${i}">حذف</button></div>`).join(""); $$("[data-rm]", m).forEach(x => x.onclick = () => { const a = att.splice(+x.dataset.rm, 1)[0]; if (a.storagePath) removed.push(a.storagePath); drawAtt(); }); };
+  drawAtt();
   bindTarget($("#vf", m), v || preset);
   $('select[name="courseId"]', $("#vf", m)).addEventListener("change", e => { const c = S.courses.find(x => x.id === e.target.value); if (!c) return; const f = $("#vf", m), st = $('select[name="stage"]', f), sy = $('select[name="system"]', f), gr = $('select[name="grade"]', f); st.value = c.stage || "all"; st.dispatchEvent(new Event("change")); sy.value = c.system || "all"; gr.value = c.grade || "all"; });
   $("#vf", m).addEventListener("submit", async e => {
@@ -2644,9 +2654,23 @@ function videoModal(v, preset) {
     if (!title) return showErr("اكتب عنوان الفيديو");
     if (!id) return showErr("رابط يوتيوب غير صحيح");
     const data = { title, ytId: id, courseId: f.get("courseId") || "", stage: f.get("stage"), system: f.get("system"), grade: f.get("grade") || "all", description: (f.get("description") || "").trim() };
+    const files = [...e.target.atf.files].filter(x => x.size > 0), links = (f.get("atu") || "").split(/\s+/).filter(Boolean);
+    if (files.some(x => x.size > 50 * 1048576)) return showErr("الحد الأقصى لحجم كل ملف 50 ميجا");
+    if (links.some(l => !/^https?:\/\//i.test(l))) return showErr("الروابط يجب أن تبدأ بـ https://");
     $("#sb", m).disabled = true;
-    try { if (v) await updateDoc(doc(db, "videos", v.id), data); else { const nr = await addDoc(collection(db, "videos"), { ...data, createdAt: serverTimestamp() }); await autoNotice({ ic: "🎬", title: "فيديو جديد: " + title, body: data.courseId ? "ضمن كورس: " + (S.courses.find(c => c.id === data.courseId)?.title || "") : "تمت إضافة درس جديد لمرحلتك", href: "#/watch/" + nr.id }, data); } m.remove(); toast("تم الحفظ", "ok"); }
-    catch (er) { showErr("فشل الحفظ: " + (er.code || er.message)); $("#sb", m).disabled = false; }
+    try {
+      const pg = $("#pg", m);
+      for (let i = 0; i < files.length; i++) {
+        const fl = files[i], ext = (fl.name.split(".").pop() || "file").toLowerCase().slice(0, 5); pg.hidden = false;
+        const path = `files/v_${Date.now()}_${Math.random().toString(36).slice(2, 8)}.${ext}`, task = uploadBytesResumable(ref(storage, path), fl);
+        await new Promise((res, rej) => task.on("state_changed", sn => { $("i", pg).style.width = ((i + sn.bytesTransferred / sn.totalBytes) / files.length * 100) + "%"; }, rej, res));
+        att.push({ name: fl.name, url: await getDownloadURL(task.snapshot.ref), storagePath: path, ext, size: fl.size });
+      }
+      links.forEach(l => att.push({ name: decodeURIComponent(l.split("?")[0].split("/").pop() || "ملف").slice(0, 60) || "ملف شرح", url: driveLink(l), storagePath: "", ext: "link", size: 0 }));
+      data.attachments = att;
+      for (const sp of removed) { try { await deleteObject(ref(storage, sp)); } catch {} }
+      if (v) await updateDoc(doc(db, "videos", v.id), data); else { const nr = await addDoc(collection(db, "videos"), { ...data, createdAt: serverTimestamp() }); await autoNotice({ ic: "🎬", title: "فيديو جديد: " + title, body: data.courseId ? "ضمن كورس: " + (S.courses.find(c => c.id === data.courseId)?.title || "") : "تمت إضافة درس جديد لمرحلتك", href: "#/watch/" + nr.id }, data); } m.remove(); toast("تم الحفظ", "ok"); }
+    catch (er) { showErr((er.code || "").startsWith("storage/") ? "تعذر رفع الملفات على Firebase Storage. تأكد من تفعيله وقواعده أو استخدم روابط." : "فشل الحفظ: " + (er.code || er.message)); $("#sb", m).disabled = false; $("#pg", m).hidden = true; }
   });
 }
 function fileModal(fl) {
