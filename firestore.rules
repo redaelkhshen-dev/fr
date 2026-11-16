@@ -133,6 +133,18 @@ service cloud.firestore {
       allow read: if isAdmin() || isActiveStudent();
       allow write: if isAdmin();
     }
+    // البث المباشر: بيانات الحصة يقرؤها الطلاب، أما الرابط فمحفوظ منفصلًا ولا يُقرأ إلا أثناء حالة "live"
+    match /lives/{id} {
+      allow read: if isAdmin() || isActiveStudent();
+      allow write: if isAdmin();
+    }
+    match /liveKeys/{id} {
+      allow read: if isAdmin() || (isActiveStudent()
+        && exists(/databases/$(database)/documents/lives/$(id))
+        && get(/databases/$(database)/documents/lives/$(id)).data.status == 'live');
+      allow write: if isAdmin();
+    }
+
     match /examKeys/{id} {
       allow read: if isAdmin() || (isActiveStudent()
         && exists(/databases/$(database)/documents/attempts/$(id + '_' + request.auth.uid)));

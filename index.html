@@ -378,7 +378,7 @@ html[data-theme=light] .hl-fx b{background-image:linear-gradient(100deg,#7a520a 
 .pts{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px}
 .aform{display:grid;place-items:center;padding:28px 16px;background:var(--bg)}
 @media(max-width:900px){.hero-grid,.abt,.ctab,.shero-in{grid-template-columns:1fr}.hero-visual{order:-1;width:min(100%,320px)}.shero .sv{order:-1}.carte{inset-inline-end:-10px}.skills,.pcards,.why{grid-template-columns:1fr 1fr}.steps{grid-template-columns:1fr}.band{padding-block:56px}.bgphoto{width:100%;-webkit-mask-image:linear-gradient(to bottom,#000 25%,transparent 95%);mask-image:linear-gradient(to bottom,#000 25%,transparent 95%)}.bgphoto i{opacity:.15}.authx{grid-template-columns:1fr}.aside{display:none}}
-@media(max-width:820px){.pnav{order:3;width:100%;overflow-x:auto;gap:22px;scrollbar-width:none}}
+@media(max-width:820px){.pnav{order:3;width:100%;overflow-x:auto;gap:22px;scrollbar-width:none}}@media(max-width:560px){.pnav{gap:6px;justify-content:space-between}.pnav a{font-size:.84rem!important}.pnav .ldot{width:7px;height:7px;margin-inline-start:3px}}
 @media(max-width:820px){.hdr-r.st{order:2;width:100%;display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:10px}.hdr-r.st>*{height:44px;min-width:0;display:flex;align-items:center;justify-content:center;border-radius:14px;margin:0}.hdr-r.st .tbtn{width:100%;border-radius:14px}.hdr-r.st .chipuser{padding:0;max-width:none;width:100%}.hdr-r.st .chipuser .n{display:none}.hdr-r.st .btn{padding:0 8px;font-size:.9rem}.hdr-r.st .tbtn.bell .pbadge{top:2px;inset-inline-end:calc(50% - 22px)}}
 @media(max-width:600px){.skills,.pcards,.why,.socials{grid-template-columns:1fr}.carte{position:static;width:100%;margin-top:20px}.hero-visual{width:min(100%,280px)}.hero-visual .carte{width:min(100vw - 32px,320px)}.ls{padding:18px 12px;gap:10px}.ls-v{font-size:1.15rem}.disc.sm{width:170px}}
 @media(prefers-reduced-motion:reduce){.disc,.dots,.bgphoto i,.disc::before{animation:none!important}}
@@ -469,6 +469,9 @@ html[data-theme=light] .hl-fx b{background-image:linear-gradient(100deg,#7a520a 
 .tcard small{color:var(--muted)}
 @media(prefers-reduced-motion:reduce){.logo-mark.live,.logo-mark.live::before,.logo-mark.live::after{animation:none!important}}
 /* ===== موافقة الطلاب ===== */
+.ldot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#ff3b4e;margin-inline-start:6px;vertical-align:middle;animation:ldot 1.4s infinite}@keyframes ldot{0%{box-shadow:0 0 0 0 rgba(255,59,78,.7)}70%,100%{box-shadow:0 0 0 9px rgba(255,59,78,0)}}
+.lvpg,.lvpg *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}.lvpg input,.lvpg textarea{-webkit-user-select:text;user-select:text}
+.fcard.lv.live{border-color:#ff3b4e;box-shadow:0 0 0 3px rgba(255,59,78,.15)}.fcard.lv.ended{opacity:.65}.lvz{padding:34px 20px}.lvz .xbig{font-size:3.4rem}
 .tbtn.bell{position:relative}.tbtn.bell:hover{transform:none}.tbtn.bell .pbadge{position:absolute;top:-5px;inset-inline-end:-5px;min-width:19px;height:19px;font-size:.68rem}
 .nrow{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--bg2);margin-top:10px;color:var(--fg)}.nrow:hover{border-color:var(--accent)}.nrow.un{border-color:var(--accent);background:linear-gradient(135deg,rgba(212,167,58,.16),var(--bg2))}.nrow .ni{font-size:1.5rem;line-height:1.2}.nrow b{display:block;font:700 .98rem var(--fd)}.nrow small{color:var(--muted)}.nrow.late{border-inline-start:4px solid var(--bad)}.nrow.soon{border-inline-start:4px solid var(--warn)}
 .pbadge{display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:var(--bad);color:#fff;font:700 .72rem var(--fd);vertical-align:middle}
@@ -611,7 +614,7 @@ const db = getFirestore(fbApp);
 const storage = getStorage(fbApp);
 
 /* ---------- الحالة ---------- */
-const S = { ready: false, user: null, student: null, busy: false, flash: "", videos: [], files: [], homework: [], hwsubs: [], exams: [], attempts: [], examKeys: {}, hwKeys: {}, certs: [], students: [], comments: [], ratings: [], payments: [], unsubs: [], unsubSelf: null, page: "" };
+const S = { ready: false, user: null, student: null, busy: false, flash: "", videos: [], files: [], homework: [], hwsubs: [], exams: [], lives: [], attempts: [], examKeys: {}, hwKeys: {}, certs: [], students: [], comments: [], ratings: [], payments: [], unsubs: [], unsubSelf: null, page: "" };
 const H = { tab: "videos", q: "" };
 const A = { cvid: "", cq: "", cstage: "", cgrade: "", tab: "overview", q: "", fstage: "", fstatus: "" };
 
@@ -744,7 +747,7 @@ function sub(col, key) {
   const q = query(collection(db, col), orderBy("createdAt", "desc"));
   S.unsubs.push(onSnapshot(q, s => { S[key] = s.docs.map(d => ({ id: d.id, ...d.data() })); if (key === "students") checkNew(); if (key === "payments") checkPay(); onData(); }, e => console.warn(col, e.code)));
 }
-const startContent = () => { if (S.contentOn) return; S.contentOn = true; sub("videos", "videos"); sub("files", "files"); sub("homework", "homework"); sub("exams", "exams"); if (S.student?.id) S.unsubs.push(onSnapshot(query(collection(db, "certs"), where("uid", "==", S.student.id)), q => { S.certs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, e => console.warn("certs", e.code))); if (S.student?.id) S.unsubs.push(onSnapshot(query(collection(db, "attempts"), where("uid", "==", S.student.id)), q => { S.attempts = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, e => console.warn("attempts", e.code))); if (S.student?.id) S.unsubs.push(onSnapshot(query(collection(db, "hwsubs"), where("uid", "==", S.student.id)), q => { S.hwsubs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, e => console.warn("hwsubs", e.code))); };
+const startContent = () => { if (S.contentOn) return; S.contentOn = true; sub("videos", "videos"); sub("files", "files"); sub("homework", "homework"); sub("exams", "exams"); sub("lives", "lives"); if (S.student?.id) S.unsubs.push(onSnapshot(query(collection(db, "certs"), where("uid", "==", S.student.id)), q => { S.certs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, e => console.warn("certs", e.code))); if (S.student?.id) S.unsubs.push(onSnapshot(query(collection(db, "attempts"), where("uid", "==", S.student.id)), q => { S.attempts = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, e => console.warn("attempts", e.code))); if (S.student?.id) S.unsubs.push(onSnapshot(query(collection(db, "hwsubs"), where("uid", "==", S.student.id)), q => { S.hwsubs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, e => console.warn("hwsubs", e.code))); };
 function checkNew() {
   const pn = S.students.filter(x => x.status === "pending").length;
   if (S.pn === undefined ? pn > 0 : pn > S.pn) toast(`🔔 ${pn} طلب تسجيل بانتظار مراجعتك`, "ok");
@@ -764,6 +767,8 @@ function onData() {
   else if (S.page === "watch" && !S.watchOk) render();
   else if (S.page === "activity") paintActivity();
   else if (S.page === "certs") paintCerts();
+  else if (S.page === "live") paintLive();
+  else if (S.page === "liveroom") { const l = S.lives.find(x => x.id === LV.cur?.id); if (!LV.cur || l?.status !== LV.cur.st) render(); }
   else if ((S.page === "exam" || S.page === "hw") && !S.examOk) render();
 }
 async function kick(msg) { S.flash = msg; S.student = null; clearSubs(); try { await signOut(auth); } catch {} if (!S.user) render(); }
@@ -806,7 +811,7 @@ async function attachStudent(u) {
 onAuthStateChanged(auth, async u => {
   clearSubs(); S.user = u; S.student = null;
   if (!u) { S.ready = true; render(); return; }
-  if (u.email === ADMIN_EMAIL) { sub("students", "students"); sub("videos", "videos"); sub("files", "files"); sub("homework", "homework"); sub("exams", "exams"); S.unsubs.push(onSnapshot(collection(db, "certs"), q => { S.certs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "attempts"), q => { S.attempts = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "hwKeys"), q => { S.hwKeys = Object.fromEntries(q.docs.map(d => [d.id, d.data().keys])); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "examKeys"), q => { S.examKeys = Object.fromEntries(q.docs.map(d => [d.id, d.data().keys])); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "hwsubs"), q => { S.hwsubs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); sub("comments", "comments"); sub("payments", "payments"); S.unsubs.push(onSnapshot(collection(db, "ratings"), s => { S.ratings = s.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.ready = true; render(); return; }
+  if (u.email === ADMIN_EMAIL) { sub("students", "students"); sub("videos", "videos"); sub("files", "files"); sub("homework", "homework"); sub("exams", "exams"); sub("lives", "lives"); S.unsubs.push(onSnapshot(collection(db, "certs"), q => { S.certs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "attempts"), q => { S.attempts = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "hwKeys"), q => { S.hwKeys = Object.fromEntries(q.docs.map(d => [d.id, d.data().keys])); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "examKeys"), q => { S.examKeys = Object.fromEntries(q.docs.map(d => [d.id, d.data().keys])); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "hwsubs"), q => { S.hwsubs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); sub("comments", "comments"); sub("payments", "payments"); S.unsubs.push(onSnapshot(collection(db, "ratings"), s => { S.ratings = s.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.ready = true; render(); return; }
   if (S.busy) return;
   await attachStudent(u);
 });
@@ -824,6 +829,8 @@ function render() {
   if (S.user && S.student) {
     if (S.student.status !== "active") return renderPending();
     if (route === "/pay") return renderPay();
+    if (route === "/live") return renderLive();
+    if (route.startsWith("/live/")) return renderLiveRoom(route.slice(6));
     if (route === "/certs") return renderCerts();
     if (route === "/activity") return renderActivity();
     if (route.startsWith("/exam/")) return renderExam(route.slice(6));
@@ -1015,7 +1022,7 @@ function renderRegister() {
 /* ---------- هيدر الطالب ---------- */
 function studentHeader(active) {
   const s = S.student;
-  return `<header class="hdr"><div class="wrap hdr-in">${brand(true)}<nav class="pnav" aria-label="التنقل"><a href="#/">الرئيسية</a><a href="#/activity">نشاطي</a><a href="#/profile">بياناتي</a><a href="#/pay">💳 الدفع</a></nav><div class="hdr-r st">${bellBtn()}${themeBtn()}
+  return `<header class="hdr"><div class="wrap hdr-in">${brand(true)}<nav class="pnav" aria-label="التنقل"><a href="#/">الرئيسية</a><a href="#/activity">نشاطي</a><a href="#/profile">بياناتي</a><a href="#/live" class="lvn">📡 بث مباشر<i class="ldot" ${liveNow().length ? "" : "hidden"}></i></a><a href="#/pay">💳 الدفع</a></nav><div class="hdr-r st">${bellBtn()}${themeBtn()}
     <a class="chipuser" href="#/profile" aria-label="بياناتي">${avatarHTML(s, 34)}<span class="n">${esc(s.name)}</span></a>
     <button class="btn btn-line btn-sm" id="lo">خروج</button></div></div></header>`;
 }
@@ -1029,6 +1036,7 @@ const seenKey = () => "rf_nseen_" + (S.student?.id || ""), notifKey = () => "rf_
 function notifItems() {
   if (!S.student) return [];
   const out = [], now = Date.now(), WEEK = 7 * 864e5, td = todayStr();
+  for (const l of visible(S.lives || [])) if (l.status === "live") out.push({ id: `live:${l.id}:${l.liveAt || ""}`, pr: -1, cls: "late", ic: "🔴", t: `بث مباشر الآن: ${l.title}`, s: "اضغط للانضمام للحصة", href: "#/live/" + l.id });
   for (const h of visible(S.homework || [])) {
     const st = hwStatus(h.id), due = hwDue(h.due), cr = h.createdAt?.seconds ? h.createdAt.seconds * 1000 : 0, href = h.questions?.length ? "#/hw/" + h.id : "#/";
     if (st === "none" && due) {
@@ -1049,6 +1057,7 @@ function notifItems() {
 function paintBell() {
   const seen = lsSet(seenKey()), n = notifItems().filter(x => !seen.has(x.id)).length;
   $$(".bell .pbadge").forEach(b => { b.hidden = !n; b.textContent = n > 9 ? "9+" : n; });
+  $$(".lvn .ldot").forEach(d => d.hidden = !liveNow().length);
 }
 function openBell() {
   const items = notifItems(), seen = lsSet(seenKey()), can = "Notification" in window, perm = can ? Notification.permission : "denied";
@@ -1074,6 +1083,49 @@ function maybeNotify() {
     try { new Notification(todo.length === 1 ? todo[0].t : `لديك ${todo.length} تنبيهات جديدة`, { body: todo.length === 1 ? todo[0].s : todo.map(x => x.t).slice(0, 3).join(" • "), icon: "icon-192.png", tag: "rf-" + todo[0].id }); } catch {}
     todo.forEach(x => sh.add(x.id)); lsSave(notifKey(), sh);
   }
+}
+
+/* ---------- البث المباشر (الطالب) ---------- */
+const LV = { cur: null };
+const liveNow = () => visible(S.lives || []).filter(l => l.status === "live");
+const lvWhen = l => { try { return l.startAt ? new Date(l.startAt).toLocaleString("ar-EG", { weekday: "long", day: "numeric", month: "long", hour: "numeric", minute: "2-digit" }) : ""; } catch { return l.startAt || ""; } };
+const lvGuard = () => { const el = $(".lvpg"); if (!el) return; ["copy", "cut", "contextmenu", "dragstart", "selectstart"].forEach(t => el.addEventListener(t, e => { if (!/^(INPUT|TEXTAREA)$/.test(e.target.tagName)) e.preventDefault(); })); };
+function renderLive() {
+  S.page = "live"; LV.cur = null;
+  app.innerHTML = `${studentHeader()}<main class="wrap sec lvpg"><div class="exam"><div class="banner" style="margin:0 0 18px"><div><h1>📡 البث المباشر</h1><p>حصص أونلاين مع مسيو رضا — يظهر زر الانضمام عند بدء البث</p></div></div><div id="ll"></div></div></main>`;
+  $("#lo").onclick = doLogout; lvGuard(); paintLive();
+}
+function paintLive() {
+  const box = $("#ll"); if (!box) return;
+  const ls = visible(S.lives || []), rank = { live: 0, scheduled: 1, ended: 2 };
+  const l = [...ls].sort((a, b) => (rank[a.status] ?? 1) - (rank[b.status] ?? 1) || (a.status === "ended" ? String(b.startAt).localeCompare(String(a.startAt)) : String(a.startAt).localeCompare(String(b.startAt)))).filter((x, i, arr) => x.status !== "ended" || arr.filter(y => y.status === "ended").indexOf(x) < 4);
+  box.innerHTML = l.length ? l.map(x => { const st = x.status || "scheduled";
+    return `<div class="fcard hw lv ${st}"><div class="ficon">${st === "live" ? "🔴" : st === "ended" ? "✅" : "⏳"}</div><div class="t"><h3>${esc(x.title)}</h3><div class="m" style="margin-top:6px"><span class="badge ${st === "live" ? "bad" : st === "ended" ? "" : "warn"}">${st === "live" ? "🔴 مباشر الآن" : st === "ended" ? "انتهى" : "لم يبدأ بعد"}</span><span class="badge">${x.kind === "zoom" ? "Zoom" : "YouTube"}</span>${x.startAt ? `<span class="badge">📅 ${esc(lvWhen(x))}</span>` : ""}</div>${x.note ? `<p class="sub" style="margin-top:8px">${esc(x.note)}</p>` : ""}</div>
+      <div class="hwa">${st === "live" ? `<a class="btn btn-fill btn-sm" href="#/live/${esc(x.id)}">انضم الآن</a>` : ""}</div></div>`; }).join("") : `<div class="empty">لا توجد حصص بث مباشر حاليًا 📡<br><small>سيصلك إشعار عند بدء أي بث</small></div>`;
+}
+function renderLiveRoom(id) {
+  S.page = "liveroom"; const s = S.student, l = (S.lives || []).find(x => x.id === id); LV.cur = null;
+  const msg = (t, small) => { app.innerHTML = `${studentHeader()}<main class="wrap sec lvpg"><div class="empty">${t}${small ? `<br><small>${small}</small>` : ""}</div><p style="margin-top:16px"><a class="btn btn-line btn-sm" href="#/live">← البث المباشر</a></p></main>`; $("#lo").onclick = doLogout; lvGuard(); };
+  if (!l) return msg(S.lives.length ? "البث غير موجود" : "جاري التحميل...");
+  if (!fits(l, s)) return msg("هذا البث غير متاح لمرحلتك");
+  LV.cur = { id, st: l.status };
+  if (l.status === "ended") return msg("✅ انتهى هذا البث");
+  if (l.status !== "live") return msg("⏳ لم يبدأ البث بعد", (l.startAt ? "الموعد: " + esc(lvWhen(l)) + " — " : "") + "ستفتح الصفحة تلقائيًا عند بدء البث");
+  const wm = `${esc(s.name)} · ${esc(s.phone)}`, yt = l.kind !== "zoom";
+  app.innerHTML = `${studentHeader()}<main class="wrap sec lvpg"><div class="exam" style="max-width:980px"><div class="banner" style="margin:0 0 18px"><div><h1>🔴 ${esc(l.title)}</h1><p>${yt ? "البث يعمل داخل المنصة" : "ستنضم للحصة عبر تطبيق Zoom"}</p></div></div>
+    ${yt ? `<div class="player" id="pl"><iframe id="lvf" title="${esc(l.title)}" allow="autoplay; encrypted-media" referrerpolicy="strict-origin-when-cross-origin" sandbox="allow-scripts allow-same-origin allow-presentation"></iframe><div class="shield"></div><button class="fsbtn" id="fs" type="button">ملء الشاشة ⛶</button><div class="wm">${wm}</div><div class="wm b">${wm}</div></div>`
+      : `<div class="card xres lvz"><div class="xbig">🎥</div><b>الحصة جاهزة</b><p class="sub" style="margin:8px 0 16px">اضغط للانضمام عبر Zoom</p><button class="btn btn-fill" id="zj" type="button" disabled>جاري تجهيز الدخول...</button></div>`}
+    ${l.note ? `<p class="sub" style="margin-top:12px">${esc(l.note)}</p>` : ""}
+    <p class="alt" style="text-align:start;margin-top:14px">🔒 رابط هذا البث خاص بحسابك ولا يظهر على الصفحة. مشاركته أو تسجيل الحصة أو إرسالها لأي شخص مخالف للشروط وقد يؤدي لإيقاف الحساب.</p>
+    <p style="margin-top:14px"><a class="btn btn-line btn-sm" href="#/live">← البث المباشر</a></p></div></main>`;
+  $("#lo").onclick = doLogout; lvGuard();
+  const pl = $("#pl"); if (pl) { pl.addEventListener("contextmenu", e => e.preventDefault()); $("#fs").onclick = () => { const f = pl.requestFullscreen || pl.webkitRequestFullscreen; if (f) f.call(pl); else toast("المتصفح لا يدعم ملء الشاشة هنا", "err"); }; }
+  const fail = () => { if (S.page !== "liveroom" || LV.cur?.id !== id) return; const z = $("#zj"); if (z) z.textContent = "تعذر فتح البث الآن، أعد تحميل الصفحة"; else if (pl) pl.insertAdjacentHTML("afterend", `<div class="alert">تعذر تحميل البث الآن، أعد تحميل الصفحة</div>`); };
+  getDoc(doc(db, "liveKeys", id)).then(d => {
+    const u = d.exists() ? d.data().url : ""; if (!u) throw 0; if (S.page !== "liveroom" || LV.cur?.id !== id) return;
+    if (yt) { const y = ytId(u); if (!y) throw 0; $("#lvf").src = `https://www.youtube-nocookie.com/embed/${y}?autoplay=1&rel=0&modestbranding=1&fs=0&disablekb=1&iv_load_policy=3&playsinline=1&origin=${encodeURIComponent(location.origin)}`; }
+    else { const b = $("#zj"); b.disabled = false; b.textContent = "🎥 الانضمام إلى Zoom الآن"; b.onclick = () => { window.open(u, "_blank", "noopener,noreferrer"); }; }
+  }).catch(fail);
 }
 
 /* ---------- تقدم الطالب ---------- */
@@ -1727,7 +1779,7 @@ function renderAdminLogin() {
 function renderAdmin() {
   S.page = "admin";
   app.innerHTML = `<header class="hdr"><div class="wrap hdr-in">${brand()}<nav class="nav-a">
-    <button class="atab" data-t="overview">نظرة عامة</button><button class="atab" data-t="students">الطلاب</button><button class="atab" data-t="videos">الفيديوهات</button><button class="atab" data-t="files">الملفات</button><button class="atab" data-t="homework">الواجبات</button><button class="atab" data-t="exams">الاختبارات</button><button class="atab" data-t="grades">رصد الدرجات</button><button class="atab" data-t="certs">الشهادات</button><button class="atab" data-t="comments">التعليقات</button><button class="atab" data-t="payments">المدفوعات</button></nav>
+    <button class="atab" data-t="overview">نظرة عامة</button><button class="atab" data-t="students">الطلاب</button><button class="atab" data-t="videos">الفيديوهات</button><button class="atab" data-t="files">الملفات</button><button class="atab" data-t="homework">الواجبات</button><button class="atab" data-t="exams">الاختبارات</button><button class="atab" data-t="grades">رصد الدرجات</button><button class="atab" data-t="certs">الشهادات</button><button class="atab" data-t="comments">التعليقات</button><button class="atab" data-t="lives">📡 البث المباشر</button><button class="atab" data-t="payments">المدفوعات</button></nav>
     <button class="btn btn-line btn-sm" id="lo">خروج</button></div></header><main class="wrap sec" id="abody"></main>`;
   $("#lo").onclick = doLogout;
   $$(".atab").forEach(b => b.onclick = () => setTab(b.dataset.t));
@@ -2061,6 +2113,57 @@ function certModal() {
       for (const x of st) { const r = doc(collection(db, "certs")); await setDoc(r, { uid: x.id, name: x.name, phone: x.phone, stage: x.stage, system: x.system, grade: x.grade || "", title, reason: (f.get("reason") || "").trim(), issuedAt: f.get("issuedAt") || todayStr(), serial: "RF-" + String(new Date().getFullYear()).slice(2) + "-" + Math.floor(10000 + Math.random() * 90000), createdAt: serverTimestamp() }); n++; }
       m.remove(); toast(`تم إصدار ${n} شهادة`, "ok");
     } catch (er) { showErr(`تم إصدار ${n} فقط. الخطأ: ` + (er.code || er.message)); $("#sb", m).disabled = false; }
+  });
+}
+
+/* ---------- البث المباشر (الأدمن) ---------- */
+const lvStatus = { scheduled: ["⏳ لم يبدأ", "warn"], live: ["🔴 مباشر الآن", "bad"], ended: ["✅ انتهى", ""] };
+TABS.lives = {
+  skel: () => `<div class="toolbar"><h2 style="flex:1">البث المباشر</h2><button class="btn btn-fill" data-a="ladd">+ إضافة بث</button></div>${filterBar()}<p class="sub" style="margin-bottom:12px">الرابط لا يظهر للطلاب في الصفحة، ولا يستطيعون جلبه إلا أثناء حالة «مباشر الآن». اضغط «بدء البث» لإظهار الحصة لهم و«إنهاء» لإغلاقها.</p><div class="agrid" id="lvl"></div>`,
+  init: b => { b.onclick = liveAction; bindFilter(b); },
+  fill: b => {
+    $("#lvl", b).innerHTML = S.lives.filter(passFilter).map(l => { const st = l.status || "scheduled", [lb, lc] = lvStatus[st] || lvStatus.scheduled;
+      return `<div class="acard"><div class="fcard" style="border:0;padding:0"><div class="ficon">${l.kind === "zoom" ? "🎥" : "▶️"}</div><div class="t"><h3>${esc(l.title)}</h3><small>${l.startAt ? esc(lvWhen(l)) : "بدون موعد"}</small></div></div>
+        <div class="m"><span class="badge ${lc}">${lb}</span><span class="badge">${l.kind === "zoom" ? "Zoom" : "YouTube"}</span><span class="badge">${stageLabel(l.stage)}</span><span class="badge">${sysLabel(l.system)}</span><span class="badge good">${gradeLabel(l)}</span></div>
+        <div class="acts">${st === "live" ? `<button class="btn btn-bad btn-sm" data-a="lend" data-id="${esc(l.id)}">⏹ إنهاء البث</button><button class="btn btn-line btn-sm" data-a="lopen" data-id="${esc(l.id)}">فتح الرابط</button>` : `<button class="btn btn-fill btn-sm" data-a="lgo" data-id="${esc(l.id)}">▶ ${st === "ended" ? "إعادة فتح البث" : "بدء البث"}</button>`}<button class="btn btn-line btn-sm" data-a="ledit" data-id="${esc(l.id)}">تعديل</button><button class="btn btn-bad btn-sm" data-a="ldel" data-id="${esc(l.id)}">حذف</button></div></div>`; }).join("") || `<div class="empty">لا توجد بثوث بعد — اضغط «إضافة بث»</div>`;
+  }
+};
+async function liveAction(e) {
+  const btn = e.target.closest("[data-a]"); if (!btn || btn.tagName === "A") return; const a = btn.dataset.a, id = btn.dataset.id, l = S.lives.find(x => x.id === id);
+  try {
+    if (a === "ladd") return liveModal();
+    if (a === "ledit") return liveModal(l);
+    if (a === "lgo") { await updateDoc(doc(db, "lives", id), { status: "live", liveAt: Date.now() }); toast("بدأ البث وظهر للطلاب", "ok"); }
+    if (a === "lend") { if (!confirm("إنهاء البث؟ لن يستطيع الطلاب الدخول بعدها.")) return; await updateDoc(doc(db, "lives", id), { status: "ended" }); toast("تم إنهاء البث", "ok"); }
+    if (a === "lopen") { const d = await getDoc(doc(db, "liveKeys", id)); const u = d.exists() ? d.data().url : ""; if (u) window.open(u, "_blank", "noopener"); else toast("لا يوجد رابط", "err"); }
+    if (a === "ldel") { if (!l || !confirm(`حذف البث "${l.title}"؟`)) return; await deleteDoc(doc(db, "liveKeys", id)); await deleteDoc(doc(db, "lives", id)); toast("تم الحذف", "ok"); }
+  } catch (er) { toast("فشلت العملية: " + (er.code || er.message), "err"); }
+}
+function liveModal(l) {
+  const m = openModal(`<h2>${l ? "تعديل بث" : "إضافة بث مباشر"}</h2><div class="alert" id="err" hidden></div>
+    <form id="lf" novalidate><label class="fl">عنوان البث<input name="title" maxlength="120" value="${esc(l?.title)}"></label>
+    <label class="fl">رابط البث (Zoom أو YouTube)<input name="url" id="lurl" dir="ltr" placeholder="https://zoom.us/j/... أو https://youtube.com/live/..."></label>${targetFields(l)}
+    <label class="fl">موعد البث<input type="datetime-local" name="startAt" value="${esc(l?.startAt)}"></label>
+    <label class="fl">ملاحظة للطلاب (اختياري)<textarea name="note" maxlength="300">${esc(l?.note)}</textarea></label>
+    <p class="sub" style="font-size:.84rem">الرابط محفوظ بشكل منفصل ولا يصل للطلاب إلا بعد ضغطك «بدء البث». نصيحة: فعّل كلمة المرور وغرفة الانتظار في Zoom لحماية أكبر.</p>
+    <div class="mact"><button class="btn btn-fill" id="sb">حفظ</button><button type="button" class="btn btn-line" data-close>إلغاء</button></div></form>`);
+  const form = $("#lf", m); bindTarget(form, l);
+  if (l) getDoc(doc(db, "liveKeys", l.id)).then(d => { if (d.exists()) $("#lurl", m).value = d.data().url || ""; }).catch(() => {});
+  form.addEventListener("submit", async e => {
+    e.preventDefault(); showErr(""); const f = new FormData(form), title = (f.get("title") || "").trim(), raw = (f.get("url") || "").trim();
+    if (!title) return showErr("اكتب عنوان البث");
+    let u; try { u = new URL(raw); } catch { return showErr("الرابط غير صحيح"); }
+    if (u.protocol !== "https:") return showErr("الرابط يجب أن يبدأ بـ https://");
+    const h = u.hostname.toLowerCase(), yt = /(^|\.)(youtu\.be|youtube\.com)$/.test(h), zm = /(^|\.)zoom(gov)?\.(us|com)$/.test(h);
+    if (!yt && !zm) return showErr("الرابط لازم يكون من Zoom أو YouTube فقط");
+    if (yt && !ytId(raw)) return showErr("رابط يوتيوب غير صحيح");
+    const data = { title, kind: yt ? "youtube" : "zoom", stage: f.get("stage"), system: f.get("system"), grade: f.get("grade") || "all", startAt: f.get("startAt") || "", note: (f.get("note") || "").trim() };
+    $("#sb", m).disabled = true;
+    try {
+      const r = l ? doc(db, "lives", l.id) : doc(collection(db, "lives"));
+      if (l) await updateDoc(r, data); else await setDoc(r, { ...data, status: "scheduled", createdAt: serverTimestamp() });
+      await setDoc(doc(db, "liveKeys", r.id), { url: raw }); m.remove(); toast("تم حفظ البث", "ok");
+    } catch (er) { showErr("فشل الحفظ: " + (er.code || er.message)); $("#sb", m).disabled = false; }
   });
 }
 
