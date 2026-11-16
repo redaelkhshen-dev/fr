@@ -158,8 +158,18 @@ input[dir=ltr]{text-align:left}
 .qo{display:flex;gap:8px;align-items:center;margin-top:8px}.qo .qc{width:18px;height:18px;flex:none;accent-color:var(--accent)}.qo .qopt{flex:1}
 /* ===== الشهادات ===== */
 .certs{display:grid;grid-template-columns:repeat(auto-fill,300px);gap:20px;margin-top:22px;justify-content:center}
+.cwrap{grid-column:1/-1;display:flex;flex-direction:column;align-items:center;gap:24px;width:100%;padding:8px 0 10px}
+.chead{text-align:center}.cmed{width:78px;height:78px;border-radius:50%;display:grid;place-items:center;margin:0 auto 12px;background:linear-gradient(135deg,var(--accent-2),var(--accent));color:#1a1405;box-shadow:0 0 0 7px rgba(212,167,58,.14),0 12px 32px rgba(212,167,58,.35);animation:cmed 3s ease-in-out infinite}.cmed.dim{background:var(--card);color:var(--accent-text);box-shadow:0 0 0 1px var(--line);animation:none}
+@keyframes cmed{50%{box-shadow:0 0 0 12px rgba(212,167,58,.06),0 14px 36px rgba(212,167,58,.45)}}
+.chead h2{margin:0;font:800 1.6rem var(--fd);background:linear-gradient(90deg,var(--accent-2),var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent}.chead p{margin:6px 0 0;color:var(--muted)}
+.cgrid{display:flex;flex-wrap:wrap;justify-content:center;gap:24px;width:100%}
+.cthumb{position:relative;transition:transform .2s,box-shadow .2s,border-color .2s}.cthumb:hover{transform:translateY(-4px);border-color:var(--accent);box-shadow:0 16px 40px rgba(0,0,0,.35)}
+.cthumb.lg{width:min(600px,100%);border-radius:20px;border-color:rgba(212,167,58,.45);background:linear-gradient(180deg,var(--card),var(--bg2));box-shadow:0 10px 34px rgba(0,0,0,.3)}
+.cribbon{position:absolute;z-index:2;top:12px;inset-inline-end:12px;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent-2),var(--accent));color:#1a1405;box-shadow:0 6px 16px rgba(0,0,0,.35)}
+.cact{display:flex;gap:10px;margin-top:14px}.cact .btn{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap}
+.cinfo small{display:inline-flex;align-items:center;gap:6px}.cthumb.lg .cinfo{padding:18px 20px 20px;text-align:center}.cthumb.lg .cinfo h3{font-size:1.25rem;margin:0 0 4px}.cthumb.lg .cact .btn{min-height:46px;font-size:1rem}
 .cthumb{width:300px;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--card)}
-.cprev{position:relative;width:100%;aspect-ratio:1.414;overflow:hidden;background:#fbf7ec}.cprev .cert{position:absolute;top:0;inset-inline-start:0;width:900px;transform-origin:top right;transform:scale(.3334)}
+.cprev{position:relative;width:100%;aspect-ratio:1.414;overflow:hidden;background:#fbf7ec}.cprev .cert{position:absolute;top:0;inset-inline-start:0;width:900px;transform-origin:top right;transform:scale(var(--sc,.3334))}
 .cinfo{padding:14px 16px}.cinfo small{color:var(--muted)}
 .cert{width:900px;aspect-ratio:1.414;background:#fffdf5;color:#2a2310;padding:22px;direction:rtl;font-family:var(--fd);box-sizing:border-box}
 .cert-in{position:relative;height:100%;border:3px double #b8862b;outline:1px solid #d4a73a;outline-offset:-10px;padding:26px 50px;text-align:center;display:flex;flex-direction:column;align-items:center;background:radial-gradient(70% 60% at 50% 40%,#fffbe8,#fffdf5)}
@@ -1388,7 +1398,7 @@ function fillHome() {
   } else if (H.tab === "live") {
     list.innerHTML = liveCardsHTML();
   } else if (H.tab === "certs") {
-    list.innerHTML = myCerts().map(certThumb).join("") || `<div class="empty">لا توجد شهادات بعد — اجتهد وستصلك شهادة تقدير 🌟</div>`;
+    { const cs = myCerts(); list.innerHTML = cs.length ? `<div class="cwrap"><div class="chead"><span class="cmed">${ico(ST_IC.certs, 38)}</span><h2>شهاداتي</h2><p>${cs.length} ${cs.length === 1 ? "شهادة تقدير" : "شهادات تقدير"} — فخورون بتميّزك ✨</p></div><div class="cgrid">${cs.map(c => certThumb(c, true)).join("")}</div></div>` : "";  if (cs.length) fitCerts(list); } if (!list.innerHTML) list.innerHTML = `<div class="cwrap"><div class="chead"><span class="cmed dim">${ico(ST_IC.certs, 38)}</span><h2>لا توجد شهادات بعد</h2><p>اجتهد في الدروس والاختبارات وستصلك شهادة تقدير 🌟</p></div></div>`;
   } else if (H.tab === "exams") {
     const xs = visible(S.exams).filter(examOpen).filter(m);
     list.innerHTML = xs.length ? xs.map(examCard).join("") : `<div class="empty">لا توجد اختبارات لمرحلتك حاليًا</div>`;
@@ -1747,7 +1757,11 @@ function openCert(c) {
   ov.addEventListener("click", e => { const b = e.target.closest("[data-cp]"); if (!b) { if (e.target === ov) ov.remove(); return; } if (b.dataset.cp === "close") ov.remove(); else downloadCert(c, b); });
   document.body.appendChild(ov);
 }
-const certThumb = c => `<div class="cthumb"><div class="cprev">${certHTML(c)}</div><div class="cinfo"><h3>${esc(c.title)}</h3><small>${esc(certDate(c))}</small><div style="margin-top:10px"><button class="btn btn-fill btn-sm" data-cv="${esc(c.id)}">عرض</button> <button class="btn btn-line btn-sm" data-cd="${esc(c.id)}" title="تحميل الشهادة" aria-label="تحميل الشهادة">⬇ تحميل</button></div></div></div>`;
+const ico = (d, z = 18) => `<svg viewBox="0 0 24 24" width="${z}" height="${z}" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+const I_EYE = '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>', I_DL = '<path d="M12 4v11"/><path d="m7.5 11 4.5 4.5 4.5-4.5"/><path d="M4 20h16"/>', I_CAL = '<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>';
+const certThumb = (c, lg) => `<div class="cthumb ${lg === true ? "lg" : ""}">${lg === true ? `<span class="cribbon">${ico(ST_IC.certs, 22)}</span>` : ""}<div class="cprev">${certHTML(c)}</div><div class="cinfo"><h3>${lg === true ? "" : ""}${esc(c.title)}</h3><small>${ico(I_CAL, 15)} ${esc(certDate(c))}</small><div class="cact"><button class="btn btn-fill btn-sm" data-cv="${esc(c.id)}">${ico(I_EYE)} عرض الشهادة</button><button class="btn btn-line btn-sm" data-cd="${esc(c.id)}" title="تحميل الشهادة" aria-label="تحميل الشهادة">${ico(I_DL)} تحميل</button></div></div></div>`;
+function fitCerts(root) { $$(".cprev", root || document).forEach(pv => { const sc = pv.clientWidth / 900; if (sc > 0) pv.style.setProperty("--sc", sc.toFixed(4)); }); }
+addEventListener("resize", () => fitCerts());
 const myCerts = () => [...S.certs].sort((a, b) => (b.issuedAt || "").localeCompare(a.issuedAt || ""));
 function renderCerts() {
   S.page = "certs";
