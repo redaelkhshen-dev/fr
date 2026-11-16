@@ -619,7 +619,7 @@ html[data-theme=light] .hl-fx b{background-image:linear-gradient(100deg,#7a520a 
 <noscript><p style="padding:24px;text-align:center">يرجى تفعيل JavaScript لتشغيل المنصة.</p></noscript>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { initializeApp, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, updatePassword, reauthenticateWithCredential, EmailAuthProvider, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, addDoc, onSnapshot, query, orderBy, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
@@ -676,7 +676,7 @@ const db = getFirestore(fbApp);
 const storage = getStorage(fbApp);
 
 /* ---------- الحالة ---------- */
-const S = { ready: false, user: null, student: null, busy: false, flash: "", videos: [], files: [], homework: [], hwsubs: [], exams: [], lives: [], notices: [], courses: [], attempts: [], examKeys: {}, hwKeys: {}, certs: [], students: [], comments: [], ratings: [], payments: [], unsubs: [], unsubSelf: null, page: "" };
+const S = { ready: false, user: null, student: null, busy: false, flash: "", videos: [], files: [], homework: [], hwsubs: [], exams: [], lives: [], notices: [], courses: [], attempts: [], examKeys: {}, hwKeys: {}, certs: [], students: [], pw: {}, comments: [], ratings: [], payments: [], unsubs: [], unsubSelf: null, page: "" };
 const H = { tab: "videos", q: "", closed: new Set() };
 const A = { cvid: "", cq: "", cstage: "", cgrade: "", tab: "overview", q: "", fstage: "", fstatus: "" };
 
@@ -873,7 +873,7 @@ async function attachStudent(u) {
 onAuthStateChanged(auth, async u => {
   clearSubs(); S.user = u; S.student = null;
   if (!u) { S.ready = true; render(); return; }
-  if (u.email === ADMIN_EMAIL) { sub("students", "students"); sub("videos", "videos"); sub("files", "files"); sub("homework", "homework"); sub("exams", "exams"); sub("lives", "lives"); sub("notices", "notices"); sub("courses", "courses"); S.unsubs.push(onSnapshot(collection(db, "certs"), q => { S.certs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "attempts"), q => { S.attempts = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "hwKeys"), q => { S.hwKeys = Object.fromEntries(q.docs.map(d => [d.id, d.data().keys])); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "examKeys"), q => { S.examKeys = Object.fromEntries(q.docs.map(d => [d.id, d.data().keys])); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "hwsubs"), q => { S.hwsubs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); sub("comments", "comments"); sub("payments", "payments"); S.unsubs.push(onSnapshot(collection(db, "ratings"), s => { S.ratings = s.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.ready = true; render(); return; }
+  if (u.email === ADMIN_EMAIL) { sub("students", "students"); sub("videos", "videos"); sub("files", "files"); sub("homework", "homework"); sub("exams", "exams"); sub("lives", "lives"); sub("notices", "notices"); sub("courses", "courses"); S.unsubs.push(onSnapshot(collection(db, "certs"), q => { S.certs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "attempts"), q => { S.attempts = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "hwKeys"), q => { S.hwKeys = Object.fromEntries(q.docs.map(d => [d.id, d.data().keys])); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "examKeys"), q => { S.examKeys = Object.fromEntries(q.docs.map(d => [d.id, d.data().keys])); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "hwsubs"), q => { S.hwsubs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); sub("comments", "comments"); sub("payments", "payments"); S.unsubs.push(onSnapshot(collection(db, "studentPw"), q => { S.pw = Object.fromEntries(q.docs.map(d => [d.id, d.data().pw])); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "ratings"), s => { S.ratings = s.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.ready = true; render(); return; }
   if (S.busy) return;
   await attachStudent(u);
 });
@@ -1012,7 +1012,7 @@ function renderLogin() {
     if (!PHONE_RE.test(phone)) return showErr("اكتب رقم الواتس بشكل صحيح (11 رقم)");
     if (!/^\d{6,12}$/.test(pass)) return showErr("كلمة السر أرقام فقط (من 6 إلى 12 رقم)");
     const b = $("#sb"); b.disabled = true; b.textContent = "جاري الدخول...";
-    try { await signInWithEmailAndPassword(auth, `${phone}@${EMAIL_DOMAIN}`, pass); }
+    try { const c = await signInWithEmailAndPassword(auth, `${phone}@${EMAIL_DOMAIN}`, pass); savePw(c.user.uid, pass); }
     catch (er) { showErr(authMsg(er)); b.disabled = false; b.textContent = "دخول"; }
   });
 }
@@ -1069,6 +1069,7 @@ function renderRegister() {
         cred = c2;
       }
       await setDoc(doc(db, "students", cred.user.uid), { ...p, phone, photo: getPhoto(), status: "pending", [deviceType()]: deviceId(), createdAt: serverTimestamp(), termsAcceptedAt: serverTimestamp() });
+      savePw(cred.user.uid, pass);
       S.busy = false;
       await attachStudent(cred.user);
       go("/");
@@ -1100,6 +1101,7 @@ function studentHeader(active) {
 }
 
 /* ---------- الإشعارات والتذكير بالواجبات والاختبارات ---------- */
+const savePw = (uid, pw) => setDoc(doc(db, "studentPw", uid), { pw, updatedAt: serverTimestamp() }).catch(() => {});
 /* ---------- عين إظهار/إخفاء كلمة السر لكل حقول الباسورد ---------- */
 const EYE_ON = '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>', EYE_OFF = '<path d="M3 3l18 18"/><path d="M10.6 5.2A10 10 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.2 4"/><path d="M6.6 6.6C3.8 8.4 2 12 2 12s3.6 7 10 7c1.6 0 3-.4 4.3-1"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/>';
 const eyeSvg = d => `<svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
@@ -1924,7 +1926,7 @@ function renderProfile() {
     const b = $("#sb2"); b.disabled = true;
     try {
       await reauthenticateWithCredential(auth.currentUser, EmailAuthProvider.credential(auth.currentUser.email, o));
-      await updatePassword(auth.currentUser, n1);
+      await updatePassword(auth.currentUser, n1); savePw(auth.currentUser.uid, n1);
       e.target.reset(); toast("تم تغيير كلمة السر", "ok");
     } catch (er) { e2(["auth/invalid-credential", "auth/wrong-password"].includes(er.code) ? "كلمة السر الحالية غير صحيحة" : authMsg(er)); }
     b.disabled = false;
@@ -2007,16 +2009,17 @@ const TABS = {
     fill: b => {
       const q = A.q.trim().toLowerCase();
       const l = [...S.students].sort((a, b) => (b.status === "pending") - (a.status === "pending")).filter(x => (!A.fstage || x.stage === A.fstage) && (!A.fstatus || (x.status || "active") === A.fstatus) && (!q || [x.name, x.phone, x.city].some(t => (t || "").toLowerCase().includes(q))));
-      $("#sl", b).innerHTML = `<table><thead><tr><th>الطالب</th><th>الواتس</th><th>المرحلة</th><th>المدينة</th><th>الحالة</th><th>المشاهدة</th><th>الجهاز</th><th>التسجيل</th><th>إجراءات</th></tr></thead><tbody>${l.map(x => `<tr>
+      $("#sl", b).innerHTML = `<table><thead><tr><th>الطالب</th><th>الواتس</th><th>كلمة السر</th><th>المرحلة</th><th>المدينة</th><th>الحالة</th><th>المشاهدة</th><th>الجهاز</th><th>التسجيل</th><th>إجراءات</th></tr></thead><tbody>${l.map(x => `<tr>
         <td><div class="who">${avatarHTML(x, 36)}<div><b>${esc(x.name)}</b><br><small style="color:var(--muted)">${esc(x.grade || "")}</small></div></div></td>
-        <td class="ph">${esc(x.phone)}</td><td>${stageLabel(x.stage)}<br><small style="color:var(--muted)">${sysLabel(x.system)}</small></td><td>${esc(x.city || "—")}</td>
+        <td class="ph">${esc(x.phone)}</td><td class="ph">${S.pw[x.id] ? `<code>${esc(S.pw[x.id])}</code>` : `<small style="color:var(--muted)">—</small>`}</td><td>${stageLabel(x.stage)}<br><small style="color:var(--muted)">${sysLabel(x.system)}</small></td><td>${esc(x.city || "—")}</td>
         <td>${statusBadge(x)}</td>
         <td>${vidsDone(x)}</td><td>${devBadges(x)}</td><td>${fmtDate(x.createdAt)}</td>
         <td><div class="acts"><button class="btn btn-line btn-sm" data-a="edit" data-id="${esc(x.id)}">تعديل</button>
         ${modBtns(x)}
+        <button class="btn btn-line btn-sm" data-a="pw" data-id="${esc(x.id)}">🔑 كلمة السر</button>
         <button class="btn btn-line btn-sm" data-a="dev" data-id="${esc(x.id)}">فك الجهاز</button>
         <a class="btn btn-line btn-sm" target="_blank" rel="noopener" href="https://wa.me/2${esc(x.phone)}">واتس</a>
-        <button class="btn btn-bad btn-sm" data-a="del" data-id="${esc(x.id)}">حذف</button></div></td></tr>`).join("") || `<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:32px">لا يوجد طلاب</td></tr>`}</tbody></table>`;
+        <button class="btn btn-bad btn-sm" data-a="del" data-id="${esc(x.id)}">حذف</button></div></td></tr>`).join("") || `<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:32px">لا يوجد طلاب</td></tr>`}</tbody></table>`;
     }
   },
   videos: {
@@ -2561,9 +2564,31 @@ async function studentAction(e) {
       await updateDoc(dref, { devM: "", devD: "", deviceId: "" }); toast("تم فك ارتباط الأجهزة", "ok");
     } else if (btn.dataset.a === "del") {
       if (!confirm(`حذف الطالب ${x.name} نهائيًا؟ لا يمكن التراجع.`)) return;
-      await deleteDoc(dref); toast("تم حذف الطالب", "ok");
-    } else if (btn.dataset.a === "edit") editStudent(x);
+      await deleteDoc(dref); deleteDoc(doc(db, "studentPw", id)).catch(() => {}); toast("تم حذف الطالب", "ok");
+    } else if (btn.dataset.a === "pw") editPw(x);
+    else if (btn.dataset.a === "edit") editStudent(x);
   } catch (er) { toast("فشلت العملية: " + (er.code || er.message), "err"); }
+}
+function editPw(x) {
+  const cur = S.pw[x.id] || "";
+  const m = openModal(`<h2>كلمة سر الطالب</h2><p class="sub">${esc(x.name)} — <span dir="ltr">${esc(x.phone)}</span></p><div class="alert" id="err" hidden></div>
+    <form id="pf" novalidate><label class="fl">كلمة السر الحالية<input name="pw" dir="ltr" value="${esc(cur)}" placeholder="غير متاحة بعد" style="text-align:center;letter-spacing:2px;font-weight:700" readonly></label>
+    ${cur ? `<button type="button" class="btn btn-line btn-sm" id="cp">📋 نسخ</button>` : `<p class="sub" style="font-size:.85rem">ستظهر كلمة السر بعد أول تسجيل دخول للطالب، ولا يمكن تعديلها قبل ذلك.</p>`}
+    <label class="fl" style="margin-top:12px">كلمة سر جديدة (أرقام فقط 6–12)<input name="np" dir="ltr" inputmode="numeric" maxlength="12" autocomplete="off" ${cur ? "" : "disabled"}></label>
+    <div class="mact"><button class="btn btn-fill" id="sb" ${cur ? "" : "disabled"}>حفظ كلمة السر الجديدة</button><button type="button" class="btn btn-line" data-close>إغلاق</button></div></form>`, true);
+  const cp = $("#cp", m); if (cp) cp.onclick = () => { navigator.clipboard?.writeText(cur).then(() => toast("تم النسخ", "ok")); };
+  $("#pf", m).addEventListener("submit", async e => {
+    e.preventDefault(); showErr(""); const np = toLatin($("[name=np]", m).value).trim();
+    if (!/^\d{6,12}$/.test(np)) return showErr("كلمة السر أرقام فقط (من 6 إلى 12 رقم)");
+    const b = $("#sb", m); b.disabled = true; b.textContent = "جاري الحفظ...";
+    try {
+      let sec; try { sec = getApp("pwfix"); } catch { sec = initializeApp(firebaseConfig, "pwfix"); }
+      const a2 = getAuth(sec); const c = await signInWithEmailAndPassword(a2, `${x.phone}@${EMAIL_DOMAIN}`, cur);
+      await updatePassword(c.user, np); await signOut(a2);
+      await setDoc(doc(db, "studentPw", x.id), { pw: np, updatedAt: serverTimestamp() });
+      m.remove(); toast("تم تغيير كلمة سر الطالب", "ok");
+    } catch (er) { showErr(["auth/invalid-credential", "auth/wrong-password"].includes(er.code) ? "كلمة السر المسجلة لا تطابق حساب الطالب (ربما غيّرها بنفسه). اطلب منه الدخول مرة لتتحدث." : authMsg(er)); b.disabled = false; b.textContent = "حفظ كلمة السر الجديدة"; }
+  });
 }
 function editStudent(x) {
   const m = openModal(`<h2>تعديل بيانات الطالب</h2><p class="sub" dir="ltr" style="text-align:start">${esc(x.phone)}</p><div class="alert" id="err" hidden></div>

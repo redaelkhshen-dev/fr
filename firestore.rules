@@ -36,6 +36,13 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // كلمة سر الطالب (لعرضها للمدرس): الطالب يكتب كلمته فقط، والمدرس يقرأ ويكتب
+    match /studentPw/{uid} {
+      allow read, delete: if isAdmin();
+      allow create, update: if isAdmin() || (request.auth != null && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['pw','updatedAt']) && request.resource.data.pw is string && request.resource.data.pw.size() <= 12);
+    }
+
     match /videos/{id} {
       allow read: if isAdmin() || isActiveStudent();
       allow write: if isAdmin();
