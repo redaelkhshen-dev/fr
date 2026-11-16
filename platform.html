@@ -243,7 +243,11 @@ tr:last-child td{border-bottom:0}
 
 /* ===== v2: portfolio-style design ===== */
 section[id]{scroll-margin-top:84px}
-.pnav{display:flex;align-items:center;gap:28px}
+.pnav{display:flex;align-items:center;gap:28px}.pnav.sn{gap:6px}
+.pnav a.pn{display:flex;align-items:center;gap:8px;padding:8px 16px;border:1px solid transparent;border-radius:999px;color:var(--muted);font:600 .94rem var(--fb);transition:background .18s,color .18s,border-color .18s,transform .18s}
+.pnav a.pn svg{flex:none;width:19px;height:19px}.pnav a.pn:hover{color:var(--fg);background:var(--soft)}.pnav a.pn.on{color:var(--accent-text);background:var(--soft);border-color:rgba(212,167,58,.45)}
+@media(max-width:820px){.pnav.sn{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;overflow:visible;padding-bottom:10px}.pnav a.pn{flex-direction:column;gap:4px;padding:9px 4px 8px;border-radius:14px;border-color:var(--line);background:var(--card);font-size:.8rem;text-align:center}.pnav a.pn svg{width:22px;height:22px}.pnav a.pn.on{background:linear-gradient(135deg,var(--accent-2),var(--accent));border-color:var(--accent);color:#1a1405;box-shadow:0 4px 14px rgba(212,167,58,.28)}.pnav a.pn:active{transform:scale(.95)}}
+
 .pnav button,.pnav a{white-space:nowrap;background:none;border:0;color:var(--muted);font:500 .95rem var(--fb);cursor:pointer;padding:8px 0;transition:color .15s}
 .pnav button:hover,.pnav a:hover{color:var(--fg)}
 .eyebrow{display:inline-block;font:600 .8rem var(--fd);letter-spacing:.04em;color:var(--accent-text);background:var(--soft);border-radius:6px;padding:2px 12px}
@@ -378,7 +382,7 @@ html[data-theme=light] .hl-fx b{background-image:linear-gradient(100deg,#7a520a 
 .pts{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px}
 .aform{display:grid;place-items:center;padding:28px 16px;background:var(--bg)}
 @media(max-width:900px){.hero-grid,.abt,.ctab,.shero-in{grid-template-columns:1fr}.hero-visual{order:-1;width:min(100%,320px)}.shero .sv{order:-1}.carte{inset-inline-end:-10px}.skills,.pcards,.why{grid-template-columns:1fr 1fr}.steps{grid-template-columns:1fr}.band{padding-block:56px}.bgphoto{width:100%;-webkit-mask-image:linear-gradient(to bottom,#000 25%,transparent 95%);mask-image:linear-gradient(to bottom,#000 25%,transparent 95%)}.bgphoto i{opacity:.15}.authx{grid-template-columns:1fr}.aside{display:none}}
-@media(max-width:820px){.pnav{order:3;width:100%;overflow-x:auto;gap:22px;scrollbar-width:none}}@media(max-width:560px){.pnav{gap:6px;justify-content:space-between}.pnav a{font-size:.84rem!important}.pnav .ldot{width:7px;height:7px;margin-inline-start:3px}}
+@media(max-width:820px){.pnav{order:3;width:100%;overflow-x:auto;gap:22px;scrollbar-width:none}}
 @media(max-width:820px){.hdr-r.st{order:2;width:100%;display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:10px}.hdr-r.st>*{height:44px;min-width:0;display:flex;align-items:center;justify-content:center;border-radius:14px;margin:0}.hdr-r.st .tbtn{width:100%;border-radius:14px}.hdr-r.st .chipuser{padding:0;max-width:none;width:100%}.hdr-r.st .chipuser .n{display:none}.hdr-r.st .btn{padding:0 8px;font-size:.9rem}.hdr-r.st .tbtn.bell .pbadge{top:2px;inset-inline-end:calc(50% - 22px)}}
 @media(max-width:600px){.skills,.pcards,.why,.socials{grid-template-columns:1fr}.carte{position:static;width:100%;margin-top:20px}.hero-visual{width:min(100%,280px)}.hero-visual .carte{width:min(100vw - 32px,320px)}.ls{padding:18px 12px;gap:10px}.ls-v{font-size:1.15rem}.disc.sm{width:170px}}
 @media(prefers-reduced-motion:reduce){.disc,.dots,.bgphoto i,.disc::before{animation:none!important}}
@@ -1020,9 +1024,19 @@ function renderRegister() {
 }
 
 /* ---------- هيدر الطالب ---------- */
+const PN_IC = {
+  home: '<path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-5h4v5h4a1 1 0 0 0 1-1v-9"/>',
+  activity: '<path d="M3 12h4l3-8 4 16 3-8h4"/>',
+  profile: '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.2 3.6-7 8-7s8 2.8 8 7"/>',
+  pay: '<rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19"/><path d="M6.5 15h4"/>'
+};
+function pnavHTML() {
+  const h = location.hash.replace(/^#/, "") || "/", cur = h.startsWith("/activity") ? "activity" : h.startsWith("/profile") ? "profile" : h.startsWith("/pay") ? "pay" : "home";
+  return [["home", "#/", "الرئيسية"], ["activity", "#/activity", "نشاطي"], ["profile", "#/profile", "بياناتي"], ["pay", "#/pay", "الدفع"]].map(([k, href, t]) => `<a class="pn ${cur === k ? "on" : ""}" href="${href}" ${cur === k ? 'aria-current="page"' : ""}><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${PN_IC[k]}</svg><span>${t}</span></a>`).join("");
+}
 function studentHeader(active) {
   const s = S.student;
-  return `<header class="hdr"><div class="wrap hdr-in">${brand(true)}<nav class="pnav" aria-label="التنقل"><a href="#/">الرئيسية</a><a href="#/activity">نشاطي</a><a href="#/profile">بياناتي</a><a href="#/pay">💳 الدفع</a></nav><div class="hdr-r st">${bellBtn()}${themeBtn()}
+  return `<header class="hdr"><div class="wrap hdr-in">${brand(true)}<nav class="pnav sn" aria-label="التنقل">${pnavHTML()}</nav><div class="hdr-r st">${bellBtn()}${themeBtn()}
     <a class="chipuser" href="#/profile" aria-label="بياناتي">${avatarHTML(s, 34)}<span class="n">${esc(s.name)}</span></a>
     <button class="btn btn-line btn-sm" id="lo">خروج</button></div></div></header>`;
 }
