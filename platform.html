@@ -829,7 +829,7 @@ function render() {
   if (S.user && S.student) {
     if (S.student.status !== "active") return renderPending();
     if (route === "/pay") return renderPay();
-    if (route === "/live") return renderLive();
+    if (route === "/live") { H.tab = "live"; H.tabMoved = true; return go("/"); }
     if (route.startsWith("/live/")) return renderLiveRoom(route.slice(6));
     if (route === "/certs") return renderCerts();
     if (route === "/activity") return renderActivity();
@@ -1022,7 +1022,7 @@ function renderRegister() {
 /* ---------- هيدر الطالب ---------- */
 function studentHeader(active) {
   const s = S.student;
-  return `<header class="hdr"><div class="wrap hdr-in">${brand(true)}<nav class="pnav" aria-label="التنقل"><a href="#/">الرئيسية</a><a href="#/activity">نشاطي</a><a href="#/profile">بياناتي</a><a href="#/live" class="lvn">📡 بث مباشر<i class="ldot" ${liveNow().length ? "" : "hidden"}></i></a><a href="#/pay">💳 الدفع</a></nav><div class="hdr-r st">${bellBtn()}${themeBtn()}
+  return `<header class="hdr"><div class="wrap hdr-in">${brand(true)}<nav class="pnav" aria-label="التنقل"><a href="#/">الرئيسية</a><a href="#/activity">نشاطي</a><a href="#/profile">بياناتي</a><a href="#/pay">💳 الدفع</a></nav><div class="hdr-r st">${bellBtn()}${themeBtn()}
     <a class="chipuser" href="#/profile" aria-label="بياناتي">${avatarHTML(s, 34)}<span class="n">${esc(s.name)}</span></a>
     <button class="btn btn-line btn-sm" id="lo">خروج</button></div></div></header>`;
 }
@@ -1095,14 +1095,15 @@ function renderLive() {
   app.innerHTML = `${studentHeader()}<main class="wrap sec lvpg"><div class="exam"><div class="banner" style="margin:0 0 18px"><div><h1>📡 البث المباشر</h1><p>حصص أونلاين مع مسيو رضا — يظهر زر الانضمام عند بدء البث</p></div></div><div id="ll"></div></div></main>`;
   $("#lo").onclick = doLogout; lvGuard(); paintLive();
 }
-function paintLive() {
-  const box = $("#ll"); if (!box) return;
+function liveCardsHTML() {
   const ls = visible(S.lives || []), rank = { live: 0, scheduled: 1, ended: 2 };
   const l = [...ls].sort((a, b) => (rank[a.status] ?? 1) - (rank[b.status] ?? 1) || (a.status === "ended" ? String(b.startAt).localeCompare(String(a.startAt)) : String(a.startAt).localeCompare(String(b.startAt)))).filter((x, i, arr) => x.status !== "ended" || arr.filter(y => y.status === "ended").indexOf(x) < 4);
-  box.innerHTML = l.length ? l.map(x => { const st = x.status || "scheduled";
+  return l.length ? l.map(x => { const st = x.status || "scheduled";
     return `<div class="fcard hw lv ${st}"><div class="ficon">${st === "live" ? "🔴" : st === "ended" ? "✅" : "⏳"}</div><div class="t"><h3>${esc(x.title)}</h3><div class="m" style="margin-top:6px"><span class="badge ${st === "live" ? "bad" : st === "ended" ? "" : "warn"}">${st === "live" ? "🔴 مباشر الآن" : st === "ended" ? "انتهى" : "لم يبدأ بعد"}</span><span class="badge">${x.kind === "zoom" ? "Zoom" : "YouTube"}</span>${x.startAt ? `<span class="badge">📅 ${esc(lvWhen(x))}</span>` : ""}</div>${x.note ? `<p class="sub" style="margin-top:8px">${esc(x.note)}</p>` : ""}</div>
       <div class="hwa">${st === "live" ? `<a class="btn btn-fill btn-sm" href="#/live/${esc(x.id)}">انضم الآن</a>` : ""}</div></div>`; }).join("") : `<div class="empty">لا توجد حصص بث مباشر حاليًا 📡<br><small>سيصلك إشعار عند بدء أي بث</small></div>`;
 }
+function paintLive() { const box = $("#ll"); if (box) box.innerHTML = liveCardsHTML(); }
+
 function renderLiveRoom(id) {
   S.page = "liveroom"; const s = S.student, l = (S.lives || []).find(x => x.id === id); LV.cur = null;
   const msg = (t, small) => { app.innerHTML = `${studentHeader()}<main class="wrap sec lvpg"><div class="empty">${t}${small ? `<br><small>${small}</small>` : ""}</div><p style="margin-top:16px"><a class="btn btn-line btn-sm" href="#/live">← البث المباشر</a></p></main>`; $("#lo").onclick = doLogout; lvGuard(); };
@@ -1201,7 +1202,7 @@ function renderHome() {
       <h1>أهلًا يا <span class="hl">${esc(s.name.split(" ")[0])}</span> 👋</h1><p class="lead">${esc(s.grade)} — جاهز تكمل رحلتك مع الفرنسية؟</p>
       <div class="mini"><div><b id="cv">0</b><span>فيديو متاح</span></div><div><b id="cf">0</b><span>ملف متاح</span></div><div><b>${SYSTEMS[s.system]}</b><span>${STAGES[s.stage]}</span></div></div><div class="ovp"><div class="pbar-top"><span id="ovt">تقدمك العام</span><b id="ovn">0%</b></div><div class="pbar-track"><i id="ovf"></i></div></div></div>
       <div class="sv"><div class="disc sm">${avatarHTML(s, 200)}</div></div></div></section><main class="wrap">
-    <div class="tabs"><div class="trow"><button class="tab" data-t="videos">🎬 الفيديوهات</button><button class="tab" data-t="files">📄 الملفات</button><button class="tab" data-t="hw" id="tabhw">📝 الواجبات</button><button class="tab" data-t="exams" id="tabex">📋 الاختبارات</button><button class="tab" data-t="certs" id="tabce">🏅 شهاداتي</button></div><input class="srch" id="q" placeholder="ابحث..." value="${esc(H.q)}"></div>
+    <div class="tabs"><div class="trow"><button class="tab" data-t="videos">🎬 الفيديوهات</button><button class="tab" data-t="files">📄 الملفات</button><button class="tab" data-t="hw" id="tabhw">📝 الواجبات</button><button class="tab" data-t="exams" id="tabex">📋 الاختبارات</button><button class="tab" data-t="live" id="tablv">📡 بث مباشر</button><button class="tab" data-t="certs" id="tabce">🏅 شهاداتي</button></div><input class="srch" id="q" placeholder="ابحث..." value="${esc(H.q)}"></div>
     <div class="grid" id="list"></div></main><footer class="foot">© منصة مسيو رضا الخشن — المحتوى للاستخدام الشخصي فقط</footer>`;
   $("#lo").onclick = doLogout;
   $$(".tab").forEach(b => b.onclick = () => { H.tab = b.dataset.t; H.tabMoved = true; fillHome(); });
@@ -1282,6 +1283,7 @@ function fillHome() {
   $$(".tab").forEach(b => b.classList.toggle("on", b.dataset.t === H.tab));
   if (H.tabMoved) { H.tabMoved = false; { const r = $(".trow"), t = $(".tab.on"); if (r && t) r.scrollBy({ left: (t.getBoundingClientRect().left + t.offsetWidth / 2) - (r.getBoundingClientRect().left + r.clientWidth / 2), behavior: "smooth" }); } }
   { const th = $("#tabhw"); if (th) { const n = visible(S.homework).filter(h => hwStatus(h.id) !== "graded").length; th.innerHTML = "📝 الواجبات" + (n ? ` <span class="pbadge">${n}</span>` : ""); } }
+  { const tl = $("#tablv"); if (tl) tl.innerHTML = "📡 بث مباشر" + (liveNow().length ? `<i class="ldot"></i>` : ""); }
   { const tc = $("#tabce"); if (tc) tc.innerHTML = "🏅 شهاداتي" + (S.certs.length ? ` <span class="pbadge">${S.certs.length}</span>` : ""); }
   { const te = $("#tabex"); if (te) { const n = visible(S.exams).filter(examOpen).filter(x => !attOf(x.id)).length; te.innerHTML = "📋 الاختبارات" + (n ? ` <span class="pbadge">${n}</span>` : ""); } }
   const q = H.q.trim().toLowerCase();
@@ -1289,6 +1291,8 @@ function fillHome() {
   if (H.tab === "videos") {
     const v = visible(S.videos).filter(m);
     list.innerHTML = v.length ? v.map((x, i) => { const pr = getProg(x.id); return `<a class="vcard" style="--i:${i}" href="#/watch/${esc(x.id)}" data-y="${esc(x.ytId)}"><div class="thumb"><span class="num">${String(i + 1).padStart(2, "0")}</span><img class="fr on" loading="lazy" src="https://i.ytimg.com/vi/${esc(x.ytId)}/mqdefault.jpg" alt=""><span class="play"><i>▶</i></span>${pr.done ? `<span class="done">✓ تمت المشاهدة</span>` : ""}<span class="vp"><i style="width:${pr.p}%"></i></span></div><div class="vb"><h3>${esc(x.title)}</h3>${x.description ? `<p>${esc(x.description)}</p>` : ""}${pr.p > 0 && !pr.done ? `<small class="resume">أكملت ${Math.round(pr.p)}% · تابع من حيث توقفت</small>` : ""}</div></a>`; }).join("") : `<div class="empty">لا توجد فيديوهات لمرحلتك حاليًا</div>`;
+  } else if (H.tab === "live") {
+    list.innerHTML = liveCardsHTML();
   } else if (H.tab === "certs") {
     list.innerHTML = myCerts().map(certThumb).join("") || `<div class="empty">لا توجد شهادات بعد — اجتهد وستصلك شهادة تقدير 🌟</div>`;
   } else if (H.tab === "exams") {
