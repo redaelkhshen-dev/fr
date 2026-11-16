@@ -488,6 +488,18 @@ html[data-theme=light] .hl-fx b{background-image:linear-gradient(100deg,#7a520a 
 .lvpg,.lvpg *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}.lvpg input,.lvpg textarea{-webkit-user-select:text;user-select:text}
 .fcard.lv.live{border-color:#ff3b4e;box-shadow:0 0 0 3px rgba(255,59,78,.15)}.fcard.lv.ended{opacity:.65}.lvz{padding:34px 20px}.lvz .xbig{font-size:3.4rem}
 .tbtn.bell{position:relative}.tbtn.bell:hover{transform:none}.tbtn.bell .pbadge{position:absolute;top:-5px;inset-inline-end:-5px;min-width:19px;height:19px;font-size:.68rem}
+.bph{display:flex;align-items:center;gap:12px;margin-bottom:14px}.bph .bi{flex:none;width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent-2),var(--accent));color:#1a1405;box-shadow:0 6px 16px rgba(212,167,58,.3)}.bph .bi svg{width:24px;height:24px}.bph h2{margin:0;font-size:1.2rem}.bph small{color:var(--muted)}
+.bpt{display:flex;gap:4px;padding:4px;border:1px solid var(--line);border-radius:12px;background:var(--bg2)}.bpt button{flex:1;min-height:38px;border:0;border-radius:9px;background:transparent;color:var(--muted);font:600 .9rem var(--fd);cursor:pointer;transition:.18s}.bpt button b{display:inline-grid;place-items:center;min-width:22px;height:20px;padding:0 6px;margin-inline-start:6px;border-radius:10px;background:var(--line);font-size:.72rem;color:var(--fg)}.bpt button.on{background:var(--soft);color:var(--accent-text);box-shadow:inset 0 0 0 1px rgba(212,167,58,.45)}.bpt button.on b{background:var(--accent);color:#1a1405}
+.bpa{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.bpa .btn{flex:1 1 140px}.bpa .btn:disabled{opacity:.45;cursor:default}
+.bpl{margin-top:6px;max-height:52vh;overflow-y:auto;padding-inline-end:2px;scrollbar-width:thin}
+.nrow2{position:relative;display:flex;align-items:stretch;margin-top:10px;border:1px solid var(--line);border-radius:14px;background:var(--bg2);overflow:hidden;transition:opacity .25s,transform .25s,max-height .25s,margin .25s,border-color .15s;max-height:200px}.nrow2:hover{border-color:var(--accent)}
+.nrow2.un{background:linear-gradient(270deg,rgba(212,167,58,.16),var(--bg2));border-color:rgba(212,167,58,.5)}.nrow2.un::before{content:"";position:absolute;top:14px;inset-inline-start:8px;width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.nrow2.late{border-inline-start:4px solid var(--bad)}.nrow2.soon{border-inline-start:4px solid var(--warn)}
+.nrow2.gone{opacity:0;transform:translateX(-24px);max-height:0;margin-top:0;border-width:0}
+.nmain{flex:1;min-width:0;display:flex;gap:12px;align-items:flex-start;padding:13px 14px 13px 10px;color:var(--fg)}.nmain .ni{flex:none;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font-size:1.25rem;background:var(--soft);border:1px solid var(--line)}
+.nt{min-width:0}.nt b{display:block;font:700 .95rem/1.5 var(--fd)}.nt small{display:block;color:var(--muted);line-height:1.6;margin-top:2px;white-space:pre-wrap}.nt em{display:block;font-style:normal;color:var(--accent-text);font-size:.74rem;margin-top:4px;opacity:.85}
+.nx{flex:none;width:42px;border:0;border-inline-start:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer;font-size:.95rem;transition:.15s}.nx:hover{background:rgba(255,107,122,.14);color:var(--bad)}
+.bpe{text-align:center;padding:34px 10px;border:1px dashed var(--line);border-radius:14px;margin-top:12px}.bpe div{font-size:2.4rem}.bpe b{display:block;margin-top:6px}.bpe small{color:var(--muted)}
 .nrow{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--bg2);margin-top:10px;color:var(--fg)}.nrow:hover{border-color:var(--accent)}.nrow.un{border-color:var(--accent);background:linear-gradient(135deg,rgba(212,167,58,.16),var(--bg2))}.nrow .ni{font-size:1.5rem;line-height:1.2}.nrow b{display:block;font:700 .98rem var(--fd)}.nrow small{color:var(--muted)}.nrow.late{border-inline-start:4px solid var(--bad)}.nrow.soon{border-inline-start:4px solid var(--warn)}
 .pbadge{display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:var(--bad);color:#fff;font:700 .72rem var(--fd);vertical-align:middle}
 .pend{max-width:580px;margin:32px auto;text-align:center;display:flex;flex-direction:column;align-items:center;gap:14px;animation:rise .6s both}
@@ -1057,16 +1069,16 @@ const BELL = `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke
 const bellBtn = () => { const seen = lsSet(seenKey()), n = notifItems().filter(x => !seen.has(x.id)).length; return `<button class="tbtn bell" type="button" data-bell aria-label="الإشعارات" title="الإشعارات">${BELL}<span class="pbadge" ${n ? "" : "hidden"}>${n > 9 ? "9+" : n}</span></button>`; };
 const lsSet = k => { try { return new Set(JSON.parse(localStorage.getItem(k) || "[]")); } catch { return new Set(); } };
 const lsSave = (k, st) => { try { localStorage.setItem(k, JSON.stringify([...st].slice(-300))); } catch {} };
-const seenKey = () => "rf_nseen_" + (S.student?.id || ""), notifKey = () => "rf_nshown_" + (S.student?.id || "");
+const disKey = () => "rf_ndis_" + (S.student?.id || ""), seenKey = () => "rf_nseen_" + (S.student?.id || ""), notifKey = () => "rf_nshown_" + (S.student?.id || "");
 function notifItems() {
   if (!S.student) return [];
   const out = [], now = Date.now(), WEEK = 7 * 864e5, td = todayStr();
   for (const n of visible(S.notices || [])) {
     if (n.showFrom && n.showFrom > td) continue;
     const cr = n.createdAt?.seconds ? n.createdAt.seconds * 1000 : now; if (now - cr > 30 * 864e5) continue;
-    out.push({ id: `n:${n.id}:${n.updatedAt || 0}`, pr: n.kind === "auto" ? 3 : 0.5, cls: n.kind === "auto" ? "" : "soon", ic: n.ic || "📢", t: n.title, s: n.body || "", href: n.href || "#/" });
+    out.push({ id: `n:${n.id}:${n.updatedAt || 0}`, ts: n.updatedAt || cr, pr: n.kind === "auto" ? 3 : 0.5, cls: n.kind === "auto" ? "" : "soon", ic: n.ic || "📢", t: n.title, s: n.body || "", href: n.href || "#/" });
   }
-  for (const l of visible(S.lives || [])) if (l.status === "live") out.push({ id: `live:${l.id}:${l.liveAt || ""}`, pr: -1, cls: "late", ic: "🔴", t: `بث مباشر الآن: ${l.title}`, s: "اضغط للانضمام للحصة", href: "#/live/" + l.id });
+  for (const l of visible(S.lives || [])) if (l.status === "live") out.push({ id: `live:${l.id}:${l.liveAt || ""}`, ts: l.liveAt || 0, pr: -1, cls: "late", ic: "🔴", t: `بث مباشر الآن: ${l.title}`, s: "اضغط للانضمام للحصة", href: "#/live/" + l.id });
   for (const h of visible(S.homework || [])) {
     const st = hwStatus(h.id), due = hwDue(h.due), cr = h.createdAt?.seconds ? h.createdAt.seconds * 1000 : 0, href = h.questions?.length ? "#/hw/" + h.id : "#/";
     if (st === "none" && due) {
@@ -1081,7 +1093,8 @@ function notifItems() {
     const isNew = false, href = "#/exam/" + e.id;
     out.push(isNew ? { id: `new:e:${e.id}`, pr: 2, ic: "📋", t: `اختبار جديد: ${e.title}`, s: "متاح الآن — يُحَل مرة واحدة", href } : { id: `ex:${e.id}:${td}`, pr: 2, cls: "soon", ic: "📋", t: `تذكير: لم تحلّ اختبار "${e.title}" بعد`, s: "ادخل وحلّه الآن", href });
   }
-  return out.sort((a, b) => a.pr - b.pr);
+  const dis = lsSet(disKey());
+  return out.filter(x => !dis.has(x.id)).sort((a, b) => a.pr - b.pr);
 }
 function paintBell() {
   const seen = lsSet(seenKey()), n = notifItems().filter(x => !seen.has(x.id)).length;
@@ -1091,13 +1104,30 @@ function paintBell() {
 async function autoNotice(o, t) {
   try { await addDoc(collection(db, "notices"), { title: o.title, body: o.body || "", ic: o.ic || "🔔", href: o.href || "#/", kind: "auto", stage: t.stage || "all", system: t.system || "all", grade: t.grade || "all", showFrom: o.showFrom || "", createdAt: serverTimestamp() }); } catch (e) { console.warn("notice", e.code); }
 }
+const agoN = t => { if (!t) return ""; const d = (Date.now() - t) / 1000; if (d < 60) return "الآن"; if (d < 3600) return `منذ ${Math.floor(d / 60)} د`; if (d < 86400) return `منذ ${Math.floor(d / 3600)} ساعة`; if (d < 604800) return `منذ ${Math.floor(d / 86400)} يوم`; return new Date(t).toLocaleDateString("ar-EG", { day: "numeric", month: "long" }); };
 function openBell() {
-  const items = notifItems(), seen = lsSet(seenKey()), can = "Notification" in window, perm = can ? Notification.permission : "denied";
-  const m = openModal(`<h2>🔔 الإشعارات والتذكيرات</h2>${items.length ? items.map(n => `<a class="nrow ${n.cls || ""} ${seen.has(n.id) ? "" : "un"}" href="${esc(n.href)}" data-close><span class="ni">${n.ic}</span><div><b>${esc(n.t)}</b><small>${esc(n.s)}</small></div></a>`).join("") : `<div class="empty" style="margin-top:12px">لا توجد إشعارات الآن 🎉 أنت مواكب لكل الواجبات والاختبارات</div>`}
-    ${can && perm === "default" ? `<div class="mact" style="margin-top:16px"><button class="btn btn-fill btn-sm" id="nen">🔔 تفعيل تنبيهات المتصفح</button></div>` : ""}
-    <p class="sub" style="font-size:.82rem;margin-top:12px">${perm === "granted" ? "✅ تنبيهات المتصفح مفعّلة — تصلك عند فتح الموقع ولو في تبويب آخر." : perm === "denied" && can ? "تنبيهات المتصفح محظورة من إعدادات الموقع في متصفحك." : "التنبيهات تعمل أثناء فتح الموقع في المتصفح."}</p>
+  let tab = "all"; const can = "Notification" in window, perm = can ? Notification.permission : "denied";
+  const m = openModal(`<div id="bp"></div>${can && perm === "default" ? `<div class="mact" style="margin-top:14px"><button class="btn btn-fill btn-sm" id="nen">🔔 تفعيل تنبيهات المتصفح</button></div>` : ""}
+    <p class="sub" style="font-size:.8rem;margin-top:12px">${perm === "granted" ? "✅ تنبيهات المتصفح مفعّلة — تصلك عند فتح الموقع ولو في تبويب آخر." : perm === "denied" && can ? "تنبيهات المتصفح محظورة من إعدادات الموقع في متصفحك." : "التنبيهات تعمل أثناء فتح الموقع في المتصفح."}</p>
     <div class="mact"><button class="btn btn-line" data-close>إغلاق</button></div>`);
-  items.forEach(n => seen.add(n.id)); lsSave(seenKey(), seen); paintBell();
+  const bp = $("#bp", m);
+  const draw = () => {
+    const items = notifItems(), seen = lsSet(seenKey()), un = items.filter(x => !seen.has(x.id)), list = tab === "un" ? un : items;
+    bp.innerHTML = `<div class="bph"><span class="bi">${BELL}</span><div><h2>الإشعارات والتذكيرات</h2><small>${un.length ? `لديك ${un.length} غير مقروء` : "أنت مطّلع على كل شيء ✨"}</small></div></div>
+      <div class="bpt"><button type="button" data-f="all" class="${tab === "all" ? "on" : ""}">الكل <b>${items.length}</b></button><button type="button" data-f="un" class="${tab === "un" ? "on" : ""}">غير مقروءة <b>${un.length}</b></button></div>
+      ${items.length ? `<div class="bpa"><button type="button" class="btn btn-line btn-sm" data-act="read" ${un.length ? "" : "disabled"}>✓ تحديد الكل كمقروء</button><button type="button" class="btn btn-line btn-sm" data-act="clear">🗑 مسح الكل</button></div>` : ""}
+      <div class="bpl">${list.length ? list.map(n => `<div class="nrow2 ${n.cls || ""} ${seen.has(n.id) ? "" : "un"}" data-id="${esc(n.id)}"><a class="nmain" href="${esc(n.href)}" data-close data-read="${esc(n.id)}"><span class="ni">${n.ic}</span><div class="nt"><b>${esc(n.t)}</b>${n.s ? `<small>${esc(n.s)}</small>` : ""}${n.ts ? `<em>${agoN(n.ts)}</em>` : ""}</div></a><button type="button" class="nx" data-x="${esc(n.id)}" aria-label="مسح الإشعار" title="مسح">✕</button></div>`).join("") : `<div class="bpe"><div>${tab === "un" ? "✅" : "🎉"}</div><b>${tab === "un" ? "لا توجد إشعارات غير مقروءة" : "لا توجد إشعارات الآن"}</b><small>${tab === "un" ? "كل إشعاراتك مقروءة" : "أنت مواكب لكل الواجبات والاختبارات"}</small></div>`}</div>`;
+    paintBell();
+  };
+  bp.addEventListener("click", e => {
+    const f = e.target.closest("[data-f]"), a = e.target.closest("[data-act]"), x = e.target.closest("[data-x]"), r = e.target.closest("[data-read]");
+    if (f) { tab = f.dataset.f; return draw(); }
+    if (r) { const sn = lsSet(seenKey()); sn.add(r.dataset.read); lsSave(seenKey(), sn); paintBell(); return; }
+    if (x) { const id = x.dataset.x, row = x.closest(".nrow2"), ds = lsSet(disKey()); ds.add(id); lsSave(disKey(), ds); row.classList.add("gone"); setTimeout(draw, 260); return; }
+    if (a?.dataset.act === "read") { const sn = lsSet(seenKey()); notifItems().forEach(n => sn.add(n.id)); lsSave(seenKey(), sn); draw(); toast("تم تحديد الكل كمقروء", "ok"); }
+    if (a?.dataset.act === "clear") { const ds = lsSet(disKey()); notifItems().forEach(n => ds.add(n.id)); lsSave(disKey(), ds); draw(); toast("تم مسح الإشعارات", "ok"); }
+  });
+  draw();
   const b = $("#nen", m); if (b) b.onclick = async () => { try { const r = await Notification.requestPermission(); toast(r === "granted" ? "تم تفعيل التنبيهات" : "لم يتم السماح بالتنبيهات", r === "granted" ? "ok" : "err"); if (r === "granted") m.remove(); } catch {} };
 }
 document.addEventListener("click", e => { if (e.target.closest("[data-bell]") && S.student) openBell(); });
