@@ -196,6 +196,17 @@ input[dir=ltr]{text-align:left}
 .pf-top h2{font-size:1.2rem}
 .pf-top small{color:var(--muted);direction:ltr;display:block}
 .nav-a{display:flex;gap:8px;flex-wrap:wrap}
+.adm{display:grid;grid-template-columns:250px minmax(0,1fr);gap:26px;width:min(1560px,100%);margin:0 auto;padding:22px 22px 60px;align-items:start}.amain{min-width:0}
+.asb{position:sticky;top:80px;max-height:calc(100vh - 100px);overflow-y:auto;scrollbar-width:thin;padding:12px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(180deg,var(--card),var(--bg2))}
+.asg{font:700 .72rem var(--fd);color:var(--muted);padding:10px 12px 6px;letter-spacing:.03em}.asb .sep{height:1px;background:var(--line);margin:8px 6px 2px}.asb .sep:first-child{display:none}
+.asb .atab{position:relative;display:flex;align-items:center;gap:12px;width:100%;min-height:46px;padding:0 10px;margin-top:3px;border-radius:12px;border:0;border-inline-start:3px solid transparent;background:transparent;color:var(--muted);font:600 .95rem var(--fd);text-align:start;cursor:pointer;transition:background .18s,color .18s,transform .18s}
+.asb .atab .ai{flex:none;display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:var(--bg2);border:1px solid var(--line);transition:.18s}.asb .atab svg{width:19px;height:19px}
+.asb .atab:hover{color:var(--fg);background:var(--soft)}.asb .atab:active{transform:scale(.98)}
+.asb .atab.on{color:var(--accent-text);background:linear-gradient(270deg,var(--soft),transparent);border-inline-start-color:var(--accent)}.asb .atab.on .ai{background:linear-gradient(135deg,var(--accent-2),var(--accent));border-color:var(--accent);color:#1a1405;box-shadow:0 4px 12px rgba(212,167,58,.3)}
+.asb .ab{margin-inline-start:auto}
+@media(max-width:900px){.adm{grid-template-columns:66px minmax(0,1fr);gap:12px;padding:12px 10px 50px}.asb{top:70px;padding:6px 3px;border-radius:16px;max-height:calc(100vh - 84px)}.asg{display:none}.asb .sep{margin:6px 8px 2px}
+  .asb .atab{flex-direction:column;justify-content:center;gap:3px;min-height:58px;padding:6px 1px;margin-top:2px;border-inline-start:0;font-size:.6rem;line-height:1.2;text-align:center}.asb .atab .ai{width:32px;height:32px}.asb .ab{position:absolute;top:0;inset-inline-end:2px;margin:0}.asb .ab .pbadge{min-width:17px;height:17px;font-size:.62rem;padding:0 4px}
+  .asb .atab.on{background:var(--soft);border-radius:12px}}
 .atab{min-height:40px;padding:0 16px;border-radius:8px;border:1px solid transparent;background:transparent;color:var(--muted);font:600 .92rem var(--fd);cursor:pointer}
 .atab.on{background:var(--soft);color:var(--accent-text);border-color:var(--accent)}
 .stats{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-bottom:22px}
@@ -762,8 +773,8 @@ function checkPay() {
   if (S.pp === undefined ? n > 0 : n > S.pp) toast(`💳 ${n} تحويل بانتظار تأكيدك`, "ok");
   S.pp = n; payTab();
 }
-function payTab() { const t = $('.atab[data-t="payments"]'); if (t) t.innerHTML = "المدفوعات" + (S.pp ? ` <span class="pbadge">${S.pp}</span>` : ""); }
-function tabBadge() { const t = $('.atab[data-t="students"]'); if (t) t.innerHTML = "الطلاب" + (S.pn ? ` <span class="pbadge">${S.pn}</span>` : ""); }
+function payTab() { const t = $('.atab[data-t="payments"] .ab'); if (t) t.innerHTML = S.pp ? `<span class="pbadge">${S.pp}</span>` : ""; }
+function tabBadge() { const t = $('.atab[data-t="students"] .ab'); if (t) t.innerHTML = S.pn ? `<span class="pbadge">${S.pn}</span>` : ""; }
 function onData() {
   if (!isAdminUser() && S.student) { paintBell(); maybeNotify(); }
   if (isAdminUser()) { if ($("#abody")) fillTab(); paintHwModal(); }
@@ -1794,14 +1805,28 @@ function renderAdminLogin() {
     catch (er) { showErr(er.code === "auth/network-request-failed" ? "تعذر الاتصال بالإنترنت" : "كلمة السر غير صحيحة"); b.disabled = false; }
   });
 }
+const AD_IC = {
+  overview: '<rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/>',
+  students: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8"/><path d="M18 14.3c2.2.7 3.5 2.6 3.5 5.7"/>',
+  videos: '<circle cx="12" cy="12" r="9"/><path d="m10 8.8 5 3.2-5 3.2z"/>',
+  files: '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h6"/>',
+  homework: '<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 11h6M9 15h4"/>',
+  exams: '<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="m9 13 2 2 4-4"/>',
+  lives: '<circle cx="12" cy="12" r="2"/><path d="M7.8 7.8a6 6 0 0 0 0 8.4M16.2 7.8a6 6 0 0 1 0 8.4M4.9 4.9a10 10 0 0 0 0 14.2M19.1 4.9a10 10 0 0 1 0 14.2"/>',
+  grades: '<path d="M4 20V11M10 20V4M16 20v-6M21 20H3"/>',
+  certs: '<circle cx="12" cy="9" r="6"/><path d="m8.5 14.2-1.5 7 5-2.7 5 2.7-1.5-7"/>',
+  comments: '<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/>',
+  payments: '<rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19"/><path d="M6.5 15h4"/>'
+};
+const AD_GROUPS = [["الرئيسية", [["overview", "نظرة عامة"], ["students", "الطلاب"]]], ["المحتوى", [["videos", "الفيديوهات"], ["files", "الملفات"], ["homework", "الواجبات"], ["exams", "الاختبارات"], ["lives", "البث المباشر"]]], ["التقييم", [["grades", "رصد الدرجات"], ["certs", "الشهادات"], ["comments", "التعليقات"]]], ["المالية", [["payments", "المدفوعات"]]]];
 function renderAdmin() {
   S.page = "admin";
-  app.innerHTML = `<header class="hdr"><div class="wrap hdr-in">${brand()}<nav class="nav-a">
-    <button class="atab" data-t="overview">نظرة عامة</button><button class="atab" data-t="students">الطلاب</button><button class="atab" data-t="videos">الفيديوهات</button><button class="atab" data-t="files">الملفات</button><button class="atab" data-t="homework">الواجبات</button><button class="atab" data-t="exams">الاختبارات</button><button class="atab" data-t="grades">رصد الدرجات</button><button class="atab" data-t="certs">الشهادات</button><button class="atab" data-t="comments">التعليقات</button><button class="atab" data-t="lives">📡 البث المباشر</button><button class="atab" data-t="payments">المدفوعات</button></nav>
-    <button class="btn btn-line btn-sm" id="lo">خروج</button></div></header><main class="wrap sec" id="abody"></main>`;
+  const nav = AD_GROUPS.map(([g, items], gi) => `${gi ? '<div class="sep"></div>' : ""}<div class="asg">${g}</div>${items.map(([k, t]) => `<button class="atab" data-t="${k}" title="${t}"><i class="ai"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${AD_IC[k]}</svg></i><span class="al">${t}</span><span class="ab"></span></button>`).join("")}`).join("");
+  app.innerHTML = `<header class="hdr"><div class="wrap hdr-in">${brand()}<div class="hdr-r"><span class="badge">لوحة تحكم المدرس</span>${themeBtn()}<button class="btn btn-line btn-sm" id="lo">خروج</button></div></div></header>
+    <div class="adm"><aside class="asb"><nav aria-label="أقسام لوحة التحكم">${nav}</nav></aside><main class="amain" id="abody"></main></div>`;
   $("#lo").onclick = doLogout;
   $$(".atab").forEach(b => b.onclick = () => setTab(b.dataset.t));
-  setTab(A.tab); tabBadge();
+  setTab(A.tab); tabBadge(); payTab();
 }
 function setTab(t) {
   A.tab = t; $$(".atab").forEach(b => b.classList.toggle("on", b.dataset.t === t));
