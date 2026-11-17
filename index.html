@@ -67,8 +67,8 @@ img{max-width:100%}
 .auth-card.wide{width:min(100%,640px)}
 .auth-card h1{font-size:1.6rem}
 .sub{color:var(--muted);margin-top:-6px}
-.alt{text-align:center;color:var(--muted);font-size:.93rem}
-.alt a,.lnk{color:var(--accent-text);font-weight:600;cursor:pointer;background:none;border:0;padding:0;font:inherit}
+.alt:not(.band){text-align:center;color:var(--muted);font-size:.93rem}
+.alt:not(.band) a,.lnk{color:var(--accent-text);font-weight:600;cursor:pointer;background:none;border:0;padding:0;font:inherit}
 .adm-link{position:fixed;bottom:10px;inset-inline-start:14px;font-size:.72rem;color:#7a6a3a}
 .adm-link:hover{color:var(--muted)}
 form{display:flex;flex-direction:column;gap:14px}
@@ -447,6 +447,17 @@ html[data-theme=light] .hl-fx b{background-image:linear-gradient(100deg,#7a520a 
 .abt-t{display:flex;flex-direction:column;align-items:flex-start;gap:18px;min-width:0}
 .abt-t h2{font-size:clamp(1.5rem,3.2vw,2rem);font-weight:700}
 .abt-t p{color:var(--muted);max-width:52ch}
+.abt{grid-template-columns:1.1fr .9fr!important;gap:56px!important}
+.abt-t h2{font-size:clamp(1.6rem,3.4vw,2.3rem)!important;line-height:1.4}.hl{background:linear-gradient(135deg,var(--accent-2),var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent}
+.abl{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:10px 18px;width:100%}.abl li{display:flex;align-items:center;gap:10px;font-size:.93rem}
+.abl i{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:color-mix(in srgb,var(--accent) 18%,transparent);color:var(--accent-text);font-style:normal}
+.abc{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px}.abc .btn{display:inline-flex;align-items:center;gap:8px}
+.lst2{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:14px}.lst2:before{content:"";position:absolute;inset:-20px;border-radius:30px;background:radial-gradient(circle at 70% 20%,color-mix(in srgb,var(--accent) 16%,transparent),transparent 65%);pointer-events:none}
+.ls2{position:relative;display:flex;flex-direction:column;gap:6px;padding:22px 18px;border:1px solid var(--line);border-radius:20px;background:var(--card);transition:transform .25s,border-color .25s,box-shadow .25s}
+.ls2:nth-child(even){transform:translateY(18px)}.ls2:hover{border-color:var(--accent);box-shadow:0 14px 30px rgba(0,0,0,.28)}.ls2:nth-child(odd):hover{transform:translateY(-4px)}.ls2:nth-child(even):hover{transform:translateY(14px)}
+.ls2i{width:54px;height:54px;border-radius:16px;display:grid;place-items:center;margin-bottom:6px;color:#1a1200;background:linear-gradient(135deg,var(--accent-2),var(--accent));box-shadow:0 8px 18px color-mix(in srgb,var(--accent) 30%,transparent)}
+.ls2 b{font:800 1.5rem/1.2 var(--fd)}.ls2 small{color:var(--muted);font-size:.86rem;line-height:1.5}
+@media(max-width:900px){.abt{grid-template-columns:1fr!important;gap:36px!important}.ls2:nth-child(even){transform:none}.ls2:nth-child(even):hover{transform:translateY(-4px)}}@media(max-width:480px){.abl{grid-template-columns:1fr}.ls2{padding:16px 14px}}
 .lst{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:14px;background:var(--card);overflow:hidden}
 .ls{display:flex;align-items:center;gap:16px;padding:24px 22px;min-width:0}
 .ls:nth-child(odd){border-inline-end:1px solid var(--line)}
@@ -1084,14 +1095,16 @@ function renderLanding() {
       <div class="hero-visual"><div class="dots" aria-hidden="true"></div><div class="disc"><span class="orbit" aria-hidden="true"><i></i></span><img src="${PHOTO}" alt="مسيو رضا الخشن، معلم لغة فرنسية" width="640" height="640"></div></div></div></section>
 
   <section id="s-about" class="band alt"><div class="wrap abt"><div class="abt-t"><span class="eyebrow">عن المنصة</span>
-      <h2>كل ما يحتاجه طالب الفرنسية في مكان واحد.</h2>
+      <h2>كل ما يحتاجه طالب الفرنسية في <span class="hl">مكان واحد.</span></h2>
       <p>أنا مسيو رضا الخشن، خبرة أكثر من 10 سنوات في تدريس الفرنسية لطلاب المدارس الدولية والحكومية ونظام البكالوريا ودورات DELF. جمعت لك شروحاتي وملفاتي في منصة منظمة تدخلها من أي جهاز.</p>
-      <a class="btn btn-line btn-sm" href="#/register">أنشئ حسابك</a></div>
-    <div class="lst">
-      <div class="ls"><div class="ls-ic">10+</div><div><div class="ls-v">سنوات</div><div class="ls-l">خبرة في تدريس الفرنسية</div></div></div>
-      <div class="ls"><div class="ls-ic">A1</div><div><div class="ls-v">DELF</div><div class="ls-l">دورات معتمدة</div></div></div>
-      <div class="ls"><div class="ls-ic">Bac</div><div><div class="ls-v">البكالوريا</div><div class="ls-l">متابعة المنهج والامتحان</div></div></div>
-      <div class="ls"><div class="ls-ic">3</div><div><div class="ls-v">مراحل</div><div class="ls-l">ابتدائي · إعدادي · ثانوي</div></div></div></div></div></section>
+      <ul class="abl"><li><i><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.500 4.500 4.500L19 7.500"/></svg></i>شروحات فيديو مرتبة في كورسات</li><li><i><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.500 4.500 4.500L19 7.500"/></svg></i>مذكرات وملفات للتحميل</li><li><i><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.500 4.500 4.500L19 7.500"/></svg></i>واجبات واختبارات بنتيجة فورية</li><li><i><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.500 4.500 4.500L19 7.500"/></svg></i>تدخل من الموبايل أو الكمبيوتر</li></ul>
+      <div class="abc"><a class="btn btn-fill" href="#/register">أنشئ حسابك ${ARROW}</a><a class="btn btn-line" href="#/login">لدي حساب</a></div></div>
+    <div class="lst2">
+      <div class="ls2"><span class="ls2i"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="9" r="6"/><path d="m8.500 14-1.500 7 5-3 5 3-1.500-7"/></svg></span><b dir="ltr" style="align-self:flex-start">10+</b><small>سنوات خبرة في تدريس الفرنسية</small></div>
+      <div class="ls2"><span class="ls2i"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m2 9 10-5 10 5-10 5z"/><path d="M6 11.500V16c0 1.700 2.700 3 6 3s6-1.300 6-3v-4.500M22 9v6"/></svg></span><b>DELF</b><small>دورات معتمدة</small></div>
+      <div class="ls2"><span class="ls2i"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19V5M9 8h6M9 12h4"/></svg></span><b>Bac</b><small>متابعة المنهج والامتحان</small></div>
+      <div class="ls2"><span class="ls2i"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5z"/><path d="m3 13 9 5 9-5"/></svg></span><b>3 مراحل</b><small>ابتدائي · إعدادي · ثانوي</small></div>
+    </div></div></section>
 
   <section id="s-why" class="band"><div class="wrap"><div class="sec-head"><span class="eyebrow">لماذا المنصة</span><h2>تعلّم بطريقة منظمة وآمنة</h2><p>كل ما يحتاجه الطالب في مكان واحد: شرح مرتب، تدريب وتقييم، وحساب محمي.</p></div>
     <div class="why">${why("video", "فيديوهات لكل مرحلة", "شروحات مرتبة في كورسات تشاهدها من حسابك في أي وقت.", "01")}${why("file", "ملفات للتحميل", "مذكرات وملخصات PDF وWord على جهازك.", "02")}${why("test", "واجبات واختبارات تفاعلية", "اختبر نفسك بأسئلة متنوعة ونتيجة فورية مع مراجعة أخطائك.", "03")}${why("live", "حصص بث مباشر", "تابع حصصك مباشرة مع المدرس عبر الموقع.", "04")}${why("lock", "حساب شخصي آمن", "تدخل برقم الواتس وكلمة سر، ويثبت على جهازك.", "05")}${why("chat", "تواصل مباشر", "راسل المدرس على الواتس لأي استفسار.", "06")}</div>
