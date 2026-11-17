@@ -152,6 +152,9 @@ input[dir=ltr]{text-align:left}
 .xchip.blue{background:rgba(90,176,255,.12);color:#5ab0ff;border-color:transparent}.xchip.blue svg{color:inherit}.xchip.bad{background:rgba(255,107,122,.12);color:var(--bad);border-color:transparent}.xchip.bad svg{color:inherit}
 .hwfb2{display:flex;gap:10px;padding:12px;border-radius:12px;background:var(--soft);border:1px dashed var(--line);color:var(--accent-text)}.hwfb2 small{color:var(--muted);font-size:.74rem}.hwfb2 p{color:var(--fg);margin:2px 0 0;font-size:.92rem;white-space:pre-wrap}
 .hc-act{display:flex;gap:8px;flex-wrap:wrap}@media(max-width:560px){.flc{flex-wrap:wrap}.flc .ibtn{width:100%;justify-content:center}.hc-act .btn{flex:1;justify-content:center}}
+.xadm{position:relative;overflow:hidden}.xadm:before{content:"";position:absolute;inset-block:0;inset-inline-start:0;width:4px;background:var(--good)}.xadm.dr:before{background:var(--muted)}.xadm.sc:before{background:var(--warn)}.xadm.dr{opacity:.92}
+.pst{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;font-size:.78rem;font-weight:700}.pst.pb{background:rgba(61,220,132,.14);color:var(--good)}.pst.sc{background:rgba(255,184,77,.14);color:var(--warn)}.pst.dr{background:var(--soft);color:var(--muted);border:1px dashed var(--line)}
+.pubbox{padding:12px 14px;margin:6px 0 10px;border:1px dashed var(--accent);border-radius:12px;background:var(--soft)}
 .xcard{display:flex;align-items:center;gap:16px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s}.xcard:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(0,0,0,.25)}
 .xcard:before{content:"";position:absolute;inset-block:0;inset-inline-start:0;width:4px;background:var(--accent)}.xcard.good:before{background:var(--good)}.xcard.warn:before{background:var(--warn)}.xcard.bad:before{background:var(--bad)}
 .xcard .t{flex:1;min-width:0}.xcard h3{font-size:1.05rem;margin-bottom:8px}.xchips{display:flex;flex-wrap:wrap;gap:6px}
@@ -1675,7 +1678,7 @@ document.addEventListener("click", copyHandler);
 
 /* ---------- الاختبارات (الطالب) ---------- */
 const todayStr = () => { const d = new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); };
-const examOpen = e => !e.publishAt || e.publishAt <= todayStr();
+const examOpen = e => !e.draft && (!e.publishAt || e.publishAt <= todayStr());
 /* ---------- أسئلة تفاعلية: ملء فراغات / سحب وإفلات / توصيل ---------- */
 const QT = { mcq: "اختيار من متعدد", essay: "مقالي / كتابي", fill: "ملء الفراغات", drag: "سحب وإفلات الكلمات", match: "توصيل كلمات بمعانيها" };
 const isIQ = q => q.t === "fill" || q.t === "drag" || q.t === "match";
@@ -2228,11 +2231,11 @@ TABS.exams = {
   skel: () => `<div class="toolbar"><h2 style="flex:1">إدارة الاختبارات</h2><button class="btn btn-fill" data-a="xadd">+ إضافة اختبار</button></div>${filterBar()}<div class="agrid" id="xl"></div>`,
   init: b => { b.onclick = examAction; bindFilter(b); },
   fill: b => {
-    $("#xl", b).innerHTML = S.exams.filter(passFilter).map(x => { const at = S.attempts.filter(a => a.examId === x.id), tot = x.questions.reduce((s, q) => s + (Number(q.pts) || 1), 0), avg = at.length ? Math.round(at.reduce((s, a) => s + pctOf(a), 0) / at.length) : 0, fut = !examOpen(x);
-      return `<div class="acard"><div class="fcard" style="border:0;padding:0"><div class="ficon">📋</div><div class="t"><h3>${esc(x.title)}</h3><small>${x.questions.length} سؤال · ${tot} درجة</small></div></div>
-        <div class="m"><span class="badge">${stageLabel(x.stage)}</span><span class="badge">${sysLabel(x.system)}</span><span class="badge good">${gradeLabel(x)}</span><span class="badge ${fut ? "warn" : ""}">📅 ${esc(x.publishAt || "فورًا")}${fut ? " (لم يُنشر)" : ""}</span></div>
+    $("#xl", b).innerHTML = S.exams.filter(passFilter).map(x => { const at = S.attempts.filter(a => a.examId === x.id), tot = x.questions.reduce((s, q) => s + (Number(q.pts) || 1), 0), avg = at.length ? Math.round(at.reduce((s, a) => s + pctOf(a), 0) / at.length) : 0, fut = !examOpen(x), dr = !!x.draft, sched = !dr && fut;
+      return `<div class="acard xadm ${dr ? "dr" : sched ? "sc" : "pb"}"><div class="xa-st">${dr ? `<span class="pst dr">${ico(FI.edit, 14)} مسوّدة — غير منشور</span>` : sched ? `<span class="pst sc">${ico(FI.cal, 14)} مجدول: ${esc(x.publishAt)}</span>` : `<span class="pst pb">${ico(FI.ok, 14)} منشور للطلاب</span>`}</div><div class="fcard" style="border:0;padding:0"><div class="ficon">📋</div><div class="t"><h3>${esc(x.title)}</h3><small>${x.questions.length} سؤال · ${tot} درجة</small></div></div>
+        <div class="m"><span class="badge">${stageLabel(x.stage)}</span><span class="badge">${sysLabel(x.system)}</span><span class="badge good">${gradeLabel(x)}</span></div>
         <div class="m"><span class="badge">👥 ${at.length} حلّوه</span><span class="badge good">متوسط ${avg}%</span></div>
-        <div class="acts"><button class="btn btn-line btn-sm" data-a="xedit" data-id="${esc(x.id)}">تعديل</button><button class="btn btn-bad btn-sm" data-a="xdel" data-id="${esc(x.id)}">حذف</button></div></div>`; }).join("") || `<div class="empty">لم تُضف اختبارات بعد</div>`;
+        <div class="acts"><button class="btn ${dr || sched ? "btn-fill" : "btn-line"} btn-sm ibtn" data-a="xpub" data-id="${esc(x.id)}">${dr || sched ? ico(FI.send, 16) + " نشر الآن" : ico(SI.ban, 16) + " إلغاء النشر"}</button><button class="btn btn-line btn-sm" data-a="xedit" data-id="${esc(x.id)}">تعديل</button><button class="btn btn-bad btn-sm" data-a="xdel" data-id="${esc(x.id)}">حذف</button></div></div>`; }).join("") || `<div class="empty">لم تُضف اختبارات بعد</div>`;
   }
 };
 async function examAction(e) {
@@ -2240,6 +2243,9 @@ async function examAction(e) {
   try {
     if (a === "xadd") return examModal();
     if (a === "xedit") return examModal(S.exams.find(x => x.id === id));
+    if (a === "xpub") { const x = S.exams.find(x => x.id === id); if (!x) return;
+      if (!examOpen(x)) { if (!confirm(`نشر الاختبار "${x.title}" للطلاب الآن؟`)) return; await updateDoc(doc(db, "exams", id), { draft: false, publishAt: x.publishAt && x.publishAt > todayStr() ? todayStr() : (x.publishAt || todayStr()) }); await autoNotice({ ic: "📋", title: "اختبار جديد: " + x.title, body: "متاح للحل — يُحَل مرة واحدة", href: "#/exam/" + id, showFrom: todayStr() }, x); toast("تم نشر الاختبار", "ok"); }
+      else { if (!confirm(`إلغاء نشر "${x.title}"؟ سيختفي عن الطلاب وتبقى نتائج من حلّوه محفوظة.`)) return; await updateDoc(doc(db, "exams", id), { draft: true }); toast("تم إخفاء الاختبار (مسوّدة)", "ok"); } return; }
     if (a === "xdel") { const x = S.exams.find(x => x.id === id); if (!x || !confirm(`حذف الاختبار "${x.title}"؟ (درجات الطلاب السابقة تبقى محفوظة)`)) return; await deleteDoc(doc(db, "exams", id)); try { await deleteDoc(doc(db, "examKeys", id)); } catch {} toast("تم الحذف", "ok"); }
   } catch (er) { toast("فشلت العملية: " + (er.code || er.message), "err"); }
 }
@@ -2300,7 +2306,8 @@ function examModal(ex) {
   const keys = ex ? S.examKeys?.[ex.id] : null;
   const m = openModal(`<h2>${ex ? "تعديل اختبار" : "إضافة اختبار"}</h2><div class="alert" id="err" hidden></div>
     <form id="xf" novalidate><label class="fl">عنوان الاختبار<input name="title" maxlength="120" value="${esc(ex?.title)}"></label>${targetFields(ex)}
-    <label class="fl">تاريخ النشر (يظهر للطلاب من هذا اليوم)<input type="date" name="publishAt" value="${esc(ex?.publishAt || todayStr())}"></label>
+    <div class="pubbox"><label style="display:flex;align-items:center;gap:10px;cursor:pointer"><input type="checkbox" name="draft" style="width:20px;height:20px;flex:none" ${!ex || ex.draft ? "checked" : ""}> <span><b>حفظ كمسوّدة (غير منشور)</b><br><small class="sub">لن يراه أي طالب حتى تضغط «نشر الآن» من قائمة الاختبارات.</small></span></label></div>
+    <label class="fl">تاريخ النشر (عند إلغاء المسوّدة يظهر للطلاب من هذا اليوم)<input type="date" name="publishAt" value="${esc(ex?.publishAt || todayStr())}"></label>
     <div class="fl"><label style="display:flex;align-items:center;gap:10px;cursor:pointer"><input type="checkbox" id="xtm" style="width:20px;height:20px;flex:none" ${ex?.duration ? "checked" : ""}> <span>⏱ تفعيل مؤقّت الاختبار (عدّاد تنازلي دائري للطالب)</span></label><input type="number" id="xdur" min="1" max="600" step="1" placeholder="مدة الاختبار بالدقائق" value="${esc(ex?.duration || 30)}" style="margin-top:8px" ${ex?.duration ? "" : "hidden"}><small class="sub">بدون تفعيل يكون الاختبار مفتوح الوقت. عند انتهاء الوقت تُرسَل إجابات الطالب تلقائيًا.</small></div>
     <h3 style="margin:14px 0 8px">الأسئلة</h3><div id="qs">${(ex?.questions || [null]).map((q, i) => qBlock(q, keys?.[i])).join("")}</div>
     <button type="button" class="btn btn-line btn-sm" id="qa">+ إضافة سؤال</button>
@@ -2311,12 +2318,13 @@ function examModal(ex) {
   form.addEventListener("submit", async e => {
     e.preventDefault(); showErr(""); const f = new FormData(form), title = (f.get("title") || "").trim(); if (!title) return showErr("اكتب عنوان الاختبار");
     const rq = readQs(qs); if (rq.err) return showErr(rq.err); const { questions, ks } = rq;
-    const data = { title, stage: f.get("stage"), system: f.get("system"), grade: f.get("grade") || "all", publishAt: f.get("publishAt") || todayStr(), duration: $("#xtm", m).checked ? Math.max(1, Math.min(600, Math.round(Number($("#xdur", m).value) || 30))) : 0, questions };
+    const data = { title, stage: f.get("stage"), system: f.get("system"), grade: f.get("grade") || "all", publishAt: f.get("publishAt") || todayStr(), draft: !!f.get("draft"), duration: $("#xtm", m).checked ? Math.max(1, Math.min(600, Math.round(Number($("#xdur", m).value) || 30))) : 0, questions };
     $("#sb", m).disabled = true;
     try {
       const r = ex ? doc(db, "exams", ex.id) : doc(collection(db, "exams"));
-      if (ex) await updateDoc(r, data); else { await setDoc(r, { ...data, createdAt: serverTimestamp() }); await autoNotice({ ic: "📋", title: "اختبار جديد: " + title, body: "متاح للحل — يُحَل مرة واحدة", href: "#/exam/" + r.id, showFrom: data.publishAt }, data); }
-      await setDoc(doc(db, "examKeys", r.id), { keys: ks }); m.remove(); toast("تم حفظ الاختبار", "ok");
+      if (ex) { await updateDoc(r, data); if (ex.draft && !data.draft) await autoNotice({ ic: "📋", title: "اختبار جديد: " + title, body: "متاح للحل — يُحَل مرة واحدة", href: "#/exam/" + r.id, showFrom: data.publishAt }, data); }
+      else { await setDoc(r, { ...data, createdAt: serverTimestamp() }); if (!data.draft) await autoNotice({ ic: "📋", title: "اختبار جديد: " + title, body: "متاح للحل — يُحَل مرة واحدة", href: "#/exam/" + r.id, showFrom: data.publishAt }, data); }
+      await setDoc(doc(db, "examKeys", r.id), { keys: ks }); m.remove(); toast(data.draft ? "تم الحفظ كمسوّدة — لم يُنشر للطلاب" : "تم حفظ الاختبار ونشره", "ok");
     } catch (er) { showErr("فشل الحفظ: " + (er.code || er.message)); $("#sb", m).disabled = false; }
   });
 }
