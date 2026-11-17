@@ -484,10 +484,15 @@ html[data-theme=light] .hl-fx b{background-image:linear-gradient(100deg,#7a520a 
 .pc-body{display:flex;flex-direction:column;gap:10px;padding:20px;flex:1}
 .pc-body h3{font-size:1.1rem}.pc-body p{color:var(--muted);font-size:.93rem}
 .pc-body .more{margin-top:auto;padding-top:6px;color:var(--accent-text);font-weight:600;font-size:.92rem}
-.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
-.step{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:24px;display:flex;gap:16px}
-.step b{flex:none;display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--accent-deep),var(--accent-2));font:800 1.1rem var(--fd);color:#1b1405}
-.step h3{font-size:1.05rem;margin-bottom:4px}.step p{color:var(--muted);font-size:.92rem}
+.steps{position:relative;display:grid;grid-template-columns:repeat(3,1fr);gap:22px;counter-reset:st}
+.steps:before{content:"";position:absolute;top:62px;inset-inline:16.5%;height:2px;background:repeating-linear-gradient(90deg,var(--accent) 0 8px,transparent 8px 16px);opacity:.45}
+.step{position:relative;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:26px 22px 24px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;transition:transform .25s,border-color .25s,box-shadow .25s}
+.step:hover{transform:translateY(-5px);border-color:var(--accent);box-shadow:0 16px 36px rgba(0,0,0,.28)}
+.step .si{position:relative;z-index:1;width:72px;height:72px;border-radius:50%;display:grid;place-items:center;color:#1a1200;background:linear-gradient(135deg,var(--accent-2),var(--accent));box-shadow:0 0 0 7px var(--card),0 0 0 8px color-mix(in srgb,var(--accent) 45%,transparent),0 10px 24px color-mix(in srgb,var(--accent) 35%,transparent);margin-bottom:10px;transition:transform .3s}
+.step:hover .si{transform:scale(1.08) rotate(-5deg)}
+.step .sn{position:absolute;top:12px;inset-inline-start:16px;font:800 2.6rem/1 var(--fd);color:var(--accent);opacity:.12;direction:ltr}
+.step h3{font-size:1.12rem}.step p{color:var(--muted);font-size:.92rem;line-height:1.7;max-width:260px}
+@media(max-width:760px){.steps{grid-template-columns:1fr;gap:18px}.steps:before{top:40px;bottom:40px;inset-inline:auto;inset-inline-start:calc(50% - 1px);width:2px;height:auto;background:repeating-linear-gradient(180deg,var(--accent) 0 8px,transparent 8px 16px)}}
 .ctab{display:grid;grid-template-columns:1fr 1.1fr;gap:40px;align-items:center}
 .ctab-t{display:flex;flex-direction:column;align-items:flex-start;gap:16px}
 .ctab-t h2{font-size:clamp(1.5rem,3.2vw,2rem)}.ctab-t p{color:var(--muted);max-width:44ch}
@@ -1062,7 +1067,8 @@ function renderLanding() {
   };
   const why = (k, t, d, n) => `<div class="wcard"><span class="wn" aria-hidden="true">${n}</span><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${WI[k]}</svg></span><h3>${t}</h3><p>${d}</p></div>`;
   const lvl = (n, top, t, d, chips) => `<article class="pcard"><div class="pc-top"><small>${n}</small>${top}</div><div class="pc-body"><h3>${t}</h3><p>${d}</p><div class="tags">${chips}</div><a class="more" href="#/register">سجّل الآن ←</a></div></article>`;
-  const step = (n, t, d) => `<div class="step"><b>${n}</b><div><h3>${t}</h3><p>${d}</p></div></div>`;
+  const STI = { 1: '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.200 3.600-7 8-7s8 2.800 8 7M19 3v5M16.500 5.500h5"/>', 2: '<path d="M2 12s3.600-7 10-7 10 7 10 7-3.600 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>', 3: '<rect x="3" y="5" width="18" height="14" rx="3"/><path d="m10 9.500 5 2.500-5 2.500z"/>' };
+  const step = (n, t, d) => `<div class="step"><span class="sn">${n}</span><span class="si"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${STI[n]}</svg></span><h3>${t}</h3><p>${d}</p></div>`;
   const soc = (k, u, t, s) => `<a class="soc s-${k}" href="${u}" target="_blank" rel="noopener"><span class="sic">${SVG[k]}</span><span class="stx"><b>${t}</b><small>${s}</small></span><i>↗</i></a>`;
   const chipsAll = Object.values(SYSTEMS).map(v => `<span class="tag">${v}</span>`).join("");
   app.innerHTML = `${pubHeader()}<main>
@@ -1096,7 +1102,7 @@ function renderLanding() {
     <div class="pcards">${lvl("01", "Primaire", "المرحلة الابتدائية", "أساس قوي في الفرنسية: الحروف والمفردات والجمل البسيطة بأسلوب ممتع.", chipsAll)}${lvl("02", "Collège", "المرحلة الإعدادية", "قواعد وتصريف وقراءة وتعبير بشكل مبسط ومتدرج.", chipsAll)}${lvl("03", "Lycée", "المرحلة الثانوية", "مناهج اللغات والبكالوريا الحديثة، مع تدريب على الامتحانات واختبارات DELF.", chipsAll)}</div></div></section>
 
   <section class="band"><div class="wrap"><div class="sec-head"><span class="eyebrow">كيف تبدأ</span><h2>ثلاث خطوات فقط</h2></div>
-    <div class="steps">${step("1", "سجّل حسابك", "اكتب رقم الواتس وبياناتك واختر كلمة سر من أرقام.")}${step("2", "ادخل لمرحلتك", "يفتح لك المحتوى المناسب لمرحلتك ونظامك مباشرة.")}${step("3", "شاهد وحمّل", "شاهد الفيديوهات من حسابك وحمّل الملفات على جهازك.")}</div></div></section>
+    <div class="steps">${step("1", "سجّل حسابك", "اكتب رقم الواتس وبياناتك واختر كلمة سر من أرقام.")}${step("2", "ادخل لمرحلتك", "يفتح لك المحتوى المناسب لمرحلتك ونظامك مباشرة.")}${step("3", "شاهد وحمّل", "شاهد الفيديوهات من حسابك وحمّل الملفات على جهازك.")}</div><div style="text-align:center;margin-top:34px"><a class="btn btn-fill" href="#/register">ابدأ الآن — إنشاء حساب ${ARROW}</a></div></div></section>
 
   <section id="s-contact" class="band alt"><div class="wrap ctab"><div class="ctab-t"><span class="eyebrow">تواصل معي</span><h2>Une question ؟ راسلني.</h2>
       <p>للاستفسار عن المواعيد والمستويات أو لو واجهتك مشكلة في الحساب، راسلني على أي منصة وسأرد في أقرب وقت.</p></div>
