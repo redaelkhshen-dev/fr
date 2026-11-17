@@ -79,6 +79,18 @@ textarea{padding:10px 14px;min-height:80px;resize:vertical}
 input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent)}
 input[dir=ltr]{text-align:left}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.gt{color:var(--fg);font-weight:700;font-size:.95rem}
+.opts{display:grid;gap:10px}.opts.o3{grid-template-columns:repeat(3,1fr)}.opts.o2{grid-template-columns:repeat(2,1fr)}
+.opt{display:block;cursor:pointer}.opt input{position:absolute;opacity:0;pointer-events:none}
+.oc{position:relative;display:grid;justify-items:center;gap:4px;text-align:center;padding:14px 8px 12px;border:1.5px solid var(--line);border-radius:16px;background:var(--card);transition:transform .18s,border-color .18s,background .18s,box-shadow .18s}
+.opt:hover .oc{transform:translateY(-2px);border-color:var(--accent)}
+.oi{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;background:var(--soft);color:var(--accent-text);transition:.18s}
+.oc b{font-size:.95rem;color:var(--fg)}.oc small{color:var(--muted);font-size:.72rem;line-height:1.35}
+.ock{position:absolute;top:8px;inset-inline-end:8px;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:#1a1200;transform:scale(0);transition:transform .2s cubic-bezier(.3,1.6,.5,1);font-style:normal}
+.opt input:checked+.oc{border-color:var(--accent);background:linear-gradient(180deg,color-mix(in srgb,var(--accent) 16%,var(--card)),var(--card));box-shadow:0 8px 22px color-mix(in srgb,var(--accent) 25%,transparent)}
+.opt input:checked+.oc .oi{background:linear-gradient(135deg,var(--accent-2),var(--accent));color:#1a1200}.opt input:checked+.oc .ock{transform:scale(1)}
+.opt input:focus-visible+.oc{outline:2px solid var(--accent-text);outline-offset:2px}
+@media(max-width:380px){.opts.o3{grid-template-columns:1fr}.opts.o3 .oc{grid-template-columns:auto 1fr;justify-items:start;text-align:start;column-gap:12px}.opts.o3 .oi{grid-row:span 2}}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chip input{position:absolute;opacity:0;pointer-events:none}
 .chip span{display:inline-flex;align-items:center;min-height:40px;padding:0 16px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--fg);cursor:pointer;font-size:.92rem;transition:.15s}
@@ -831,14 +843,21 @@ function bindPicker(root, initial, name) {
   return () => val;
 }
 const gradeOpts = (stage, cur) => `<option value="">اختر الصف</option>` + (GRADES[stage] || []).map(g => `<option ${g === cur ? "selected" : ""}>${g}</option>`).join("");
+const OPT_IC = {
+  primary: '<path d="M7 8a5 5 0 0 1 10 0v1H7z"/><rect x="5" y="9" width="14" height="12" rx="3"/><path d="M9 14h6M12 9v3"/>', prep: '<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="m13.5 6.5 4 4M4 20l4-1"/>', secondary: '<path d="m2 9 10-5 10 5-10 5z"/><path d="M6 11.500V16c0 1.700 2.700 3 6 3s6-1.300 6-3v-4.500M22 9v6"/>',
+  gov: '<path d="M3 21h18M5 21V10m14 11V10M9 21V10m6 11V10M2 10l10-6 10 6z"/>', lang: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/>', intl: '<circle cx="12" cy="12" r="9"/><path d="M3.500 9h17M3.500 15h17M12 3c2.500 3 2.500 15 0 18M12 3c-2.500 3-2.500 15 0 18"/>', natl: '<path d="M5 21V4M5 4h11l-2 4 2 4H5"/>'
+};
+const STAGE_SUB = { primary: "من الأول إلى السادس", prep: "من الأول إلى الثالث", secondary: "من الأول إلى الثالث" };
+const SYS_SUB = { gov: "المدارس الحكومية", lang: "مدارس اللغات", intl: "مدارس إنترناشونال", natl: "مدارس ناشيونال" };
+const optCard = (name, k, label, sub, checked, ic) => `<label class="opt"><input type="radio" name="${name}" value="${k}" ${checked ? "checked" : ""}><span class="oc"><i class="oi"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ic}</svg></i><b>${label}</b><small>${sub}</small><em class="ock"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.500 4.500 4.500L19 7.500"/></svg></em></span></label>`;
 function sysChips(stage, cur) {
   const allowed = SYS_BY_STAGE[stage] || Object.keys(SYSTEMS), pick = allowed.includes(cur) ? cur : allowed.length === 1 && stage ? allowed[0] : "";
-  return allowed.map(k => `<label class="chip"><input type="radio" name="system" value="${k}" ${pick === k ? "checked" : ""}><span>${SYSTEMS[k]}</span></label>`).join("");
+  return allowed.map(k => optCard("system", k, SYSTEMS[k], SYS_SUB[k] || "", pick === k, OPT_IC[k] || OPT_IC.gov)).join("");
 }
 function profileFields(s = {}, lock = false) {
   const cityF = `<label class="fl">المدينة / المحافظة<select name="city"><option value="">اختر</option>${CITIES.map(c => `<option ${c === s.city ? "selected" : ""}>${c}</option>`).join("")}</select></label>`;
-  const open = `<div class="grp">المرحلة الدراسية<div class="chips">${Object.entries(STAGES).map(([k, v]) => `<label class="chip"><input type="radio" name="stage" value="${k}" ${s.stage === k ? "checked" : ""}><span>${v}</span></label>`).join("")}</div></div>
-  <div class="grp">نوع التعليم<div class="chips" id="sysbox">${sysChips(s.stage, s.system)}</div></div>
+  const open = `<div class="grp"><span class="gt">المرحلة الدراسية</span><div class="opts o3">${Object.entries(STAGES).map(([k, v]) => optCard("stage", k, v, STAGE_SUB[k], s.stage === k, OPT_IC[k])).join("")}</div></div>
+  <div class="grp"><span class="gt">نوع التعليم</span><div class="opts o2" id="sysbox">${sysChips(s.stage, s.system)}</div></div>
   <div class="row2"><label class="fl">الصف الدراسي<select name="grade">${gradeOpts(s.stage, s.grade)}</select></label>${cityF}</div>`;
   const locked = `<div class="lockbox"><div class="lk-h">${ico('<rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>', 18)}<b>البيانات الدراسية</b><small>مثبّتة — يعدّلها المدرس فقط</small></div>
     <div class="lk-g"><div><small>المرحلة</small><b>${esc(STAGES[s.stage] || "—")}</b></div><div><small>نوع التعليم</small><b>${esc(SYSTEMS[s.system] || "—")}</b></div><div><small>الصف</small><b>${esc(s.grade || "—")}</b></div></div></div>
