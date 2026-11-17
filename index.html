@@ -154,6 +154,7 @@ input[dir=ltr]{text-align:left}
 .xh>.xnum{flex:none!important;width:30px;height:30px;border-radius:50%;display:inline-grid;place-items:center;background:var(--soft);font:800 .85rem var(--fd)}.xnum.ok{background:rgba(61,220,132,.14);color:var(--good)}.xnum.no{background:rgba(255,107,122,.14);color:var(--bad)}
 .xfoot{display:flex;gap:10px;margin-top:18px}.xfoot .btn{display:inline-flex;align-items:center;gap:7px}
 @media(max-width:560px){.xcard{flex-wrap:wrap}.xcard .xbtn{width:100%;justify-content:center}.xmini{width:56px;height:56px}}
+.lockbox{margin:4px 0 14px;padding:14px;border:1px dashed var(--accent);border-radius:14px;background:var(--soft)}.lk-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;color:var(--accent-text)}.lk-h small{color:var(--muted);margin-inline-start:auto}.lk-g{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.lk-g>div{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 10px;display:grid;gap:2px}.lk-g small{color:var(--muted);font-size:.72rem}.lk-g b{font-size:.9rem}@media(max-width:520px){.lk-g{grid-template-columns:1fr}}
 .xres{text-align:center;margin-bottom:16px}.xbig{font:800 3.2rem/1.2 var(--fd);margin:6px 0}.xbig small{font-size:1.2rem;color:var(--muted)}.xbig.good{color:var(--good)}.xbig.warn{color:var(--warn)}.xbig.bad{color:var(--bad)}
 .qb{margin-bottom:12px;padding:14px}.qbh{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px}.qbh .qn{color:var(--accent-text)}.qbh select{flex:1;min-width:140px}.qpl{display:flex;gap:6px;align-items:center;font-size:.85rem}.qb .qpl input.qp{width:76px;flex:none}.qbh select{width:auto}
 .iq{white-space:pre-wrap;line-height:2.5;padding:12px 14px;background:var(--bg2);border-radius:10px;font-size:1.05rem}
@@ -799,34 +800,40 @@ function sysChips(stage, cur) {
   const allowed = SYS_BY_STAGE[stage] || Object.keys(SYSTEMS), pick = allowed.includes(cur) ? cur : allowed.length === 1 && stage ? allowed[0] : "";
   return allowed.map(k => `<label class="chip"><input type="radio" name="system" value="${k}" ${pick === k ? "checked" : ""}><span>${SYSTEMS[k]}</span></label>`).join("");
 }
-function profileFields(s = {}) {
+function profileFields(s = {}, lock = false) {
+  const cityF = `<label class="fl">المدينة / المحافظة<select name="city"><option value="">اختر</option>${CITIES.map(c => `<option ${c === s.city ? "selected" : ""}>${c}</option>`).join("")}</select></label>`;
+  const open = `<div class="grp">المرحلة الدراسية<div class="chips">${Object.entries(STAGES).map(([k, v]) => `<label class="chip"><input type="radio" name="stage" value="${k}" ${s.stage === k ? "checked" : ""}><span>${v}</span></label>`).join("")}</div></div>
+  <div class="grp">نوع التعليم<div class="chips" id="sysbox">${sysChips(s.stage, s.system)}</div></div>
+  <div class="row2"><label class="fl">الصف الدراسي<select name="grade">${gradeOpts(s.stage, s.grade)}</select></label>${cityF}</div>`;
+  const locked = `<div class="lockbox"><div class="lk-h">${ico('<rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>', 18)}<b>البيانات الدراسية</b><small>مثبّتة — يعدّلها المدرس فقط</small></div>
+    <div class="lk-g"><div><small>المرحلة</small><b>${esc(STAGES[s.stage] || "—")}</b></div><div><small>نوع التعليم</small><b>${esc(SYSTEMS[s.system] || "—")}</b></div><div><small>الصف</small><b>${esc(s.grade || "—")}</b></div></div></div>
+  ${cityF}`;
   return `
   <label class="fl">الاسم الكامل<input name="name" maxlength="60" autocomplete="name" value="${esc(s.name)}"></label>
-  <div class="grp">المرحلة الدراسية<div class="chips">${Object.entries(STAGES).map(([k, v]) => `<label class="chip"><input type="radio" name="stage" value="${k}" ${s.stage === k ? "checked" : ""}><span>${v}</span></label>`).join("")}</div></div>
-  <div class="grp">نوع التعليم<div class="chips" id="sysbox">${sysChips(s.stage, s.system)}</div></div>
-  <div class="row2">
-    <label class="fl">الصف الدراسي<select name="grade">${gradeOpts(s.stage, s.grade)}</select></label>
-    <label class="fl">المدينة / المحافظة<select name="city"><option value="">اختر</option>${CITIES.map(c => `<option ${c === s.city ? "selected" : ""}>${c}</option>`).join("")}</select></label>
-  </div>
+  ${lock ? locked : open}
   <div class="row2">
     <label class="fl">اسم المدرسة (اختياري)<input name="school" maxlength="80" value="${esc(s.school)}"></label>
     <label class="fl">رقم ولي الأمر (اختياري)<input name="parentPhone" dir="ltr" inputmode="numeric" maxlength="11" value="${esc(s.parentPhone)}"></label>
   </div>`;
 }
 function bindStageGrade(form) {
+  if (!$('input[name="stage"]', form)) return;
   $$('input[name="stage"]', form).forEach(r => r.addEventListener("change", () => {
     $('select[name="grade"]', form).innerHTML = gradeOpts(r.value, "");
     const cur = $('input[name="system"]:checked', form)?.value || "";
     $("#sysbox", form).innerHTML = sysChips(r.value, cur);
   }));
 }
-function readProfile(form) {
+function readProfile(form, lock = false) {
   const f = new FormData(form);
   const v = { name: (f.get("name") || "").trim().replace(/\s+/g, " "), stage: f.get("stage"), system: f.get("system"), grade: f.get("grade"), city: f.get("city"), school: (f.get("school") || "").trim(), parentPhone: toLatin(f.get("parentPhone") || "").replace(/[\s-]/g, "") };
   if (v.name.length < 3) throw new Error("اكتب اسمك بالكامل");
-  if (!STAGES[v.stage]) throw new Error("اختر المرحلة الدراسية");
-  if (!SYSTEMS[v.system]) throw new Error("اختر نوع التعليم");
-  if (!v.grade) throw new Error("اختر الصف الدراسي");
+  if (lock) { delete v.stage; delete v.system; delete v.grade; }
+  else {
+    if (!STAGES[v.stage]) throw new Error("اختر المرحلة الدراسية");
+    if (!SYSTEMS[v.system]) throw new Error("اختر نوع التعليم");
+    if (!v.grade) throw new Error("اختر الصف الدراسي");
+  }
   if (!v.city) throw new Error("اختر المدينة");
   if (v.parentPhone && !PHONE_RE.test(v.parentPhone)) throw new Error("رقم ولي الأمر غير صحيح");
   return v;
@@ -1952,7 +1959,7 @@ function renderProfile() {
   app.innerHTML = `${studentHeader()}<main class="wrap sec"><p style="margin-bottom:16px"><a class="btn btn-line btn-sm" href="#/">← العودة</a></p><div class="pf">
   <div class="card"><div class="pf-top">${avatarHTML(s, 64)}<div><h2>${esc(s.name)}</h2><small>${esc(s.phone)}</small></div></div>
     <div class="alert" id="err" hidden></div>
-    <form id="f" novalidate>${profileFields(s)}${pickerHTML(s.photo || "", s)}<button class="btn btn-fill w100" id="sb">حفظ التعديلات</button></form></div>
+    <form id="f" novalidate>${profileFields(s, true)}${pickerHTML(s.photo || "", s)}<button class="btn btn-fill w100" id="sb">حفظ التعديلات</button></form></div>
   <div class="card"><h2 style="margin-bottom:6px">تغيير كلمة السر</h2><p class="sub" style="margin-bottom:12px">أرقام فقط (من 6 إلى 12 رقم)</p>
     <div class="alert" id="err2" hidden></div>
     <form id="pf2" novalidate>
@@ -1967,7 +1974,7 @@ function renderProfile() {
   form.addEventListener("submit", async e => {
     e.preventDefault(); showErr(""); const b = $("#sb");
     try {
-      const p = readProfile(form); b.disabled = true; b.textContent = "جاري الحفظ...";
+      const p = readProfile(form, true); b.disabled = true; b.textContent = "جاري الحفظ...";
       const upd = { ...p, photo: getPhoto() };
       await updateDoc(doc(db, "students", s.id), upd);
       S.student = { ...S.student, ...upd };
