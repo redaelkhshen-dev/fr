@@ -137,6 +137,10 @@ input[dir=ltr]{text-align:left}
 .xo{display:flex;gap:10px;align-items:center;padding:10px 14px;margin-top:8px;border:1px solid var(--line);border-radius:10px;cursor:pointer;background:var(--bg2)}.xo:hover{border-color:var(--accent)}.xo input{accent-color:var(--accent);width:18px;height:18px;flex:none}
 .xo.r{cursor:default}.xo.right{border-color:var(--good);background:rgba(61,220,132,.1)}.xo.wrong{border-color:var(--bad);background:rgba(255,107,122,.1)}.xq.ok{border-inline-start:4px solid var(--good)}.xq.no{border-inline-start:4px solid var(--bad)}
 .xans{white-space:pre-wrap;padding:10px 14px;border-radius:10px;background:var(--bg2);margin:6px 0}
+.flc2{--c:var(--accent-text);position:relative;overflow:hidden;gap:12px;transition:transform .2s,box-shadow .2s,border-color .2s}.flc2:hover{transform:translateY(-3px);box-shadow:0 12px 28px rgba(0,0,0,.28);border-color:var(--c)}.flc2:before{content:"";position:absolute;inset-block:0;inset-inline-start:0;width:4px;background:var(--c)}
+.flc2.pdf{--c:#ff5a5f}.flc2.doc{--c:#4a90ff}.flc2.xls{--c:#2fbf71}.flc2.ppt{--c:#ff8a3d}.flc2.zip{--c:#a0a6b4}.flc2.img{--c:#b98cff}.flc2.aud{--c:#ff6fb5}
+.fl-top{display:flex;gap:14px;align-items:center}.fl-top .t{flex:1;min-width:0}.fl-top h3{font-size:1rem;margin-bottom:8px}.fl-act{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-top:10px;border-top:1px solid var(--line)}
+.fty{display:flex;gap:6px;flex-wrap:wrap}.tyb{cursor:pointer;border:1px solid var(--line);background:var(--soft);color:var(--fg);border-radius:20px;padding:6px 14px;font-size:.82rem}.tyb.on{background:var(--accent);color:#1a1200;border-color:var(--accent)}
 .flc,.hcard{--c:var(--accent-text);background:var(--card);border:1px solid var(--line);border-radius:18px;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s,border-color .2s}.flc:hover,.hcard:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(0,0,0,.25);border-color:var(--c)}
 .flc{display:flex;align-items:center;gap:14px;padding:14px}.flc:before,.hcard:before{content:"";position:absolute;inset-block:0;inset-inline-start:0;width:4px;background:var(--c)}.flc .t{flex:1;min-width:0}.flc h3{font-size:1rem;margin-bottom:8px}
 .fx{flex:none;position:relative;width:58px;height:66px;display:grid;place-items:center;border-radius:14px;color:var(--c);background:color-mix(in srgb,var(--c) 14%,transparent)}.fx svg{position:absolute;inset:6px auto auto 50%;transform:translateX(-50%);opacity:.55}.fx b{position:relative;margin-top:26px;font:800 .72rem var(--fd);padding:2px 7px;border-radius:6px;background:var(--c);color:#fff;letter-spacing:.5px}
@@ -752,7 +756,7 @@ const storage = getStorage(fbApp);
 /* ---------- الحالة ---------- */
 const S = { ready: false, user: null, student: null, busy: false, flash: "", videos: [], files: [], homework: [], hwsubs: [], exams: [], lives: [], notices: [], courses: [], attempts: [], examKeys: {}, hwKeys: {}, certs: [], students: [], pw: {}, comments: [], ratings: [], payments: [], unsubs: [], unsubSelf: null, page: "" };
 const H = { tab: "videos", q: "", closed: new Set() };
-const A = { cvid: "", cq: "", cstage: "", cgrade: "", tab: "overview", q: "", fstage: "", fstatus: "" };
+const A = { fq: "", fty: "", vq: "", cvid: "", cq: "", cstage: "", cgrade: "", tab: "overview", q: "", fstage: "", fstatus: "" };
 
 const isAdminUser = () => !!S.user && S.user.email === ADMIN_EMAIL;
 // نوع الجهاز: هاتف/تابلت (devM) أو كمبيوتر (devD) — لكل حساب جهاز واحد من كل نوع
@@ -2134,12 +2138,16 @@ const TABS = {
     }
   },
   files: {
-    skel: () => `<div class="toolbar"><h2 style="flex:1">إدارة الملفات</h2><button class="btn btn-fill" data-a="fadd">+ إضافة ملف</button></div>${filterBar()}<div class="agrid" id="fl"></div>`,
-    init: b => { b.onclick = contentAction; bindFilter(b); },
+    skel: () => `<div class="toolbar"><h2 style="flex:1">إدارة الملفات</h2><button class="btn btn-fill ibtn" data-a="fadd">${ico(SI.plus, 17)} إضافة ملف</button></div><div class="sstats" id="fst"></div>${filterBar()}<div class="toolbar" style="margin-top:12px"><span class="sq">${ico(SI.search, 18)}<input id="fq" placeholder="ابحث في الملفات..." value="${esc(A.fq || "")}"></span><div class="chips fty" id="fty"></div></div><div class="agrid" id="fl"></div>`,
+    init: b => { b.onclick = e => { const t = e.target.closest("[data-ty]"); if (t) { A.fty = A.fty === t.dataset.ty ? "" : t.dataset.ty; return TABS.files.fill(b); } contentAction(e); }; bindFilter(b); $("#fq", b).oninput = e => { A.fq = e.target.value; TABS.files.fill(b); }; },
     fill: b => {
-      $("#fl", b).innerHTML = S.files.filter(passFilter).map(f => `<div class="acard"><div class="fcard" style="border:0;padding:0"><div class="ficon">${esc((f.ext || "FILE").toUpperCase().slice(0, 4))}</div><div class="t"><h3>${esc(f.title)}</h3><small>${esc(fmtSize(f.size))}</small></div></div>
-        <div class="m"><span class="badge">${stageLabel(f.stage)}</span><span class="badge">${sysLabel(f.system)}</span><span class="badge good">${gradeLabel(f)}</span></div>
-        <div class="acts"><a class="btn btn-line btn-sm" href="${esc(f.url)}" target="_blank" rel="noopener">فتح</a><button class="btn btn-line btn-sm" data-a="fedit" data-id="${esc(f.id)}">تعديل</button><button class="btn btn-bad btn-sm" data-a="fdel" data-id="${esc(f.id)}">حذف</button></div></div>`).join("") || `<div class="empty">لم تُضف ملفات بعد</div>`;
+      const all = S.files, q = (A.fq || "").trim().toLowerCase(), tot = all.reduce((n, f) => n + (f.size || 0), 0), cnt = t => all.filter(f => extTone(f.ext) === t).length;
+      $("#fst", b).innerHTML = [["doc", "all", all.length, "إجمالي الملفات"], ["clip", "bad", cnt("pdf"), "ملفات PDF"], ["layers", "warn", cnt("doc") + cnt("ppt") + cnt("xls"), "ملفات Office"], ["pin", "good", fmtSize(tot) || "0 KB", "المساحة المستخدمة"]].map(([i, t, n, l]) => `<div class="sst ${t}"><span class="ssi">${ico(i === "doc" ? FI.doc : SI[i], 24)}</span><div><b>${n}</b><small>${l}</small></div></div>`).join("");
+      const types = [["pdf", "PDF"], ["doc", "Word"], ["ppt", "PowerPoint"], ["xls", "Excel"], ["zip", "ZIP"], ["img", "صور"]].filter(([t]) => cnt(t));
+      $("#fty", b).innerHTML = types.map(([t, l]) => `<button type="button" class="tyb ${A.fty === t ? "on" : ""}" data-ty="${t}"><span>${l} (${cnt(t)})</span></button>`).join("");
+      $("#fl", b).innerHTML = S.files.filter(passFilter).filter(f => (!A.fty || extTone(f.ext) === A.fty) && (!q || (f.title || "").toLowerCase().includes(q))).map(f => `<div class="acard flc2 ${extTone(f.ext)}"><div class="fl-top">${fext(f.ext)}<div class="t"><h3>${esc(f.title)}</h3><div class="xchips">${f.size ? fchip("dl", esc(fmtSize(f.size))) : ""}${f.createdAt?.toDate ? fchip("cal", esc(fmtDate(f.createdAt))) : ""}</div></div></div>
+        <div class="m"><span class="cch2">${stageLabel(f.stage)}</span><span class="cch2">${sysLabel(f.system)}</span><span class="cch2 g">${gradeLabel(f)}</span></div>
+        <div class="fl-act"><a class="btn btn-line btn-sm ibtn" href="${esc(f.url)}" target="_blank" rel="noopener">${ico(FI.eye, 16)} فتح</a><span class="ia" style="width:auto">${ib("", "fedit", f.id, "edit", "تعديل الملف")}${ib("r", "fdel", f.id, "trash", "حذف الملف")}</span></div></div>`).join("") || `<div class="empty">${ico(FI.doc, 34)}<br>لا توجد ملفات مطابقة</div>`;
     }
   }
 };
