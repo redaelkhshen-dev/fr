@@ -284,10 +284,16 @@ input[dir=ltr]{text-align:left}
 .badge.warn{background:rgba(255,184,77,.14);color:var(--warn)}
 .player{position:relative;aspect-ratio:16/9;background:#000;border-radius:14px;overflow:hidden;border:1px solid var(--line);user-select:none;-webkit-user-select:none}
 .player iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
-.shield{position:absolute;inset:0 0 auto 0;height:64px;z-index:2}
 .wm{position:absolute;z-index:3;pointer-events:none;color:rgba(255,255,255,.32);font:600 .8rem var(--fm);text-shadow:0 0 4px #000;direction:ltr;animation:wm 24s linear infinite}
 .wm.b{animation-delay:-12s}
 @keyframes wm{0%{top:8%;left:6%}25%{top:72%;left:58%}50%{top:30%;left:66%}75%{top:76%;left:8%}100%{top:8%;left:6%}}
+.pctl{display:flex;justify-content:flex-end;margin-top:10px}.pctl .btn{display:inline-flex;align-items:center;gap:8px;min-height:42px}
+.player:fullscreen,.player:-webkit-full-screen{aspect-ratio:auto;border-radius:0;border:0;width:100%;height:100%}
+.player.pfs{position:fixed;inset:0 0 52px 0;z-index:100;aspect-ratio:auto;border-radius:0;border:0;width:auto;height:auto}
+.pctl.pfs{position:fixed;inset:auto 0 0 0;z-index:101;margin:0;height:52px;align-items:center;justify-content:center;background:#000;border-top:1px solid var(--line)}
+body.nosc{overflow:hidden}
+.fsx{display:none;position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:5;min-height:34px;padding:0 14px;border-radius:20px;border:1px solid rgba(255,255,255,.35);background:rgba(11,10,7,.6);color:#fff;font:600 .8rem var(--fd);cursor:pointer;opacity:.7}.player:fullscreen .fsx,.player:-webkit-full-screen .fsx{display:block}
+@media(max-width:700px){.pctl .btn{width:100%;justify-content:center}}
 .fsbtn{position:absolute;top:10px;left:10px;z-index:4;min-height:34px;padding:0 12px;border-radius:8px;border:1px solid rgba(255,255,255,.3);background:rgba(11,10,7,.7);color:#fff;font:600 .8rem var(--fd);cursor:pointer}
 .watch{display:grid;grid-template-columns:2fr 1fr;gap:24px;align-items:start}
 @media(min-width:1100px){.wrap.wide,body:has(.wide) .hdr .wrap{max-width:1480px}.watch{grid-template-columns:minmax(0,1fr) 380px;gap:32px}.side{position:sticky;top:84px}}
@@ -1278,6 +1284,22 @@ function renderRegister() {
   });
 }
 
+/* ملء الشاشة بزر مستقل أسفل المشغّل (لا يغطي أزرار يوتيوب) + بديل لآيفون */
+function bindFs(pl) {
+  const btn = $("#fs"), pc = $("#pc"); if (!btn || !pc) return;
+  const real = pl.requestFullscreen || pl.webkitRequestFullscreen, EX = '<path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/>', EN = '<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>';
+  const isFs = () => document.fullscreenElement === pl || document.webkitFullscreenElement === pl || pl.classList.contains("pfs");
+  const label = () => { if (!btn.isConnected) { document.removeEventListener("fullscreenchange", label); document.removeEventListener("webkitfullscreenchange", label); return; } btn.innerHTML = ico(isFs() ? EX : EN, 18) + (isFs() ? " إغلاق ملء الشاشة" : " ملء الشاشة"); };
+  const fsx = $("#fsx"); if (fsx) fsx.onclick = () => (document.exitFullscreen || document.webkitExitFullscreen)?.call(document);
+  const exitP = () => { pl.classList.remove("pfs"); pc.classList.remove("pfs"); document.body.classList.remove("nosc"); label(); };
+  btn.onclick = async () => {
+    if (isFs()) { if (pl.classList.contains("pfs")) exitP(); else (document.exitFullscreen || document.webkitExitFullscreen).call(document); return; }
+    if (real) { try { await real.call(pl); try { screen.orientation?.lock?.("landscape")?.catch(() => {}); } catch {} return; } catch {} }
+    pl.classList.add("pfs"); pc.classList.add("pfs"); document.body.classList.add("nosc"); label();
+  };
+  document.addEventListener("fullscreenchange", label); document.addEventListener("webkitfullscreenchange", label);
+  window.addEventListener("hashchange", exitP, { once: true }); label();
+}
 /* ---------- هيدر الطالب ---------- */
 const PN_IC = {
   home: '<path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-5h4v5h4a1 1 0 0 0 1-1v-9"/>',
@@ -1422,13 +1444,13 @@ function renderLiveRoom(id) {
   if (l.status !== "live") return msg("⏳ لم يبدأ البث بعد", (l.startAt ? "الموعد: " + esc(lvWhen(l)) + " — " : "") + "ستفتح الصفحة تلقائيًا عند بدء البث");
   const wm = `${esc(s.name)} · ${esc(s.phone)}`, yt = l.kind !== "zoom";
   app.innerHTML = `${studentHeader()}<main class="wrap sec lvpg"><div class="exam" style="max-width:980px"><div class="banner" style="margin:0 0 18px"><div><h1>🔴 ${esc(l.title)}</h1><p>${yt ? "البث يعمل داخل المنصة" : "ستنضم للحصة عبر تطبيق Zoom"}</p></div></div>
-    ${yt ? `<div class="player" id="pl"><iframe id="lvf" title="${esc(l.title)}" allow="autoplay; encrypted-media" referrerpolicy="strict-origin-when-cross-origin" sandbox="allow-scripts allow-same-origin allow-presentation"></iframe><div class="shield"></div><button class="fsbtn" id="fs" type="button">ملء الشاشة ⛶</button><div class="wm">${wm}</div><div class="wm b">${wm}</div></div>`
+    ${yt ? `<div class="player" id="pl"><iframe id="lvf" title="${esc(l.title)}" allow="autoplay; encrypted-media" referrerpolicy="strict-origin-when-cross-origin" sandbox="allow-scripts allow-same-origin allow-presentation"></iframe><div class="wm">${wm}</div><div class="wm b">${wm}</div><button class="fsx" id="fsx" type="button" aria-label="إغلاق ملء الشاشة">✕ إغلاق</button></div><div class="pctl" id="pc"><button class="btn btn-line btn-sm ibtn" id="fs" type="button"></button></div>`
       : `<div class="card xres lvz"><div class="xbig">🎥</div><b>الحصة جاهزة</b><p class="sub" style="margin:8px 0 16px">اضغط للانضمام عبر Zoom</p><button class="btn btn-fill" id="zj" type="button" disabled>جاري تجهيز الدخول...</button></div>`}
     ${l.note ? `<p class="sub" style="margin-top:12px">${esc(l.note)}</p>` : ""}
     <p class="alt" style="text-align:start;margin-top:14px">🔒 رابط هذا البث خاص بحسابك ولا يظهر على الصفحة. مشاركته أو تسجيل الحصة أو إرسالها لأي شخص مخالف للشروط وقد يؤدي لإيقاف الحساب.</p>
     <p style="margin-top:14px"><a class="btn btn-line btn-sm" href="#/live">← البث المباشر</a></p></div></main>`;
   $("#lo").onclick = doLogout; lvGuard();
-  const pl = $("#pl"); if (pl) { pl.addEventListener("contextmenu", e => e.preventDefault()); $("#fs").onclick = () => { const f = pl.requestFullscreen || pl.webkitRequestFullscreen; if (f) f.call(pl); else toast("المتصفح لا يدعم ملء الشاشة هنا", "err"); }; }
+  const pl = $("#pl"); if (pl) { pl.addEventListener("contextmenu", e => e.preventDefault()); bindFs(pl); }
   const fail = () => { if (S.page !== "liveroom" || LV.cur?.id !== id) return; const z = $("#zj"); if (z) z.textContent = "تعذر فتح البث الآن، أعد تحميل الصفحة"; else if (pl) pl.insertAdjacentHTML("afterend", `<div class="alert">تعذر تحميل البث الآن، أعد تحميل الصفحة</div>`); };
   getDoc(doc(db, "liveKeys", id)).then(d => {
     const u = d.exists() ? d.data().url : ""; if (!u) throw 0; if (S.page !== "liveroom" || LV.cur?.id !== id) return;
@@ -1657,7 +1679,7 @@ function renderWatch(id) {
     <div class="pbar wpb ${pr.p >= 90 ? "fin100" : ""}" style="--p:${pr.p}"><div class="ring" aria-hidden="true"><b id="pp">${Math.round(pr.p)}%</b></div><div class="vpm"><div class="vph"><span>🎯 تقدمك في هذا الفيديو</span><small id="pt">${pr.done ? "✅ أتممت مشاهدة هذا الفيديو" : st0 ? "سيبدأ الفيديو من حيث توقفت" : ""}</small></div>
       <div class="vtrack"><i id="pf" style="width:${pr.p}%"></i><u style="inset-inline-start:25%"></u><u style="inset-inline-start:50%"></u><u style="inset-inline-start:75%"></u><u class="fin" style="inset-inline-start:90%" title="يُحتسب مكتملًا عند 90%">🏁</u></div></div></div>
     <div class="player" id="pl"><iframe id="ytp" src="https://www.youtube-nocookie.com/embed/${esc(v.ytId)}?rel=0&modestbranding=1&fs=0&disablekb=1&iv_load_policy=3&playsinline=1&cc_load_policy=0&enablejsapi=1&origin=${encodeURIComponent(location.origin)}${st0 ? "&start=" + st0 : ""}" title="${esc(v.title)}" allow="autoplay; encrypted-media" referrerpolicy="strict-origin-when-cross-origin" sandbox="allow-scripts allow-same-origin allow-presentation"></iframe>
-      <div class="shield"></div><button class="fsbtn" id="fs" type="button">ملء الشاشة ⛶</button><div class="wm">${wm}</div><div class="wm b">${wm}</div></div>
+      <div class="wm">${wm}</div><div class="wm b">${wm}</div><button class="fsx" id="fsx" type="button" aria-label="إغلاق ملء الشاشة">✕ إغلاق</button></div><div class="pctl" id="pc"><button class="btn btn-line btn-sm ibtn" id="fs" type="button"></button></div>
     <h1 style="font-size:1.4rem;margin-top:16px">${esc(v.title)}</h1>
     <p class="sub" style="margin-top:6px">${v.description ? esc(v.description) : ""}</p>
     ${(v.attachments || []).length ? `<section class="vatt"><h3>📎 ملفات الشرح للتحميل</h3><p class="sub" style="font-size:.86rem">حمّل الملفات بعد مشاهدة الفيديو للمراجعة</p>${v.attachments.map(a => `<div class="atr"><span class="ficon sm">${esc((a.ext || "link").toUpperCase().slice(0, 4))}</span><span class="atn">${esc(a.name)}</span><small>${esc(fmtSize(a.size))}</small><a class="btn btn-fill btn-sm" href="${esc(a.url)}" target="_blank" rel="noopener" download>⬇ تحميل</a></div>`).join("")}</section>` : ""}
@@ -1669,7 +1691,7 @@ function renderWatch(id) {
   const pl = $("#pl");
   pl.addEventListener("contextmenu", e => e.preventDefault());
   startTracker(v); startCommentSubs(v);
-  $("#fs").onclick = () => { const f = pl.requestFullscreen || pl.webkitRequestFullscreen; if (f) f.call(pl); else toast("المتصفح لا يدعم ملء الشاشة هنا", "err"); };
+  bindFs(pl);
 }
 
 /* ---------- التعليقات والتقييم (الطالب) ---------- */
