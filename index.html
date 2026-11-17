@@ -214,6 +214,13 @@ input[dir=ltr]{text-align:left}
 .iq input.bl{display:inline-block!important;width:120px!important;min-width:90px;max-width:100%;margin:0 4px;padding:4px 10px;border-radius:8px;text-align:center;direction:ltr;background:var(--card)}
 .slot{display:inline-block;min-width:90px;height:2.2em;line-height:2.1em;vertical-align:middle;margin:0 4px;border:2px dashed var(--accent);border-radius:10px;text-align:center;padding:0 10px;cursor:pointer;direction:ltr;white-space:nowrap}
 .slot.fil{border-style:solid;background:rgba(212,167,58,.18);font-weight:700}.slot.over{background:rgba(212,167,58,.32)}
+.oline{min-height:58px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:12px;border:2px dashed var(--accent);border-radius:14px;background:rgba(212,167,58,.06);transition:background .2s}.oline:empty:before{content:attr(data-ph);color:var(--muted);font-size:.9rem;direction:rtl}.oline.over{background:rgba(212,167,58,.2)}
+.obank{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;padding-top:12px;border-top:1px dashed var(--line)}.obank:empty:before{content:"✓ تم استخدام كل القطع";color:var(--good);font-size:.85rem;direction:rtl}
+.ordc{padding:9px 16px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);color:var(--fg);font:600 1rem var(--fb);cursor:pointer;transition:transform .15s,border-color .15s,background .15s;touch-action:manipulation;text-align:start;line-height:1.5}.ordc:hover{border-color:var(--accent);transform:translateY(-2px)}.ordc.dg{opacity:.4}
+.oline .ordc{background:linear-gradient(135deg,var(--accent-deep),var(--accent-2));color:#1b1405;border-color:transparent}
+.iq.ord.s .oline{flex-direction:column;align-items:stretch;counter-reset:o}.iq.ord.s .ordc{display:flex;align-items:center;gap:10px;width:100%;padding:12px 14px}.iq.ord.s .oline .ordc{counter-increment:o}.iq.ord.s .oline .ordc:before{content:counter(o);flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:#1b1405;color:var(--accent-2);font:800 .8rem var(--fd)}
+.olink{margin-top:10px;background:none;border:0;color:var(--accent-text);font:600 .85rem var(--fd);cursor:pointer;padding:4px 0}
+.ordr .orow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:6px}.ordr.s .orow{flex-direction:column;align-items:stretch}.ordr .orow.key small{color:var(--muted);margin-inline-end:4px}
 .bank{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;padding-top:12px;border-top:1px dashed var(--line);white-space:normal;line-height:1.4}
 .chip{padding:8px 16px;border-radius:999px;border:1px solid var(--accent);background:var(--card);color:var(--fg);cursor:grab;font:600 1rem var(--fb);touch-action:manipulation;direction:ltr}
 .chip.sel{background:var(--accent);color:#1a1405}.chip.used{opacity:.25;pointer-events:none}
@@ -1811,12 +1818,14 @@ document.addEventListener("click", copyHandler);
 const todayStr = () => { const d = new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); };
 const examOpen = e => !e.draft && (!e.publishAt || e.publishAt <= todayStr());
 /* ---------- أسئلة تفاعلية: ملء فراغات / سحب وإفلات / توصيل ---------- */
-const QT = { mcq: "اختيار من متعدد", essay: "مقالي / كتابي", fill: "ملء الفراغات", drag: "سحب وإفلات الكلمات", match: "توصيل كلمات بمعانيها" };
-const isIQ = q => q.t === "fill" || q.t === "drag" || q.t === "match";
+const QT = { mcq: "اختيار من متعدد", essay: "مقالي / كتابي", fill: "ملء الفراغات", drag: "سحب وإفلات الكلمات", match: "توصيل كلمات بمعانيها", orderw: "ترتيب الكلمات (كوّن الجملة)", orders: "ترتيب الجمل (رتّب الفقرة)" };
+const isIQ = q => q.t === "fill" || q.t === "drag" || q.t === "match" || q.t === "order";
+const isRtl = a => /[\u0600-\u06FF]/.test((a || []).join(" "));
 const pj = a => { try { const v = JSON.parse(a); return Array.isArray(v) ? v : []; } catch { return []; } };
 const PCOL = ["#e0b43f", "#4cc9f0", "#f72585", "#7bd88f", "#b388ff", "#ff9f43", "#ff6b6b", "#2ec4b6"];
 const blankOk = (k, a) => { const x = normTxt(a); return x !== "" && String(k ?? "").split("|").map(normTxt).includes(x); };
 function iqHTML(q, i) {
+  if (q.t === "order") { const sm = q.m === "s"; return `<div class="iq ord ${sm ? "s" : "w"}" data-i="${i}" dir="${isRtl(q.items) ? "rtl" : "ltr"}"><div class="oline" data-ph="${sm ? "اضغط الجمل بالترتيب الصحيح هنا" : "اضغط الكلمات لتكوين الجملة هنا"}"></div><div class="obank">${(q.items || []).map((w, k) => `<button type="button" class="ordc" draggable="true" data-k="${k}">${esc(w)}</button>`).join("")}</div><button type="button" class="olink orst" dir="rtl">↺ إعادة الترتيب من البداية</button></div><small class="sub iqh">${sm ? "اضغط كل جملة بالترتيب الذي تراه صحيحًا. اضغط جملة في الأعلى لإرجاعها." : "اضغط الكلمات بالترتيب لتكوين الجملة الصحيحة، أو اسحبها. اضغط كلمة في الأعلى لإرجاعها."}</small>`; }
   if (q.t === "match") return `<div class="iq match" data-i="${i}"><div class="mcol">${(q.left || []).map((w, j) => `<button type="button" class="mi l" data-j="${j}"><span class="mn"></span><span dir="auto">${esc(w)}</span></button>`).join("")}</div><div class="mcol">${(q.right || []).map((w, k) => `<button type="button" class="mi r" data-k="${k}"><span class="mn"></span><span dir="auto">${esc(w)}</span></button>`).join("")}</div></div><small class="sub iqh">اضغط كلمة من العمود الأول ثم معناها من العمود الثاني لتوصيلهما. اضغط كلمة موصولة لإلغاء التوصيل.</small>`;
   const parts = String(q.text || "").split("___");
   if (q.t === "fill") return `<div class="iq fill" data-i="${i}" dir="auto">${parts.map((p, j) => esc(p) + (j < parts.length - 1 ? `<input class="bl" data-b="${j}" maxlength="60" size="8" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="...">` : "")).join("")}</div>`;
@@ -1842,6 +1851,19 @@ function bindIQ(root) {
       sl.addEventListener("drop", e => { e.preventDefault(); sl.classList.remove("over"); if (dragging) put(sl, dragging); });
     });
   });
+  $$(".iq.ord", root).forEach(el => {
+    const line = $(".oline", el), bank = $(".obank", el); let drag = null;
+    const orig = $$(".ordc", bank);
+    el.addEventListener("click", e => { const c = e.target.closest(".ordc"); if (c) { if (c.parentNode === bank) line.appendChild(c); else bank.appendChild(c); } else if (e.target.closest(".orst")) orig.forEach(x => bank.appendChild(x)); });
+    el.addEventListener("dragstart", e => { const c = e.target.closest(".ordc"); if (!c) return; drag = c; c.classList.add("dg"); try { e.dataTransfer.setData("text/plain", c.textContent); e.dataTransfer.effectAllowed = "move"; } catch {} });
+    el.addEventListener("dragend", () => { if (drag) drag.classList.remove("dg"); drag = null; line.classList.remove("over"); });
+    el.addEventListener("dragover", e => { if (drag) { e.preventDefault(); if (e.target.closest(".oline")) line.classList.add("over"); } });
+    el.addEventListener("dragleave", e => { if (!line.contains(e.relatedTarget)) line.classList.remove("over"); });
+    el.addEventListener("drop", e => { if (!drag) return; e.preventDefault(); line.classList.remove("over");
+      if (e.target.closest(".obank")) { bank.appendChild(drag); return; }
+      if (!e.target.closest(".oline")) return;
+      const t = e.target.closest(".ordc"); if (t && t !== drag && t.parentNode === line) { const r = t.getBoundingClientRect(), rtl = getComputedStyle(el).direction === "rtl", after = rtl ? e.clientX < r.left + r.width / 2 : e.clientX > r.left + r.width / 2; line.insertBefore(drag, after ? t.nextSibling : t); } else line.appendChild(drag); });
+  });
   $$(".iq.match", root).forEach(el => {
     const L = $$(".mi.l", el), R = $$(".mi.r", el); el._m = L.map(() => -1); let selL = -1;
     const paint = () => {
@@ -1859,6 +1881,7 @@ function collectAns(qs, form, f) {
       const el = $(`.iq[data-i="${i}"]`, form); if (!el) return "[]";
       if (q.t === "fill") return JSON.stringify($$(".bl", el).map(x => x.value.trim()));
       if (q.t === "drag") return JSON.stringify($$(".slot", el).map(x => x._c ? x._c.textContent : ""));
+      if (q.t === "order") return JSON.stringify($$(".oline .ordc", el).map(x => x.textContent));
       return JSON.stringify(el._m || []);
     }
     return q.t === "mcq" ? (f.get("q" + i) === null ? -1 : Number(f.get("q" + i))) : String(f.get("q" + i) || "").trim();
@@ -1867,6 +1890,8 @@ function collectAns(qs, form, f) {
 const ansEmpty = (q, a) => q.t === "mcq" ? a === -1 : q.t === "essay" ? a === "" : pj(a).every(x => x === "" || x === -1);
 function iqReview(q, a, k) {
   const arr = pj(a);
+  if (q.t === "order") { const ks = k?.o || [], dir = isRtl(q.items) ? "rtl" : "ltr", sm = q.m === "s", ok = ks.length ? ks.length === arr.length && ks.every((x, j) => normTxt(x) === normTxt(arr[j])) : null;
+    return `<div class="iqr ordr ${sm ? "s" : ""}" dir="${dir}"><div class="orow">${arr.length ? arr.map((w, j) => `<span class="rv ${ks.length ? (normTxt(ks[j]) === normTxt(w) ? "good" : "bad") : ""}">${esc(w)}</span>`).join("") : `<span class="rv bad" dir="rtl">لم تُجب</span>`}</div>${ok === false ? `<div class="orow key"><small dir="rtl">الترتيب الصحيح:</small>${ks.map(w => `<span class="rv key">${esc(w)}</span>`).join("")}</div>` : ""}</div>`; }
   if (q.t === "match") return `<div class="iqr">${(q.left || []).map((l, j) => { const got = arr[j], ok = k?.m ? got === k.m[j] : null; return `<div class="mrv"><b dir="auto">${esc(l)}</b> ← <span class="rv ${ok === null ? "" : ok ? "good" : "bad"}" dir="auto">${got >= 0 && q.right[got] !== undefined ? esc(q.right[got]) : "لم تُجب"}</span>${ok === false && q.right[k.m[j]] !== undefined ? `<span class="rv key" dir="auto">${esc(q.right[k.m[j]])}</span>` : ""}</div>`; }).join("")}</div>`;
   const parts = String(q.text || "").split("___");
   return `<div class="iqr" dir="auto">${parts.map((p, j) => { if (j >= parts.length - 1) return esc(p); const ok = k?.a ? blankOk(k.a[j], arr[j]) : null; return esc(p) + `<span class="rv ${ok === null ? "" : ok ? "good" : "bad"}">${arr[j] ? esc(arr[j]) : "—"}</span>` + (ok === false && k.a[j] != null ? `<span class="rv key">${esc(String(k.a[j]).split("|")[0])}</span>` : ""); }).join("")}</div>`;
@@ -1885,6 +1910,7 @@ function gradeExam(ex, keys, answers) {
     else if (isIQ(q)) {
       const arr = pj(a);
       if (q.t === "match") { const m = k.m || [], n = m.length; const c = m.filter((x, j) => arr[j] === x).length; got = n ? r2(pts * c / n) : 0; ok = n > 0 && c === n; }
+      else if (q.t === "order") { const ks = k.o || [], c = ks.filter((x, j) => normTxt(x) === normTxt(arr[j])).length; got = ks.length ? r2(pts * c / ks.length) : 0; ok = ks.length > 0 && c === ks.length; }
       else { const ks = k.a || []; const c = ks.filter((x, j) => blankOk(x, arr[j])).length; got = ks.length ? r2(pts * c / ks.length) : 0; ok = ks.length > 0 && c === ks.length; }
     }
     else { const kw = (k.k || []).filter(Boolean); if (kw.length) { const m = kw.filter(w => normTxt(a).includes(normTxt(w))).length; got = r2(pts * m / kw.length); ok = m === kw.length; } else pending = true; }
@@ -2382,10 +2408,11 @@ async function examAction(e) {
 }
 let qSeq = 0;
 function qBlock(q, key) {
-  const n = ++qSeq, t = q?.t || "mcq", opts = [...(q?.opts || []), "", "", "", ""].slice(0, 4), h = (...a) => a.includes(t) ? "" : "hidden";
+  const n = ++qSeq, t = q?.t === "order" ? (q.m === "s" ? "orders" : "orderw") : (q?.t || "mcq"), opts = [...(q?.opts || []), "", "", "", ""].slice(0, 4), h = (...a) => a.includes(t) ? "" : "hidden";
   let tx = "", dis = "", mt = "";
   if ((t === "fill" || t === "drag") && q?.text) { let j = 0; tx = q.text.replace(/___/g, () => "[[" + (key?.a?.[j++] ?? "") + "]]"); }
   if (t === "drag" && q?.bank && key?.a) { const rest = [...q.bank]; key.a.forEach(a => { const x = rest.indexOf(a); if (x >= 0) rest.splice(x, 1); }); dis = rest.join("، "); }
+  let ot = ""; if ((t === "orderw" || t === "orders") && key?.o) ot = key.o.join(t === "orders" ? "\n" : " ");
   if (t === "match" && q?.left && key?.m) mt = q.left.map((l, j) => `${l} = ${q.right[key.m[j]] ?? ""}`).join("\n");
   return `<div class="qb card" data-n="${n}"><div class="qbh"><b class="qn"></b><select class="qt">${Object.entries(QT).map(([k, v]) => `<option value="${k}" ${t === k ? "selected" : ""}>${v}</option>`).join("")}</select><label class="qpl">الدرجة <input class="qp" type="number" min="0.5" step="0.5" value="${esc(q?.pts ?? 1)}"></label><button type="button" class="btn btn-bad btn-sm" data-rm>حذف</button></div>
     <textarea class="qq" maxlength="600" placeholder="نص السؤال / التعليمات (مثال: أكمل الجملة)">${esc(q?.q)}</textarea>
@@ -2393,6 +2420,7 @@ function qBlock(q, key) {
     <div class="qess" ${h("essay")}><input class="qk" maxlength="400" placeholder="كلمات مفتاحية للتصحيح التلقائي، افصل بينها بفاصلة (اتركها فارغة للتصحيح اليدوي)" value="${esc((key?.k || []).join("، "))}"></div>
     <div class="qiq qfil" ${h("fill", "drag")}><textarea class="qtx" maxlength="800" dir="auto" placeholder="اكتب الجملة وضع الإجابة بين [[ ]] مكان كل فراغ. مثال: Je [[suis]] étudiant et tu [[es]] professeur">${esc(tx)}</textarea><small class="sub">كل كلمة بين [[ ]] ستصبح فراغًا. في «ملء الفراغات» يمكنك وضع أكثر من إجابة صحيحة بفاصل | مثل [[es|êtes]].</small></div>
     <div class="qiq qdis" ${h("drag")}><input class="qdi" maxlength="300" placeholder="كلمات إضافية خاطئة لتشتيت الطالب (اختياري) — افصل بينها بفاصلة" value="${esc(dis)}"></div>
+    <div class="qiq qord" ${h("orderw", "orders")}><textarea class="qor" maxlength="1200" dir="auto" placeholder="${t === "orders" ? "اكتب الجمل الصحيحة بالترتيب، كل جملة في سطر&#10;Bonjour, je m'appelle Sara.&#10;J'ai quinze ans.&#10;J'habite au Caire." : "اكتب الجملة الصحيحة كاملة وسيتم تقطيعها كلمات وخلطها للطالب&#10;Je suis étudiant à l'université"}">${esc(ot)}</textarea><small class="sub qorh">${t === "orders" ? "اكتب كل جملة في سطر بالترتيب الصحيح (حد أدنى جملتان). سيتم خلطها للطالب تلقائيًا." : "اكتب الجملة الصحيحة، وكل كلمة ستصبح قطعة يرتّبها الطالب (حد أدنى كلمتان). يتم الخلط تلقائيًا."}</small></div>
     <div class="qiq qmat" ${h("match")}><textarea class="qmt" maxlength="1200" dir="auto" placeholder="اكتب كل زوج في سطر: الكلمة = معناها&#10;Bonjour = صباح الخير&#10;Merci = شكرًا&#10;Livre = كتاب">${esc(mt)}</textarea><small class="sub">سطر لكل زوج (حد أدنى زوجان). سيتم خلط العمود الثاني للطالب تلقائيًا.</small></div></div>`;
 }
 function bindQs(m, qs, min) {
@@ -2400,7 +2428,7 @@ function bindQs(m, qs, min) {
   num();
   $("#qa", m).onclick = () => { qs.insertAdjacentHTML("beforeend", qBlock()); num(); };
   qs.addEventListener("click", e => { if (e.target.closest("[data-rm]")) { if ($$(".qb", qs).length > min) { e.target.closest(".qb").remove(); num(); } else toast("لازم سؤال واحد على الأقل", "err"); } });
-  qs.addEventListener("change", e => { if (e.target.classList.contains("qt")) { const b = e.target.closest(".qb"), t = e.target.value; $(".qmcq", b).hidden = t !== "mcq"; $(".qess", b).hidden = t !== "essay"; $(".qfil", b).hidden = !(t === "fill" || t === "drag"); $(".qdis", b).hidden = t !== "drag"; $(".qmat", b).hidden = t !== "match"; } });
+  qs.addEventListener("change", e => { if (e.target.classList.contains("qt")) { const b = e.target.closest(".qb"), t = e.target.value; $(".qmcq", b).hidden = t !== "mcq"; $(".qess", b).hidden = t !== "essay"; $(".qfil", b).hidden = !(t === "fill" || t === "drag"); $(".qdis", b).hidden = t !== "drag"; $(".qmat", b).hidden = t !== "match"; const od = t === "orderw" || t === "orders"; $(".qord", b).hidden = !od; if (od) { $(".qor", b).placeholder = t === "orders" ? "اكتب الجمل الصحيحة بالترتيب، كل جملة في سطر\nBonjour, je m'appelle Sara.\nJ'ai quinze ans." : "اكتب الجملة الصحيحة كاملة\nJe suis étudiant à l'université"; $(".qorh", b).textContent = t === "orders" ? "اكتب كل جملة في سطر بالترتيب الصحيح (حد أدنى جملتان). سيتم خلطها للطالب تلقائيًا." : "اكتب الجملة الصحيحة، وكل كلمة ستصبح قطعة يرتّبها الطالب (حد أدنى كلمتان). يتم الخلط تلقائيًا."; } } });
 }
 const shuf = a => { const r = [...a]; for (let i = r.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [r[i], r[j]] = [r[j], r[i]]; } return r; };
 function readQs(qs) {
@@ -2423,6 +2451,12 @@ function readQs(qs) {
         questions.push({ t, q, pts, opts: [], text, bank: shuf([...ans, ...extra]) });
       } else questions.push({ t, q, pts, opts: [], text });
       ks.push({ a: ans });
+    } else if (t === "orderw" || t === "orders") {
+      const raw = $(".qor", b).value, sm = t === "orders", items = sm ? raw.split("\n").map(x => x.trim()).filter(Boolean) : raw.trim().split(/\s+/).filter(Boolean);
+      if (items.length < 2) return { err: `السؤال ${i + 1}: ${sm ? "اكتب جملتين على الأقل، كل جملة في سطر" : "اكتب جملة من كلمتين على الأقل"}` };
+      if (items.length > 20) return { err: `السؤال ${i + 1}: الحد الأقصى 20 قطعة` };
+      let sh = shuf(items); for (let r = 0; r < 8 && sh.every((x, j) => x === items[j]) && new Set(items).size > 1; r++) sh = shuf(items);
+      questions.push({ t: "order", m: sm ? "s" : "w", q, pts, opts: [], items: sh }); ks.push({ o: items });
     } else if (t === "match") {
       const pairs = $(".qmt", b).value.split("\n").map(l => l.trim()).filter(Boolean).map(l => { const x = l.indexOf("="); return x < 0 ? null : [l.slice(0, x).trim(), l.slice(x + 1).trim()]; });
       if (pairs.length < 2 || pairs.some(p => !p || !p[0] || !p[1])) return { err: `السؤال ${i + 1}: اكتب زوجين على الأقل، كل زوج في سطر بالشكل: الكلمة = معناها` };
