@@ -734,6 +734,23 @@ html[data-theme=light] .hl-fx b{background-image:linear-gradient(100deg,#7a520a 
 .cb .acts{margin-top:6px;gap:14px}
 .lnk.bad{color:var(--bad)}
 .et{margin-top:8px;min-height:80px}
+/* ===== النقاط والمستويات ===== */
+.gm{margin-top:22px}.gm-hero{display:flex;gap:26px;align-items:center;padding:24px;border-radius:22px;border:1px solid var(--lc);background:radial-gradient(120% 140% at 0% 0%,color-mix(in srgb,var(--lc) 22%,transparent),transparent 60%),var(--card);box-shadow:0 10px 40px -18px var(--lc)}
+.gm-ring{flex:none;width:132px;height:132px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--lc) calc(var(--p)*1%),var(--line) 0);animation:gmspin 1s cubic-bezier(.2,.8,.2,1)}
+.gm-in{width:106px;height:106px;border-radius:50%;background:var(--bg2);display:grid;place-items:center;align-content:center;gap:2px;text-align:center}.gm-lv{color:var(--lc);display:grid}.gm-in small{color:var(--muted);font-size:.72rem}
+.gm-main{flex:1;min-width:0}.gm-top{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}.gm-top h2{font-size:1.6rem;color:var(--lc)}.gm-top em{font:600 .85rem var(--fd);color:var(--muted);font-style:normal;margin-inline-start:6px;direction:ltr;display:inline-block}
+.gm-pts{font-size:.9rem;color:var(--muted)}.gm-pts b{font:800 1.9rem var(--fd);color:var(--accent-text)}
+.gm-bar{height:12px;border-radius:8px;background:var(--line);overflow:hidden;margin:12px 0 8px}.gm-bar i{display:block;height:100%;border-radius:8px;background:linear-gradient(90deg,var(--lc),var(--accent-2));transition:width 1s cubic-bezier(.2,.8,.2,1)}
+.gm-next{color:var(--muted)}.gm-next b{color:var(--fg)}.gm-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.gm-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:20px;background:var(--soft);border:1px solid var(--line);font-size:.82rem}.gm-chip.fire.on{color:#ff9a4d;border-color:#ff9a4d;background:rgba(255,154,77,.12)}
+.gm-grid{display:grid;grid-template-columns:1fr 1.4fr;gap:16px;margin-top:16px}
+.gm-parts{display:grid;gap:8px}.gm-pr{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;background:var(--soft)}.gm-pr span{color:var(--accent-text);display:grid}.gm-pr b{flex:1;font-weight:600;font-size:.9rem}.gm-pr em{font:800 1rem var(--fd);color:var(--accent-text);font-style:normal}
+.gm-how{margin-top:12px;font-size:.88rem}.gm-how summary{cursor:pointer;color:var(--accent-text);font-weight:600}.gm-how ul{list-style:none;margin-top:8px;display:grid;gap:6px}.gm-how li{display:flex;justify-content:space-between;color:var(--muted)}.gm-how li b{color:var(--fg)}
+.gm-badges{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.gm-b{display:grid;justify-items:center;text-align:center;gap:4px;padding:14px 8px;border-radius:14px;border:1px dashed var(--line);opacity:.5;filter:grayscale(1)}.gm-b span{display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:var(--soft)}.gm-b b{font-size:.85rem}.gm-b small{font-size:.7rem;color:var(--muted);line-height:1.4}
+.gm-b.on{opacity:1;filter:none;border:1px solid var(--accent);background:linear-gradient(160deg,rgba(212,167,58,.14),transparent)}.gm-b.on span{background:linear-gradient(135deg,var(--accent-deep),var(--accent-2));color:#1b1405}
+.gm-lvls{display:flex;justify-content:space-between;margin-top:16px;position:relative;padding:0 4px}.gm-lvls:before{content:"";position:absolute;inset-inline:18px;top:9px;height:3px;background:var(--line)}.gm-lvls span{position:relative;display:grid;justify-items:center;gap:6px;flex:1}.gm-lvls i{width:20px;height:20px;border-radius:50%;background:var(--bg2);border:3px solid var(--line)}.gm-lvls small{font-size:.72rem;color:var(--muted)}.gm-lvls .on i{background:var(--lc);border-color:var(--lc)}.gm-lvls .cur i{box-shadow:0 0 0 5px color-mix(in srgb,var(--lc) 30%,transparent)}.gm-lvls .cur small{color:var(--fg);font-weight:700}
+@keyframes gmspin{from{transform:rotate(-90deg) scale(.8);opacity:0}}
+@media(max-width:700px){.gm-hero{flex-direction:column;text-align:center;padding:20px 16px}.gm-top{justify-content:center}.gm-chips{justify-content:center}.gm-grid{grid-template-columns:1fr}.gm-badges{grid-template-columns:repeat(3,1fr)}.gm-lvls small{font-size:.6rem}}
 /* ===== نشاطي ===== */
 .wk{display:flex;gap:8px;align-items:flex-end;justify-content:space-between;height:140px;margin-top:14px}
 .wk-d{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;height:100%}
@@ -2107,6 +2124,7 @@ function renderActivity() {
   S.page = "activity"; const s = S.student;
   app.innerHTML = `${studentHeader()}<main class="wrap sec">
     <section class="banner"><div><h1><span class="act-ic">${ico(XI.chart, 26)}</span> نشاطي وإحصائياتي</h1><p>تابع تقدمك في الفيديوهات وتعليقاتك وتقييماتك على المنصة</p></div><a class="btn btn-fill" id="resume" href="#/" hidden></a></section>
+    <section class="gm" id="gm"></section>
     <div class="stats astats" id="as" style="margin-top:22px"></div>
     <div class="pf"><div class="card"><h3 class="ch">${ico(XI.target, 20)} تقدمك العام</h3><div id="ovc"></div></div><div class="card"><h3 class="ch" style="margin-bottom:4px">${ico(XI.chart, 20)} نشاط آخر 7 أيام</h3><small style="color:var(--muted)">فيديوهات شاهدتها وتعليقات كتبتها في كل يوم</small><div class="wk" id="wk"></div></div></div>
     <div class="tabs"><div class="trow">${[["videos", "فيديوهاتي", ST_IC.videos], ["comments", "تعليقاتي", XI.msg], ["ratings", "تقييماتي", XI.star], ["exams", "اختباراتي", ST_IC.exams]].map(([k, t, d]) => `<button class="tab" data-t="${k}"><i class="ti">${ico(d, 22)}</i><span class="tl">${t}</span><span class="tb"></span></button>`).join("")}</div></div>
@@ -2121,6 +2139,51 @@ function renderActivity() {
   AC.unsubs.push(onSnapshot(query(collection(db, "ratings"), where("uid", "==", s.id)), q => { AC.ratings = q.docs.map(d => ({ id: d.id, ...d.data() })); paintActivity(); }, e => console.warn("ar", e.code)));
   paintActivity();
 }
+
+/* ---------- النقاط والمستويات ---------- */
+const GM_LV = [[0, "مبتدئ", "Débutant", "#9aa3b2"], [100, "متعلّم", "Apprenti", "#4fb286"], [250, "مجتهد", "Studieux", "#5ab0ff"], [500, "متقدّم", "Avancé", "#a78bfa"], [900, "محترف", "Expert", "#f08ac0"], [1400, "متمكّن", "Maître", "#ff9a4d"], [2000, "نجم", "Étoile", "#f0cf6e"], [3000, "أسطورة", "Légende", "#ffd84d"]];
+const GM_IC = { flame: '<path d="M12 3c1 3.5 5 5.5 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 .3 1.2 1 2 2 2 0-3-1-5 1-8z"/>', bolt: '<path d="M13 2 4.5 13.5H11L10 22l8.5-11.5H12z"/>', crown: '<path d="m3 8 4.5 4L12 5l4.5 7L21 8l-1.5 11h-15z"/>', gift: '<rect x="3.5" y="9" width="17" height="11" rx="2"/><path d="M12 9v11M3.5 13h17M12 9c-2 0-4-1-4-3s3-2.500 4 3c1-5.500 4-5 4-3s-2 3-4 3z"/>' };
+function gmCalc(prog, hw) {
+  const done = prog.filter(p => p.done), part = prog.filter(p => !p.done && p.p > 0);
+  const gr = S.attempts.filter(a => a.score !== undefined);
+  const cm = Math.min(AC.comments.length, 20), rt = Math.min(AC.ratings.length, 20);
+  const parts = [
+    ["play", "مشاهدة الفيديوهات", done.length * 20 + part.reduce((t, p) => t + Math.round(p.p / 5), 0)],
+    ["clip", "حل الاختبارات", S.attempts.reduce((t, a) => t + 15 + (a.score !== undefined ? Math.round(pctOf(a) * .35) : 0), 0)],
+    ["doc", "تسليم الواجبات", hw * 15],
+    ["msg", "التعليقات", cm * 5],
+    ["star", "التقييمات", rt * 3]
+  ];
+  const total = parts.reduce((t, x) => t + x[2], 0);
+  let li = 0; GM_LV.forEach((l, i) => { if (total >= l[0]) li = i; });
+  const days = new Set(); prog.forEach(p => p.at && days.add(dayKey(p.at)));
+  AC.comments.forEach(c => c.createdAt?.toDate && days.add(dayKey(c.createdAt.toDate().getTime())));
+  S.attempts.forEach(a => a.createdAt?.toDate && days.add(dayKey(a.createdAt.toDate().getTime())));
+  let streak = 0; const d = new Date(); if (!days.has(dayKey(d.getTime()))) d.setDate(d.getDate() - 1);
+  while (days.has(dayKey(d.getTime()))) { streak++; d.setDate(d.getDate() - 1); }
+  const best = gr.length ? Math.max(...gr.map(pctOf)) : 0;
+  const badges = [
+    ["play", "أول خطوة", "أكمل فيديو واحد", done.length >= 1], ["ok", "مثابر", "أكمل 5 فيديوهات", done.length >= 5], ["crown", "عاشق التعلّم", "أكمل 10 فيديوهات", done.length >= 10],
+    ["clip", "مختبِر", "حلّ أول اختبار", S.attempts.length >= 1], ["trophy", "متفوّق", "درجة 90% فأكثر في اختبار", best >= 90], ["doc", "منجز الواجبات", "سلّم 3 واجبات", hw >= 3],
+    ["msg", "متفاعل", "اكتب 5 تعليقات", AC.comments.length >= 5], ["flame", "مواظب", "ذاكر 3 أيام متتالية", streak >= 3], ["bolt", "نجم المنصة", "اجمع 500 نقطة", total >= 500]
+  ];
+  return { total, li, parts, streak, badges };
+}
+function gmPaint(prog) {
+  const el = $("#gm"); if (!el) return;
+  const hw = S.hwsubs.filter(x => x.status && x.status !== "draft").length, g = gmCalc(prog, hw), L = GM_LV[g.li], N = GM_LV[g.li + 1];
+  const pct = N ? Math.round((g.total - L[0]) / (N[0] - L[0]) * 100) : 100, nb = g.badges.filter(b => b[3]).length;
+  const tips = [["الفيديو المكتمل", "+20"], ["حل اختبار", "+15 والدرجة حتى +35"], ["تسليم واجب", "+15"], ["تعليق", "+5"], ["تقييم", "+3"]];
+  el.innerHTML = `<div class="gm-hero" style="--lc:${L[3]}"><div class="gm-ring" style="--p:${pct}"><div class="gm-in"><span class="gm-lv">${ico(XI.trophy, 26)}</span><small>المستوى ${g.li + 1}</small></div></div>
+    <div class="gm-main"><div class="gm-top"><h2>${L[1]} <em>${L[2]}</em></h2><span class="gm-pts"><b>${g.total}</b> نقطة</span></div>
+    <div class="gm-bar"><i style="width:${pct}%"></i></div>
+    <small class="gm-next">${N ? `باقي <b>${N[0] - g.total}</b> نقطة للوصول إلى مستوى «${N[1]}»` : "وصلت لأعلى مستوى — أنت أسطورة! 🏆"}</small>
+    <div class="gm-chips"><span class="gm-chip fire ${g.streak ? "on" : ""}">${ico(GM_IC.flame, 16)} ${g.streak ? g.streak + " يوم متتالي" : "ابدأ سلسلتك اليوم"}</span><span class="gm-chip">${ico(XI.star, 16)} ${nb} من ${g.badges.length} شارات</span></div></div></div>
+  <div class="gm-grid"><div class="card"><h3 class="ch">${ico(XI.pulse, 20)} من أين جاءت نقاطك</h3><div class="gm-parts">${g.parts.map(([i, t, n]) => `<div class="gm-pr"><span>${ico(XI[i] || FI[i], 18)}</span><b>${t}</b><em>${n}</em></div>`).join("")}</div>
+      <details class="gm-how"><summary>كيف أجمع نقاطًا أكثر؟</summary><ul>${tips.map(t => `<li><span>${t[0]}</span><b>${t[1]}</b></li>`).join("")}</ul></details></div>
+    <div class="card"><h3 class="ch">${ico(XI.trophy, 20)} شاراتي</h3><div class="gm-badges">${g.badges.map(([i, t, d, ok]) => `<div class="gm-b ${ok ? "on" : ""}" title="${d}"><span>${ico(XI[i] || GM_IC[i] || FI[i], 22)}</span><b>${t}</b><small>${d}</small></div>`).join("")}</div></div></div>
+  <div class="gm-lvls">${GM_LV.map((l, i) => `<span class="${i <= g.li ? "on" : ""} ${i === g.li ? "cur" : ""}" style="--lc:${l[3]}"><i></i><small>${l[1]}</small></span>`).join("")}</div>`;
+}
 function paintActivity() {
   if (S.page !== "activity" || !$("#as")) return;
   const vis = visible(S.videos), byId = Object.fromEntries(S.videos.map(v => [v.id, v]));
@@ -2129,6 +2192,7 @@ function paintActivity() {
   const secs = prog.reduce((a, p) => a + (p.d ? p.d * Math.min(100, p.p) / 100 : 0), 0);
   const avg = vis.length ? Math.round(prog.reduce((a, p) => a + Math.min(100, p.p), 0) / vis.length) : 0;
   const gr = S.attempts.filter(a => a.score !== undefined), gavg = gr.length ? Math.round(gr.reduce((t, a) => t + pctOf(a), 0) / gr.length) : null;
+  gmPaint(prog);
   $("#as").innerHTML = [["ok", "good", done.length, `فيديو مكتمل من ${vis.length}`], ["play", "gold", going.length, "قيد المشاهدة"], ["timer", "blue", fmtDur(secs), "مدة المشاهدة"], ["msg", "violet", AC.comments.length, "تعليق"], ["star", "gold", AC.ratings.length, "تقييم"], ["clip", "blue", S.attempts.length, "اختبار حللته"], ["target", gavg === null ? "violet" : pctCls(gavg), gavg === null ? "—" : gavg + "%", "متوسط درجاتك"], ["inbox", "gray", fresh.length, "لم تبدأها بعد"]].map(([i, c, n, l]) => `<div class="astat ${c}"><span class="ai">${ico(XI[i], 22)}</span><div><b>${n}</b><small>${l}</small></div></div>`).join("");
   $("#ovc").innerHTML = `<div class="ovr"><div class="xmini ${pctCls(avg)}" style="--p:${avg};width:92px;height:92px"><b style="font-size:1.4rem">${avg}%</b></div><div class="ovt"><b>${done.length} من ${vis.length}</b><small>فيديو مكتمل</small><div class="pbar-track" style="margin-top:10px"><i style="width:${avg}%"></i></div></div></div>`;
   const last = [...going].sort((a, b) => b.at - a.at)[0] || [...fresh][0];
