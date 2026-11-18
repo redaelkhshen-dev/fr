@@ -1820,7 +1820,7 @@ function renderPay() {
       <div class="paym" id="pm">${Object.entries(PAY).map(([k, m]) => `<label class="payc"><input type="radio" name="method" value="${k}" ${PY.method === k ? "checked" : ""}><div><span class="payi">${m.icon}</span><b>${m.name}</b><div class="payn" dir="ltr">${m.number}</div><div class="payb"><button type="button" class="btn btn-line btn-sm" data-copy="${m.number}">📋 نسخ الرقم</button><a class="btn btn-fill btn-sm payg ${m.cls}" href="${m.link}" target="_blank" rel="noopener">⚡ اضغط للدفع مباشرة</a></div><details class="payq"><summary>عرض QR للمسح</summary><img src="${m.qr}" alt="QR ${m.name}" loading="lazy"><a class="btn btn-line btn-sm" href="${m.qr}" download="${m.cls === "vf" ? "qr-vodafone-cash" : "qr-instapay"}.jpg">⬇ حفظ الصورة</a></details></div></label>`).join("")}</div>
       <p class="sub" style="margin-top:12px">⚠️ حوّل على الرقم الظاهر بالأعلى فقط، واحتفظ بصورة إيصال التحويل.</p></div>
     <div class="card pyx"><div class="pyx-h"><span class="pyx-hi">${fsv(PYI.card, 24)}</span><div><h3>بيانات التحويل</h3><small>املأ البيانات وارفع صورة الإيصال ليراجعها المدرس</small></div></div>
-      <div class="pyx-sum" id="psum"></div><div class="alert" id="err" hidden></div>
+      <div class="alert" id="err" hidden></div>
       <form id="pf2" novalidate>
         ${fld("المبلغ المحوّل", PYI.cash, `<input name="amount" type="number" inputmode="decimal" min="1" max="100000" step="any" dir="ltr" placeholder="0"><em class="pyx-cur">جنيه</em>`)}
         ${fld("الرقم الذي حوّلت منه", "phone", `<input name="from" type="tel" inputmode="numeric" dir="ltr" maxlength="11" placeholder="01XXXXXXXXX" value="${esc(s.phone)}">`)}
@@ -1835,9 +1835,7 @@ function renderPay() {
       </form></div></div>
     <h3 style="margin:30px 0 12px">تحويلاتي السابقة</h3><div id="ph"></div></main>`;
   $("#lo").onclick = doLogout;
-  const drawSum = () => { const m = PAY[PY.method]; $("#psum").innerHTML = `<span class="pyx-si ${m.cls}">${m.icon}</span><div><small>حوّلت إلى</small><b>${m.name}</b></div><div class="pyx-sn" dir="ltr">${m.number}</div><button type="button" class="btn btn-line btn-sm" data-copy="${m.number}">نسخ</button>`; };
-  drawSum();
-  $("#pm").addEventListener("change", e => { if (e.target.name === "method") { PY.method = e.target.value; drawSum(); } });
+  $("#pm").addEventListener("change", e => { if (e.target.name === "method") PY.method = e.target.value; });
   let rcpt = null; const dz = $("#dz"), rf = $("#rf");
   const setFile = async f => {
     showErr(""); if (!f) return;
@@ -1859,14 +1857,14 @@ function renderPay() {
     if (!(amount > 0 && amount <= 100000)) return showErr("اكتب المبلغ المحوّل بشكل صحيح");
     if (!PHONE_RE.test(from)) return showErr("اكتب الرقم الذي حوّلت منه (11 رقم)");
     if (!rcpt) return showErr("ارفع صورة إيصال التحويل أولًا");
-    const sb = $("#sb"), pgb = $("#pgb"), bar = $("i", pgb), pre = window.open("", "_blank"); sb.disabled = true; pgb.hidden = false; bar.style.width = "0%";
-    const go = text => { const u = `https://wa.me/${PAY_WA}?text=${encodeURIComponent(text)}`; if (pre) pre.location.href = u; else location.href = u; };
+    const sb = $("#sb"), pgb = $("#pgb"), bar = $("i", pgb); sb.disabled = true; pgb.hidden = false; bar.style.width = "0%";
+    const go = text => setTimeout(() => { location.href = `https://wa.me/${PAY_WA}?text=${encodeURIComponent(text)}`; }, 700);
     const rec = { uid: s.id, name: s.name, phone: s.phone, stage: s.stage, system: s.system, grade: s.grade, method: PY.method, amount, from, note, status: "pending" };
     try {
       const path = `receipts/${s.id}/${Date.now()}_${Math.random().toString(36).slice(2, 7)}.jpg`, task = uploadBytesResumable(ref(storage, path), rcpt, { contentType: "image/jpeg" });
       await new Promise((ok, no) => task.on("state_changed", sn => { bar.style.width = Math.round(sn.bytesTransferred / sn.totalBytes * 100) + "%"; }, no, ok));
       rec.rcpt = await getDownloadURL(task.snapshot.ref); rec.rcptPath = path;
-    } catch (er) { if (pre) pre.close(); sb.disabled = false; pgb.hidden = true; return showErr("تعذر رفع صورة الإيصال (" + (er.code || "خطأ") + ")، تأكد من الاتصال وحاول مرة أخرى"); }
+    } catch (er) { sb.disabled = false; pgb.hidden = true; return showErr("تعذر رفع صورة الإيصال (" + (er.code || "خطأ") + ")، تأكد من الاتصال وحاول مرة أخرى"); }
     try { await addDoc(collection(db, "payments"), { ...rec, createdAt: serverTimestamp() }); toast("تم إرسال الإيصال للمدرس وفتح واتساب للتأكيد", "ok"); e.target.reset(); clrFile(); }
     catch { toast("تم رفع الصورة لكن تعذر حفظ السجل، أرسل الإيصال على واتساب", "err"); }
     sb.disabled = false; pgb.hidden = true; go(payMsg(rec));
