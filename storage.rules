@@ -1,14 +1,6 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
-    // إيصالات الدفع: الطالب يرفع صورته فقط (حتى 5 ميجا)، والقراءة والحذف للمدرس ولصاحب الإيصال
-    match /receipts/{uid}/{name} {
-      allow read: if request.auth != null && (request.auth.uid == uid || request.auth.token.email == 'admin@reda-fr.app');
-      allow create: if request.auth != null && request.auth.uid == uid
-        && request.resource.size < 5 * 1024 * 1024
-        && request.resource.contentType.matches('image/.*');
-      allow delete: if request.auth != null && request.auth.token.email == 'admin@reda-fr.app';
-    }
     match /files/{allPaths=**} {
       allow read: if request.auth != null;
       allow write: if request.auth != null

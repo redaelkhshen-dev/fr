@@ -781,7 +781,7 @@ html[data-theme=light] .hl-fx b{background-image:linear-gradient(100deg,#7a520a 
 .pyx-pg{position:relative;height:30px;border-radius:10px;background:var(--line);overflow:hidden;margin-bottom:12px;display:grid;place-items:center}.pyx-pg i{position:absolute;inset-block:0;inset-inline-start:0;width:0;background:linear-gradient(90deg,var(--accent-deep),var(--accent-2));transition:width .2s}.pyx-pg span{position:relative;font-size:.8rem;font-weight:700;color:#1b1405}
 .pyx-go{display:flex;align-items:center;justify-content:center;gap:8px;min-height:52px}.pyx-go:disabled{opacity:.6;cursor:wait}.pyx-sec{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:10px;color:var(--muted);font-size:.76rem}
 .pyx-th{flex:none;width:54px;height:54px;padding:0;border-radius:10px;overflow:hidden;border:1px solid var(--line);background:#fff;cursor:zoom-in}.pyx-th img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .2s}.pyx-th:hover img{transform:scale(1.1)}
-.pyx-lb{text-align:center}.pyx-lb h3{margin-bottom:12px;font-size:1rem}.pyx-lb img{max-width:100%;max-height:70vh;border-radius:12px;border:1px solid var(--line);background:#fff}
+.pyx-ld{padding:30px;color:var(--muted)}.pyx-lb{text-align:center}.pyx-lb h3{margin-bottom:12px;font-size:1rem}.pyx-lb img{max-width:100%;max-height:70vh;border-radius:12px;border:1px solid var(--line);background:#fff}
 .paym{display:grid;gap:14px}
 .payc{position:relative;display:block;cursor:pointer}
 .payc input{position:absolute;opacity:0}
@@ -1797,20 +1797,29 @@ const payMsg = p => `السلام عليكم مسيو رضا 👋
 🎓 المرحلة: ${STAGES[p.stage] || ""} · ${SYSTEMS[p.system] || ""} · ${p.grade || ""}
 💳 طريقة الدفع: ${PAY[p.method]?.name || p.method}
 💰 المبلغ: ${p.amount} جنيه
-📞 المحوّل منه: ${p.from}${p.note ? `\n📝 ملاحظة: ${p.note}` : ""}${p.rcpt ? `\n🧾 صورة الإيصال: ${p.rcpt}` : ""}
+📞 المحوّل منه: ${p.from}${p.note ? `\n📝 ملاحظة: ${p.note}` : ""}${p.rcptId ? `\n🧾 تم رفع صورة الإيصال على المنصة (لوحة التحكم ← المدفوعات ← عرض الإيصال)` : ""}
 🕒 ${new Date().toLocaleString("ar-EG")}`;
 const openWA = text => { const u = `https://wa.me/${PAY_WA}?text=${encodeURIComponent(text)}`; const w = window.open(u, "_blank"); if (!w) location.href = u; };
 const PYI = { card: '<rect x="2.5" y="5" width="19" height="14" rx="2.500"/><path d="M2.500 10h19M6.500 15h4"/>', cash: '<rect x="2.500" y="6" width="19" height="12" rx="2.500"/><circle cx="12" cy="12" r="2.800"/><path d="M6 9.500v.01M18 14.500v.01"/>', note: '<path d="M5 4h14v16H5zM9 9h6M9 13h6M9 17h3"/>', up: '<path d="M7 18a4.500 4.500 0 0 1-.6-8.960A6 6 0 0 1 18 9.500 4 4 0 0 1 17.500 18M12 12v7M9 14.500l3-3 3 3"/>', send: '<path d="m21 3-9.500 18-2.500-7.500L1.500 11zM9 13.500 21 3"/>', lock: '<rect x="5" y="11" width="14" height="9.500" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>' };
-async function compressImg(file, max = 1600, q = .82) {
+async function compressImg(file) {
   const url = URL.createObjectURL(file);
   try {
     const img = await new Promise((ok, no) => { const i = new Image(); i.onload = () => ok(i); i.onerror = no; i.src = url; });
-    const k = Math.min(1, max / Math.max(img.width, img.height)), c = document.createElement("canvas"); c.width = Math.max(1, Math.round(img.width * k)); c.height = Math.max(1, Math.round(img.height * k));
-    const x = c.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, c.width, c.height); x.drawImage(img, 0, 0, c.width, c.height);
-    const b = await new Promise(r => c.toBlob(r, "image/jpeg", q)); if (!b) throw 0; return b;
+    for (const [max, q] of [[1200, .78], [1000, .7], [900, .6], [800, .5], [700, .45], [600, .4]]) {
+      const k = Math.min(1, max / Math.max(img.width, img.height)), c = document.createElement("canvas"); c.width = Math.max(1, Math.round(img.width * k)); c.height = Math.max(1, Math.round(img.height * k));
+      const x = c.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, c.width, c.height); x.drawImage(img, 0, 0, c.width, c.height);
+      const d = c.toDataURL("image/jpeg", q); if (d.length <= 300000) return d;
+    }
+    throw 0;
   } finally { URL.revokeObjectURL(url); }
 }
-const showRcpt = p => { const m = openModal(`<div class="pyx-lb"><h3>🧾 إيصال ${esc(p.name || "")} · ${esc(p.amount)} جنيه</h3><img src="${esc(p.rcpt)}" alt="إيصال التحويل"><div class="acts" style="justify-content:center;margin-top:12px"><a class="btn btn-fill btn-sm" href="${esc(p.rcpt)}" target="_blank" rel="noopener" download>فتح / تحميل الصورة</a><button class="btn btn-line btn-sm" data-close>إغلاق</button></div></div>`, true); return m; };
+const showRcpt = async p => {
+  const m = openModal(`<div class="pyx-lb"><h3>🧾 إيصال ${esc(p.name || "")} · ${esc(p.amount)} جنيه</h3><div class="pyx-ld">جارٍ تحميل الصورة…</div></div>`, true);
+  try {
+    const img = p.rcptId ? (await getDoc(doc(db, "payrcpts", p.rcptId))).data()?.img : p.rcpt; if (!img) throw 0;
+    $(".pyx-lb", m).innerHTML = `<h3>🧾 إيصال ${esc(p.name || "")} · ${esc(p.amount)} جنيه</h3><img src="${img}" alt="إيصال التحويل"><div class="acts" style="justify-content:center;margin-top:12px"><a class="btn btn-fill btn-sm" href="${img}" download="receipt-${esc(p.phone || "")}.jpg">⬇ تحميل الصورة</a><button class="btn btn-line btn-sm" data-close>إغلاق</button></div>`;
+  } catch { $(".pyx-ld", m).textContent = "تعذر تحميل الصورة (قد تكون محذوفة)"; }
+};
 function renderPay() {
   S.page = "pay"; const s = S.student;
   app.innerHTML = `${studentHeader()}<main class="wrap sec">
@@ -1842,7 +1851,7 @@ function renderPay() {
     if (!/^image\//.test(f.type)) return showErr("اختر صورة فقط (JPG أو PNG)");
     if (f.size > 20 * 1024 * 1024) return showErr("حجم الصورة كبير جدًا (الحد 20 ميجا)");
     try { rcpt = await compressImg(f); } catch { rcpt = null; return showErr("تعذر قراءة الصورة، جرّب لقطة شاشة بصيغة JPG أو PNG"); }
-    $("#rp").src = URL.createObjectURL(rcpt); $("#rn").textContent = f.name || "إيصال التحويل"; $("#rs").textContent = fmtSize(rcpt.size);
+    $("#rp").src = rcpt; $("#rn").textContent = f.name || "إيصال التحويل"; $("#rs").textContent = fmtSize(Math.round(rcpt.length * .75));
     $(".pyx-dz0", dz).hidden = true; $(".pyx-dz1", dz).hidden = false; dz.classList.add("has");
   };
   const clrFile = () => { rcpt = null; rf.value = ""; $(".pyx-dz0", dz).hidden = false; $(".pyx-dz1", dz).hidden = true; dz.classList.remove("has"); };
@@ -1861,9 +1870,8 @@ function renderPay() {
     const go = text => setTimeout(() => { location.href = `https://wa.me/${PAY_WA}?text=${encodeURIComponent(text)}`; }, 700);
     const rec = { uid: s.id, name: s.name, phone: s.phone, stage: s.stage, system: s.system, grade: s.grade, method: PY.method, amount, from, note, status: "pending" };
     try {
-      const path = `receipts/${s.id}/${Date.now()}_${Math.random().toString(36).slice(2, 7)}.jpg`, task = uploadBytesResumable(ref(storage, path), rcpt, { contentType: "image/jpeg" });
-      await new Promise((ok, no) => task.on("state_changed", sn => { bar.style.width = Math.round(sn.bytesTransferred / sn.totalBytes * 100) + "%"; }, no, ok));
-      rec.rcpt = await getDownloadURL(task.snapshot.ref); rec.rcptPath = path;
+      bar.style.width = "40%"; const rr = doc(collection(db, "payrcpts"));
+      await setDoc(rr, { uid: s.id, img: rcpt, createdAt: serverTimestamp() }); rec.rcptId = rr.id; bar.style.width = "100%";
     } catch (er) { sb.disabled = false; pgb.hidden = true; return showErr("تعذر رفع صورة الإيصال (" + (er.code || "خطأ") + ")، تأكد من الاتصال وحاول مرة أخرى"); }
     try { await addDoc(collection(db, "payments"), { ...rec, createdAt: serverTimestamp() }); toast("تم إرسال الإيصال للمدرس وفتح واتساب للتأكيد", "ok"); e.target.reset(); clrFile(); }
     catch { toast("تم رفع الصورة لكن تعذر حفظ السجل، أرسل الإيصال على واتساب", "err"); }
@@ -1875,7 +1883,7 @@ function renderPay() {
 function paintPay() {
   const ph = $("#ph"); if (!ph || S.page !== "pay") return;
   const l = [...PY.list].sort((a, b) => (b.createdAt?.seconds ?? 9e12) - (a.createdAt?.seconds ?? 9e12));
-  ph.innerHTML = l.map(p => `<div class="arow">${p.rcpt ? `<button type="button" class="pyx-th" data-rc="${esc(p.id)}" title="عرض الإيصال"><img src="${esc(p.rcpt)}" alt="" loading="lazy"></button>` : ""}<div class="ainfo"><h3>${PAY[p.method]?.icon || ""} ${esc(PAY[p.method]?.name || p.method)} · ${esc(p.amount)} جنيه</h3><small>${ago(p.createdAt)} · من <span dir="ltr">${esc(p.from)}</span>${p.note ? " · " + esc(p.note) : ""}</small></div><div class="acts">${payStatus(p.status)}${p.status === "pending" ? `<button class="btn btn-line btn-sm" data-wa="${esc(p.id)}">إعادة إرسال واتساب</button>` : ""}</div></div>`).join("") || `<div class="empty">لا توجد تحويلات مسجلة بعد.</div>`;
+  ph.innerHTML = l.map(p => `<div class="arow"><div class="ainfo"><h3>${PAY[p.method]?.icon || ""} ${esc(PAY[p.method]?.name || p.method)} · ${esc(p.amount)} جنيه</h3><small>${ago(p.createdAt)} · من <span dir="ltr">${esc(p.from)}</span>${p.note ? " · " + esc(p.note) : ""}</small></div><div class="acts">${p.rcptId || p.rcpt ? `<button type="button" class="btn btn-line btn-sm" data-rc="${esc(p.id)}">🧾 الإيصال</button>` : ""}${payStatus(p.status)}${p.status === "pending" ? `<button class="btn btn-line btn-sm" data-wa="${esc(p.id)}">إعادة إرسال واتساب</button>` : ""}</div></div>`).join("") || `<div class="empty">لا توجد تحويلات مسجلة بعد.</div>`;
   $$("[data-rc]", ph).forEach(b => b.onclick = () => { const p = PY.list.find(x => x.id === b.dataset.rc); if (p) showRcpt(p); });
   $$("[data-wa]", ph).forEach(b => b.onclick = () => { const p = PY.list.find(x => x.id === b.dataset.wa); if (p) openWA(payMsg(p)); });
 }
@@ -2885,7 +2893,7 @@ TABS.payments = {
     const q = (A.pq || "").trim().toLowerCase();
     const l = P.filter(p => (!A.pst || p.status === A.pst) && (!q || [p.name, p.phone, p.from].some(t => (t || "").toLowerCase().includes(q)))).sort((a, b2) => (b2.status === "pending") - (a.status === "pending"));
     $("#pl", b).innerHTML = `<table><thead><tr><th>الطالب</th><th>الطريقة</th><th>المبلغ</th><th>المحوّل منه</th><th>الإيصال</th><th>ملاحظة</th><th>التاريخ</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody>${l.map(p => `<tr>
-      <td><b>${esc(p.name)}</b><br><small class="ph">${esc(p.phone)}</small></td><td>${PAY[p.method]?.icon || ""} ${esc(PAY[p.method]?.name || p.method)}</td><td><b>${esc(p.amount)}</b> جنيه</td><td class="ph">${esc(p.from)}</td><td>${p.rcpt ? `<button type="button" class="pyx-th" data-a="prcpt" data-id="${esc(p.id)}" title="عرض الإيصال"><img src="${esc(p.rcpt)}" alt="" loading="lazy"></button>` : `<small style="color:var(--muted)">بدون صورة</small>`}</td><td style="max-width:200px">${esc(p.note || "—")}</td><td>${fmtDate(p.createdAt)}</td><td>${payStatus(p.status)}</td>
+      <td><b>${esc(p.name)}</b><br><small class="ph">${esc(p.phone)}</small></td><td>${PAY[p.method]?.icon || ""} ${esc(PAY[p.method]?.name || p.method)}</td><td><b>${esc(p.amount)}</b> جنيه</td><td class="ph">${esc(p.from)}</td><td>${p.rcptId || p.rcpt ? `<button type="button" class="btn btn-fill btn-sm" data-a="prcpt" data-id="${esc(p.id)}">🧾 عرض</button>` : `<small style="color:var(--muted)">بدون صورة</small>`}</td><td style="max-width:200px">${esc(p.note || "—")}</td><td>${fmtDate(p.createdAt)}</td><td>${payStatus(p.status)}</td>
       <td><div class="acts">${p.status === "pending" ? `<button class="btn btn-good btn-sm" data-a="pconf" data-id="${esc(p.id)}">تأكيد</button><button class="btn btn-bad btn-sm" data-a="prej" data-id="${esc(p.id)}">رفض</button>` : ""}<a class="btn btn-line btn-sm" target="_blank" rel="noopener" href="https://wa.me/2${esc(p.phone)}">واتس</a><button class="btn btn-bad btn-sm" data-a="pdel" data-id="${esc(p.id)}">حذف</button></div></td></tr>`).join("") || `<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:32px">لا توجد تحويلات</td></tr>`}</tbody></table>`;
   }
 };
@@ -2895,8 +2903,8 @@ async function payAction(e) {
   try {
     if (a === "pconf") { await updateDoc(doc(db, "payments", id), { status: "confirmed", confirmedAt: serverTimestamp() }); toast("تم تأكيد التحويل", "ok"); }
     else if (a === "prej") { if (confirm(`رفض تحويل ${p.name}؟`)) { await updateDoc(doc(db, "payments", id), { status: "rejected" }); toast("تم رفض التحويل", "ok"); } }
-    else if (a === "prcpt") { if (p.rcpt) showRcpt(p); }
-    else if (a === "pdel") { if (confirm("حذف سجل التحويل نهائيًا؟")) { if (p.rcptPath) { try { await deleteObject(ref(storage, p.rcptPath)); } catch {} } await deleteDoc(doc(db, "payments", id)); toast("تم الحذف", "ok"); } }
+    else if (a === "prcpt") { showRcpt(p); }
+    else if (a === "pdel") { if (confirm("حذف سجل التحويل نهائيًا؟")) { if (p.rcptId) { try { await deleteDoc(doc(db, "payrcpts", p.rcptId)); } catch {} } await deleteDoc(doc(db, "payments", id)); toast("تم الحذف", "ok"); } }
   } catch (er) { toast("فشلت العملية: " + (er.code || er.message), "err"); }
 }
 const vTitle = id => S.videos.find(v => v.id === id)?.title || "فيديو محذوف";
