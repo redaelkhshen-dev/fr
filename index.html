@@ -771,6 +771,17 @@ html[data-theme=light] .hl-fx b{background-image:linear-gradient(100deg,#7a520a 
 .steps3>div{display:flex;gap:12px;align-items:center;padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:var(--card)}
 .steps3 b{display:grid;place-items:center;flex:none;width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#b8862b,#f0cf6e);color:#1b1405;font-family:var(--fd)}
 .steps3 span{font-size:.92rem;color:var(--muted)}
+/* ===== بيانات التحويل + الإيصال ===== */
+.pyx-h{display:flex;gap:12px;align-items:center;margin-bottom:16px}.pyx-h h3{font-size:1.15rem}.pyx-h small{color:var(--muted)}.pyx-hi{flex:none;width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent-deep),var(--accent-2));color:#1b1405;box-shadow:0 6px 18px -8px var(--accent)}
+.pyx-sum{display:flex;align-items:center;gap:12px;padding:12px 14px;margin-bottom:14px;border-radius:14px;border:1px solid var(--accent);background:linear-gradient(135deg,rgba(212,167,58,.14),transparent)}.pyx-sum small{display:block;color:var(--muted);font-size:.72rem}.pyx-sum b{font-size:.95rem}.pyx-si{flex:none;width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:1.3rem;background:#e60000}.pyx-si.ip{background:#7c3aed}.pyx-sn{margin-inline-start:auto;font:700 1rem var(--fd);letter-spacing:.5px;color:var(--accent-text)}
+.pyx .fl.ff{margin-bottom:14px}.pyx-cur{font-style:normal;color:var(--muted);font-size:.82rem;margin-inline-end:14px}.optb.req{background:rgba(255,107,122,.14);color:#ff6b7a;display:inline-block;height:auto;line-height:1.5;padding:2px 10px;border-radius:20px}.pyx input[type=number]::-webkit-inner-spin-button,.pyx input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}.pyx input[type=number]{-moz-appearance:textfield}
+.pyx-dz{display:block;cursor:pointer;border:2px dashed var(--line);border-radius:16px;background:color-mix(in srgb,var(--bg) 70%,var(--card));transition:border-color .2s,background .2s,transform .2s}.pyx-dz:hover,.pyx-dz.over{border-color:var(--accent);background:rgba(212,167,58,.1)}.pyx-dz.over{transform:scale(1.01)}.pyx-dz.has{border-style:solid;border-color:var(--accent)}
+.pyx-dz0{display:grid;justify-items:center;gap:6px;text-align:center;padding:26px 16px;color:var(--muted)}.pyx-dz0 svg{color:var(--accent-text)}.pyx-dz0 b{color:var(--fg);font-size:.95rem}.pyx-dz0 small{font-size:.76rem;line-height:1.5}
+.pyx-dz1{display:flex;align-items:center;gap:12px;padding:10px}.pyx-dz1 img{flex:none;width:76px;height:76px;object-fit:cover;border-radius:10px;border:1px solid var(--line);background:#fff}.pyx-fi{flex:1;min-width:0;display:grid;gap:2px}.pyx-fi b{font-size:.88rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pyx-fi small{color:var(--muted)}.pyx-x{flex:none;width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--bad,#ff6b7a);cursor:pointer;font-size:.9rem}
+.pyx-pg{position:relative;height:30px;border-radius:10px;background:var(--line);overflow:hidden;margin-bottom:12px;display:grid;place-items:center}.pyx-pg i{position:absolute;inset-block:0;inset-inline-start:0;width:0;background:linear-gradient(90deg,var(--accent-deep),var(--accent-2));transition:width .2s}.pyx-pg span{position:relative;font-size:.8rem;font-weight:700;color:#1b1405}
+.pyx-go{display:flex;align-items:center;justify-content:center;gap:8px;min-height:52px}.pyx-go:disabled{opacity:.6;cursor:wait}.pyx-sec{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:10px;color:var(--muted);font-size:.76rem}
+.pyx-th{flex:none;width:54px;height:54px;padding:0;border-radius:10px;overflow:hidden;border:1px solid var(--line);background:#fff;cursor:zoom-in}.pyx-th img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .2s}.pyx-th:hover img{transform:scale(1.1)}
+.pyx-lb{text-align:center}.pyx-lb h3{margin-bottom:12px;font-size:1rem}.pyx-lb img{max-width:100%;max-height:70vh;border-radius:12px;border:1px solid var(--line);background:#fff}
 .paym{display:grid;gap:14px}
 .payc{position:relative;display:block;cursor:pointer}
 .payc input{position:absolute;opacity:0}
@@ -1786,35 +1797,79 @@ const payMsg = p => `السلام عليكم مسيو رضا 👋
 🎓 المرحلة: ${STAGES[p.stage] || ""} · ${SYSTEMS[p.system] || ""} · ${p.grade || ""}
 💳 طريقة الدفع: ${PAY[p.method]?.name || p.method}
 💰 المبلغ: ${p.amount} جنيه
-📞 المحوّل منه: ${p.from}${p.note ? `\n📝 ملاحظة: ${p.note}` : ""}
+📞 المحوّل منه: ${p.from}${p.note ? `\n📝 ملاحظة: ${p.note}` : ""}${p.rcpt ? `\n🧾 صورة الإيصال: ${p.rcpt}` : ""}
 🕒 ${new Date().toLocaleString("ar-EG")}`;
 const openWA = text => { const u = `https://wa.me/${PAY_WA}?text=${encodeURIComponent(text)}`; const w = window.open(u, "_blank"); if (!w) location.href = u; };
+const PYI = { card: '<rect x="2.5" y="5" width="19" height="14" rx="2.500"/><path d="M2.500 10h19M6.500 15h4"/>', cash: '<rect x="2.500" y="6" width="19" height="12" rx="2.500"/><circle cx="12" cy="12" r="2.800"/><path d="M6 9.500v.01M18 14.500v.01"/>', note: '<path d="M5 4h14v16H5zM9 9h6M9 13h6M9 17h3"/>', up: '<path d="M7 18a4.500 4.500 0 0 1-.6-8.960A6 6 0 0 1 18 9.500 4 4 0 0 1 17.500 18M12 12v7M9 14.500l3-3 3 3"/>', send: '<path d="m21 3-9.500 18-2.500-7.500L1.500 11zM9 13.500 21 3"/>', lock: '<rect x="5" y="11" width="14" height="9.500" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>' };
+async function compressImg(file, max = 1600, q = .82) {
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await new Promise((ok, no) => { const i = new Image(); i.onload = () => ok(i); i.onerror = no; i.src = url; });
+    const k = Math.min(1, max / Math.max(img.width, img.height)), c = document.createElement("canvas"); c.width = Math.max(1, Math.round(img.width * k)); c.height = Math.max(1, Math.round(img.height * k));
+    const x = c.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, c.width, c.height); x.drawImage(img, 0, 0, c.width, c.height);
+    const b = await new Promise(r => c.toBlob(r, "image/jpeg", q)); if (!b) throw 0; return b;
+  } finally { URL.revokeObjectURL(url); }
+}
+const showRcpt = p => { const m = openModal(`<div class="pyx-lb"><h3>🧾 إيصال ${esc(p.name || "")} · ${esc(p.amount)} جنيه</h3><img src="${esc(p.rcpt)}" alt="إيصال التحويل"><div class="acts" style="justify-content:center;margin-top:12px"><a class="btn btn-fill btn-sm" href="${esc(p.rcpt)}" target="_blank" rel="noopener" download>فتح / تحميل الصورة</a><button class="btn btn-line btn-sm" data-close>إغلاق</button></div></div>`, true); return m; };
 function renderPay() {
   S.page = "pay"; const s = S.student;
   app.innerHTML = `${studentHeader()}<main class="wrap sec">
     <section class="banner"><div><h1>💳 الدفع الإلكتروني</h1><p>حوّل المبلغ بإحدى الطرق التالية ثم أكّد التحويل من هنا ليصل إشعار لمسيو رضا على واتساب</p></div></section>
-    <div class="steps3"><div><b>1</b><span>اختر طريقة الدفع وحوّل المبلغ</span></div><div><b>2</b><span>اكتب بيانات التحويل</span></div><div><b>3</b><span>اضغط «تم التحويل» لإرسال التأكيد على واتساب</span></div></div>
+    <div class="steps3"><div><b>1</b><span>اختر طريقة الدفع وحوّل المبلغ</span></div><div><b>2</b><span>اكتب بيانات التحويل وارفع صورة الإيصال</span></div><div><b>3</b><span>اضغط «إرسال» ليصل الإيصال لمسيو رضا ويُفتح واتساب للتأكيد</span></div></div>
     <div class="pf" style="margin-top:22px"><div>
       <div class="paym" id="pm">${Object.entries(PAY).map(([k, m]) => `<label class="payc"><input type="radio" name="method" value="${k}" ${PY.method === k ? "checked" : ""}><div><span class="payi">${m.icon}</span><b>${m.name}</b><div class="payn" dir="ltr">${m.number}</div><div class="payb"><button type="button" class="btn btn-line btn-sm" data-copy="${m.number}">📋 نسخ الرقم</button><a class="btn btn-fill btn-sm payg ${m.cls}" href="${m.link}" target="_blank" rel="noopener">⚡ اضغط للدفع مباشرة</a></div><details class="payq"><summary>عرض QR للمسح</summary><img src="${m.qr}" alt="QR ${m.name}" loading="lazy"><a class="btn btn-line btn-sm" href="${m.qr}" download="${m.cls === "vf" ? "qr-vodafone-cash" : "qr-instapay"}.jpg">⬇ حفظ الصورة</a></details></div></label>`).join("")}</div>
       <p class="sub" style="margin-top:12px">⚠️ حوّل على الرقم الظاهر بالأعلى فقط، واحتفظ بصورة إيصال التحويل.</p></div>
-    <div class="card"><h3 style="margin-bottom:12px">بيانات التحويل</h3><div class="alert" id="err" hidden></div>
+    <div class="card pyx"><div class="pyx-h"><span class="pyx-hi">${fsv(PYI.card, 24)}</span><div><h3>بيانات التحويل</h3><small>املأ البيانات وارفع صورة الإيصال ليراجعها المدرس</small></div></div>
+      <div class="pyx-sum" id="psum"></div><div class="alert" id="err" hidden></div>
       <form id="pf2" novalidate>
-        <label class="fl">المبلغ المحوّل (جنيه)<input name="amount" type="number" inputmode="decimal" min="1" max="100000" step="any" dir="ltr"></label>
-        <label class="fl">الرقم الذي حوّلت منه<input name="from" type="tel" inputmode="numeric" dir="ltr" maxlength="11" placeholder="01XXXXXXXXX" value="${esc(s.phone)}"></label>
-        <label class="fl">ملاحظة أو رقم العملية (اختياري)<input name="note" maxlength="200"></label>
-        <button class="btn btn-fill w100" id="sb">✅ تم التحويل — أرسل التأكيد لمسيو رضا</button>
+        ${fld("المبلغ المحوّل", PYI.cash, `<input name="amount" type="number" inputmode="decimal" min="1" max="100000" step="any" dir="ltr" placeholder="0"><em class="pyx-cur">جنيه</em>`)}
+        ${fld("الرقم الذي حوّلت منه", "phone", `<input name="from" type="tel" inputmode="numeric" dir="ltr" maxlength="11" placeholder="01XXXXXXXXX" value="${esc(s.phone)}">`)}
+        ${fld("ملاحظة أو رقم العملية", PYI.note, `<input name="note" maxlength="200" placeholder="مثال: رقم العملية 123456">`, true)}
+        <div class="fl ff"><span class="fl-t">صورة إيصال التحويل<em class="optb req">مطلوب</em></span>
+          <label class="pyx-dz" id="dz"><input type="file" id="rf" accept="image/*" hidden>
+            <div class="pyx-dz0">${fsv(PYI.up, 34)}<b>اضغط لاختيار صورة الإيصال</b><small>أو اسحب الصورة وأفلتها هنا · لقطة شاشة أو صورة (JPG / PNG)</small></div>
+            <div class="pyx-dz1" hidden><img id="rp" alt="معاينة الإيصال"><div class="pyx-fi"><b id="rn"></b><small id="rs" dir="ltr" style="text-align:start"></small></div><button type="button" class="pyx-x" id="rx" aria-label="حذف الصورة">✕</button></div></label></div>
+        <div class="pyx-pg" id="pgb" hidden><i></i><span>جارٍ رفع الإيصال…</span></div>
+        <button class="btn btn-fill w100 pyx-go" id="sb">${fsv(PYI.send, 20)} <span>تم التحويل — أرسل الإيصال لمسيو رضا</span></button>
+        <small class="pyx-sec">${fsv(PYI.lock, 14)} الصورة تصل للمدرس فقط ولا يراها أي طالب آخر</small>
       </form></div></div>
     <h3 style="margin:30px 0 12px">تحويلاتي السابقة</h3><div id="ph"></div></main>`;
   $("#lo").onclick = doLogout;
-  $("#pm").addEventListener("change", e => { if (e.target.name === "method") PY.method = e.target.value; });
-  $("#pf2").addEventListener("submit", e => {
+  const drawSum = () => { const m = PAY[PY.method]; $("#psum").innerHTML = `<span class="pyx-si ${m.cls}">${m.icon}</span><div><small>حوّلت إلى</small><b>${m.name}</b></div><div class="pyx-sn" dir="ltr">${m.number}</div><button type="button" class="btn btn-line btn-sm" data-copy="${m.number}">نسخ</button>`; };
+  drawSum();
+  $("#pm").addEventListener("change", e => { if (e.target.name === "method") { PY.method = e.target.value; drawSum(); } });
+  let rcpt = null; const dz = $("#dz"), rf = $("#rf");
+  const setFile = async f => {
+    showErr(""); if (!f) return;
+    if (!/^image\//.test(f.type)) return showErr("اختر صورة فقط (JPG أو PNG)");
+    if (f.size > 20 * 1024 * 1024) return showErr("حجم الصورة كبير جدًا (الحد 20 ميجا)");
+    try { rcpt = await compressImg(f); } catch { rcpt = null; return showErr("تعذر قراءة الصورة، جرّب لقطة شاشة بصيغة JPG أو PNG"); }
+    $("#rp").src = URL.createObjectURL(rcpt); $("#rn").textContent = f.name || "إيصال التحويل"; $("#rs").textContent = fmtSize(rcpt.size);
+    $(".pyx-dz0", dz).hidden = true; $(".pyx-dz1", dz).hidden = false; dz.classList.add("has");
+  };
+  const clrFile = () => { rcpt = null; rf.value = ""; $(".pyx-dz0", dz).hidden = false; $(".pyx-dz1", dz).hidden = true; dz.classList.remove("has"); };
+  rf.onchange = () => setFile(rf.files[0]);
+  $("#rx").onclick = e => { e.preventDefault(); e.stopPropagation(); clrFile(); };
+  ["dragenter", "dragover"].forEach(t => dz.addEventListener(t, e => { e.preventDefault(); dz.classList.add("over"); }));
+  ["dragleave", "drop"].forEach(t => dz.addEventListener(t, e => { e.preventDefault(); dz.classList.remove("over"); }));
+  dz.addEventListener("drop", e => setFile(e.dataTransfer?.files?.[0]));
+  $("#pf2").addEventListener("submit", async e => {
     e.preventDefault(); showErr("");
     const f = new FormData(e.target), amount = parseFloat(toLatin(f.get("amount"))), from = toLatin(f.get("from")).replace(/\s/g, ""), note = (f.get("note") || "").trim();
     if (!(amount > 0 && amount <= 100000)) return showErr("اكتب المبلغ المحوّل بشكل صحيح");
     if (!PHONE_RE.test(from)) return showErr("اكتب الرقم الذي حوّلت منه (11 رقم)");
+    if (!rcpt) return showErr("ارفع صورة إيصال التحويل أولًا");
+    const sb = $("#sb"), pgb = $("#pgb"), bar = $("i", pgb), pre = window.open("", "_blank"); sb.disabled = true; pgb.hidden = false; bar.style.width = "0%";
+    const go = text => { const u = `https://wa.me/${PAY_WA}?text=${encodeURIComponent(text)}`; if (pre) pre.location.href = u; else location.href = u; };
     const rec = { uid: s.id, name: s.name, phone: s.phone, stage: s.stage, system: s.system, grade: s.grade, method: PY.method, amount, from, note, status: "pending" };
-    openWA(payMsg(rec));
-    addDoc(collection(db, "payments"), { ...rec, createdAt: serverTimestamp() }).then(() => { toast("تم تسجيل التحويل وفتح واتساب للتأكيد", "ok"); e.target.reset(); }).catch(() => toast("تم فتح واتساب، لكن تعذر حفظ السجل", "err"));
+    try {
+      const path = `receipts/${s.id}/${Date.now()}_${Math.random().toString(36).slice(2, 7)}.jpg`, task = uploadBytesResumable(ref(storage, path), rcpt, { contentType: "image/jpeg" });
+      await new Promise((ok, no) => task.on("state_changed", sn => { bar.style.width = Math.round(sn.bytesTransferred / sn.totalBytes * 100) + "%"; }, no, ok));
+      rec.rcpt = await getDownloadURL(task.snapshot.ref); rec.rcptPath = path;
+    } catch (er) { if (pre) pre.close(); sb.disabled = false; pgb.hidden = true; return showErr("تعذر رفع صورة الإيصال (" + (er.code || "خطأ") + ")، تأكد من الاتصال وحاول مرة أخرى"); }
+    try { await addDoc(collection(db, "payments"), { ...rec, createdAt: serverTimestamp() }); toast("تم إرسال الإيصال للمدرس وفتح واتساب للتأكيد", "ok"); e.target.reset(); clrFile(); }
+    catch { toast("تم رفع الصورة لكن تعذر حفظ السجل، أرسل الإيصال على واتساب", "err"); }
+    sb.disabled = false; pgb.hidden = true; go(payMsg(rec));
   });
   PY.unsub = onSnapshot(query(collection(db, "payments"), where("uid", "==", s.id)), q => { PY.list = q.docs.map(d => ({ id: d.id, ...d.data() })); paintPay(); }, e => console.warn("pay", e.code));
   paintPay();
@@ -1822,7 +1877,8 @@ function renderPay() {
 function paintPay() {
   const ph = $("#ph"); if (!ph || S.page !== "pay") return;
   const l = [...PY.list].sort((a, b) => (b.createdAt?.seconds ?? 9e12) - (a.createdAt?.seconds ?? 9e12));
-  ph.innerHTML = l.map(p => `<div class="arow"><div class="ainfo"><h3>${PAY[p.method]?.icon || ""} ${esc(PAY[p.method]?.name || p.method)} · ${esc(p.amount)} جنيه</h3><small>${ago(p.createdAt)} · من <span dir="ltr">${esc(p.from)}</span>${p.note ? " · " + esc(p.note) : ""}</small></div><div class="acts">${payStatus(p.status)}${p.status === "pending" ? `<button class="btn btn-line btn-sm" data-wa="${esc(p.id)}">إعادة إرسال واتساب</button>` : ""}</div></div>`).join("") || `<div class="empty">لا توجد تحويلات مسجلة بعد.</div>`;
+  ph.innerHTML = l.map(p => `<div class="arow">${p.rcpt ? `<button type="button" class="pyx-th" data-rc="${esc(p.id)}" title="عرض الإيصال"><img src="${esc(p.rcpt)}" alt="" loading="lazy"></button>` : ""}<div class="ainfo"><h3>${PAY[p.method]?.icon || ""} ${esc(PAY[p.method]?.name || p.method)} · ${esc(p.amount)} جنيه</h3><small>${ago(p.createdAt)} · من <span dir="ltr">${esc(p.from)}</span>${p.note ? " · " + esc(p.note) : ""}</small></div><div class="acts">${payStatus(p.status)}${p.status === "pending" ? `<button class="btn btn-line btn-sm" data-wa="${esc(p.id)}">إعادة إرسال واتساب</button>` : ""}</div></div>`).join("") || `<div class="empty">لا توجد تحويلات مسجلة بعد.</div>`;
+  $$("[data-rc]", ph).forEach(b => b.onclick = () => { const p = PY.list.find(x => x.id === b.dataset.rc); if (p) showRcpt(p); });
   $$("[data-wa]", ph).forEach(b => b.onclick = () => { const p = PY.list.find(x => x.id === b.dataset.wa); if (p) openWA(payMsg(p)); });
 }
 async function copyHandler(e) {
@@ -2830,9 +2886,9 @@ TABS.payments = {
     $("#ps", b).innerHTML = `<div class="stat"><b>${P.filter(p => p.status === "pending").length}</b><span>بانتظار التأكيد</span></div><div class="stat"><b>${conf.length}</b><span>تحويل مؤكد</span></div><div class="stat"><b>${sum.toLocaleString("ar-EG")}</b><span>إجمالي المؤكد (جنيه)</span></div>`;
     const q = (A.pq || "").trim().toLowerCase();
     const l = P.filter(p => (!A.pst || p.status === A.pst) && (!q || [p.name, p.phone, p.from].some(t => (t || "").toLowerCase().includes(q)))).sort((a, b2) => (b2.status === "pending") - (a.status === "pending"));
-    $("#pl", b).innerHTML = `<table><thead><tr><th>الطالب</th><th>الطريقة</th><th>المبلغ</th><th>المحوّل منه</th><th>ملاحظة</th><th>التاريخ</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody>${l.map(p => `<tr>
-      <td><b>${esc(p.name)}</b><br><small class="ph">${esc(p.phone)}</small></td><td>${PAY[p.method]?.icon || ""} ${esc(PAY[p.method]?.name || p.method)}</td><td><b>${esc(p.amount)}</b> جنيه</td><td class="ph">${esc(p.from)}</td><td style="max-width:200px">${esc(p.note || "—")}</td><td>${fmtDate(p.createdAt)}</td><td>${payStatus(p.status)}</td>
-      <td><div class="acts">${p.status === "pending" ? `<button class="btn btn-good btn-sm" data-a="pconf" data-id="${esc(p.id)}">تأكيد</button><button class="btn btn-bad btn-sm" data-a="prej" data-id="${esc(p.id)}">رفض</button>` : ""}<a class="btn btn-line btn-sm" target="_blank" rel="noopener" href="https://wa.me/2${esc(p.phone)}">واتس</a><button class="btn btn-bad btn-sm" data-a="pdel" data-id="${esc(p.id)}">حذف</button></div></td></tr>`).join("") || `<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:32px">لا توجد تحويلات</td></tr>`}</tbody></table>`;
+    $("#pl", b).innerHTML = `<table><thead><tr><th>الطالب</th><th>الطريقة</th><th>المبلغ</th><th>المحوّل منه</th><th>الإيصال</th><th>ملاحظة</th><th>التاريخ</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody>${l.map(p => `<tr>
+      <td><b>${esc(p.name)}</b><br><small class="ph">${esc(p.phone)}</small></td><td>${PAY[p.method]?.icon || ""} ${esc(PAY[p.method]?.name || p.method)}</td><td><b>${esc(p.amount)}</b> جنيه</td><td class="ph">${esc(p.from)}</td><td>${p.rcpt ? `<button type="button" class="pyx-th" data-a="prcpt" data-id="${esc(p.id)}" title="عرض الإيصال"><img src="${esc(p.rcpt)}" alt="" loading="lazy"></button>` : `<small style="color:var(--muted)">بدون صورة</small>`}</td><td style="max-width:200px">${esc(p.note || "—")}</td><td>${fmtDate(p.createdAt)}</td><td>${payStatus(p.status)}</td>
+      <td><div class="acts">${p.status === "pending" ? `<button class="btn btn-good btn-sm" data-a="pconf" data-id="${esc(p.id)}">تأكيد</button><button class="btn btn-bad btn-sm" data-a="prej" data-id="${esc(p.id)}">رفض</button>` : ""}<a class="btn btn-line btn-sm" target="_blank" rel="noopener" href="https://wa.me/2${esc(p.phone)}">واتس</a><button class="btn btn-bad btn-sm" data-a="pdel" data-id="${esc(p.id)}">حذف</button></div></td></tr>`).join("") || `<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:32px">لا توجد تحويلات</td></tr>`}</tbody></table>`;
   }
 };
 async function payAction(e) {
@@ -2841,7 +2897,8 @@ async function payAction(e) {
   try {
     if (a === "pconf") { await updateDoc(doc(db, "payments", id), { status: "confirmed", confirmedAt: serverTimestamp() }); toast("تم تأكيد التحويل", "ok"); }
     else if (a === "prej") { if (confirm(`رفض تحويل ${p.name}؟`)) { await updateDoc(doc(db, "payments", id), { status: "rejected" }); toast("تم رفض التحويل", "ok"); } }
-    else if (a === "pdel") { if (confirm("حذف سجل التحويل نهائيًا؟")) { await deleteDoc(doc(db, "payments", id)); toast("تم الحذف", "ok"); } }
+    else if (a === "prcpt") { if (p.rcpt) showRcpt(p); }
+    else if (a === "pdel") { if (confirm("حذف سجل التحويل نهائيًا؟")) { if (p.rcptPath) { try { await deleteObject(ref(storage, p.rcptPath)); } catch {} } await deleteDoc(doc(db, "payments", id)); toast("تم الحذف", "ok"); } }
   } catch (er) { toast("فشلت العملية: " + (er.code || er.message), "err"); }
 }
 const vTitle = id => S.videos.find(v => v.id === id)?.title || "فيديو محذوف";
