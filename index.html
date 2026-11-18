@@ -516,11 +516,23 @@ html[data-theme=light] .hl-fx b{background-image:linear-gradient(100deg,#7a520a 
 .wcard h3{font-size:1.1rem!important;margin-top:6px}.wcard p{line-height:1.7}
 .sec-head>p{max-width:560px;color:var(--muted)}
 @media(max-width:900px){.why{grid-template-columns:repeat(2,1fr)!important}}@media(max-width:520px){.why{grid-template-columns:1fr!important}}
+/* ===== تسجيل الدخول ===== */
+.lg-h{display:flex;gap:14px;align-items:center}.lg-h h1{margin:0}.lg-ic{flex:none;width:58px;height:58px;border-radius:18px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent-deep),var(--accent-2));color:#1b1405;box-shadow:0 10px 26px -10px var(--accent);animation:lgfloat 3.2s ease-in-out infinite}
+@keyframes lgfloat{50%{transform:translateY(-4px) rotate(-4deg)}}
+.lgc .fl.ff{margin-bottom:2px}.fi .pwi{flex:1;display:flex;align-items:center;min-width:0}.fi .pwi input{flex:1;min-width:0}
+.lg-forgot{display:inline-flex;align-items:center;gap:6px;align-self:flex-start;color:var(--accent-text);font-size:.85rem;font-weight:600;margin-block:2px 4px}.lg-forgot:hover{text-decoration:underline}
+.lg-go{display:flex;align-items:center;justify-content:center;gap:10px}.lg-go svg{transition:transform .25s}.lg-go:hover svg{transform:translateX(-5px)}
+.lg-or{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:.85rem}.lg-or:before,.lg-or:after{content:"";flex:1;height:1px;background:var(--line)}
+.lg-new{display:flex;align-items:center;justify-content:center;gap:8px}
+.lg-trust{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 14px;color:var(--muted);font-size:.76rem;padding-top:4px}.lg-trust span{display:inline-flex;align-items:center;gap:5px}.lg-trust svg{color:var(--accent-text)}
+@media(prefers-reduced-motion:reduce){.lg-ic{animation:none}}
 .skills{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-.skill{display:flex;align-items:center;gap:16px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;min-width:0;transition:border-color .15s}
-.skill:hover{border-color:var(--accent)}
-.glyph{flex:none;display:grid;place-items:center;width:48px;height:48px;border-radius:12px;background:var(--soft);color:var(--accent-text);font:italic 1.7rem Georgia,"Times New Roman",serif;line-height:1}
-.skill h3{font-size:1rem;direction:ltr;text-align:start}.skill p{color:var(--muted);font-size:.88rem}
+.skill{position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:flex-start;gap:14px;background:linear-gradient(160deg,color-mix(in srgb,var(--accent) 7%,var(--card)),var(--card) 60%);border:1px solid var(--line);border-radius:20px;padding:22px 20px 20px;min-width:0;transition:border-color .25s,transform .25s,box-shadow .25s}
+.skill:before{content:"";position:absolute;inset-inline:0;top:0;height:3px;background:linear-gradient(90deg,var(--accent-deep),var(--accent-2),transparent);opacity:.55;transition:opacity .25s}
+.skill:hover{border-color:var(--accent);transform:translateY(-5px);box-shadow:0 18px 40px -20px var(--accent)}.skill:hover:before{opacity:1}
+.sk-n{position:absolute;inset-inline-end:16px;top:8px;font:800 2.6rem var(--fd);color:var(--accent);opacity:.12;line-height:1;pointer-events:none}
+.glyph{flex:none;display:grid;place-items:center;width:62px;height:62px;border-radius:18px;background:linear-gradient(135deg,var(--accent-deep),var(--accent-2));color:#1b1405;font:italic 2rem Georgia,"Times New Roman",serif;line-height:1;box-shadow:0 8px 20px -8px var(--accent);transition:transform .3s cubic-bezier(.3,1.5,.5,1)}.skill:hover .glyph{transform:rotate(-8deg) scale(1.08)}
+.sk-t{display:grid;gap:4px;width:100%}.sk-t code{margin-top:8px;display:inline-block;justify-self:start;padding:5px 12px;border-radius:20px;background:var(--soft);border:1px dashed var(--accent);color:var(--accent-text);font:600 .8rem var(--fd)}.skill h3{font-size:1.1rem;text-align:start;unicode-bidi:isolate}.skill p{color:var(--muted);font-size:.88rem}
 .pcards{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
 .pcard{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;transition:border-color .15s,transform .15s}
 .pcard:hover{border-color:var(--accent);transform:translateY(-3px)}
@@ -1169,7 +1181,7 @@ function authShell(inner, mode) {
 }
 function renderLanding() {
   S.page = "landing";
-  const skill = (g, t, d) => `<div class="skill"><span class="glyph" aria-hidden="true">${g}</span><div><h3>${t}</h3><p>${d}</p></div></div>`;
+  let skN = 0; const skill = (g, t, d, ex) => `<div class="skill"><span class="sk-n" aria-hidden="true">0${++skN}</span><span class="glyph" aria-hidden="true">${g}</span><div class="sk-t"><h3>${t}</h3><p>${d}</p><code dir="ltr">${ex}</code></div></div>`;
   const WI = {
     video: '<rect x="3" y="5" width="18" height="14" rx="3"/><path d="m10 9.500 5 2.500-5 2.500z"/>', file: '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 11v6M9.500 14.500 12 17l2.500-2.500"/>', lock: '<rect x="5" y="11" width="14" height="10" rx="2.500"/><path d="M8 11V8a4 4 0 0 1 8 0v3M12 15v2"/>',
     test: '<rect x="5" y="4" width="14" height="17" rx="2.500"/><path d="M9 4.500h6v-1a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1zM9 13l2.200 2.200L15.500 11"/>', live: '<circle cx="12" cy="12" r="2.500"/><path d="M7.500 7.500a6 6 0 0 0 0 9M16.500 7.500a6 6 0 0 1 0 9M4.500 4.500a10 10 0 0 0 0 15M19.500 4.500a10 10 0 0 1 0 15"/>', chat: '<path d="M21 12a8 8 0 0 1-11.700 7.100L4 20.500l1.400-4.600A8 8 0 1 1 21 12z"/><path d="M9 11h6M9 14h3.500"/>'
@@ -1207,7 +1219,7 @@ function renderLanding() {
   <section id="s-why" class="band"><div class="wrap"><div class="sec-head"><span class="eyebrow">لماذا المنصة</span><h2>تعلّم بطريقة منظمة وآمنة</h2><p>كل ما يحتاجه الطالب في مكان واحد: شرح مرتب، تدريب وتقييم، وحساب محمي.</p></div>
     <div class="why">${why("video", "فيديوهات لكل مرحلة", "شروحات مرتبة في كورسات تشاهدها من حسابك في أي وقت.", "01")}${why("file", "ملفات للتحميل", "مذكرات وملخصات PDF وWord على جهازك.", "02")}${why("test", "واجبات واختبارات تفاعلية", "اختبر نفسك بأسئلة متنوعة ونتيجة فورية مع مراجعة أخطائك.", "03")}${why("live", "حصص بث مباشر", "تابع حصصك مباشرة مع المدرس عبر الموقع.", "04")}${why("lock", "حساب شخصي آمن", "تدخل برقم الواتس وكلمة سر، ويثبت على جهازك.", "05")}${why("chat", "تواصل مباشر", "راسل المدرس على الواتس لأي استفسار.", "06")}</div>
     <div class="sec-head" style="margin-top:56px"><span class="eyebrow">مهارات اللغة</span><h2>ما ستتعلمه في كل مرحلة</h2></div>
-    <div class="skills">${skill("é", "Grammaire", "القواعد")}${skill("à", "Conjugaison", "تصريف الأفعال")}${skill("ç", "Vocabulaire", "المفردات والتعبيرات")}${skill("ê", "Compréhension écrite", "فهم المقروء")}${skill("ô", "Expression écrite", "التعبير الكتابي")}${skill("œ", "Expression orale", "المحادثة والنطق")}</div></div></section>
+    <div class="skills">${skill("é", "Grammaire", "القواعد", "Je suis · Tu es · Il est")}${skill("à", "Conjugaison", "تصريف الأفعال", "parler → je parle")}${skill("ç", "Vocabulaire", "المفردات والتعبيرات", "la maison = البيت")}${skill("ê", "Compréhension écrite", "فهم المقروء", "Lire · Comprendre")}${skill("ô", "Expression écrite", "التعبير الكتابي", "Écrire un message")}${skill("œ", "Expression orale", "المحادثة والنطق", "Bonjour, ça va ?")}</div></div></section>
 
   <section id="s-levels" class="band alt"><div class="wrap"><div class="sec-head"><span class="eyebrow">المراحل</span><h2>اختر مرحلتك وابدأ</h2><p>يظهر لك تلقائيًا محتوى مرحلتك ونظامك (لغات أو حكومي) بعد التسجيل.</p></div>
     <div class="pcards">${lvl("01", "Primaire", "المرحلة الابتدائية", "أساس قوي في الفرنسية: الحروف والمفردات والجمل البسيطة بأسلوب ممتع.", chipsAll)}${lvl("02", "Collège", "المرحلة الإعدادية", "قواعد وتصريف وقراءة وتعبير بشكل مبسط ومتدرج.", chipsAll)}${lvl("03", "Lycée", "المرحلة الثانوية", "مناهج اللغات والبكالوريا الحديثة، مع تدريب على الامتحانات واختبارات DELF.", chipsAll)}</div></div></section>
@@ -1234,23 +1246,28 @@ function renderPending() {
 }
 
 /* ---------- تسجيل الدخول ---------- */
+const LGI = { key: '<circle cx="8" cy="15" r="4.500"/><path d="m11.200 12 8.300-8.300M16 7.500 19 10.500M14 9.500l2 2"/>', lock: '<rect x="5" y="11" width="14" height="9.500" rx="2.500"/><path d="M8 11V8a4 4 0 0 1 8 0v3M12 15v2"/>', help: '<circle cx="12" cy="12" r="9"/><path d="M9.500 9.500a2.500 2.500 0 1 1 3.500 2.300c-.7.400-1 .900-1 1.700M12 17h.01"/>', arrow: '<path d="M5 12h14M13 6l6 6-6 6" transform="matrix(-1 0 0 1 24 0)"/>', plus: '<path d="M12 5v14M5 12h14"/>', dev: '<rect x="7" y="2.500" width="10" height="19" rx="2.500"/><path d="M11 18.500h2"/>', ok: '<circle cx="12" cy="12" r="9"/><path d="m8 12.500 2.800 2.800L16 9.500"/>' };
 function renderLogin() {
-  app.innerHTML = authShell(`<div class="card auth-card">${brand()}<h1>تسجيل الدخول</h1><p class="sub">ادخل برقم الواتس وكلمة السر الخاصة بك</p>${flash()}
+  app.innerHTML = authShell(`<div class="card auth-card lgc">${brand()}
+  <div class="lg-h"><span class="lg-ic">${fsv(LGI.key, 28)}</span><div><h1>تسجيل الدخول</h1><p class="sub">ادخل برقم الواتس وكلمة السر الخاصة بك</p></div></div>${flash()}
   <div class="alert" id="err" hidden></div>
   <form id="f" novalidate>
-    <label class="fl">رقم الواتس<input name="phone" type="tel" inputmode="numeric" dir="ltr" autocomplete="username" maxlength="11" placeholder="01XXXXXXXXX"></label>
-    <label class="fl">كلمة السر (أرقام فقط)<input name="pass" type="password" inputmode="numeric" dir="ltr" autocomplete="current-password" maxlength="12"></label>
-    <button class="btn btn-fill w100" id="sb">دخول</button>
+    ${fld("رقم الواتس", "phone", `<input name="phone" type="tel" inputmode="numeric" dir="ltr" autocomplete="username" maxlength="11" placeholder="01XXXXXXXXX">`)}
+    ${fld("كلمة السر (أرقام فقط)", LGI.lock, `<input name="pass" type="password" inputmode="numeric" dir="ltr" autocomplete="current-password" maxlength="12" placeholder="••••••">`)}
+    <a class="lg-forgot" href="https://wa.me/${PAY_WA}?text=${encodeURIComponent("السلام عليكم مسيو رضا، نسيت كلمة السر الخاصة بحسابي. رقمي: ")}" target="_blank" rel="noopener">${fsv(LGI.help, 15)} نسيت كلمة السر؟ تواصل مع المدرس</a>
+    <button class="btn btn-fill btn-go w100 lg-go" id="sb"><span>دخول</span>${fsv(LGI.arrow, 20)}</button>
   </form>
-  <p class="alt">طالب جديد؟ <a href="#/register">أنشئ حسابك</a></p><p class="alt" style="font-size:.82rem">🔒 يبقى حسابك مفتوحًا على هذا الجهاز حتى تضغط «خروج».</p></div><a class="adm-link" href="#/admin-login">دخول المدرس</a>`, "login");
+  <div class="lg-or"><span>طالب جديد؟</span></div>
+  <a class="btn btn-line w100 lg-new" href="#/register">${fsv(LGI.plus, 18)} أنشئ حسابك الآن</a>
+  <div class="lg-trust"><span>${fsv(LGI.lock, 15)} اتصال آمن</span><span>${fsv(LGI.dev, 15)} يثبت على جهازك</span><span>${fsv(LGI.ok, 15)} مفتوح حتى «خروج»</span></div></div><a class="adm-link" href="#/admin-login">دخول المدرس</a>`, "login");
   $("#f").addEventListener("submit", async e => {
     e.preventDefault(); showErr("");
     const f = new FormData(e.target), phone = toLatin(f.get("phone")).replace(/\s/g, ""), pass = toLatin(f.get("pass"));
     if (!PHONE_RE.test(phone)) return showErr("اكتب رقم الواتس بشكل صحيح (11 رقم)");
     if (!/^\d{6,12}$/.test(pass)) return showErr("كلمة السر أرقام فقط (من 6 إلى 12 رقم)");
-    const b = $("#sb"); b.disabled = true; b.textContent = "جاري الدخول...";
+    const b = $("#sb"); b.disabled = true; b.innerHTML = "<span>جاري الدخول...</span>";
     try { const c = await signInWithEmailAndPassword(auth, `${phone}@${EMAIL_DOMAIN}`, pass); savePw(c.user.uid, pass); }
-    catch (er) { showErr(authMsg(er)); b.disabled = false; b.textContent = "دخول"; }
+    catch (er) { showErr(authMsg(er)); b.disabled = false; b.innerHTML = `<span>دخول</span>${fsv(LGI.arrow, 20)}`; }
   });
 }
 
