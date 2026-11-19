@@ -72,10 +72,24 @@ service cloud.firestore {
 
     // التقييم: تقييم واحد لكل طالب لكل فيديو (رقم المستند = videoId_uid)
     // عدّاد المشاهدين لكل فيديو: الطالب يزيد العدّاد بمقدار 1 فقط، والمدرس يتحكم بالكامل
-    match /vcount/{id} {
+    // عدّاد المشاهدين: علامة مشاهدة واحدة لكل (فيديو، طالب) + عدّاد يزيد 1 فقط مع إنشاء العلامة في نفس الدفعة
+    match /vviews/{id} {
+      allow read: if isAdmin() || (request.auth != null && id.matches('.+_' + request.auth.uid));
+      allow create: if isActiveStudent()
+        && request.resource.data.keys().hasOnly(['videoId','uid','at'])
+        && request.resource.data.uid == request.auth.uid
+        && id == request.resource.data.videoId + '_' + request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+    match /vcount/{vid} {
       allow read: if isAdmin() || isActiveStudent();
-      allow create: if isActiveStudent() && request.resource.data.keys().hasOnly(['n']) && request.resource.data.n == 1;
-      allow update: if isAdmin() || (isActiveStudent() && request.resource.data.keys().hasOnly(['n']) && request.resource.data.n == resource.data.n + 1);
+      allow create: if isAdmin() || (isActiveStudent()
+        && request.resource.data.keys().hasOnly(['n']) && request.resource.data.n == 1
+        && existsAfter(/databases/$(database)/documents/vviews/$(vid + '_' + request.auth.uid)));
+      allow update: if isAdmin() || (isActiveStudent()
+        && request.resource.data.keys().hasOnly(['n']) && request.resource.data.n == resource.data.n + 1
+        && !exists(/databases/$(database)/documents/vviews/$(vid + '_' + request.auth.uid))
+        && existsAfter(/databases/$(database)/documents/vviews/$(vid + '_' + request.auth.uid)));
       allow delete: if isAdmin();
     }
     match /ratings/{rid} {
