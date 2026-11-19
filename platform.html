@@ -757,6 +757,13 @@ html[data-theme=light] .hl-fx b{background-image:linear-gradient(100deg,#7a520a 
 .cb{flex:1;min-width:0}
 .ch{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .ch small{color:var(--muted)}
+/* ===== رد المدرس على التعليقات ===== */
+.rp-box{display:flex;gap:10px;margin-top:10px;padding:10px 12px;border-radius:12px;border:1px solid var(--accent);background:linear-gradient(135deg,rgba(212,167,58,.14),transparent);position:relative}.rp-box:before{content:"";position:absolute;inset-inline-start:-1px;top:10px;bottom:10px;width:3px;border-radius:3px;background:var(--accent)}
+.rp-av{flex:none;width:34px;height:34px;border-radius:50%;overflow:hidden;border:2px solid var(--accent)}.rp-av img{width:100%;height:100%;object-fit:cover;display:block}.rp-t{flex:1;min-width:0}.rp-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.rp-h b{font-size:.9rem}.rp-h small{color:var(--muted);margin-inline-start:auto}.rp-t p{margin:4px 0 0!important;white-space:pre-wrap;overflow-wrap:anywhere;font-size:.92rem}
+.rp-q{padding:10px 12px;border-radius:12px;background:var(--soft);margin-bottom:12px}.rp-q p{margin:6px 0 0;white-space:pre-wrap}
+/* ===== عدد المشاهدين ===== */
+.vw{position:absolute;inset-inline-start:8px;bottom:14px;z-index:3;display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;background:rgba(10,10,10,.72);backdrop-filter:blur(6px);color:#fff;font:700 .78rem var(--fd);border:1px solid rgba(255,255,255,.14)}.vw svg{color:var(--accent-2)}
+.vw-row{display:flex;align-items:center;gap:8px;margin-top:8px}.vw.big{position:static;background:var(--soft);color:var(--fg);border:1px solid var(--line);font-size:.95rem;padding:6px 14px;backdrop-filter:none}.vw-l{color:var(--muted);font-size:.85rem}
 .cb p{margin:6px 0 0;white-space:pre-wrap;overflow-wrap:anywhere}
 .cb .acts{margin-top:6px;gap:14px}
 .lnk.bad{color:var(--bad)}
@@ -831,7 +838,7 @@ html[data-theme=light] .hl-fx b{background-image:linear-gradient(100deg,#7a520a 
 <script type="module">
 import { initializeApp, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, updatePassword, reauthenticateWithCredential, EmailAuthProvider, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, addDoc, onSnapshot, query, orderBy, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, deleteField, increment, collection, addDoc, onSnapshot, query, orderBy, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
 /* =====================  الإعدادات (املأها من Firebase Console)  ===================== */
@@ -886,7 +893,7 @@ const db = getFirestore(fbApp);
 const storage = getStorage(fbApp);
 
 /* ---------- الحالة ---------- */
-const S = { ready: false, user: null, student: null, busy: false, flash: "", videos: [], files: [], homework: [], hwsubs: [], exams: [], lives: [], notices: [], courses: [], attempts: [], examKeys: {}, hwKeys: {}, certs: [], students: [], pw: {}, comments: [], ratings: [], payments: [], unsubs: [], unsubSelf: null, page: "" };
+const S = { vcount: {}, ready: false, user: null, student: null, busy: false, flash: "", videos: [], files: [], homework: [], hwsubs: [], exams: [], lives: [], notices: [], courses: [], attempts: [], examKeys: {}, hwKeys: {}, certs: [], students: [], pw: {}, comments: [], ratings: [], payments: [], unsubs: [], unsubSelf: null, page: "" };
 const H = { tab: "videos", q: "", closed: new Set() };
 const A = { fq: "", fty: "", vq: "", cvid: "", cq: "", cstage: "", cgrade: "", tab: "overview", q: "", fstage: "", fstatus: "" };
 
@@ -1066,7 +1073,16 @@ function sub(col, key) {
   const q = query(collection(db, col), orderBy("createdAt", "desc"));
   S.unsubs.push(onSnapshot(q, s => { S[key] = s.docs.map(d => ({ id: d.id, ...d.data() })); if (key === "students") checkNew(); if (key === "payments") checkPay(); onData(); }, e => console.warn(col, e.code)));
 }
-const startContent = () => { if (S.contentOn) return; S.contentOn = true; sub("videos", "videos"); sub("files", "files"); sub("homework", "homework"); sub("exams", "exams"); sub("lives", "lives"); sub("notices", "notices"); sub("courses", "courses"); if (S.student?.id) S.unsubs.push(onSnapshot(query(collection(db, "certs"), where("uid", "==", S.student.id)), q => { S.certs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, e => console.warn("certs", e.code))); if (S.student?.id) S.unsubs.push(onSnapshot(query(collection(db, "attempts"), where("uid", "==", S.student.id)), q => { S.attempts = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, e => console.warn("attempts", e.code))); if (S.student?.id) S.unsubs.push(onSnapshot(query(collection(db, "hwsubs"), where("uid", "==", S.student.id)), q => { S.hwsubs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, e => console.warn("hwsubs", e.code))); };
+const vNum = id => S.vcount[id] || 0, vFmt = n => n >= 1000 ? (n / 1000).toFixed(n >= 10000 ? 0 : 1).replace(/\.0$/, "") + "K" : String(n);
+const vwEye = n => ico('<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>', n);
+const vwBadge = (id, cls = "") => `<span class="vw ${cls}" title="عدد المشاهدين">${vwEye(15)}<b>${vFmt(vNum(id))}</b></span>`;
+const subViews = () => S.unsubs.push(onSnapshot(collection(db, "vcount"), q => { S.vcount = {}; q.docs.forEach(d => { S.vcount[d.id] = d.data().n || 0; }); onData(); }, e => console.warn("vcount", e.code)));
+function countView(id) {
+  const uid = S.student?.id; if (!uid || S.user?.email === ADMIN_EMAIL) return; const k = "rf_vw_" + uid + "_" + id;
+  try { if (localStorage.getItem(k) || S.student.progress?.[id]) return; localStorage.setItem(k, "1"); } catch { return; }
+  setDoc(doc(db, "vcount", id), { n: increment(1) }, { merge: true }).catch(() => { try { localStorage.removeItem(k); } catch {} });
+}
+const startContent = () => { if (S.contentOn) return; S.contentOn = true; subViews(); sub("videos", "videos"); sub("files", "files"); sub("homework", "homework"); sub("exams", "exams"); sub("lives", "lives"); sub("notices", "notices"); sub("courses", "courses"); if (S.student?.id) S.unsubs.push(onSnapshot(query(collection(db, "certs"), where("uid", "==", S.student.id)), q => { S.certs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, e => console.warn("certs", e.code))); if (S.student?.id) S.unsubs.push(onSnapshot(query(collection(db, "attempts"), where("uid", "==", S.student.id)), q => { S.attempts = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, e => console.warn("attempts", e.code))); if (S.student?.id) S.unsubs.push(onSnapshot(query(collection(db, "hwsubs"), where("uid", "==", S.student.id)), q => { S.hwsubs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, e => console.warn("hwsubs", e.code))); };
 function checkNew() {
   const pn = S.students.filter(x => x.status === "pending").length;
   if (S.pn === undefined ? pn > 0 : pn > S.pn) toast(`🔔 ${pn} طلب تسجيل بانتظار مراجعتك`, "ok");
@@ -1130,7 +1146,7 @@ async function attachStudent(u) {
 onAuthStateChanged(auth, async u => {
   clearSubs(); S.user = u; S.student = null;
   if (!u) { S.ready = true; render(); return; }
-  if (u.email === ADMIN_EMAIL) { sub("students", "students"); sub("videos", "videos"); sub("files", "files"); sub("homework", "homework"); sub("exams", "exams"); sub("lives", "lives"); sub("notices", "notices"); sub("courses", "courses"); S.unsubs.push(onSnapshot(collection(db, "certs"), q => { S.certs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "attempts"), q => { S.attempts = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "hwKeys"), q => { S.hwKeys = Object.fromEntries(q.docs.map(d => [d.id, d.data().keys])); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "examKeys"), q => { S.examKeys = Object.fromEntries(q.docs.map(d => [d.id, d.data().keys])); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "hwsubs"), q => { S.hwsubs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); sub("comments", "comments"); sub("payments", "payments"); S.unsubs.push(onSnapshot(collection(db, "studentPw"), q => { S.pw = Object.fromEntries(q.docs.map(d => [d.id, d.data().pw])); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "ratings"), s => { S.ratings = s.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.ready = true; render(); return; }
+  if (u.email === ADMIN_EMAIL) { subViews(); sub("students", "students"); sub("videos", "videos"); sub("files", "files"); sub("homework", "homework"); sub("exams", "exams"); sub("lives", "lives"); sub("notices", "notices"); sub("courses", "courses"); S.unsubs.push(onSnapshot(collection(db, "certs"), q => { S.certs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "attempts"), q => { S.attempts = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "hwKeys"), q => { S.hwKeys = Object.fromEntries(q.docs.map(d => [d.id, d.data().keys])); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "examKeys"), q => { S.examKeys = Object.fromEntries(q.docs.map(d => [d.id, d.data().keys])); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "hwsubs"), q => { S.hwsubs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); sub("comments", "comments"); sub("payments", "payments"); S.unsubs.push(onSnapshot(collection(db, "studentPw"), q => { S.pw = Object.fromEntries(q.docs.map(d => [d.id, d.data().pw])); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "ratings"), s => { S.ratings = s.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.ready = true; render(); return; }
   if (S.busy) return;
   await attachStudent(u);
 });
@@ -1681,7 +1697,7 @@ function hwSubmitModal(id) {
     catch (er) { showErr("فشل الإرسال: " + (er.code || er.message)); $("#sb", m).disabled = false; }
   });
 }
-const vCard = (x, i) => { const pr = getProg(x.id); return `<a class="vcard" style="--i:${i}" href="#/watch/${esc(x.id)}" data-y="${esc(x.ytId)}"><div class="thumb"><span class="num">${String(i + 1).padStart(2, "0")}</span><img class="fr on" loading="lazy" src="https://i.ytimg.com/vi/${esc(x.ytId)}/mqdefault.jpg" alt=""><span class="play"><i>▶</i></span>${pr.done ? `<span class="done">✓ تمت المشاهدة</span>` : ""}<span class="vp"><i style="width:${pr.p}%"></i></span></div><div class="vb"><h3>${esc(x.title)}</h3>${x.description ? `<p>${esc(x.description)}</p>` : ""}${pr.p > 0 && !pr.done ? `<small class="resume">أكملت ${Math.round(pr.p)}% · تابع من حيث توقفت</small>` : ""}</div></a>`; };
+const vCard = (x, i) => { const pr = getProg(x.id); return `<a class="vcard" style="--i:${i}" href="#/watch/${esc(x.id)}" data-y="${esc(x.ytId)}"><div class="thumb"><span class="num">${String(i + 1).padStart(2, "0")}</span><img class="fr on" loading="lazy" src="https://i.ytimg.com/vi/${esc(x.ytId)}/mqdefault.jpg" alt=""><span class="play"><i>▶</i></span>${pr.done ? `<span class="done">✓ تمت المشاهدة</span>` : ""}${vwBadge(x.id)}<span class="vp"><i style="width:${pr.p}%"></i></span></div><div class="vb"><h3>${esc(x.title)}</h3>${x.description ? `<p>${esc(x.description)}</p>` : ""}${pr.p > 0 && !pr.done ? `<small class="resume">أكملت ${Math.round(pr.p)}% · تابع من حيث توقفت</small>` : ""}</div></a>`; };
 const ST_IC = {
   videos: '<rect x="3" y="5" width="18" height="14" rx="3.5"/><path d="m10.4 9.4 4.2 2.6-4.2 2.6z"/>',
   files: '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/>',
@@ -1738,7 +1754,7 @@ function renderWatch(id) {
   const v = S.videos.find(x => x.id === id);
   if (!v) { app.innerHTML = `${studentHeader()}<main class="wrap sec"><div class="empty">${S.videos.length ? "الفيديو غير موجود" : "جاري التحميل..."}</div><p class="alt" style="margin-top:16px"><a href="#/">← العودة للرئيسية</a></p></main>`; $("#lo").onclick = doLogout; return; }
   if (!visible([v]).length) { app.innerHTML = `${studentHeader()}<main class="wrap sec"><div class="empty">هذا الفيديو غير متاح لمرحلتك</div><p class="alt" style="margin-top:16px"><a href="#/">← العودة للرئيسية</a></p></main>`; $("#lo").onclick = doLogout; return; }
-  S.watchOk = true;
+  S.watchOk = true; countView(id);
   const others = visible(S.videos).filter(x => x.id !== id).slice(0, 12);
   const wm = `${esc(s.name)} · ${esc(s.phone)}`;
   const pr = getProg(id), st0 = pr.t > 5 && (!pr.d || pr.t < pr.d - 10) ? Math.floor(pr.t) : 0;
@@ -1747,7 +1763,7 @@ function renderWatch(id) {
       <div class="vtrack"><i id="pf" style="width:${pr.p}%"></i><u style="inset-inline-start:25%"></u><u style="inset-inline-start:50%"></u><u style="inset-inline-start:75%"></u><u class="fin" style="inset-inline-start:90%" title="يُحتسب مكتملًا عند 90%">🏁</u></div></div></div>
     <div class="player" id="pl"><iframe id="ytp" src="https://www.youtube-nocookie.com/embed/${esc(v.ytId)}?rel=0&modestbranding=1&fs=0&disablekb=1&iv_load_policy=3&playsinline=1&cc_load_policy=0&enablejsapi=1&origin=${encodeURIComponent(location.origin)}${st0 ? "&start=" + st0 : ""}" title="${esc(v.title)}" allow="autoplay; encrypted-media" referrerpolicy="strict-origin-when-cross-origin" sandbox="allow-scripts allow-same-origin allow-presentation"></iframe>
       <div class="wm">${wm}</div><div class="wm b">${wm}</div><button class="fsx" id="fsx" type="button" aria-label="إغلاق ملء الشاشة">✕ إغلاق</button></div><div class="pctl" id="pc"><button class="btn btn-line btn-sm ibtn" id="fs" type="button"></button></div>
-    <h1 style="font-size:1.4rem;margin-top:16px">${esc(v.title)}</h1>
+    <h1 style="font-size:1.4rem;margin-top:16px">${esc(v.title)}</h1><div class="vw-row" id="vwr">${vwBadge(id, "big")}<span class="vw-l">مشاهدة</span></div>
     <p class="sub" style="margin-top:6px">${v.description ? esc(v.description) : ""}</p>
     ${(v.attachments || []).length ? `<section class="vatt"><h3>📎 ملفات الشرح للتحميل</h3><p class="sub" style="font-size:.86rem">حمّل الملفات بعد مشاهدة الفيديو للمراجعة</p>${v.attachments.map(a => `<div class="atr"><span class="ficon sm">${esc((a.ext || "link").toUpperCase().slice(0, 4))}</span><span class="atn">${esc(a.name)}</span><small>${esc(fmtSize(a.size))}</small><a class="btn btn-fill btn-sm" href="${esc(a.url)}" target="_blank" rel="noopener" download>⬇ تحميل</a></div>`).join("")}</section>` : ""}
     <p class="alt" style="text-align:start;margin-top:14px">🔒 هذا الفيديو يُعرض على حسابك فقط ويحمل بياناتك. تسجيله أو مشاركته مخالف للشروط.</p>
@@ -1803,6 +1819,7 @@ function startCommentSubs(v) {
   CM.unsubs.push(onSnapshot(query(collection(db, "ratings"), where("videoId", "==", v.id)), s => { CM.ratings = s.docs.map(d => ({ id: d.id, ...d.data() })); paintComments(); }, e => console.warn("ratings", e.code)));
   paintComments();
 }
+const rpHTML = c => `<div class="rp-box"><span class="rp-av"><img src="teacher.jpg" alt=""></span><div class="rp-t"><div class="rp-h"><b>مسيو رضا</b><span class="badge good">المدرس</span><small>${ago(c.replyAt)}</small></div><p>${esc(c.reply)}</p></div></div>`;
 function paintComments() {
   const cr = $("#cr"), cl = $("#cl"); if (!cr || !cl || !S.student) return;
   const uid = S.student.id, mine = CM.ratings.find(r => r.uid === uid)?.value || 0, n = CM.ratings.length, avg = n ? CM.ratings.reduce((a, r) => a + r.value, 0) / n : 0, rd = Math.round(avg);
@@ -1812,7 +1829,7 @@ function paintComments() {
   cl.innerHTML = list.map(c => { const own = c.uid === uid, ed = CM.editing === c.id;
     return `<article class="ci">${avatarHTML({ photo: c.photo, name: c.name }, 38)}<div class="cb"><div class="ch"><b>${esc(c.name)}</b>${own ? `<span class="badge">أنت</span>` : ""}<small>${ago(c.createdAt)}${c.edited ? " · تم التعديل" : ""}</small></div>
       ${ed ? `<textarea class="et" maxlength="500">${esc(CM.editText)}</textarea><div class="acts"><button class="btn btn-fill btn-sm" data-c="save" data-id="${esc(c.id)}">حفظ</button><button class="btn btn-line btn-sm" data-c="cancel" data-id="${esc(c.id)}">إلغاء</button></div>`
-      : `<p>${esc(c.text)}</p>${own ? `<div class="acts"><button class="lnk" data-c="edit" data-id="${esc(c.id)}">تعديل</button><button class="lnk bad" data-c="del" data-id="${esc(c.id)}">حذف</button></div>` : ""}`}</div></article>`; }).join("") || `<p class="sub">لا توجد تعليقات بعد. كن أول من يعلّق!</p>`;
+      : `<p>${esc(c.text)}</p>${c.reply ? rpHTML(c) : ""}${own ? `<div class="acts"><button class="lnk" data-c="edit" data-id="${esc(c.id)}">تعديل</button><button class="lnk bad" data-c="del" data-id="${esc(c.id)}">حذف</button></div>` : ""}`}</div></article>`; }).join("") || `<p class="sub">لا توجد تعليقات بعد. كن أول من يعلّق!</p>`;
 }
 
 /* ---------- بياناتي ---------- */
@@ -2304,7 +2321,7 @@ function paintActivity() {
       + (fresh.length ? `<h3 class="ch" style="margin:24px 0 10px">${ico(XI.inbox, 20)} لم تشاهدها بعد (${fresh.length})</h3>` + fresh.map(p => row(p.v, `<a href="#/watch/${esc(p.v.id)}"><h3>${esc(p.v.title)}</h3></a><small class="sub">ابدأ المشاهدة ←</small>`)).join("") : "");
   } else if (AC.tab === "comments") {
     const l = [...AC.comments].sort((a, b) => (b.createdAt?.seconds ?? 9e12) - (a.createdAt?.seconds ?? 9e12));
-    al.innerHTML = l.map(c => { const v = byId[c.videoId]; return `<div class="arow"><span class="rico v">${ico(XI.msg, 22)}</span><div class="ainfo"><a href="#/watch/${esc(c.videoId)}"><h3>${esc(v?.title || "فيديو محذوف")}</h3></a><p style="white-space:pre-wrap;margin:6px 0">${esc(c.text)}</p><small>${ago(c.createdAt)}${c.edited ? " · تم التعديل" : ""}</small> ${v ? `<a class="lnk ibt" href="#/watch/${esc(c.videoId)}">${ico(XI.edit, 15)} عرض وتعديل</a>` : ""} <button class="lnk bad ibt" data-del="${esc(c.id)}">${ico(XI.trash, 15)} حذف</button></div></div>`; }).join("") || `<div class="empty">لم تكتب أي تعليق بعد.</div>`;
+    al.innerHTML = l.map(c => { const v = byId[c.videoId]; return `<div class="arow"><span class="rico v">${ico(XI.msg, 22)}</span><div class="ainfo"><a href="#/watch/${esc(c.videoId)}"><h3>${esc(v?.title || "فيديو محذوف")}</h3></a><p style="white-space:pre-wrap;margin:6px 0">${esc(c.text)}</p>${c.reply ? rpHTML(c) : ""}<small>${ago(c.createdAt)}${c.edited ? " · تم التعديل" : ""}</small> ${v ? `<a class="lnk ibt" href="#/watch/${esc(c.videoId)}">${ico(XI.edit, 15)} عرض وتعديل</a>` : ""} <button class="lnk bad ibt" data-del="${esc(c.id)}">${ico(XI.trash, 15)} حذف</button></div></div>`; }).join("") || `<div class="empty">لم تكتب أي تعليق بعد.</div>`;
   } else if (AC.tab === "exams") {
     const l = [...S.attempts].sort((a, b) => (b.createdAt?.seconds ?? 9e12) - (a.createdAt?.seconds ?? 9e12));
     al.innerHTML = l.map(a => { const p = pctOf(a); return `<div class="arow">${a.score === undefined ? `<div class="xmini none">${ico(XI.hour, 24)}</div>` : `<div class="xmini ${pctCls(p)}" style="--p:${p}"><b>${p}%</b><small>${a.score}/${a.total}</small></div>`}<div class="ainfo"><a href="#/exam/${esc(a.examId)}"><h3>${esc(a.title)}</h3></a><div style="margin:6px 0">${a.score === undefined ? xchip("hour", "جاري التصحيح…") : xchip(p >= 50 ? "ok" : "no", `الدرجة: ${a.score}/${a.total}`, pctCls(p))}${a.status === "review" ? xchip("hour", "بانتظار تصحيح المقالي", "warn") : ""}</div><small>${ago(a.createdAt)} · ${a.createdAt?.toDate ? a.createdAt.toDate().toLocaleDateString("ar-EG", { weekday: "long", day: "numeric", month: "long", year: "numeric" }) : ""}</small></div></div>`; }).join("") || `<div class="empty">لم تحل أي اختبار بعد.</div>`;
@@ -2452,7 +2469,7 @@ const TABS = {
         return `<div class="acard vc"><div class="vth"><img loading="lazy" src="https://i.ytimg.com/vi/${esc(v.ytId)}/mqdefault.jpg" alt=""><a class="vplay" href="https://youtu.be/${esc(v.ytId)}" target="_blank" rel="noopener" title="معاينة على يوتيوب" aria-label="معاينة">${ico(SI.play, 30)}</a>${c ? `<span class="vrib">${ico(SI.layers, 13)} ${esc(c.title)}</span>` : ""}${na ? `<span class="vatc">${ico(SI.clip, 13)} ${na}</span>` : ""}</div>
         <div class="vbd"><h3>${esc(v.title)}</h3>${v.description ? `<p class="sub vds">${esc(v.description)}</p>` : ""}
         <div class="m"><span class="cch2">${stageLabel(v.stage)}</span><span class="cch2">${sysLabel(v.system)}</span><span class="cch2 g">${gradeLabel(v)}</span></div></div>
-        <div class="vft"><span class="vs">${ico(SI.star, 16)}<b>${st.avg}</b></span><span class="vs">${ico(SI.msg, 16)}<b>${st.c}</b></span><span class="ia" style="width:auto;margin-inline-start:auto">${ib("", "vedit", v.id, "edit", "تعديل الفيديو")}${ib("r", "vdel", v.id, "trash", "حذف الفيديو")}</span></div></div>`; }).join("") || `<div class="empty">${ico(SI.play, 34)}<br>لا توجد فيديوهات مطابقة</div>`;
+        <div class="vft"><span class="vs" title="عدد المشاهدين">${vwEye(16)}<b>${vFmt(vNum(v.id))}</b></span><span class="vs">${ico(SI.star, 16)}<b>${st.avg}</b></span><span class="vs">${ico(SI.msg, 16)}<b>${st.c}</b></span><span class="ia" style="width:auto;margin-inline-start:auto">${ib("", "vedit", v.id, "edit", "تعديل الفيديو")}${ib("r", "vdel", v.id, "trash", "حذف الفيديو")}</span></div></div>`; }).join("") || `<div class="empty">${ico(SI.play, 34)}<br>لا توجد فيديوهات مطابقة</div>`;
     }
   },
   files: {
@@ -2966,19 +2983,19 @@ const vTitle = id => S.videos.find(v => v.id === id)?.title || "فيديو مح�
 const vstat = id => { const rs = S.ratings.filter(r => r.videoId === id), n = rs.length; return { n, avg: n ? (rs.reduce((a, r) => a + r.value, 0) / n).toFixed(1) : "—", c: S.comments.filter(c => c.videoId === id).length }; };
 TABS.comments = {
   skel: () => `<h2 style="margin-bottom:16px">التعليقات والتقييمات</h2><div class="agrid" id="cs" style="margin-bottom:22px"></div>
-    <div class="toolbar"><select id="cv"></select><input id="cq" placeholder="بحث في التعليقات أو أسماء الطلاب" value="${esc(A.cq)}"></div><div class="tw" id="cl2"></div>`,
-  init: b => { b.onclick = commentAction; $("#cq", b).oninput = e => { A.cq = e.target.value; fillTab(); }; $("#cv", b).onchange = e => { A.cvid = e.target.value; fillTab(); }; },
+    <div class="toolbar"><select id="cv"></select><select id="crf"><option value="">كل التعليقات</option><option value="no" ${A.crf === "no" ? "selected" : ""}>بدون رد فقط</option><option value="yes" ${A.crf === "yes" ? "selected" : ""}>تم الرد عليها</option></select><input id="cq" placeholder="بحث في التعليقات أو أسماء الطلاب" value="${esc(A.cq)}"></div><div class="tw" id="cl2"></div>`,
+  init: b => { b.onclick = commentAction; $("#cq", b).oninput = e => { A.cq = e.target.value; fillTab(); }; $("#cv", b).onchange = e => { A.cvid = e.target.value; fillTab(); }; $("#crf", b).onchange = e => { A.crf = e.target.value; fillTab(); }; },
   fill: b => {
     $("#cs", b).innerHTML = S.videos.map(v => { const st = vstat(v.id); return `<div class="acard"><h3>${esc(v.title)}</h3><div class="m"><span class="badge warn">⭐ ${st.avg} (${st.n} تقييم)</span><span class="badge">💬 ${st.c} تعليق</span></div></div>`; }).join("") || `<div class="empty">لا توجد فيديوهات</div>`;
     const sel = $("#cv", b), key = S.videos.map(v => v.id).join(",");
     if (sel.dataset.k !== key) { sel.dataset.k = key; sel.innerHTML = `<option value="">كل الفيديوهات</option>` + S.videos.map(v => `<option value="${esc(v.id)}">${esc(v.title)}</option>`).join(""); }
     sel.value = A.cvid;
     const q = A.cq.trim().toLowerCase();
-    const l = S.comments.filter(c => (!A.cvid || c.videoId === A.cvid) && (!q || (c.text || "").toLowerCase().includes(q) || (c.name || "").toLowerCase().includes(q)));
-    $("#cl2", b).innerHTML = `<table><thead><tr><th>الطالب</th><th>التعليق</th><th>الفيديو</th><th>التقييم</th><th>التاريخ</th><th>إجراءات</th></tr></thead><tbody>${l.map(c => { const r = S.ratings.find(x => x.uid === c.uid && x.videoId === c.videoId);
-      return `<tr><td><div class="who">${avatarHTML({ photo: c.photo, name: c.name }, 34)}<span>${esc(c.name)}</span></div></td><td style="min-width:240px;white-space:pre-wrap">${esc(c.text)}${c.edited ? ` <span class="badge">معدّل</span>` : ""}</td><td>${esc(vTitle(c.videoId))}</td>
+    const l = S.comments.filter(c => (!A.cvid || c.videoId === A.cvid) && (!A.crf || (A.crf === "no") === !c.reply) && (!q || (c.text || "").toLowerCase().includes(q) || (c.name || "").toLowerCase().includes(q)));
+    $("#cl2", b).innerHTML = `<table><thead><tr><th>الطالب</th><th>التعليق والرد</th><th>الفيديو</th><th>التقييم</th><th>التاريخ</th><th>إجراءات</th></tr></thead><tbody>${l.map(c => { const r = S.ratings.find(x => x.uid === c.uid && x.videoId === c.videoId);
+      return `<tr><td><div class="who">${avatarHTML({ photo: c.photo, name: c.name }, 34)}<span>${esc(c.name)}</span></div></td><td style="min-width:240px;white-space:pre-wrap">${esc(c.text)}${c.edited ? ` <span class="badge">معدّل</span>` : ""}${c.reply ? `<div class="rp-box adm"><span class="rp-av"><img src="teacher.jpg" alt=""></span><div class="rp-t"><div class="rp-h"><b>ردّك</b><small>${ago(c.replyAt)}</small></div><p>${esc(c.reply)}</p></div></div>` : `<div><span class="badge warn">بدون رد</span></div>`}</td><td>${esc(vTitle(c.videoId))}</td>
       <td>${r ? `<span class="badge warn">${"★".repeat(r.value)}</span> <button class="btn btn-bad btn-sm" data-a="rdel" data-id="${esc(r.id)}" title="حذف التقييم">✕</button>` : "—"}</td><td>${fmtDate(c.createdAt)}</td>
-      <td><div class="acts"><button class="btn btn-line btn-sm" data-a="cedit" data-id="${esc(c.id)}">تعديل</button><button class="btn btn-bad btn-sm" data-a="cdel" data-id="${esc(c.id)}">حذف</button></div></td></tr>`; }).join("") || `<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:32px">لا توجد تعليقات</td></tr>`}</tbody></table>`;
+      <td><div class="acts"><button class="btn btn-fill btn-sm" data-a="crep" data-id="${esc(c.id)}">${c.reply ? "تعديل الرد" : "↩ رد"}</button><button class="btn btn-line btn-sm" data-a="cedit" data-id="${esc(c.id)}">تعديل</button><button class="btn btn-bad btn-sm" data-a="cdel" data-id="${esc(c.id)}">حذف</button></div></td></tr>`; }).join("") || `<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:32px">لا توجد تعليقات</td></tr>`}</tbody></table>`;
   }
 };
 async function commentAction(e) {
@@ -2987,6 +3004,13 @@ async function commentAction(e) {
   try {
     if (a === "cdel") { if (confirm("حذف هذا التعليق نهائيًا؟")) { await deleteDoc(doc(db, "comments", id)); toast("تم حذف التعليق", "ok"); } }
     else if (a === "rdel") { if (confirm("حذف هذا التقييم؟")) { await deleteDoc(doc(db, "ratings", id)); toast("تم حذف التقييم", "ok"); } }
+    else if (a === "crep") {
+      const c = S.comments.find(x => x.id === id); if (!c) return;
+      const m = openModal(`<h2>${c.reply ? "تعديل ردّك" : "الرد على التعليق"}</h2><div class="rp-q"><b>${esc(c.name)}</b> — <small>${esc(vTitle(c.videoId))}</small><p>${esc(c.text)}</p></div><div class="alert" id="err" hidden></div><form id="cf"><textarea name="t" maxlength="500" style="min-height:120px" placeholder="اكتب ردك للطالب هنا… سيظهر أسفل تعليقه باسمك">${esc(c.reply || "")}</textarea><div class="mact"><button class="btn btn-fill" id="sb">${c.reply ? "حفظ الرد" : "إرسال الرد"}</button>${c.reply ? `<button type="button" class="btn btn-bad" id="rdl">حذف الرد</button>` : ""}<button type="button" class="btn btn-line" data-close>إلغاء</button></div></form>`);
+      $("#cf", m).addEventListener("submit", async ev => { ev.preventDefault(); const t = (new FormData(ev.target).get("t") || "").trim(); if (!t) return showErr("اكتب الرد أولًا");
+        try { await updateDoc(doc(db, "comments", id), { reply: t, replyAt: serverTimestamp() }); m.remove(); toast("تم إرسال الرد", "ok"); } catch (er) { showErr("فشل الإرسال: " + (er.code || er.message)); } });
+      const rd = $("#rdl", m); if (rd) rd.onclick = async () => { if (!confirm("حذف الرد؟")) return; try { await updateDoc(doc(db, "comments", id), { reply: deleteField(), replyAt: deleteField() }); m.remove(); toast("تم حذف الرد", "ok"); } catch (er) { showErr("فشل الحذف: " + (er.code || er.message)); } };
+    }
     else if (a === "cedit") {
       const c = S.comments.find(x => x.id === id); if (!c) return;
       const m = openModal(`<h2>تعديل التعليق</h2><p class="sub">${esc(c.name)} — ${esc(vTitle(c.videoId))}</p><div class="alert" id="err" hidden></div><form id="cf"><textarea name="t" maxlength="500" style="min-height:120px">${esc(c.text)}</textarea><div class="mact"><button class="btn btn-fill" id="sb">حفظ</button><button type="button" class="btn btn-line" data-close>إلغاء</button></div></form>`);

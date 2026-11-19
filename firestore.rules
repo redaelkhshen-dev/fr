@@ -71,6 +71,13 @@ service cloud.firestore {
     }
 
     // التقييم: تقييم واحد لكل طالب لكل فيديو (رقم المستند = videoId_uid)
+    // عدّاد المشاهدين لكل فيديو: الطالب يزيد العدّاد بمقدار 1 فقط، والمدرس يتحكم بالكامل
+    match /vcount/{id} {
+      allow read: if isAdmin() || isActiveStudent();
+      allow create: if isActiveStudent() && request.resource.data.keys().hasOnly(['n']) && request.resource.data.n == 1;
+      allow update: if isAdmin() || (isActiveStudent() && request.resource.data.keys().hasOnly(['n']) && request.resource.data.n == resource.data.n + 1);
+      allow delete: if isAdmin();
+    }
     match /ratings/{rid} {
       allow read: if isAdmin() || isActiveStudent();
       allow create, update: if isActiveStudent()
