@@ -201,6 +201,19 @@ input[dir=ltr]{text-align:left}
 .xmini{flex:none;width:64px;height:64px;border-radius:50%;display:grid;place-items:center;align-content:center;text-align:center;background:conic-gradient(var(--c) calc(var(--p)*1%),var(--soft) 0);position:relative}.xmini:before{content:"";position:absolute;inset:6px;border-radius:50%;background:var(--card)}.xmini>*{position:relative}.xmini b{font:800 .95rem/1 var(--fd);color:var(--c)}.xmini small{font-size:.6rem;color:var(--muted)}
 .xmini.good{--c:var(--good)}.xmini.warn{--c:var(--warn)}.xmini.bad{--c:var(--bad)}.xmini.none{background:var(--soft);color:var(--accent-text);border-radius:18px}.xmini.none:before{display:none}
 .xbtn{display:inline-flex;align-items:center;gap:7px;flex:none;white-space:nowrap}
+/* ===== احتفال النجاح (85%+) ===== */
+.cft{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:9999}
+.xhero.win{border-color:var(--accent-2);box-shadow:0 0 0 1px var(--accent-2),0 24px 70px -24px var(--accent);animation:xwin 1s cubic-bezier(.2,1.4,.4,1)}
+.xhero.win:after{content:"";position:absolute;left:50%;top:60px;width:560px;height:560px;margin-left:-280px;background:repeating-conic-gradient(color-mix(in srgb,var(--accent-2) 20%,transparent) 0 7deg,transparent 7deg 18deg);-webkit-mask-image:radial-gradient(circle,#000 15%,transparent 62%);mask-image:radial-gradient(circle,#000 15%,transparent 62%);animation:xrays 26s linear infinite;pointer-events:none;z-index:0}
+.xhero.win>*{z-index:1}
+.xwin-b{display:inline-block;margin-bottom:14px;padding:8px 22px;border-radius:30px;font:800 1.05rem var(--fd);color:#1b1405;background:linear-gradient(100deg,var(--accent-deep),var(--accent-2),#fff6cf,var(--accent-2),var(--accent-deep));background-size:250% 100%;animation:xshine 2.6s linear infinite,xpop .8s cubic-bezier(.2,1.6,.4,1) both;box-shadow:0 8px 24px -8px var(--accent)}
+.xhero.win .xh-ic{animation:xbounce 1.8s ease-in-out infinite;color:var(--accent-2);box-shadow:0 0 0 0 var(--accent-2),0 0 28px -4px var(--accent-2)}
+.xhero.win .xrw svg .f{filter:drop-shadow(0 0 7px var(--c))}
+.xs{position:absolute!important;color:var(--accent-2);font-style:normal;font-size:1.3rem;opacity:0;animation:xtw 2.4s ease-in-out infinite;pointer-events:none;z-index:1}.xs.s1{top:16%;inset-inline-start:10%}.xs.s2{top:30%;inset-inline-end:9%;animation-delay:.5s;font-size:1.7rem}.xs.s3{top:58%;inset-inline-start:7%;animation-delay:1s}.xs.s4{top:68%;inset-inline-end:12%;animation-delay:1.4s}.xs.s5{top:8%;inset-inline-end:28%;animation-delay:.9s}
+@keyframes xrays{to{transform:rotate(360deg)}}@keyframes xshine{to{background-position:-250% 0}}@keyframes xpop{from{transform:scale(.3) rotate(-6deg);opacity:0}}
+@keyframes xbounce{50%{transform:translateY(-6px) scale(1.06)}}@keyframes xtw{0%,100%{opacity:0;transform:scale(.4) rotate(0)}50%{opacity:1;transform:scale(1.2) rotate(30deg)}}
+@keyframes xwin{from{transform:scale(.94);opacity:.4}}
+@media(prefers-reduced-motion:reduce){.xhero.win,.xwin-b,.xhero.win:after,.xhero.win .xh-ic,.xs{animation:none}.xs{opacity:.8}}
 .xhero{text-align:center;padding:24px 18px;margin-bottom:18px;position:relative;overflow:hidden;--c:var(--accent)}.xhero.good{--c:var(--good)}.xhero.warn{--c:var(--warn)}.xhero.bad{--c:var(--bad)}
 .xhero:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 0,color-mix(in srgb,var(--c) 22%,transparent),transparent 65%);pointer-events:none}.xhero>*{position:relative}
 .xh-top{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:12px;text-align:start}.xh-ic{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:color-mix(in srgb,var(--c) 18%,transparent);color:var(--c)}.xh-top small{display:block;color:var(--muted)}.xh-top b{font-size:1.15rem}
@@ -2135,10 +2148,37 @@ function mistakesHTML(ex, keys, answers, per) {
   return `<h2 style="margin:22px 0 12px">❌ أخطاؤك (${bad.length})</h2>${bad.map(x => `<div class="card xq no"><div class="xh"><b>${x.i + 1}.</b> <span>${esc(x.q.q)}</span><small class="badge bad">${x.r.got} / ${x.r.pts}</small></div>
     ${isIQ(x.q) ? iqReview(x.q, x.a, x.k) : x.q.t === "mcq" ? `<p>إجابتك: <b style="color:var(--bad)">${x.a >= 0 ? esc(x.q.opts[x.a]) : "لم تُجب"}</b></p><p>الإجابة الصحيحة: <b style="color:var(--good)">${esc(x.q.opts[x.k?.c] ?? "—")}</b></p>` : `<p class="xans">${x.a ? esc(x.a) : "<i>لم تُجب</i>"}</p>${x.k?.k?.length ? `<small class="sub">الكلمات المطلوبة: ${esc(x.k.k.join("، "))}</small>` : ""}`}</div>`).join("")}`;
 }
+const WIN = new Set();
+function confetti(power = 1) {
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const cv = document.createElement("canvas"); cv.className = "cft"; document.body.appendChild(cv);
+  const x = cv.getContext("2d"), dpr = Math.min(devicePixelRatio || 1, 2); let W = 0, H = 0, ps = [];
+  const fit = () => { W = innerWidth; H = innerHeight; cv.width = W * dpr; cv.height = H * dpr; x.setTransform(dpr, 0, 0, dpr, 0, 0); }; fit();
+  const cols = ["#f0cf6e", "#d4a73a", "#3ddc84", "#ffffff", "#5ab0ff", "#ff8fb1"], rnd = (a, b) => a + Math.random() * (b - a);
+  const mk = (ox, oy, vx, vy) => ({ x: ox, y: oy, vx, vy, w: rnd(6, 12), h: rnd(4, 9), r: rnd(0, 6.3), vr: rnd(-.25, .25), c: cols[Math.random() * cols.length | 0], life: 1, o: Math.random() < .25 });
+  const burst = (ox, oy, ang, n) => { for (let i = 0; i < n; i++) { const a = ang + rnd(-.5, .5), v = rnd(9, 20); ps.push(mk(ox, oy, Math.cos(a) * v, Math.sin(a) * v)); } };
+  burst(0, H * .8, -Math.PI / 3, 60 * power | 0); burst(W, H * .8, -Math.PI * 2 / 3, 60 * power | 0);
+  setTimeout(() => { for (let i = 0; i < 70 * power; i++) ps.push(mk(rnd(0, W), rnd(-260, -20), rnd(-1.5, 1.5), rnd(1.5, 4))); }, 650);
+  const t0 = performance.now(); let last = t0;
+  const tick = now => {
+    const dt = Math.min(2, (now - last) / 16.7); last = now; x.clearRect(0, 0, W, H);
+    ps.forEach(q => { q.vy += .3 * dt; q.vx *= Math.pow(.985, dt); q.vy = Math.min(q.vy, 7); q.x += q.vx * dt; q.y += q.vy * dt; q.r += q.vr * dt; if (now - t0 > 3600) q.life -= .018 * dt;
+      x.save(); x.globalAlpha = Math.max(0, q.life); x.translate(q.x, q.y); x.rotate(q.r); x.fillStyle = q.c;
+      if (q.o) { x.beginPath(); x.arc(0, 0, q.w / 3, 0, 6.3); x.fill(); } else { x.scale(1, Math.cos(q.r * 1.7)); x.fillRect(-q.w / 2, -q.h / 2, q.w, q.h); } x.restore(); });
+    ps = ps.filter(q => q.life > 0 && q.y < H + 40);
+    if ((ps.length || now - t0 < 1500) && now - t0 < 9000) requestAnimationFrame(tick); else cv.remove();
+  };
+  requestAnimationFrame(tick);
+}
+function celebrate(key, p) {
+  const b = $(".xrc b"); if (b && b.firstChild) { const t0 = performance.now(), d = 1300; const st = n => { const k = Math.min(1, (n - t0) / d); b.firstChild.textContent = Math.round(p * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(st); }; if (!WIN.has(key)) requestAnimationFrame(st); }
+  if (WIN.has(key)) return; WIN.add(key); setTimeout(() => confetti(p >= 100 ? 1.8 : p >= 90 ? 1.3 : 1), 350);
+}
 function quizResultPage({ title, ex, keys, answers, per, sc, tot, p, pend, back = "#/" }) {
+  const win = p >= 85 && !pend, wmsg = p >= 100 ? "💯 درجة كاملة! أنت عبقري" : p >= 90 ? "🏆 مبروك! أداء استثنائي" : "🎉 مبروك! نجاح رائع";
   const cnt = per ? { ok: per.filter(r => r.ok === true).length, no: per.filter(r => r.ok === false).length, wait: per.filter(r => r.ok === null).length } : null, cls = pctCls(p);
   const verdict = p >= 90 ? ["ممتاز! أداء رائع 🌟", "trophy"] : p >= 75 ? ["جيد جدًا، استمر 👏", "trophy"] : p >= 50 ? ["جيد، وتحتاج مراجعة بسيطة 💪", "star"] : ["حاول مرة أخرى بعد المراجعة 📚", "pulse"], C = 2 * Math.PI * 54;
-  app.innerHTML = `${studentHeader()}<main class="wrap sec"><div class="exam"><div class="card xhero ${cls}"><div class="xh-top"><span class="xh-ic">${ico(XI[verdict[1]], 26)}</span><div><small>${esc(title)}</small><b>${verdict[0]}</b></div></div>
+  app.innerHTML = `${studentHeader()}<main class="wrap sec"><div class="exam"><div class="card xhero ${cls} ${win ? "win" : ""}">${win ? `<div class="xwin-b">${wmsg}</div><i class="xs s1">✦</i><i class="xs s2">✦</i><i class="xs s3">✧</i><i class="xs s4">✦</i><i class="xs s5">✧</i>` : ""}<div class="xh-top"><span class="xh-ic">${ico(XI[verdict[1]], 26)}</span><div><small>${esc(title)}</small><b>${verdict[0]}</b></div></div>
     <div class="xrw"><svg viewBox="0 0 130 130" aria-hidden="true"><circle class="b" cx="65" cy="65" r="54"/><circle class="f" cx="65" cy="65" r="54" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${C.toFixed(1)}" data-off="${(C * (1 - Math.min(100, p) / 100)).toFixed(1)}"/></svg><div class="xrc"><b>${p}<small>%</small></b><span>${sc ?? "—"} / ${tot ?? "—"}</span></div></div>
     ${cnt ? `<div class="xstats"><div class="g">${ico(XI.ok, 22)}<b>${cnt.ok}</b><small>صحيحة</small></div><div class="r">${ico(XI.no, 22)}<b>${cnt.no}</b><small>خاطئة</small></div><div class="w">${ico(XI.hour, 22)}<b>${cnt.wait}</b><small>بانتظار التصحيح</small></div></div>` : ""}
     <p class="xnote ${pend ? "w" : ""}">${pend ? ico(XI.hour, 17) + " الدرجة مبدئية — فيها أسئلة مقالية بانتظار تصحيح المدرس" : ico(XI.ok, 17) + " تم التصحيح وحفظ درجتك"}</p></div>
@@ -2146,7 +2186,7 @@ function quizResultPage({ title, ex, keys, answers, per, sc, tot, p, pend, back 
       ${isIQ(q) ? iqReview(q, ans, keys?.[i]) : q.t === "mcq" ? q.opts.map((o, j) => `<div class="xo r ${keys && keys[i]?.c === j ? "right" : ""} ${ans === j && keys?.[i]?.c !== j ? "wrong" : ""}"><span>${ans === j ? "●" : "○"} ${esc(o)}${keys && keys[i]?.c === j ? " ✓" : ""}</span></div>`).join("") : `<p class="xans">${ans ? esc(ans) : "<i>لم تُجب</i>"}</p>${keys?.[i]?.k?.length ? `<small class="sub">الكلمات المطلوبة: ${esc(keys[i].k.join("، "))}</small>` : `<small class="sub">يصحّحه المدرس</small>`}`}</div>`; }).join("")}
     ${mistakesHTML(ex, keys, answers || [], per)}
     <div class="xfoot"><a class="btn btn-line" href="${back}">${ico(XI.home, 17)} العودة</a><a class="btn btn-fill" href="#/activity">${ico(XI.pulse, 17)} نشاطي</a></div></div></main>`;
-  $("#lo").onclick = doLogout; const f = $(".xrw .f"); if (f) requestAnimationFrame(() => requestAnimationFrame(() => { f.style.strokeDashoffset = f.dataset.off; }));
+  $("#lo").onclick = doLogout; if (win) celebrate((ex.id || title) + ":" + sc, p); const f = $(".xrw .f"); if (f) requestAnimationFrame(() => requestAnimationFrame(() => { f.style.strokeDashoffset = f.dataset.off; }));
 }
 async function showExamResult(ex, a, keys) {
   if (S.page !== "exam") return;
