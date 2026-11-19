@@ -203,17 +203,15 @@ input[dir=ltr]{text-align:left}
 .xbtn{display:inline-flex;align-items:center;gap:7px;flex:none;white-space:nowrap}
 /* ===== احتفال النجاح (85%+) ===== */
 .cft{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:9999}
-.xhero.win{border-color:var(--accent-2);box-shadow:0 0 0 1px var(--accent-2),0 24px 70px -24px var(--accent);animation:xwin 1s cubic-bezier(.2,1.4,.4,1)}
-.xhero.win:after{content:"";position:absolute;left:50%;top:60px;width:560px;height:560px;margin-left:-280px;background:repeating-conic-gradient(color-mix(in srgb,var(--accent-2) 20%,transparent) 0 7deg,transparent 7deg 18deg);-webkit-mask-image:radial-gradient(circle,#000 15%,transparent 62%);mask-image:radial-gradient(circle,#000 15%,transparent 62%);animation:xrays 26s linear infinite;pointer-events:none;z-index:0}
-.xhero.win>*{z-index:1}
+.xhero.win{animation:xwin 1s cubic-bezier(.2,1.4,.4,1)}
 .xwin-b{display:inline-block;margin-bottom:14px;padding:8px 22px;border-radius:30px;font:800 1.05rem var(--fd);color:#1b1405;background:linear-gradient(100deg,var(--accent-deep),var(--accent-2),#fff6cf,var(--accent-2),var(--accent-deep));background-size:250% 100%;animation:xshine 2.6s linear infinite,xpop .8s cubic-bezier(.2,1.6,.4,1) both;box-shadow:0 8px 24px -8px var(--accent)}
 .xhero.win .xh-ic{animation:xbounce 1.8s ease-in-out infinite;color:var(--accent-2);box-shadow:0 0 0 0 var(--accent-2),0 0 28px -4px var(--accent-2)}
 .xhero.win .xrw svg .f{filter:drop-shadow(0 0 7px var(--c))}
 .xs{position:absolute!important;color:var(--accent-2);font-style:normal;font-size:1.3rem;opacity:0;animation:xtw 2.4s ease-in-out infinite;pointer-events:none;z-index:1}.xs.s1{top:16%;inset-inline-start:10%}.xs.s2{top:30%;inset-inline-end:9%;animation-delay:.5s;font-size:1.7rem}.xs.s3{top:58%;inset-inline-start:7%;animation-delay:1s}.xs.s4{top:68%;inset-inline-end:12%;animation-delay:1.4s}.xs.s5{top:8%;inset-inline-end:28%;animation-delay:.9s}
-@keyframes xrays{to{transform:rotate(360deg)}}@keyframes xshine{to{background-position:-250% 0}}@keyframes xpop{from{transform:scale(.3) rotate(-6deg);opacity:0}}
+@keyframes xshine{to{background-position:-250% 0}}@keyframes xpop{from{transform:scale(.3) rotate(-6deg);opacity:0}}
 @keyframes xbounce{50%{transform:translateY(-6px) scale(1.06)}}@keyframes xtw{0%,100%{opacity:0;transform:scale(.4) rotate(0)}50%{opacity:1;transform:scale(1.2) rotate(30deg)}}
 @keyframes xwin{from{transform:scale(.94);opacity:.4}}
-@media(prefers-reduced-motion:reduce){.xhero.win,.xwin-b,.xhero.win:after,.xhero.win .xh-ic,.xs{animation:none}.xs{opacity:.8}}
+@media(prefers-reduced-motion:reduce){.xhero.win,.xwin-b,.xhero.win .xh-ic,.xs{animation:none}.xs{opacity:.8}}
 .xhero{text-align:center;padding:24px 18px;margin-bottom:18px;position:relative;overflow:hidden;--c:var(--accent)}.xhero.good{--c:var(--good)}.xhero.warn{--c:var(--warn)}.xhero.bad{--c:var(--bad)}
 .xhero:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 0,color-mix(in srgb,var(--c) 22%,transparent),transparent 65%);pointer-events:none}.xhero>*{position:relative}
 .xh-top{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:12px;text-align:start}.xh-ic{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:color-mix(in srgb,var(--c) 18%,transparent);color:var(--c)}.xh-top small{display:block;color:var(--muted)}.xh-top b{font-size:1.15rem}
