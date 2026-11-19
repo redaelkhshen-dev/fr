@@ -176,6 +176,17 @@ input[dir=ltr]{text-align:left}
 .flc2.pdf{--c:#ff5a5f}.flc2.doc{--c:#4a90ff}.flc2.xls{--c:#2fbf71}.flc2.ppt{--c:#ff8a3d}.flc2.zip{--c:#a0a6b4}.flc2.img{--c:#b98cff}.flc2.aud{--c:#ff6fb5}
 .fl-top{display:flex;gap:14px;align-items:center}.fl-top .t{flex:1;min-width:0}.fl-top h3{font-size:1rem;margin-bottom:8px}.fl-act{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-top:10px;border-top:1px solid var(--line)}
 .fty{display:flex;gap:6px;flex-wrap:wrap}.tyb{cursor:pointer;border:1px solid var(--line);background:var(--soft);color:var(--fg);border-radius:20px;padding:6px 14px;font-size:.82rem}.tyb.on{background:var(--accent);color:#1a1200;border-color:var(--accent)}
+/* ===== الملفات (الطالب) ===== */
+.fgrid{grid-column:1/-1;width:100%;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:16px}
+.fcd{--c:var(--accent-text);display:flex;flex-direction:column;gap:14px;padding:18px;border-radius:20px;border:1px solid var(--line);background:linear-gradient(165deg,color-mix(in srgb,var(--c) 8%,var(--card)),var(--card) 60%);position:relative;overflow:hidden;min-width:0;transition:transform .2s,box-shadow .2s,border-color .2s}
+.fcd:before{content:"";position:absolute;inset-inline:0;top:0;height:4px;background:var(--c)}.fcd:hover{transform:translateY(-3px);border-color:var(--c);box-shadow:0 14px 30px -14px var(--c)}
+.fcd.pdf{--c:#ff5a5f}.fcd.doc{--c:#4a90ff}.fcd.xls{--c:#2fbf71}.fcd.ppt{--c:#ff8a3d}.fcd.zip{--c:#a0a6b4}.fcd.img{--c:#b98cff}.fcd.aud{--c:#ff6fb5}
+.fcd-top{display:flex;align-items:center;gap:14px;min-width:0}.fcd .t{flex:1;min-width:0}.fcd h3{font-size:1.05rem;line-height:1.5;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.fcd .t small{color:var(--muted)}
+.fcd-act{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:auto}.fcd-act .btn{justify-content:center;min-height:44px}.fcd-act .btn:only-child{grid-column:1/-1}
+.fv{display:flex;flex-direction:column;gap:12px}.fv-h{display:flex;align-items:center;gap:12px}.fv-h h3{font-size:1.05rem;overflow-wrap:anywhere}.fv-h small{color:var(--muted)}.fv-h>div{flex:1;min-width:0}.fv-x{flex:none;width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--fg);cursor:pointer}
+.fv-b{border-radius:14px;overflow:hidden;border:1px solid var(--line);background:var(--soft);display:grid;place-items:center}.fv-fr{width:100%;height:68vh;border:0;background:#fff}.fv-img{max-width:100%;max-height:68vh;object-fit:contain;display:block}.fv-aud{display:grid;justify-items:center;gap:14px;padding:40px 16px;width:100%;color:var(--accent-text)}.fv-aud audio{width:min(100%,420px)}
+.fv-f{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.fv-f small{color:var(--muted);font-size:.76rem;flex:1;min-width:180px}.fv-f .acts{display:flex;gap:8px}
+@media(max-width:560px){.fv-fr{height:60vh}.fv-f .acts{width:100%}.fv-f .acts .btn{flex:1;justify-content:center}}
 .flc,.hcard{--c:var(--accent-text);background:var(--card);border:1px solid var(--line);border-radius:18px;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s,border-color .2s}.flc:hover,.hcard:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(0,0,0,.25);border-color:var(--c)}
 .flc{display:flex;align-items:center;gap:14px;padding:14px}.flc:before,.hcard:before{content:"";position:absolute;inset-block:0;inset-inline-start:0;width:4px;background:var(--c)}.flc .t{flex:1;min-width:0}.flc h3{font-size:1rem;margin-bottom:8px}
 .fx{flex:none;position:relative;width:58px;height:66px;display:grid;place-items:center;border-radius:14px;color:var(--c);background:color-mix(in srgb,var(--c) 14%,transparent)}.fx svg{position:absolute;inset:6px auto auto 50%;transform:translateX(-50%);opacity:.55}.fx b{position:relative;margin-top:26px;font:800 .72rem var(--fd);padding:2px 7px;border-radius:6px;background:var(--c);color:#fff;letter-spacing:.5px}
@@ -1644,6 +1655,27 @@ const FI = {
 const extTone = e => { e = (e || "").toLowerCase(); return /pdf/.test(e) ? "pdf" : /docx?|txt/.test(e) ? "doc" : /xlsx?|csv/.test(e) ? "xls" : /pptx?/.test(e) ? "ppt" : /zip|rar|7z/.test(e) ? "zip" : /png|jpe?g|gif|webp/.test(e) ? "img" : /mp3|wav|m4a/.test(e) ? "aud" : "gen"; };
 const fext = (ext, d = "FILE") => `<span class="fx ${extTone(ext)}">${ico(FI.doc, 24)}<b>${esc((ext || d).toUpperCase().slice(0, 4))}</b></span>`;
 const fchip = (ic, t, c = "") => `<span class="xchip ${c}">${ico(FI[ic], 14)}${t}</span>`;
+const FKIND = { pdf: "مستند PDF", doc: "مستند Word", xls: "جدول Excel", ppt: "عرض PowerPoint", zip: "ملف مضغوط", img: "صورة", aud: "ملف صوتي", gen: "ملف" };
+const driveId = u => ((u || "").match(/drive\.google\.com\/file\/d\/([\w-]+)/) || (u || "").match(/drive\.google\.com\/(?:open|uc)\?[^#]*id=([\w-]+)/) || [])[1];
+function fileView(x) {
+  const t = extTone(x.ext), id = driveId(x.url), u = x.url || "";
+  if (id) return { k: "frame", src: `https://drive.google.com/file/d/${id}/preview` };
+  if (t === "img") return { k: "img", src: u }; if (t === "aud") return { k: "aud", src: u };
+  if (t === "pdf") return { k: "frame", src: u };
+  if (t === "doc" || t === "xls" || t === "ppt") return { k: "frame", src: `https://docs.google.com/gview?embedded=1&url=${encodeURIComponent(u)}` };
+  return null;
+}
+const fileCard = x => { const t = extTone(x.ext), v = fileView(x);
+  return `<div class="fcd ${t}"><div class="fcd-top">${fext(x.ext)}<div class="t"><h3>${esc(x.title)}</h3><small>${FKIND[t]}</small></div></div>
+    <div class="xchips">${x.size ? fchip("dl", `<bdi dir="ltr">${esc(fmtSize(x.size))}</bdi>`) : ""}${x.createdAt?.toDate ? fchip("cal", esc(fmtDate(x.createdAt))) : ""}</div>
+    <div class="fcd-act">${v ? `<button type="button" class="btn btn-line ibtn" data-fv="${esc(x.id)}">${ico(FI.eye, 17)} عرض الملف</button>` : ""}<a class="btn btn-fill ibtn" href="${esc(x.url)}" target="_blank" rel="noopener" download>${ico(FI.dl, 17)} تحميل</a></div></div>`; };
+function openFileViewer(x) {
+  const v = fileView(x); if (!v) return window.open(x.url, "_blank", "noopener");
+  const body = v.k === "img" ? `<img class="fv-img" src="${esc(v.src)}" alt="${esc(x.title)}">` : v.k === "aud" ? `<div class="fv-aud"><span>${ico(FI.doc, 40)}</span><audio controls preload="metadata" src="${esc(v.src)}"></audio></div>` : `<iframe class="fv-fr" src="${esc(v.src)}" title="${esc(x.title)}" allow="autoplay" referrerpolicy="no-referrer"></iframe>`;
+  openModal(`<div class="fv"><div class="fv-h">${fext(x.ext)}<div><h3>${esc(x.title)}</h3><small>${FKIND[extTone(x.ext)]}${x.size ? ` · <bdi dir="ltr">${esc(fmtSize(x.size))}</bdi>` : ""}</small></div><button type="button" class="fv-x" data-close aria-label="إغلاق">✕</button></div>
+    <div class="fv-b">${body}</div>
+    <div class="fv-f"><small>لو لم يظهر الملف جيدًا على جهازك استخدم «فتح في تبويب» أو «تحميل».</small><div class="acts"><a class="btn btn-line btn-sm ibtn" href="${esc(x.url)}" target="_blank" rel="noopener">${ico(FI.eye, 16)} فتح في تبويب</a><a class="btn btn-fill btn-sm ibtn" href="${esc(x.url)}" target="_blank" rel="noopener" download>${ico(FI.dl, 16)} تحميل</a></div></div></div>`, true);
+}
 const hwSub = id => S.hwsubs.find(x => x.hwId === id);
 const hwStatus = id => hwSub(id)?.status === "graded" ? "graded" : hwSub(id) ? "submitted" : "none";
 const hwDue = d => d ? new Date(d + "T23:59:59") : null;
@@ -1759,7 +1791,8 @@ function fillHome() {
     list.innerHTML = hs.length ? hs.map(hwCard).join("") : `<div class="empty">${ico(FI.hw, 34)}<br>لا توجد واجبات لمرحلتك حاليًا</div>`;
   } else {
     const f = visible(S.files).filter(m);
-    list.innerHTML = f.length ? f.map(x => `<div class="flc ${extTone(x.ext)}">${fext(x.ext)}<div class="t"><h3>${esc(x.title)}</h3><div class="xchips">${fchip("doc", esc((x.ext || "ملف").toUpperCase()))}${x.size ? fchip("dl", esc(fmtSize(x.size))) : ""}${x.createdAt?.toDate ? fchip("cal", esc(fmtDate(x.createdAt))) : ""}</div></div><a class="btn btn-fill btn-sm ibtn" href="${esc(x.url)}" target="_blank" rel="noopener" download>${ico(FI.dl, 17)} تحميل</a></div>`).join("") : `<div class="empty">${ico(FI.doc, 34)}<br>لا توجد ملفات لمرحلتك حاليًا</div>`;
+    list.innerHTML = f.length ? `<div class="fgrid">${f.map(fileCard).join("")}</div>` : `<div class="empty">${ico(FI.doc, 34)}<br>لا توجد ملفات لمرحلتك حاليًا</div>`;
+    $$("[data-fv]", list).forEach(b => b.onclick = () => { const x = S.files.find(y => y.id === b.dataset.fv); if (x) openFileViewer(x); });
   }
 }
 
