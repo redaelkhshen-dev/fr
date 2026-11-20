@@ -876,7 +876,7 @@ html[data-theme=light] .hl-fx b{background-image:linear-gradient(100deg,#7a520a 
 
 <script type="module">
 import { initializeApp, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, updatePassword, reauthenticateWithCredential, EmailAuthProvider, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, deleteUser, updatePassword, reauthenticateWithCredential, EmailAuthProvider, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, deleteField, increment, writeBatch, collection, addDoc, onSnapshot, query, orderBy, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
@@ -1392,7 +1392,7 @@ function renderRegister() {
       try { cred = await createUserWithEmailAndPassword(auth, email, pass); }
       catch (er) {
         if (er.code !== "auth/email-already-in-use") throw er;
-        let c2; try { c2 = await signInWithEmailAndPassword(auth, email, pass); } catch { throw new Error("هذا الرقم مسجّل بالفعل. سجّل الدخول من الصفحة الرئيسية"); }
+        let c2; try { c2 = await signInWithEmailAndPassword(auth, email, pass); } catch { throw new Error("هذا الرقم له حساب سابق بكلمة سر مختلفة. سجّل الدخول من الصفحة الرئيسية، أو اطلب من المدرس مساعدتك"); }
         const ex = await getDoc(doc(db, "students", c2.user.uid));
         if (ex.exists()) { await signOut(auth); throw new Error("هذا الرقم مسجّل بالفعل. سجّل الدخول من الصفحة الرئيسية"); }
         cred = c2;
@@ -3180,7 +3180,15 @@ async function studentAction(e) {
       await updateDoc(dref, { devM: "", devD: "", deviceId: "" }); toast("تم فك ارتباط الأجهزة", "ok");
     } else if (btn.dataset.a === "del") {
       if (!confirm(`حذف الطالب ${x.name} نهائيًا؟ لا يمكن التراجع.`)) return;
-      await deleteDoc(dref); deleteDoc(doc(db, "studentPw", id)).catch(() => {}); toast("تم حذف الطالب", "ok");
+      let freed = false;
+      try { /* حذف حساب الدخول أيضًا ليتمكن الطالب من التسجيل من جديد بأي كلمة سر */
+        const pw = (await getDoc(doc(db, "studentPw", id))).data()?.pw; if (!pw) throw 0;
+        let sec; try { sec = getApp("pwfix"); } catch { sec = initializeApp(firebaseConfig, "pwfix"); }
+        const a2 = getAuth(sec); const c = await signInWithEmailAndPassword(a2, `${x.phone}@${EMAIL_DOMAIN}`, pw);
+        await deleteUser(c.user); freed = true;
+      } catch (er) { /* يبقى الحساب؛ التسجيل من جديد ممكن بنفس كلمة السر القديمة */ }
+      await deleteDoc(dref); deleteDoc(doc(db, "studentPw", id)).catch(() => {});
+      toast(freed ? "تم حذف الطالب — يمكنه التسجيل من جديد بنفس رقمه" : "تم حذف الطالب — يستطيع التسجيل من جديد بنفس رقمه وكلمة سره القديمة", "ok");
     } else if (btn.dataset.a === "pw") editPw(x);
     else if (btn.dataset.a === "edit") editStudent(x);
   } catch (er) { toast("فشلت العملية: " + (er.code || er.message), "err"); }
