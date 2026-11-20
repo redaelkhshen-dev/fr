@@ -3163,7 +3163,11 @@ async function studentAction(e) {
   const dref = doc(db, "students", id);
   try {
     if (btn.dataset.a === "accept") {
-      await updateDoc(dref, { status: "active" }); toast(`تم قبول ${x.name}`, "ok");
+      const ph = String(x.phone || "").replace(/\D/g, "").replace(/^00/, ""), intl = ph.startsWith("20") ? ph : "20" + ph.replace(/^0/, "");
+      const w = ph ? window.open("", "_blank") : null;
+      try { await updateDoc(dref, { status: "active" }); } catch (er) { if (w) w.close(); throw er; }
+      toast(`تم قبول ${x.name}`, "ok");
+      if (ph) { const u = `https://wa.me/${intl}?text=` + encodeURIComponent(`مرحبًا ${x.name} 🌟\nتم قبولك في منصة مسيو رضا الخشن لتعلم اللغة الفرنسية، يمكنك تسجيل الدخول الآن.\n${location.origin}${location.pathname}`); if (w) w.location.href = u; else location.href = u; }
     } else if (btn.dataset.a === "reject") {
       if (!confirm(`رفض طلب تسجيل ${x.name}؟`)) return;
       await updateDoc(dref, { status: "rejected" }); toast("تم رفض الطلب", "ok");
