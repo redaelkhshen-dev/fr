@@ -931,7 +931,22 @@ const AVSPEC = {
   g6: { bg: "#3a9a6b", sk: "#d9a579", sh: "#1f5c40", h: "hijab", hc: "#2b2f38", gl: 1 },
   g7: { bg: "#d4a73a", sk: "#f1c9a0", sh: "#1b1405", h: "long", hc: "#1b120a", cap: 1 },
   g8: { bg: "#c0443f", sk: "#e8b890", sh: "#7a1f1b", h: "hijab", hc: "#f4d6df" },
-  b8: { bg: "#2f6fb3", sk: "#c68c5f", sh: "#1d3f66", h: "curly", hc: "#150d07", gl: 1 }
+  b8: { bg: "#2f6fb3", sk: "#c68c5f", sh: "#1d3f66", h: "curly", hc: "#150d07", gl: 1 },
+  /* شخصيات مهن */
+  p1: { bg: "#2fa3a6", sk: "#f1c9a0", sh: "#f4f6fa", h: "short", hc: "#2a1b10", pf: "doctor" },
+  p2: { bg: "#d86a8a", sk: "#e8b890", sh: "#f4f6fa", h: "hijab", hc: "#7fc7c9", pf: "doctor" },
+  p3: { bg: "#555e6b", sk: "#d9a579", sh: "#e07a1f", h: "short", hc: "#1b120a", pf: "engineer" },
+  p4: { bg: "#3f7fd0", sk: "#f1c9a0", sh: "#f4f6fa", h: "side", hc: "#2a1b10", pf: "pilot" },
+  p5: { bg: "#e08a3c", sk: "#e8b890", sh: "#f8f8f8", h: "long", hc: "#3a2012", pf: "chef" },
+  p6: { bg: "#27385c", sk: "#d9a579", sh: "#1f2f52", h: "short", hc: "#1b120a", pf: "police" },
+  p7: { bg: "#10172b", sk: "#f1c9a0", sh: "#f4f6fa", h: "short", hc: "#2a1b10", pf: "astro" },
+  p8: { bg: "#7b5ab5", sk: "#f1c9a0", sh: "#f4f6fa", h: "bun", hc: "#1b120a", pf: "scientist" },
+  p9: { bg: "#c0443f", sk: "#e8b890", sh: "#3a2f55", h: "curly", hc: "#2a1b10", pf: "artist" },
+  p10: { bg: "#3a9a6b", sk: "#b98259", sh: "#e8f0e8", h: "curly", hc: "#150d07", pf: "foot" },
+  p11: { bg: "#b33a2f", sk: "#d9a579", sh: "#8a1f1a", h: "short", hc: "#1b120a", pf: "fire" },
+  p12: { bg: "#555e6b", sk: "#f1c9a0", sh: "#1b1b22", h: "side", hc: "#9a9aa3", pf: "judge", gl: 1 },
+  p13: { bg: "#d4a73a", sk: "#e8b890", sh: "#2a4f86", h: "bob", hc: "#2a1b10", pf: "teacher", gl: 1 },
+  p14: { bg: "#2f6fb3", sk: "#f1c9a0", sh: "#2b3f66", h: "short", hc: "#2a1b10", pf: "tie" }
 };
 const AVATARS = Object.keys(AVSPEC).map(k => "av:" + k);
 function avSvg(code) {
@@ -947,9 +962,31 @@ function avSvg(code) {
   const hj = o.h === "hijab" ? `<path d="M50 20C30 20 24 40 26 56C27 66 20 72 14 100H86C80 72 73 66 74 56C76 40 70 20 50 20z" fill="${o.hc}"/>` : "";
   const hjf = o.h === "hijab" ? `<path d="M31 46C31 28 69 28 69 46C69 40 66 38 62 38H38C34 38 31 40 31 46z" fill="${o.hc}"/><path d="M26 74C34 68 66 68 74 74L80 100H20z" fill="${o.hc}"/>` : "";
   const cap = o.cap ? `<path d="M50 14L82 26L50 38L18 26z" fill="#1b1405"/><path d="M34 33V42C42 48 58 48 66 42V33L50 40z" fill="#2c2410"/><path d="M80 27V42" stroke="#f0cf6e" stroke-width="2"/><circle cx="80" cy="44" r="2.600" fill="#f0cf6e"/>` : o.kc ? `<path d="M29 40C32 22 68 22 71 40z" fill="#f0cf6e"/><path d="M60 38H82C82 42 70 42 60 40z" fill="#f0cf6e"/>` : "";
+  const W = "#f4f6fa", pf = o.pf || "";
+  const body = { doctor: `<path d="M40 72L50 92L60 72z" fill="#cfe9ea"/><path d="M38 76C36 94 64 94 62 76" fill="none" stroke="#2a3038" stroke-width="2.200"/><circle cx="62" cy="86" r="3" fill="#7a8591"/>`,
+    engineer: `<path d="M28 76L38 100H30zM72 76L62 100H70z" fill="#f4e04a"/><rect x="26" y="86" width="48" height="4" fill="#f4e04a" opacity=".9"/>`,
+    pilot: `<path d="M44 72L50 86L56 72z" fill="#1d2a44"/><rect x="26" y="78" width="12" height="5" fill="#f0cf6e"/><rect x="62" y="78" width="12" height="5" fill="#f0cf6e"/>`,
+    chef: `<path d="M50 72V100" stroke="#cfd4de" stroke-width="2"/><circle cx="43" cy="84" r="2" fill="#aab1c0"/><circle cx="57" cy="84" r="2" fill="#aab1c0"/><circle cx="43" cy="93" r="2" fill="#aab1c0"/><circle cx="57" cy="93" r="2" fill="#aab1c0"/>`,
+    police: `<rect x="60" y="82" width="10" height="7" rx="1.500" fill="#f0cf6e"/><path d="M44 72L50 90L56 72z" fill="#e8ecf4"/>`,
+    astro: `<rect x="40" y="82" width="20" height="10" rx="3" fill="#d4a73a"/>`,
+    scientist: `<path d="M40 72L50 100L60 72z" fill="#5a6fa8"/><path d="M38 72L50 98L44 72z" fill="#fff"/>`,
+    artist: `<path d="M20 86H80M22 94H78" stroke="#d4a73a" stroke-width="3" opacity=".8"/>`,
+    foot: `<path d="M38 72C42 78 58 78 62 72" fill="none" stroke="#3a9a6b" stroke-width="3"/><text x="50" y="94" font-size="14" font-weight="800" text-anchor="middle" fill="#3a9a6b" font-family="sans-serif">10</text>`,
+    fire: `<path d="M26 80L34 100H28zM74 80L66 100H72z" fill="#f4e04a"/>`,
+    judge: `<path d="M44 72L50 90L56 72z" fill="#fff"/><path d="M50 80V92" stroke="#fff" stroke-width="2"/>`,
+    teacher: `<path d="M46 72L50 76L54 72L52 92L50 94L48 92z" fill="#c0443f"/>`,
+    tie: `<path d="M44 72L50 78L56 72z" fill="#fff"/><path d="M48 77H52L53 94L50 97L47 94z" fill="#c0443f"/>` }[pf] || "";
+  const hat = { engineer: `<path d="M28 40C28 18 72 18 72 40z" fill="#f4c21f"/><rect x="24" y="38" width="52" height="6" rx="3" fill="#e0a800"/><rect x="46" y="20" width="8" height="16" fill="#e0a800"/>`,
+    pilot: `<path d="M29 38C29 20 71 20 71 38z" fill="#1d2a44"/><rect x="27" y="36" width="46" height="6" rx="2" fill="#10172b"/><circle cx="50" cy="31" r="4" fill="#f0cf6e"/>`,
+    chef: `<circle cx="36" cy="22" r="10" fill="#fff"/><circle cx="50" cy="16" r="11" fill="#fff"/><circle cx="64" cy="22" r="10" fill="#fff"/><rect x="32" y="22" width="36" height="14" fill="#fff"/><rect x="31" y="34" width="38" height="5" rx="2" fill="#e3e7ef"/>`,
+    police: `<path d="M29 38C29 20 71 20 71 38z" fill="#1f2f52"/><rect x="26" y="36" width="48" height="6" rx="2" fill="#10172b"/><path d="M50 24l2.500 5 5.500.8-4 3.900 1 5.500-5-2.600-5 2.600 1-5.500-4-3.900 5.500-.8z" fill="#f0cf6e"/>`,
+    fire: `<path d="M27 40C27 16 73 16 73 40z" fill="#d13a2f"/><rect x="22" y="38" width="56" height="6" rx="3" fill="#a82a21"/><path d="M42 20h16v16H42z" fill="#f4c21f"/>`,
+    artist: `<ellipse cx="46" cy="28" rx="26" ry="9" fill="#c0443f" transform="rotate(-8 46 28)"/><circle cx="46" cy="18" r="3" fill="#c0443f"/>`,
+    scientist: `<rect x="31" y="30" width="38" height="8" rx="4" fill="#e7a1c4"/><circle cx="41" cy="34" r="5.500" fill="#a9e2f2" stroke="#555" stroke-width="1.500"/><circle cx="59" cy="34" r="5.500" fill="#a9e2f2" stroke="#555" stroke-width="1.500"/>`,
+    astro: `<circle cx="50" cy="47" r="35" fill="rgba(160,205,255,.22)" stroke="#e6e9ef" stroke-width="6"/><path d="M30 24C40 14 60 14 70 24" fill="none" stroke="#fff" stroke-width="3" opacity=".6"/>` }[pf] || "";
   const gl = o.gl ? `<g fill="none" stroke="#1b1405" stroke-width="2"><circle cx="42" cy="48" r="6"/><circle cx="58" cy="48" r="6"/><path d="M48 48H52"/></g>` : "";
   const bd = o.bd ? `<path d="M31 52C31 72 69 72 69 52C66 62 58 66 50 66S34 62 31 52z" fill="#2a2018"/>` : "";
-  return `<svg viewBox="0 0 100 100" aria-hidden="true"><rect width="100" height="100" fill="${o.bg}"/>${hj}${back}<path d="M14 100C14 78 30 72 50 72S86 78 86 100z" fill="${o.sh}"/><rect x="43" y="62" width="14" height="14" rx="5" fill="${o.sk}"/><ellipse cx="50" cy="47" rx="19" ry="21" fill="${o.sk}"/>${front}${hjf}<circle cx="43" cy="48" r="2.200" fill="#1b1405"/><circle cx="57" cy="48" r="2.200" fill="#1b1405"/><path d="M44 57C47 61 53 61 56 57" fill="none" stroke="#7a3b2a" stroke-width="2" stroke-linecap="round"/><circle cx="38" cy="55" r="3" fill="#e88a7a" opacity=".35"/><circle cx="62" cy="55" r="3" fill="#e88a7a" opacity=".35"/>${bd}${gl}${cap}</svg>`;
+  return `<svg viewBox="0 0 100 100" aria-hidden="true"><rect width="100" height="100" fill="${o.bg}"/>${hj}${back}<path d="M14 100C14 78 30 72 50 72S86 78 86 100z" fill="${o.sh}"/>${body}<rect x="43" y="62" width="14" height="14" rx="5" fill="${o.sk}"/><ellipse cx="50" cy="47" rx="19" ry="21" fill="${o.sk}"/>${front}${hjf}<circle cx="43" cy="48" r="2.200" fill="#1b1405"/><circle cx="57" cy="48" r="2.200" fill="#1b1405"/><path d="M44 57C47 61 53 61 56 57" fill="none" stroke="#7a3b2a" stroke-width="2" stroke-linecap="round"/><circle cx="38" cy="55" r="3" fill="#e88a7a" opacity=".35"/><circle cx="62" cy="55" r="3" fill="#e88a7a" opacity=".35"/>${bd}${gl}${cap}${hat}</svg>`;
 }
 const PHONE_RE = /^01[0125]\d{8}$/;
 
