@@ -7,7 +7,9 @@
 <script>try{if(localStorage.getItem("theme")==="light")document.documentElement.dataset.theme="light"}catch(e){}</script>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
-<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="مسيو رضا">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="robots" content="noindex">
@@ -412,6 +414,7 @@ tr:last-child td{border-bottom:0}
 .cont-b{flex:1;min-width:0;display:grid;gap:5px}.cont-b small{color:var(--accent-text);font-weight:700}.cont-b b{font-size:1.05rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.cont-b em{font-style:normal;color:var(--muted);font-size:.82rem}.cont-bar{height:6px;border-radius:6px;background:var(--line);overflow:hidden}.cont-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent-deep),var(--accent-2))}.cont-go{flex:none;white-space:nowrap}
 .rs-note{margin:0 0 10px;padding:8px 12px;border-radius:10px;background:rgba(212,167,58,.1);border:1px dashed var(--accent);font-size:.85rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap}.rs-note button{border:0;background:none;color:var(--accent-text);font:inherit;font-weight:700;text-decoration:underline;cursor:pointer;padding:0}
 @media(max-width:640px){.cont{flex-wrap:wrap}.cont-th{width:100%}.cont-go{width:100%;text-align:center}.cont-b b{white-space:normal}}
+.inst-btn{align-self:center;margin-top:4px}.inst{line-height:2;padding-inline-start:20px;margin:12px 0}
 /* ===== رصد الدرجات ===== */
 .gr-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px}.gr-head h2{margin:0}.gr-head small{color:var(--muted)}.gr-hi{flex:none;width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent-deep),var(--accent-2));color:#1b1405;box-shadow:0 8px 22px -10px var(--accent)}
 .gr-mn{margin-inline-start:auto;display:flex;align-items:center;gap:6px}.gr-mn input{max-width:none;width:200px}.gr-mn .ib{color:var(--fg)}
@@ -1336,9 +1339,9 @@ function authShell(inner, mode) {
   const login = mode === "login";
   return `<div class="authx"><aside class="aside"><div class="aside-in">
     <div class="disc-wrap"><div class="disc"><span class="orbit" aria-hidden="true"><i></i></span><img src="${PHOTO}" alt="مسيو رضا الخشن"></div></div>
-    <h2>${login ? "أهلًا بعودتك 👋" : "ابدأ رحلتك مع الفرنسية"}</h2>
-    <p>${login ? "كمّل من حيث توقفت: فيديوهاتك وملفاتك في انتظارك." : "حساب واحد يفتح لك محتوى مرحلتك ونظامك بالكامل."}</p>
-    <ul class="pts"><li>🎬 فيديوهات شرح لكل مرحلة</li><li>📄 ملفات PDF وWord للتحميل</li><li>🔒 حساب شخصي مثبّت على جهازك</li></ul></div></aside>
+    <h2>${mode === "admin" ? "أهلًا مسيو رضا 👋" : login ? "أهلًا بعودتك 👋" : "ابدأ رحلتك مع الفرنسية"}</h2>
+    <p>${mode === "admin" ? "ادخل إلى لوحة التحكم لإدارة الطلاب والمحتوى والدرجات." : login ? "كمّل من حيث توقفت: فيديوهاتك وملفاتك في انتظارك." : "حساب واحد يفتح لك محتوى مرحلتك ونظامك بالكامل."}</p>
+    ${mode === "admin" ? `<ul class="pts"><li>👥 إدارة الطلاب وقبول التسجيل</li><li>🎬 رفع الفيديوهات والملفات والاختبارات</li><li>📊 متابعة الدرجات والتقارير</li></ul>` : `<ul class="pts"><li>🎬 فيديوهات شرح لكل مرحلة</li><li>📄 ملفات PDF وWord للتحميل</li><li>🔒 حساب شخصي مثبّت على جهازك</li></ul>`}</div></aside>
     <div class="aform">${inner}</div></div>`;
 }
 function renderLanding() {
@@ -1421,7 +1424,7 @@ function renderLogin() {
   </form>
   <div class="lg-or"><span>طالب جديد؟</span></div>
   <a class="btn btn-line w100 lg-new" href="#/register">${fsv(LGI.plus, 18)} أنشئ حسابك الآن</a>
-  <div class="lg-trust"><span>${fsv(LGI.lock, 15)} اتصال آمن</span><span>${fsv(LGI.dev, 15)} يثبت على جهازك</span><span>${fsv(LGI.ok, 15)} مفتوح حتى «خروج»</span></div></div><a class="adm-link" href="#/admin-login">دخول المدرس</a>`, "login");
+  <div class="lg-trust"><span>${fsv(LGI.lock, 15)} اتصال آمن</span><span>${fsv(LGI.dev, 15)} يثبت على جهازك</span><span>${fsv(LGI.ok, 15)} مفتوح حتى «خروج»</span></div>${installBtn()}</div><a class="adm-link" href="#/admin-login">دخول المدرس</a>`, "login");
   $("#f").addEventListener("submit", async e => {
     e.preventDefault(); showErr("");
     const f = new FormData(e.target), phone = toLatin(f.get("phone")).replace(/\s/g, ""), pass = toLatin(f.get("pass"));
@@ -2562,9 +2565,16 @@ function renderProfile() {
 
 /* ================================ الأدمن ================================ */
 function renderAdminLogin() {
-  app.innerHTML = `<div class="auth"><div class="card auth-card">${brand()}<h1>دخول المدرس</h1><div class="alert" id="err" hidden></div>
-  <form id="f" novalidate><label class="fl">كلمة السر<input name="pass" type="password" inputmode="numeric" dir="ltr" autocomplete="current-password" autofocus></label>
-  <button class="btn btn-fill w100" id="sb">دخول</button></form><p class="alt"><a href="#/">← العودة</a></p></div></div>`;
+  app.innerHTML = authShell(`<div class="card auth-card lgc">${brand()}
+  <div class="lg-h"><span class="lg-ic">${fsv(LGI.lock, 28)}</span><div><h1>دخول المدرس</h1><p class="sub">لوحة التحكم الخاصة بمسيو رضا</p></div></div>
+  <div class="alert" id="err" hidden></div>
+  <form id="f" novalidate>
+    ${fld("كلمة سر المدرس", LGI.key, `<input name="pass" type="password" inputmode="numeric" dir="ltr" autocomplete="current-password" autofocus placeholder="••••••">`)}
+    <button class="btn btn-fill btn-go w100 lg-go" id="sb"><span>دخول</span>${fsv(LGI.arrow, 20)}</button>
+  </form>
+  <div class="lg-or"><span>لست مدرسًا؟</span></div>
+  <a class="btn btn-line w100 lg-new" href="#/">${fsv(LGI.arrow, 18)} العودة لتسجيل دخول الطلاب</a>
+  <div class="lg-trust"><span>${fsv(LGI.lock, 15)} اتصال آمن</span><span>${fsv(LGI.ok, 15)} للمدرس فقط</span></div></div>`, "admin");
   $("#f").addEventListener("submit", async e => {
     e.preventDefault(); showErr(""); const pass = toLatin(new FormData(e.target).get("pass")); const b = $("#sb");
     if (!pass) return showErr("اكتب كلمة السر");
@@ -2634,6 +2644,20 @@ async function exportXlsx(btn) {
 }
 const xlBtn = () => `<button class="btn btn-line btn-sm ibtn" data-xl type="button">${ico(SI.rep, 16)} نسخة احتياطية Excel</button>`;
 const xlClick = (b, fn) => e => { const x = e.target.closest("[data-xl]"); if (x) return exportXlsx(x); fn(e); };
+/* ===== تثبيت التطبيق (PWA) ===== */
+let deferredInstall = null;
+window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferredInstall = e; document.documentElement.classList.add("can-install"); });
+window.addEventListener("appinstalled", () => { deferredInstall = null; document.documentElement.classList.remove("can-install"); toast("تم تثبيت التطبيق 🎉", "ok"); });
+if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js").catch(() => {});
+const isStandalone = () => matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+async function installApp() {
+  if (isStandalone()) return toast("التطبيق مثبّت بالفعل", "ok");
+  if (deferredInstall) { deferredInstall.prompt(); await deferredInstall.userChoice.catch(() => {}); deferredInstall = null; return; }
+  const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  openModal(`<h2>تثبيت التطبيق على الموبايل</h2><p class="sub">بدون متجر تطبيقات — يظهر بأيقونة على شاشتك ويفتح بملء الشاشة.</p><ol class="inst">${ios ? `<li>افتح الموقع في <b>Safari</b>.</li><li>اضغط زر المشاركة <b>⬆️</b>.</li><li>اختر <b>«إضافة إلى الشاشة الرئيسية»</b>.</li>` : `<li>افتح الموقع في <b>Chrome</b>.</li><li>اضغط القائمة <b>⋮</b> أعلى المتصفح.</li><li>اختر <b>«تثبيت التطبيق»</b> أو «إضافة إلى الشاشة الرئيسية».</li>`}</ol><div class="mact"><button class="btn btn-fill" data-close>تمام</button></div>`);
+}
+const installBtn = () => isStandalone() ? "" : `<button type="button" class="btn btn-line btn-sm ibtn inst-btn" data-install>${fsv(LGI.dev, 16)} ثبّت التطبيق</button>`;
+document.addEventListener("click", e => { if (e.target.closest("[data-install]")) installApp(); });
 const TABS = {
   overview: {
     skel: () => `<div class="nt-head"><div><h2>نظرة عامة</h2></div>${xlBtn()}</div><div id="ov"></div>`,
