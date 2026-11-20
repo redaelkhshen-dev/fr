@@ -882,7 +882,7 @@ html[data-theme=light] .hl-fx b{background-image:linear-gradient(100deg,#7a520a 
 
 <script type="module">
 import { initializeApp, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, deleteUser, updatePassword, reauthenticateWithCredential, EmailAuthProvider, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, deleteUser, updateEmail, updatePassword, reauthenticateWithCredential, EmailAuthProvider, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, deleteField, increment, writeBatch, collection, addDoc, onSnapshot, query, orderBy, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
@@ -3267,13 +3267,25 @@ function parentReport(x) {
   paint();
 }
 function editStudent(x) {
-  const m = openModal(`<h2>تعديل بيانات الطالب</h2><p class="sub" dir="ltr" style="text-align:start">${esc(x.phone)}</p><div class="alert" id="err" hidden></div>
-    <form id="ef" novalidate>${profileFields(x)}<label class="fl">رقم واتساب ولي الأمر (اختياري — لإرسال التقرير)<input name="pph" inputmode="numeric" dir="ltr" maxlength="11" placeholder="01xxxxxxxxx" value="${esc(x.parentPhone || "")}"></label><label class="fl">الحالة<select name="status"><option value="active" ${x.status === "active" ? "selected" : ""}>نشط</option><option value="pending" ${x.status === "pending" ? "selected" : ""}>قيد المراجعة</option><option value="rejected" ${x.status === "rejected" ? "selected" : ""}>مرفوض</option><option value="banned" ${x.status === "banned" ? "selected" : ""}>محظور</option></select></label>
+  const m = openModal(`<h2>تعديل بيانات الطالب</h2><div class="alert" id="err" hidden></div>
+    <form id="ef" novalidate><label class="fl">رقم الواتس (يُستخدم في تسجيل الدخول)<input name="phn" inputmode="numeric" dir="ltr" maxlength="11" value="${esc(x.phone)}"></label>${profileFields(x)}<label class="fl">رقم واتساب ولي الأمر (اختياري — لإرسال التقرير)<input name="pph" inputmode="numeric" dir="ltr" maxlength="11" placeholder="01xxxxxxxxx" value="${esc(x.parentPhone || "")}"></label><label class="fl">الحالة<select name="status"><option value="active" ${x.status === "active" ? "selected" : ""}>نشط</option><option value="pending" ${x.status === "pending" ? "selected" : ""}>قيد المراجعة</option><option value="rejected" ${x.status === "rejected" ? "selected" : ""}>مرفوض</option><option value="banned" ${x.status === "banned" ? "selected" : ""}>محظور</option></select></label>
     <div class="mact"><button class="btn btn-fill" id="sb">حفظ</button><button type="button" class="btn btn-line" data-close>إلغاء</button></div></form>`, true);
   const form = $("#ef", m); bindStageGrade(form);
   form.addEventListener("submit", async e => {
     e.preventDefault(); showErr("");
-    try { const p = readProfile(form); const fd = new FormData(form); p.status = fd.get("status"); p.parentPhone = toLatin(fd.get("pph") || "").replace(/\s/g, ""); if (p.parentPhone && !PHONE_RE.test(p.parentPhone)) throw new Error("رقم ولي الأمر غير صحيح (11 رقم)"); $("#sb", m).disabled = true; await updateDoc(doc(db, "students", x.id), p); m.remove(); toast("تم الحفظ", "ok"); }
+    try { const p = readProfile(form); const fd = new FormData(form); p.status = fd.get("status"); const np = toLatin(fd.get("phn") || "").replace(/\s/g, "");
+      if (!PHONE_RE.test(np)) throw new Error("رقم الواتس غير صحيح (11 رقم)");
+      if (np !== x.phone) {
+        if (S.students.some(z => z.phone === np && z.id !== x.id)) throw new Error("هذا الرقم مسجّل لطالب آخر");
+        if (!confirm(`تغيير رقم الطالب من ${x.phone} إلى ${np}؟ سيدخل الطالب بالرقم الجديد وبنفس كلمة سره.`)) return;
+        $("#sb", m).disabled = true;
+        const pw = (await getDoc(doc(db, "studentPw", x.id))).data()?.pw; if (!pw) throw new Error("كلمة سر الطالب غير مسجّلة عندنا. غيّرها أولًا من زر المفتاح ثم أعد المحاولة.");
+        let sec; try { sec = getApp("pwfix"); } catch { sec = initializeApp(firebaseConfig, "pwfix"); }
+        const a2 = getAuth(sec); let c;
+        try { c = await signInWithEmailAndPassword(a2, `${x.phone}@${EMAIL_DOMAIN}`, pw); await updateEmail(c.user, `${np}@${EMAIL_DOMAIN}`); await signOut(a2); }
+        catch (er) { try { await signOut(a2); } catch {} throw new Error(er.code === "auth/email-already-in-use" ? "هذا الرقم له حساب دخول سابق. احذف أي طالب قديم بهذا الرقم أولًا." : ["auth/invalid-credential", "auth/wrong-password"].includes(er.code) ? "كلمة السر المسجلة لا تطابق حساب الطالب (ربما غيّرها بنفسه)." : er.code === "auth/operation-not-allowed" ? "إعدادات Firebase تمنع تغيير البريد من التطبيق (Email enumeration protection). عطّلها من Authentication → Settings ثم أعد المحاولة." : authMsg(er)); }
+        p.phone = np;
+      } p.parentPhone = toLatin(fd.get("pph") || "").replace(/\s/g, ""); if (p.parentPhone && !PHONE_RE.test(p.parentPhone)) throw new Error("رقم ولي الأمر غير صحيح (11 رقم)"); $("#sb", m).disabled = true; await updateDoc(doc(db, "students", x.id), p); m.remove(); toast("تم الحفظ", "ok"); }
     catch (er) { showErr(er.message); $("#sb", m).disabled = false; }
   });
 }
