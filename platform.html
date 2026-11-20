@@ -123,7 +123,7 @@ input[dir=ltr]{text-align:left}
 .picker{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
 .emojis{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;max-width:340px}
 .em{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--bg);font-size:1.2rem;cursor:pointer}
-.em:hover{border-color:var(--accent)}
+.em:hover{border-color:var(--accent)}.em{padding:0;overflow:hidden;width:46px;height:46px;border-radius:50%}.em svg,.avs svg{width:100%;height:100%;display:block}.emojis{max-width:400px}
 .alert{padding:10px 14px;border-radius:8px;background:rgba(255,107,122,.12);border:1px solid rgba(255,107,122,.4);color:#ffb3bb;font-size:.92rem}
 .okbox{background:rgba(61,220,132,.1);border-color:rgba(61,220,132,.4);color:#9af0c0}
 .terms{display:flex;gap:10px;align-items:flex-start;font-size:.92rem;color:var(--muted)}
@@ -914,7 +914,43 @@ const gnum = g => { g = g || ""; const m = [["الأول", 1], ["الاول", 1]
 // هل المحتوى x مخصص للطالب st؟ (المرحلة + النظام + الصف)
 const fits = (x, st) => (x.stage === "all" || x.stage === st.stage) && (x.system === "all" || x.system === st.system) && (!x.grade || x.grade === "all" || gnum(x.grade) === gnum(st.grade));
 const CITIES = ["القاهرة","الجيزة","الإسكندرية","الدقهلية","البحيرة","الشرقية","الغربية","المنوفية","القليوبية","كفر الشيخ","دمياط","بورسعيد","الإسماعيلية","السويس","الفيوم","بني سويف","المنيا","أسيوط","سوهاج","قنا","الأقصر","أسوان","البحر الأحمر","الوادي الجديد","مطروح","شمال سيناء","جنوب سيناء","أخرى"];
-const AVATARS = ["🦁","🐯","🦊","🐼","🐨","🦄","🐬","🦉","🚀","⭐","🎨","⚽","🎮","📚","🌸","🐱"];
+/* أيقونات شخصيات (SVG) — تُحفظ كرمز قصير "av:xx" */
+const AVSPEC = {
+  b1: { bg: "#2f6fb3", sk: "#f1c9a0", sh: "#1d3f66", h: "short", hc: "#2a1b10" },
+  b2: { bg: "#c9772b", sk: "#d9a579", sh: "#7a3d12", h: "curly", hc: "#1b120a" },
+  b3: { bg: "#3a9a6b", sk: "#f1c9a0", sh: "#1f5c40", h: "spiky", hc: "#6b3b16" },
+  b4: { bg: "#7b5ab5", sk: "#e8b890", sh: "#44307a", h: "side", hc: "#2a1b10", gl: 1 },
+  b5: { bg: "#555e6b", sk: "#d9a579", sh: "#2a3038", h: "short", hc: "#1b120a", bd: 1 },
+  b6: { bg: "#d4a73a", sk: "#f1c9a0", sh: "#1b1405", h: "short", hc: "#2a1b10", cap: 1 },
+  b7: { bg: "#c0443f", sk: "#b98259", sh: "#7a1f1b", h: "short", hc: "#150d07", kc: 1 },
+  g1: { bg: "#d46a9a", sk: "#f1c9a0", sh: "#8a2f5c", h: "long", hc: "#3a2012" },
+  g2: { bg: "#2fa3a6", sk: "#e8b890", sh: "#17676a", h: "bun", hc: "#1b120a" },
+  g3: { bg: "#e08a3c", sk: "#f1c9a0", sh: "#8a4a14", h: "bob", hc: "#7a3b16", gl: 1 },
+  g4: { bg: "#3f7fd0", sk: "#f1c9a0", sh: "#2a4f86", h: "hijab", hc: "#e8edf7" },
+  g5: { bg: "#8a5ac0", sk: "#e8b890", sh: "#5a3a86", h: "hijab", hc: "#f0d36a" },
+  g6: { bg: "#3a9a6b", sk: "#d9a579", sh: "#1f5c40", h: "hijab", hc: "#2b2f38", gl: 1 },
+  g7: { bg: "#d4a73a", sk: "#f1c9a0", sh: "#1b1405", h: "long", hc: "#1b120a", cap: 1 },
+  g8: { bg: "#c0443f", sk: "#e8b890", sh: "#7a1f1b", h: "hijab", hc: "#f4d6df" },
+  b8: { bg: "#2f6fb3", sk: "#c68c5f", sh: "#1d3f66", h: "curly", hc: "#150d07", gl: 1 }
+};
+const AVATARS = Object.keys(AVSPEC).map(k => "av:" + k);
+function avSvg(code) {
+  const o = AVSPEC[String(code).slice(3)]; if (!o) return "";
+  const hair = { short: `<path d="M30 46C28 24 72 24 70 46C66 36 58 33 50 33S34 36 30 46z" fill="${o.hc}"/>`,
+    curly: [[34, 32], [42, 28], [50, 27], [58, 28], [66, 32], [30, 40], [70, 40]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="8" fill="${o.hc}"/>`).join(""),
+    spiky: `<path d="M30 46L28 28L38 34L42 22L50 32L58 22L62 34L72 28L70 46C66 38 58 35 50 35S34 38 30 46z" fill="${o.hc}"/>`,
+    side: `<path d="M30 46C26 24 70 20 71 44C64 34 50 34 38 38C34 40 31 43 30 46z" fill="${o.hc}"/>`,
+    long: `<path d="M27 50C22 18 78 18 73 50L76 82H24z" fill="${o.hc}"/>`,
+    bun: `<circle cx="50" cy="22" r="9" fill="${o.hc}"/><path d="M30 46C28 24 72 24 70 46C66 36 58 32 50 32S34 36 30 46z" fill="${o.hc}"/>`,
+    bob: `<path d="M26 66C20 20 80 20 74 66z" fill="${o.hc}"/>`, hijab: "" }[o.h] || "";
+  const back = o.h === "long" || o.h === "bob" ? hair : "", front = o.h === "long" || o.h === "bob" ? `<path d="M30 46C30 28 70 28 70 46C64 38 56 34 50 34S36 38 30 46z" fill="${o.hc}"/>` : o.h === "hijab" ? "" : hair;
+  const hj = o.h === "hijab" ? `<path d="M50 20C30 20 24 40 26 56C27 66 20 72 14 100H86C80 72 73 66 74 56C76 40 70 20 50 20z" fill="${o.hc}"/>` : "";
+  const hjf = o.h === "hijab" ? `<path d="M31 46C31 28 69 28 69 46C69 40 66 38 62 38H38C34 38 31 40 31 46z" fill="${o.hc}"/><path d="M26 74C34 68 66 68 74 74L80 100H20z" fill="${o.hc}"/>` : "";
+  const cap = o.cap ? `<path d="M50 14L82 26L50 38L18 26z" fill="#1b1405"/><path d="M34 33V42C42 48 58 48 66 42V33L50 40z" fill="#2c2410"/><path d="M80 27V42" stroke="#f0cf6e" stroke-width="2"/><circle cx="80" cy="44" r="2.600" fill="#f0cf6e"/>` : o.kc ? `<path d="M29 40C32 22 68 22 71 40z" fill="#f0cf6e"/><path d="M60 38H82C82 42 70 42 60 40z" fill="#f0cf6e"/>` : "";
+  const gl = o.gl ? `<g fill="none" stroke="#1b1405" stroke-width="2"><circle cx="42" cy="48" r="6"/><circle cx="58" cy="48" r="6"/><path d="M48 48H52"/></g>` : "";
+  const bd = o.bd ? `<path d="M31 52C31 72 69 72 69 52C66 62 58 66 50 66S34 62 31 52z" fill="#2a2018"/>` : "";
+  return `<svg viewBox="0 0 100 100" aria-hidden="true"><rect width="100" height="100" fill="${o.bg}"/>${hj}${back}<path d="M14 100C14 78 30 72 50 72S86 78 86 100z" fill="${o.sh}"/><rect x="43" y="62" width="14" height="14" rx="5" fill="${o.sk}"/><ellipse cx="50" cy="47" rx="19" ry="21" fill="${o.sk}"/>${front}${hjf}<circle cx="43" cy="48" r="2.200" fill="#1b1405"/><circle cx="57" cy="48" r="2.200" fill="#1b1405"/><path d="M44 57C47 61 53 61 56 57" fill="none" stroke="#7a3b2a" stroke-width="2" stroke-linecap="round"/><circle cx="38" cy="55" r="3" fill="#e88a7a" opacity=".35"/><circle cx="62" cy="55" r="3" fill="#e88a7a" opacity=".35"/>${bd}${gl}${cap}</svg>`;
+}
 const PHONE_RE = /^01[0125]\d{8}$/;
 
 const $ = (s, r = document) => r.querySelector(s);
@@ -975,6 +1011,7 @@ const brand = (live) => `<a class="logo" href="#/"><span class="logo-mark${live 
 const avatarHTML = (s, size = 40) => {
   const p = s?.photo || "", st = `width:${size}px;height:${size}px;font-size:${Math.round(size * .5)}px`;
   if (p.startsWith("data:image/")) return `<span class="av" style="${st}"><img src="${esc(p)}" alt=""></span>`;
+  if (p.startsWith("av:") && AVSPEC[p.slice(3)]) return `<span class="av avs" style="${st}">${avSvg(p)}</span>`;
   if (p) return `<span class="av" style="${st}">${esc(p)}</span>`;
   return `<span class="av" style="${st}">${esc(((s?.name || "؟").trim()[0]) || "؟")}</span>`;
 };
@@ -999,7 +1036,7 @@ function resizeImage(file, size = 256) {
   });
 }
 function pickerHTML(cur, s) {
-  return `<div class="grp">الصورة الشخصية أو الأيقونة<div class="picker"><div id="pv">${avatarHTML({ photo: cur, name: s?.name }, 76)}</div><div><div class="emojis">${AVATARS.map(e => `<button type="button" class="em" data-e="${e}" aria-label="أيقونة ${e}">${e}</button>`).join("")}</div><label class="btn btn-line btn-sm">رفع صورة<input type="file" accept="image/*" hidden id="pfile"></label></div></div></div>`;
+  return `<div class="grp">الصورة الشخصية أو الأيقونة<div class="picker"><div id="pv">${avatarHTML({ photo: cur, name: s?.name }, 76)}</div><div><div class="emojis">${AVATARS.map(e => `<button type="button" class="em" data-e="${e}" aria-label="شخصية">${avSvg(e)}</button>`).join("")}</div><label class="btn btn-line btn-sm">رفع صورة<input type="file" accept="image/*" hidden id="pfile"></label></div></div></div>`;
 }
 function bindPicker(root, initial, name) {
   let val = initial || "";
