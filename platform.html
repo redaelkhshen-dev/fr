@@ -406,6 +406,12 @@ tr:last-child td{border-bottom:0}
 .pr-lv{margin:12px 0;padding:10px 14px;border-radius:12px;text-align:center;border:1px solid var(--line)}.pr-lv.good{background:rgba(61,220,132,.1);border-color:var(--good)}.pr-lv.warn{background:rgba(255,184,77,.1);border-color:var(--warn)}.pr-lv.bad{background:rgba(255,107,122,.1);border-color:var(--bad)}
 .pr-tx{white-space:pre-wrap;font:.88rem/1.8 var(--fb);padding:14px;border-radius:14px;border:1px dashed var(--accent);background:var(--card);max-height:260px;overflow:auto;margin:0}.pr-hint{color:var(--muted);font-size:.82rem;margin:10px 0 0}
 @media(max-width:600px){.pr-grid{grid-template-columns:repeat(2,1fr)}}
+/* ===== كمّل من حيث وقفت ===== */
+.cont{display:flex;align-items:center;gap:16px;padding:14px;margin:18px 0 6px;border-radius:20px;border:1px solid var(--accent);background:linear-gradient(135deg,rgba(212,167,58,.2),rgba(212,167,58,.04));color:var(--fg);text-decoration:none;transition:transform .2s,box-shadow .2s}.cont:hover{transform:translateY(-2px);box-shadow:0 14px 34px -18px var(--accent)}.cont:empty{display:none}
+.cont-th{position:relative;flex:none;width:150px;aspect-ratio:16/9;border-radius:12px;overflow:hidden}.cont-th img{width:100%;height:100%;object-fit:cover;display:block}.cont-th i{position:absolute;inset:0;display:grid;place-items:center;font-style:normal;color:#fff;font-size:1.6rem;background:rgba(0,0,0,.35)}
+.cont-b{flex:1;min-width:0;display:grid;gap:5px}.cont-b small{color:var(--accent-text);font-weight:700}.cont-b b{font-size:1.05rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.cont-b em{font-style:normal;color:var(--muted);font-size:.82rem}.cont-bar{height:6px;border-radius:6px;background:var(--line);overflow:hidden}.cont-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent-deep),var(--accent-2))}.cont-go{flex:none;white-space:nowrap}
+.rs-note{margin:0 0 10px;padding:8px 12px;border-radius:10px;background:rgba(212,167,58,.1);border:1px dashed var(--accent);font-size:.85rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap}.rs-note button{border:0;background:none;color:var(--accent-text);font:inherit;font-weight:700;text-decoration:underline;cursor:pointer;padding:0}
+@media(max-width:640px){.cont{flex-wrap:wrap}.cont-th{width:100%}.cont-go{width:100%;text-align:center}.cont-b b{white-space:normal}}
 /* ===== رصد الدرجات ===== */
 .gr-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px}.gr-head h2{margin:0}.gr-head small{color:var(--muted)}.gr-hi{flex:none;width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent-deep),var(--accent-2));color:#1b1405;box-shadow:0 8px 22px -10px var(--accent)}
 .gr-mn{margin-inline-start:auto;display:flex;align-items:center;gap:6px}.gr-mn input{max-width:none;width:200px}.gr-mn .ib{color:var(--fg)}
@@ -1739,7 +1745,7 @@ function renderHome() {
   app.innerHTML = `${studentHeader()}<section class="shero"><div class="wrap shero-in"><div class="st"><span class="eyebrow">${STAGES[s.stage]} · ${SYSTEMS[s.system]}</span>
       <h1>أهلًا يا <span class="hl">${esc(s.name.split(" ")[0])}</span> 👋</h1><p class="lead">${esc(s.grade)} — جاهز تكمل رحلتك مع الفرنسية؟</p>
       <div class="mini"><div><b id="cv">0</b><span>فيديو متاح</span></div><div><b id="cf">0</b><span>ملف متاح</span></div><div><b>${SYSTEMS[s.system]}</b><span>${STAGES[s.stage]}</span></div></div><div class="ovp"><div class="pbar-top"><span id="ovt">تقدمك العام</span><b id="ovn">0%</b></div><div class="pbar-track"><i id="ovf"></i></div></div></div>
-      <div class="sv"><div class="disc sm">${avatarHTML(s, 200)}</div></div></div></section><main class="wrap">
+      <div class="sv"><div class="disc sm">${avatarHTML(s, 200)}</div></div></div></section><main class="wrap"><div id="cont"></div>
     <div class="tabs"><div class="trow">${stabsHTML()}</div><input class="srch" id="q" placeholder="ابحث..." value="${esc(H.q)}"></div>
     <div class="grid" id="list"></div></main><footer class="foot">© منصة مسيو رضا الخشن — المحتوى للاستخدام الشخصي فقط</footer>`;
   $("#lo").onclick = doLogout;
@@ -1843,7 +1849,7 @@ function hwSubmitModal(id) {
     catch (er) { showErr("فشل الإرسال: " + (er.code || er.message)); $("#sb", m).disabled = false; }
   });
 }
-const vCard = (x, i) => { const pr = getProg(x.id); return `<a class="vcard" style="--i:${i}" href="#/watch/${esc(x.id)}" data-y="${esc(x.ytId)}"><div class="thumb"><span class="num">${String(i + 1).padStart(2, "0")}</span><img class="fr on" loading="lazy" src="https://i.ytimg.com/vi/${esc(x.ytId)}/mqdefault.jpg" alt=""><span class="play"><i>▶</i></span>${pr.done ? `<span class="done">✓ تمت المشاهدة</span>` : ""}${vwBadge(x.id)}<span class="vp"><i style="width:${pr.p}%"></i></span></div><div class="vb"><h3>${esc(x.title)}</h3>${x.description ? `<p>${esc(x.description)}</p>` : ""}${pr.p > 0 && !pr.done ? `<small class="resume">أكملت ${Math.round(pr.p)}% · تابع من حيث توقفت</small>` : ""}</div></a>`; };
+const vCard = (x, i) => { const pr = getProg(x.id); return `<a class="vcard" style="--i:${i}" href="#/watch/${esc(x.id)}" data-y="${esc(x.ytId)}"><div class="thumb"><span class="num">${String(i + 1).padStart(2, "0")}</span><img class="fr on" loading="lazy" src="https://i.ytimg.com/vi/${esc(x.ytId)}/mqdefault.jpg" alt=""><span class="play"><i>▶</i></span>${pr.done ? `<span class="done">✓ تمت المشاهدة</span>` : ""}${vwBadge(x.id)}<span class="vp"><i style="width:${pr.p}%"></i></span></div><div class="vb"><h3>${esc(x.title)}</h3>${x.description ? `<p>${esc(x.description)}</p>` : ""}${pr.p > 0 && !pr.done ? `<small class="resume">▶ كمّل من ${fmtTime(pr.t)} · أكملت ${Math.round(pr.p)}%</small>` : ""}</div></a>`; };
 const ST_IC = {
   videos: '<rect x="3" y="5" width="18" height="14" rx="3.5"/><path d="m10.4 9.4 4.2 2.6-4.2 2.6z"/>',
   files: '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/>',
@@ -1864,6 +1870,8 @@ function fillHome() {
   { const tl = $("#tablv"); if (tl) setTb(tl, liveNow().length ? `<i class="ldot"></i>` : ""); }
   { const tc = $("#tabce"); if (tc) setTb(tc, S.certs.length ? `<span class="pbadge">${S.certs.length}</span>` : ""); }
   { const te = $("#tabex"); if (te) { const n = visible(S.exams).filter(examOpen).filter(x => !attOf(x.id)).length; setTb(te, n ? `<span class="pbadge">${n}</span>` : ""); } }
+  { const c = $("#cont"); if (c) { const cand = visible(S.videos).map(v => ({ v, ...getProg(v.id), at: Math.max(S.student.progress?.[v.id]?.at || 0, readLocal()[v.id]?.at || 0) })).filter(x => x.p > 0 && !x.done && x.t > 5).sort((a, b) => b.at - a.at)[0];
+    c.innerHTML = cand ? `<a class="cont" href="#/watch/${esc(cand.v.id)}"><span class="cont-th"><img src="https://i.ytimg.com/vi/${esc(cand.v.ytId)}/mqdefault.jpg" alt=""><i>▶</i></span><span class="cont-b"><small>كمّل من حيث وقفت</small><b>${esc(cand.v.title)}</b><span class="cont-bar"><i style="width:${Math.min(100, cand.p)}%"></i></span><em>وقفت عند ${fmtTime(cand.t)}${cand.d ? " من " + fmtTime(cand.d) : ""} · ${agoMs(cand.at)}</em></span><span class="btn btn-fill cont-go">▶ كمّل من ${fmtTime(cand.t)}</span></a>` : ""; } }
   const q = H.q.trim().toLowerCase();
   const m = x => !q || (x.title || "").toLowerCase().includes(q) || (x.description || "").toLowerCase().includes(q);
   if (H.tab === "videos") {
@@ -1907,7 +1915,7 @@ function renderWatch(id) {
   const pr = getProg(id), st0 = pr.t > 5 && (!pr.d || pr.t < pr.d - 10) ? Math.floor(pr.t) : 0;
   app.innerHTML = `${studentHeader()}<main class="wrap sec wide"><div class="watch"><div>
     <div class="pbar wpb ${pr.p >= 90 ? "fin100" : ""}" style="--p:${pr.p}"><div class="ring" aria-hidden="true"><b id="pp">${Math.round(pr.p)}%</b></div><div class="vpm"><div class="vph"><span>🎯 تقدمك في هذا الفيديو</span><small id="pt">${pr.done ? "✅ أتممت مشاهدة هذا الفيديو" : st0 ? "سيبدأ الفيديو من حيث توقفت" : ""}</small></div>
-      <div class="vtrack"><i id="pf" style="width:${pr.p}%"></i><u style="inset-inline-start:25%"></u><u style="inset-inline-start:50%"></u><u style="inset-inline-start:75%"></u><u class="fin" style="inset-inline-start:90%" title="يُحتسب مكتملًا عند 90%">🏁</u></div></div></div>
+      ${st0 ? `<div class="rs-note" id="rsn">▶ بدأنا من حيث وقفت (${fmtTime(st0)}) <button type="button" id="rst">ابدأ من البداية</button></div>` : ""}<div class="vtrack"><i id="pf" style="width:${pr.p}%"></i><u style="inset-inline-start:25%"></u><u style="inset-inline-start:50%"></u><u style="inset-inline-start:75%"></u><u class="fin" style="inset-inline-start:90%" title="يُحتسب مكتملًا عند 90%">🏁</u></div></div></div>
     <div class="player" id="pl"><iframe id="ytp" src="https://www.youtube-nocookie.com/embed/${esc(v.ytId)}?rel=0&modestbranding=1&fs=0&disablekb=1&iv_load_policy=3&playsinline=1&cc_load_policy=0&enablejsapi=1&origin=${encodeURIComponent(location.origin)}${st0 ? "&start=" + st0 : ""}" title="${esc(v.title)}" allow="autoplay; encrypted-media" referrerpolicy="strict-origin-when-cross-origin" sandbox="allow-scripts allow-same-origin allow-presentation"></iframe>
       <div class="wm">${wm}</div><div class="wm b">${wm}</div><button class="fsx" id="fsx" type="button" aria-label="إغلاق ملء الشاشة">✕ إغلاق</button></div><div class="pctl" id="pc"><button class="btn btn-line btn-sm ibtn" id="fs" type="button"></button></div>
     <h1 style="font-size:1.4rem;margin-top:16px">${esc(v.title)}</h1><div class="vw-row" id="vwr">${vwBadge(id, "big")}<span class="vw-l">مشاهدة</span></div>
@@ -1921,6 +1929,7 @@ function renderWatch(id) {
   const pl = $("#pl");
   pl.addEventListener("contextmenu", e => e.preventDefault());
   startTracker(v); startCommentSubs(v);
+  { const r = $("#rst"); if (r) r.onclick = () => { try { T.player.seekTo(0, true); T.player.playVideo(); } catch {} $("#rsn")?.remove(); }; }
   bindFs(pl);
 }
 
@@ -2597,10 +2606,38 @@ function setTab(t) {
 const fillTab = () => { const b = $("#abody"); if (b) TABS[A.tab].fill(b); };
 const opts = (obj, cur, extra) => (extra ? Object.entries(extra) : []).concat(Object.entries(obj)).map(([k, v]) => `<option value="${k}" ${k === cur ? "selected" : ""}>${v}</option>`).join("");
 
+
+/* ===== نسخة احتياطية Excel ===== */
+const loadXLSX = () => window.XLSX ? Promise.resolve(window.XLSX) : new Promise((res, rej) => { const t = document.createElement("script"); t.src = "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"; t.onload = () => res(window.XLSX); t.onerror = () => rej(new Error("xlsx")); document.head.append(t); });
+function exportData() {
+  const tsd = t => t?.toDate ? t.toDate() : t?.seconds ? new Date(t.seconds * 1000) : null, dstr = t => { const d = tsd(t); return d ? d.toLocaleDateString("en-CA") : ""; };
+  const byId = Object.fromEntries(S.students.map(x => [x.id, x])), exT = Object.fromEntries(S.exams.map(e => [e.id, e.title])), hwT = Object.fromEntries(S.homework.map(h => [h.id, h.title]));
+  const stl = { active: "نشط", pending: "قيد المراجعة", rejected: "مرفوض", banned: "محظور" };
+  const students = S.students.map(x => { const at = S.attempts.filter(a => a.uid === x.id && a.score !== undefined), vs = S.videos.filter(v => fits(v, x)), vd = vs.filter(v => (x.progress?.[v.id]?.p || 0) >= 90).length;
+    return { "الاسم": x.name, "رقم الواتس": x.phone, "رقم ولي الأمر": x.parentPhone || x.parent || "", "المرحلة": stageLabel(x.stage), "النظام": sysLabel(x.system), "الصف": x.grade || "", "المحافظة": x.city || x.governorate || "", "المدرسة": x.school || "", "الحالة": stl[x.status] || x.status, "تاريخ التسجيل": dstr(x.createdAt), "فيديوهات مكتملة": vd, "إجمالي الفيديوهات المتاحة": vs.length, "عدد الاختبارات": at.length, "متوسط الاختبارات %": at.length ? Math.round(at.reduce((t, a) => t + pctOf(a), 0) / at.length) : "" }; });
+  const grades = S.attempts.filter(a => a.score !== undefined).map(a => ({ "الطالب": byId[a.uid]?.name || a.name || "", "الرقم": byId[a.uid]?.phone || a.phone || "", "الاختبار": exT[a.examId] || a.title || "", "الدرجة": a.score, "من": a.total, "النسبة %": pctOf(a), "التاريخ": attDate(a).toLocaleDateString("en-CA") }));
+  const hws = S.hwsubs.map(b => ({ "الطالب": byId[b.uid]?.name || b.name || "", "الرقم": byId[b.uid]?.phone || b.phone || "", "الواجب": hwT[b.hwId] || "", "الحالة": b.status === "graded" ? "تم التصحيح" : b.status === "submitted" ? "تم التسليم" : b.status || "", "الدرجة": b.grade || "", "التاريخ": dstr(b.updatedAt) }));
+  return { "الطلاب": students, "الدرجات": grades, "الواجبات": hws };
+}
+async function exportXlsx(btn) {
+  const old = btn?.innerHTML; if (btn) { btn.disabled = true; btn.textContent = "جاري التجهيز..."; }
+  const d = exportData(), name = "نسخة-المنصة-" + new Date().toLocaleDateString("en-CA");
+  try {
+    const X = await loadXLSX(), wb = X.utils.book_new(); wb.Workbook = { Views: [{ RTL: true }] };
+    Object.entries(d).forEach(([n, rows]) => { const ws = X.utils.json_to_sheet(rows.length ? rows : [{ "—": "لا بيانات" }]); const cols = Object.keys(rows[0] || { x: 1 }); ws["!cols"] = cols.map(c => ({ wch: Math.min(34, Math.max(c.length + 4, ...rows.slice(0, 80).map(r => String(r[c] ?? "").length + 2))) })); X.utils.book_append_sheet(wb, ws, n); });
+    X.writeFile(wb, name + ".xlsx"); toast("تم تنزيل ملف Excel", "ok");
+  } catch {
+    const rows = d["الطلاب"]; const h = Object.keys(rows[0] || {}); const csv = "﻿" + [h, ...rows.map(r => h.map(k => r[k]))].map(r => r.map(v => `"${String(v ?? "").replace(/"/g, '""')}"`).join(",")).join("\n");
+    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" })); a.download = name + ".csv"; a.click(); toast("تعذّر تحميل مكتبة Excel — نُزّل ملف CSV للطلاب بدلًا منه", "warn");
+  }
+  if (btn) { btn.disabled = false; btn.innerHTML = old; }
+}
+const xlBtn = () => `<button class="btn btn-line btn-sm ibtn" data-xl type="button">${ico(SI.rep, 16)} نسخة احتياطية Excel</button>`;
+const xlClick = (b, fn) => e => { const x = e.target.closest("[data-xl]"); if (x) return exportXlsx(x); fn(e); };
 const TABS = {
   overview: {
-    skel: () => `<h2 style="margin-bottom:16px">نظرة عامة</h2><div id="ov"></div>`,
-    init: b => { b.onclick = studentAction; },
+    skel: () => `<div class="nt-head"><div><h2>نظرة عامة</h2></div>${xlBtn()}</div><div id="ov"></div>`,
+    init: b => { b.onclick = xlClick(b, studentAction); },
     fill: b => {
       const st = S.students, act = st.filter(x => x.status === "active").length, pend = st.filter(x => x.status === "pending"), blk = st.filter(x => x.status === "banned" || x.status === "rejected").length;
       const by = k => Object.keys(k === "stage" ? STAGES : SYSTEMS).map(key => [(k === "stage" ? STAGES : SYSTEMS)[key], st.filter(x => x[k] === key).length]);
@@ -2615,14 +2652,14 @@ const TABS = {
     }
   },
   students: {
-    skel: () => `<h2 style="margin-bottom:16px">إدارة الطلاب</h2><div class="sstats" id="sst"></div><div class="toolbar"><span class="sq">${ico(SI.search, 18)}<input id="aq" placeholder="بحث بالاسم أو الرقم أو المدينة" value="${esc(A.q)}"></span>
+    skel: () => `<div class="nt-head"><div><h2>إدارة الطلاب</h2></div>${xlBtn()}</div><div class="sstats" id="sst"></div><div class="toolbar"><span class="sq">${ico(SI.search, 18)}<input id="aq" placeholder="بحث بالاسم أو الرقم أو المدينة" value="${esc(A.q)}"></span>
       <select id="as"><option value="">كل المراحل</option>${opts(STAGES, A.fstage)}</select>
       <select id="at"><option value="">كل الحالات</option><option value="active" ${A.fstatus === "active" ? "selected" : ""}>نشط</option><option value="pending" ${A.fstatus === "pending" ? "selected" : ""}>قيد المراجعة</option><option value="rejected" ${A.fstatus === "rejected" ? "selected" : ""}>مرفوض</option><option value="banned" ${A.fstatus === "banned" ? "selected" : ""}>محظور</option></select></div><div class="tw" id="sl"></div>`,
     init: b => {
       $("#aq", b).oninput = e => { A.q = e.target.value; fillTab(); };
       $("#as", b).onchange = e => { A.fstage = e.target.value; fillTab(); };
       $("#at", b).onchange = e => { A.fstatus = e.target.value; fillTab(); };
-      b.onclick = studentAction;
+      b.onclick = xlClick(b, studentAction);
     },
     fill: b => {
       const q = A.q.trim().toLowerCase();
