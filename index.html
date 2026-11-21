@@ -589,6 +589,19 @@ tr:last-child td{border-bottom:0}
 .ph-steps b{display:block;font-size:1rem;margin-bottom:3px}.ph-steps small{display:block;color:var(--muted);font-size:.82rem;line-height:1.7}
 @media(max-width:700px){.ph-hero{display:grid;grid-template-columns:auto 1fr;column-gap:14px;row-gap:2px;align-items:center;padding:16px 16px 18px;border-radius:20px}.ph-hero>div{display:contents}.ph-ic{grid-row:1/3;width:56px;height:56px;border-radius:17px}.ph-ic svg{width:28px;height:28px}.ph-k{grid-column:2;grid-row:1;justify-self:start;font-size:.7rem;padding:2px 10px}.ph-hero h1{grid-column:2;grid-row:2;margin:0;font-size:1.5rem}.ph-hero p{grid-column:1/-1;grid-row:3;margin-top:10px;font-size:.86rem;line-height:1.7}.ph-steps{grid-template-columns:1fr;gap:16px}.ph-steps li{padding:12px 14px}.ph-si{width:38px;height:38px}.ph-steps li:not(:last-child)::after{display:none}}
 @media(prefers-reduced-motion:reduce){.ph-hero::before,.ph-ic{animation:none}}
+.plc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px;margin-top:22px}@media(min-width:1000px){.plc-grid{grid-template-columns:repeat(5,minmax(0,1fr))}}
+.plc{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;padding:26px 18px 20px;border-radius:24px;border:1px solid var(--pc);background:linear-gradient(160deg,rgba(var(--pr),.2),rgba(var(--pr),.03));color:var(--pc);overflow:hidden;isolation:isolate;transition:transform .3s,box-shadow .3s}
+.plc:hover{transform:translateY(-6px);box-shadow:0 22px 40px -18px rgba(var(--pr),.7)}
+.plc::before{content:"";position:absolute;inset:-60% -30%;z-index:-1;background:linear-gradient(115deg,transparent 42%,rgba(255,255,255,.12) 50%,transparent 58%);transform:translateX(-120%);animation:pfsh 5s ease-in-out infinite}
+.plc.best{box-shadow:0 0 0 2px rgba(var(--pr),.55),0 20px 44px -22px rgba(var(--pr),.8)}
+.plc-tag{position:absolute;top:12px;inset-inline-start:12px;padding:3px 12px;border-radius:99px;font-size:.72rem;font-weight:800;color:#1b1405;background:linear-gradient(135deg,#f3d77a,#b8861f)}
+.plc .pf-pi{width:78px;height:78px;border-radius:24px;margin-bottom:8px}.plc .pf-svg svg{width:40px;height:40px}
+.plc.pl .pf-pi{color:var(--pc);border:1px solid var(--pc);background:rgba(var(--pr),.14);box-shadow:0 0 26px -4px rgba(var(--pr),.6)}.plc.pl .pf-pi::after{border-color:var(--pc)}
+.plc h3{margin:0;font-size:1.25rem;color:var(--pc)}.plc-d{color:var(--muted)}
+.plc-pr{display:flex;align-items:baseline;justify-content:center;gap:6px;margin-top:10px;min-height:52px;color:var(--fg)}.plc-pr b{font-size:2.3rem;line-height:1;font-family:var(--fd)}.plc-pr span{color:var(--muted)}.plc-pr em{font-style:normal;color:var(--muted);font-size:.95rem}
+.plc-pm{color:var(--pc);font-size:.8rem;min-height:1.2em}
+.plc-b{width:100%;margin-top:12px}.plc-wa{margin-top:8px;font-size:.82rem;color:var(--muted);text-decoration:underline}.plc-wa:hover{color:var(--pc)}
+@media(prefers-reduced-motion:reduce){.plc::before{animation:none}}
 /* ===== رصد الدرجات ===== */
 .gr-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px}.gr-head h2{margin:0}.gr-head small{color:var(--muted)}.gr-hi{flex:none;width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent-deep),var(--accent-2));color:#1b1405;box-shadow:0 8px 22px -10px var(--accent)}
 .gr-mn{margin-inline-start:auto;display:flex;align-items:center;gap:6px}.gr-mn input{max-width:none;width:200px}.gr-mn .ib{color:var(--fg)}
@@ -1486,9 +1499,7 @@ function subStrip(x) {
   const tot = Math.max(1, Math.round((x.subEndMs - new Date(x.subStart + "T00:00:00").getTime()) / 864e5)), pc = Math.max(0, Math.min(100, Math.round(i.days / tot * 100)));
   return `<div class="sb-strip ${i.state}">${fsv(i.state === "soon" ? SBI.clock : SBI.crown, 22)}<div class="sb-m"><b>${i.state === "soon" ? "⚠️ " + daysTxt(i.days) : "اشتراكك نشط — متبقي " + i.days + " يومًا"}</b><small>ينتهي في <bdi dir="ltr">${i.end}</bdi>${PLANS[x.subPlan] ? " · باقة " + PLANS[x.subPlan][0] : ""}</small><span class="sb-bar"><i style="width:${pc}%"></i></span></div>${i.state === "soon" ? `<a class="btn btn-fill btn-sm" href="#/pay">جدّد الآن</a>` : ""}</div>`;
 }
-function planCard(x) {
-  const i = subInfo(x), nm = PLANS[x.subPlan]?.[0];
-  const PTH = {
+const PTH = {
     free: '<rect x="3.5" y="9" width="17" height="11" rx="2"/><path d="M12 9v11M3.5 13.5h17M12 9c-2.500 0-4.500-1-4.500-3s3-2.500 4.500 3c1.500-5.500 4.500-5 4.500-3s-2 3-4.500 3z"/>',
     m1: '<path d="M12 21v-9"/><path d="M12 12c0-4 3-6.500 8-6.500 0 4.500-3 6.500-8 6.500z"/><path d="M12 15c0-3-2.500-5-7-5 0 3.500 2.500 5 7 5z"/>',
     m3: '<path d="m12 3 2.700 5.600 6.100.9-4.400 4.300 1 6.100L12 17l-5.400 2.900 1-6.100L3.200 9.500l6.100-.9z"/>',
@@ -1496,7 +1507,10 @@ function planCard(x) {
     y1: '<path d="m3 8 4.500 4L12 5l4.500 7L21 8l-1.500 11h-15z"/><path d="M5 19h14"/>',
     custom: '<rect x="3.500" y="5" width="17" height="15" rx="2.500"/><path d="M3.500 10h17M8 3v4M16 3v4M9 14.500l2 2 4-4"/>',
     open: '<path d="M12 3l1.800 5.200L19 10l-5.200 1.800L12 17l-1.800-5.200L5 10l5.200-1.800z"/><path d="M19 15l.8 2.200L22 18l-2.200.8L19 21l-.8-2.200L16 18l2.200-.8z"/>'
-  }, pk = i.state === "open" ? "open" : (x.subPlan && PTH[x.subPlan] ? x.subPlan : "open"), ic = `<span class="pf-svg">${fsv(PTH[pk], 32)}</span>`;
+  };
+function planCard(x) {
+  const i = subInfo(x), nm = PLANS[x.subPlan]?.[0];
+  const pk = i.state === "open" ? "open" : (x.subPlan && PTH[x.subPlan] ? x.subPlan : "open"), ic = `<span class="pf-svg">${fsv(PTH[pk], 32)}</span>`;
   const m = { free: ["🎁", "الباقة المجانية", "استمتع بالمحتوى المتاح بدون تاريخ انتهاء"], open: ["✨", "اشتراك مفتوح", "اشتراكك مفتوح بدون تاريخ انتهاء"], ok: ["👑", `باقة ${nm || "اشتراك"}`, "اشتراكك نشط"], soon: ["⏳", `باقة ${nm || "اشتراك"}`, "اشتراكك على وشك الانتهاء، جدّد الآن"], expired: ["🔒", `باقة ${nm || "اشتراك"}`, "انتهى اشتراكك، جدّد للمتابعة"] }[i.state];
   let bar = "", dates = "";
   if (i.end && i.start && i.state !== "free" && i.state !== "open") {
@@ -1527,6 +1541,7 @@ function render() {
   if (route === "/admin-login") return renderAdminLogin();
   if (route === "/install") return renderInstall();
   if (route === "/teacher") return renderTeacher();
+  if (route === "/plans") return renderPlans();
   if (S.user && S.student) {
     if (S.student.status !== "active") return renderPending();
     S.subSt = subInfo(S.student).state;
@@ -1566,7 +1581,7 @@ const LINKS = {
 const socRow = () => [["wa", LINKS.wa, "واتس اب"], ["fb", LINKS.fb, "فيس بوك"], ["page", LINKS.page, "صفحة الفيس بوك"], ["ig", LINKS.ig, "إنستجرام"]].map(([k, u, t]) => `<a class="sbtn s-${k}" href="${u}" target="_blank" rel="noopener" aria-label="${t}" title="${t}">${SVG[k]}</a>`).join("");
 function pubHeader() {
   return `<header class="hdr"><div class="wrap hdr-in">${brand()}
-    <nav class="pnav" aria-label="التنقل"><button data-s="home">الرئيسية</button><button data-s="about">عن المنصة</button><button data-s="why">المميزات</button><button data-s="levels">المراحل</button><button data-s="contact">تواصل</button><a href="#/install">تثبيت التطبيق</a></nav>
+    <nav class="pnav" aria-label="التنقل"><button data-s="home">الرئيسية</button><button data-s="about">عن المنصة</button><button data-s="why">المميزات</button><button data-s="levels">المراحل</button><button data-s="contact">تواصل</button><a href="#/plans">الباقات</a><a href="#/install">تثبيت التطبيق</a></nav>
     <div class="hdr-r">${themeBtn()}<a class="btn btn-line btn-sm" href="#/login">تسجيل الدخول</a><a class="btn btn-fill btn-sm" href="#/register">إنشاء حساب ${ARROW}</a></div></div></header>`;
 }
 function authShell(inner, mode) {
@@ -1674,6 +1689,41 @@ const TPI = {
   ig: ["ig", "إنستجرام", "reda.elkhshen", LINKS.ig, "تابعني على إنستجرام"],
   li: ["li", "لينكد إن", "redaelkhshen", LINKS.li, "حسابي المهني"]
 };
+/* ---------- صفحة الباقات (عامة) ---------- */
+const PLAN_ORDER = [["free", "الباقة المجانية", "بدون مقابل"], ["m1", "باقة شهر", "30 يومًا", 1], ["m3", "باقة 3 شهور", "90 يومًا", 3], ["m6", "باقة 6 شهور", "180 يومًا", 6], ["y1", "باقة سنة", "365 يومًا", 12]];
+async function loadPrices() { if (S.prices) return S.prices; try { const d = await getDoc(doc(db, "plans", "prices")); S.prices = d.exists() ? d.data() : {}; } catch { S.prices = {}; } return S.prices; }
+function renderPlans() {
+  S.page = "plans";
+  const logged = S.user && S.student && S.student.status === "active", pr = S.prices || {};
+  const cards = PLAN_ORDER.map(([k, t, d, mo]) => {
+    const price = Number(pr[k]), has = isFinite(price) && price > 0, free = k === "free";
+    const wa = "https://wa.me/201558186187?text=" + encodeURIComponent(`مرحباً مسيو رضا، أريد الاشتراك في ${t}`);
+    return `<article class="plc pl pl-${k} ok${k === "y1" ? " best" : ""}">${k === "y1" ? `<span class="plc-tag">الأكثر توفيرًا</span>` : ""}
+      <div class="pf-pi"><span class="pf-svg">${fsv(PTH[k], 38)}</span></div><h3>${t}</h3><small class="plc-d">${d}</small>
+      <div class="plc-pr">${free ? `<b>مجانًا</b>` : has ? `<b>${price.toLocaleString("en")}</b><span>جنيه</span>` : `<em>تواصل لمعرفة السعر</em>`}</div>
+      <small class="plc-pm">${!free && has && mo > 1 ? `يعادل ${Math.round(price / mo).toLocaleString("en")} جنيه / شهر` : "&nbsp;"}</small>
+      ${free ? `<a class="btn btn-line plc-b" href="${logged ? "#/" : "#/register"}">${logged ? "الرئيسية" : "ابدأ مجانًا"}</a>` : `<a class="btn btn-fill plc-b" href="${logged ? "#/pay" : "#/register"}">اشترك الآن</a><a class="plc-wa" href="${wa}" target="_blank" rel="noopener">استفسر على واتساب</a>`}</article>`;
+  }).join("");
+  app.innerHTML = `${logged ? studentHeader() : pubHeader()}<main class="wrap sec">
+    <section class="ph-hero"><span class="ph-ic">${fsv(PTH.y1, 34)}</span><div><span class="ph-k">اختر ما يناسبك</span><h1>الباقات</h1><p>اشتراك واحد يفتح لك كل الفيديوهات والملفات والاختبارات والواجبات حسب مرحلتك، وتقدر تجدّد في أي وقت</p></div></section>
+    <div class="plc-grid">${cards}</div>
+    <p class="sub" style="text-align:center;margin-top:22px">بعد التحويل أرسل الإيصال من صفحة «الدفع» ويتم تفعيل اشتراكك من مسيو رضا.</p></main>`;
+  if (logged) $("#lo").onclick = doLogout;
+  if (!S.prices) loadPrices().then(() => { if (S.page === "plans") renderPlans(); });
+}
+async function pricesModal() {
+  const cur = await loadPrices(), rows = PLAN_ORDER.filter(x => x[0] !== "free");
+  const m = openModal(`<h2>أسعار الباقات</h2><p class="sub">تظهر في صفحة «الباقات» للزوار والطلاب. اترك الخانة فاضية ليظهر «تواصل لمعرفة السعر».</p><div class="alert" id="err" hidden></div>
+    <form id="prf" novalidate>${rows.map(([k, t, d]) => `<label class="fl">${t} <small style="color:var(--muted)">(${d})</small><span style="display:flex;align-items:center;gap:8px"><input name="${k}" type="number" inputmode="decimal" min="0" max="1000000" step="any" dir="ltr" value="${cur[k] ? esc(cur[k]) : ""}" placeholder="0"><em style="font-style:normal;color:var(--muted)">جنيه</em></span></label>`).join("")}
+    <div class="mact"><button class="btn btn-fill" id="sb">حفظ الأسعار</button><button type="button" class="btn btn-line" data-close>إلغاء</button></div></form>`);
+  $("#prf", m).addEventListener("submit", async e => {
+    e.preventDefault(); showErr(""); const f = new FormData(e.target), data = {};
+    try {
+      for (const [k] of rows) { const v = String(f.get(k) || "").trim(); if (v === "") continue; const n = Number(toLatin(v)); if (!isFinite(n) || n < 0) throw new Error("اكتب أرقامًا صحيحة"); data[k] = n; }
+      $("#sb", m).disabled = true; await setDoc(doc(db, "plans", "prices"), { ...data, updatedAt: serverTimestamp() }); S.prices = data; m.remove(); toast("تم حفظ أسعار الباقات", "ok");
+    } catch (er) { showErr(er.code ? "تعذر الحفظ: " + er.code : er.message); $("#sb", m).disabled = false; }
+  });
+}
 function renderTeacher() {
   S.page = "teacher";
   const logged = S.user && S.student && S.student.status === "active";
@@ -3576,10 +3626,10 @@ TABS.security = {
 
 /* ---------- تبويب الاشتراكات ---------- */
 TABS.subs = {
-  skel: () => `<div class="nt-head"><span class="nt-hi">${ico(SBI.crown, 26)}</span><div><h2>اشتراكات الطلاب</h2><small>حدّد مدة اشتراك كل طالب أو باقة مجانية، ويُقفل المحتوى تلقائيًا عند الانتهاء</small></div></div>
+  skel: () => `<div class="nt-head"><span class="nt-hi">${ico(SBI.crown, 26)}</span><div><h2>اشتراكات الطلاب</h2><small>حدّد مدة اشتراك كل طالب أو باقة مجانية، ويُقفل المحتوى تلقائيًا عند الانتهاء</small></div><button class="btn btn-fill btn-sm" id="plp" type="button" style="margin-inline-start:auto">💰 أسعار الباقات</button></div>
     <div class="sstats" id="sbs"></div>${filterBar()}
     <div class="toolbar"><span class="sq">${ico(SI.search, 18)}<input id="sbq" placeholder="بحث بالاسم أو الرقم" value="${esc(A.sbq || "")}"></span></div><div class="gr-chips" id="sbc"></div><div id="sbl"></div>`,
-  init: b => { b.onclick = e => { const c = e.target.closest("[data-sbf]"); if (c) { A.sbf = c.dataset.sbf; return fillTab(); } subAction(e); }; $("#sbq", b).oninput = e => { A.sbq = e.target.value; fillTab(); }; bindFilter(b); },
+  init: b => { $("#plp", b).onclick = pricesModal; b.onclick = e => { const c = e.target.closest("[data-sbf]"); if (c) { A.sbf = c.dataset.sbf; return fillTab(); } subAction(e); }; $("#sbq", b).oninput = e => { A.sbq = e.target.value; fillTab(); }; bindFilter(b); },
   fill: b => {
     const all = S.students.filter(x => x.status === "active").filter(passFilter).map(x => ({ x, i: subInfo(x) })), q = (A.sbq || "").trim().toLowerCase();
     const bySt = k => all.filter(o => o.i.state === k).length;

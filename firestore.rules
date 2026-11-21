@@ -45,6 +45,12 @@ service cloud.firestore {
     }
 
     // صورة الطالب المصغّرة (تظهر بجوار اسمه في التعليقات للجميع)
+    // أسعار الباقات: عامة للقراءة، والمدرس فقط يكتب
+    match /plans/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
     match /avatars/{uid} {
       allow read: if isAdmin() || isActiveStudent();
       allow create, update: if isAdmin() || (isActiveAccount() && request.auth.uid == uid
