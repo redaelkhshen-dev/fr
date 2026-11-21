@@ -497,6 +497,17 @@ tr:last-child td{border-bottom:0}
 .pf-plan.soon{border-color:var(--warn);background:linear-gradient(135deg,rgba(255,184,77,.18),rgba(255,184,77,.03))}.pf-plan.soon b,.pf-plan.soon .pf-left{color:var(--warn)}.pf-plan.soon .pf-bar i{background:var(--warn)}
 .pf-plan.expired{border-color:var(--bad);background:linear-gradient(135deg,rgba(255,107,122,.18),rgba(255,107,122,.03))}.pf-plan.expired b{color:var(--bad)}.pf-plan.expired .pf-pi{border-color:var(--bad)}
 @media(max-width:560px){.pf-plan{flex-wrap:wrap;padding:16px}.pf-pr{flex-direction:row;width:100%;justify-content:space-between}}
+.tc-lk{display:flex;color:inherit;transition:transform .25s,border-color .25s}.tc-lk:hover{transform:translateY(-3px);border-color:var(--accent)}.rp-nm{color:inherit}.rp-nm:hover{text-decoration:underline}a.rp-av{display:block}
+.tp-hero{position:relative;text-align:center;padding:34px 16px 30px;border-radius:26px;border:1px solid var(--accent);background:linear-gradient(160deg,rgba(212,167,58,.18),rgba(212,167,58,.03));overflow:hidden;margin-bottom:26px}
+.tp-glow{position:absolute;inset:-40% 20% auto;height:70%;background:radial-gradient(closest-side,rgba(240,207,110,.28),transparent);pointer-events:none}
+.tp-disc{width:min(62vw,210px);margin:6px auto 22px}.tp-hero h1{position:relative;font-size:clamp(1.7rem,6vw,2.4rem);margin:0}.tp-role{position:relative;color:var(--accent-text);font-weight:600;margin:6px 0 0;font-size:1.05rem}
+.tp-line{display:block;width:70px;height:3px;border-radius:3px;margin:16px auto 0;background:linear-gradient(90deg,transparent,var(--accent),transparent)}
+.tp-sec h2{margin:0 0 14px;font-size:1.3rem}.tp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px}
+.tp-c{--c:var(--accent);display:flex;align-items:center;gap:14px;padding:16px;border-radius:18px;border:1px solid var(--line,#3a3118);background:var(--card,rgba(255,255,255,.03));color:inherit;transition:transform .25s,border-color .25s,box-shadow .25s}
+.tp-c:hover{transform:translateY(-4px);border-color:var(--c);box-shadow:0 14px 30px -14px var(--c)}
+.tp-ci{flex:none;display:grid;place-items:center;width:52px;height:52px;border-radius:16px;color:#fff;background:var(--bg-c,var(--c))}.tp-ci svg{width:26px;height:26px}.tp-c.s-page .tp-ci{color:#1b1405}.tp-c.s-li{--c:#0a8fd6}
+.tp-ct{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.tp-ct b{font-size:1.05rem}.tp-ct small{color:var(--muted);font-size:.78rem}.tp-ct bdi{color:var(--accent-text);font-size:.86rem;overflow-wrap:anywhere;text-align:right}
+.tp-go{flex:none;color:var(--muted);transition:transform .25s}.tp-c:hover .tp-go{transform:translateX(-4px);color:var(--c)}
 /* ===== رصد الدرجات ===== */
 .gr-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px}.gr-head h2{margin:0}.gr-head small{color:var(--muted)}.gr-hi{flex:none;width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent-deep),var(--accent-2));color:#1b1405;box-shadow:0 8px 22px -10px var(--accent)}
 .gr-mn{margin-inline-start:auto;display:flex;align-items:center;gap:6px}.gr-mn input{max-width:none;width:200px}.gr-mn .ib{color:var(--fg)}
@@ -1421,6 +1432,7 @@ function render() {
   if (isAdminUser()) { if (route.startsWith("/admin") && route !== "/admin-login") return renderAdmin(); return go("/admin"); }
   if (route === "/admin-login") return renderAdminLogin();
   if (route === "/install") return renderInstall();
+  if (route === "/teacher") return renderTeacher();
   if (S.user && S.student) {
     if (S.student.status !== "active") return renderPending();
     S.subSt = subInfo(S.student).state;
@@ -1541,6 +1553,23 @@ const INS_STEPS = [
   ["انتظر لحظات", "سيبدأ التثبيت وتظهر لك رسالة في الإشعارات <b>«جارٍ تثبيت تطبيق مسيو رضا»</b>. انتظر ثواني حتى تكتمل."],
   ["افتح التطبيق من الشاشة", "ستجد أيقونة <b>«تطبيق مسيو رضا»</b> بين تطبيقات هاتفك. اضغط عليها لتفتح المنصة بملء الشاشة كأي تطبيق، بدون متصفح."]
 ];
+const TPI = {
+  wa: ["wa", "واتس اب", "01558186187", LINKS.wa, "راسلني مباشرة"],
+  fb: ["fb", "فيس بوك", "reda.elkhshen", LINKS.fb, "حسابي الشخصي"],
+  page: ["page", "صفحة الفيس بوك", "leprofesseur.eg", LINKS.page, "تابع الصفحة الرسمية"],
+  ig: ["ig", "إنستجرام", "reda.elkhshen", LINKS.ig, "تابعني على إنستجرام"],
+  li: ["li", "لينكد إن", "redaelkhshen", LINKS.li, "حسابي المهني"]
+};
+function renderTeacher() {
+  S.page = "teacher";
+  const logged = S.user && S.student && S.student.status === "active";
+  const cards = Object.values(TPI).map(([k, t, h, u, d]) => `<a class="tp-c s-${k}" href="${esc(u)}" target="_blank" rel="noopener"><span class="tp-ci">${SVG[k] || fsv('<path d="M6 9h4v11H6zM8 4a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm4 5h4v2c.8-1.4 2.300-2.200 4-2.200V20h-4v-5c0-1.300-.7-2-1.800-2S14 13.700 14 15v5h-4z"/>', 24)}</span><span class="tp-ct"><b>${t}</b><small>${d}</small><bdi dir="ltr">${h}</bdi></span><span class="tp-go">${ARROW}</span></a>`).join("");
+  app.innerHTML = `${logged ? studentHeader() : pubHeader()}<main class="wrap sec"><p style="margin-bottom:16px"><button class="btn btn-line btn-sm" id="tpb" type="button">← العودة</button></p>
+  <section class="tp-hero"><div class="tp-glow" aria-hidden="true"></div><div class="disc-wrap tp-disc"><div class="disc"><span class="orbit" aria-hidden="true"><i></i></span><img src="teacher.jpg" alt="مسيو رضا الخشن"></div></div>
+    <h1>مسيو رضا الخشن</h1><p class="tp-role">مدرّس اللغة الفرنسية</p><span class="tp-line" aria-hidden="true"></span></section>
+  <section class="tp-sec"><h2>تواصل معي</h2><div class="tp-grid">${cards}</div></section></main>`;
+  $("#tpb").onclick = () => (history.length > 1 ? history.back() : go("/"));
+}
 function renderInstall() {
   S.page = "install";
   app.innerHTML = `${pubHeader()}<main>
@@ -2089,7 +2118,7 @@ function renderWatch(id) {
     <p class="alt" style="text-align:start;margin-top:14px">🔒 هذا الفيديو يُعرض على حسابك فقط ويحمل بياناتك. تسجيله أو مشاركته مخالف للشروط.</p>
     <p style="margin-top:14px"><a class="btn btn-line btn-sm" href="#/">← العودة</a></p>
     <section class="cm" id="cm"></section></div>
-    <aside class="side"><div class="tcard"><div class="disc-wrap"><div class="disc"><span class="orbit" aria-hidden="true"><i></i></span><img src="teacher.jpg" alt="مسيو رضا الخشن"></div></div><div><b>مسيو رضا الخشن</b><small>مدرّس اللغة الفرنسية</small></div></div><h3>فيديوهات أخرى</h3>${others.map(o => `<a href="#/watch/${esc(o.id)}"><img loading="lazy" src="https://i.ytimg.com/vi/${esc(o.ytId)}/mqdefault.jpg" alt=""><span>${esc(o.title)}</span></a>`).join("") || `<p class="sub">لا يوجد المزيد</p>`}</aside></div></main>`;
+    <aside class="side"><a class="tcard tc-lk" href="#/teacher" title="عن مسيو رضا"><div class="disc-wrap"><div class="disc"><span class="orbit" aria-hidden="true"><i></i></span><img src="teacher.jpg" alt="مسيو رضا الخشن"></div></div><div><b>مسيو رضا الخشن</b><small>مدرّس اللغة الفرنسية</small></div></a><h3>فيديوهات أخرى</h3>${others.map(o => `<a href="#/watch/${esc(o.id)}"><img loading="lazy" src="https://i.ytimg.com/vi/${esc(o.ytId)}/mqdefault.jpg" alt=""><span>${esc(o.title)}</span></a>`).join("") || `<p class="sub">لا يوجد المزيد</p>`}</aside></div></main>`;
   $("#lo").onclick = doLogout;
   const pl = $("#pl");
   pl.addEventListener("contextmenu", e => e.preventDefault());
@@ -2140,7 +2169,7 @@ function startCommentSubs(v) {
   CM.unsubs.push(onSnapshot(query(collection(db, "ratings"), where("videoId", "==", v.id)), s => { CM.ratings = s.docs.map(d => ({ id: d.id, ...d.data() })); paintComments(); }, e => console.warn("ratings", e.code)));
   paintComments();
 }
-const rpHTML = c => `<div class="rp-box"><span class="rp-av"><img src="teacher.jpg" alt=""></span><div class="rp-t"><div class="rp-h"><b>مسيو رضا</b><span class="badge good">المدرس</span><small>${ago(c.replyAt)}</small></div><p>${esc(c.reply)}</p></div></div>`;
+const rpHTML = c => `<div class="rp-box"><a class="rp-av" href="#/teacher"><img src="teacher.jpg" alt=""></a><div class="rp-t"><div class="rp-h"><a class="rp-nm" href="#/teacher"><b>مسيو رضا</b></a><span class="badge good">المدرس</span><small>${ago(c.replyAt)}</small></div><p>${esc(c.reply)}</p></div></div>`;
 function paintComments() {
   const cr = $("#cr"), cl = $("#cl"); if (!cr || !cl || !S.student) return;
   const uid = S.student.id, mine = CM.ratings.find(r => r.uid === uid)?.value || 0, n = CM.ratings.length, avg = n ? CM.ratings.reduce((a, r) => a + r.value, 0) / n : 0, rd = Math.round(avg);
