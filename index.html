@@ -1235,6 +1235,9 @@ function profileFields(s = {}, lock = false) {
   const locked = `<div class="lockbox"><div class="lk-h">${ico('<rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>', 18)}<b>البيانات الدراسية</b><small>مثبّتة — يعدّلها المدرس فقط</small></div>
     <div class="lk-g"><div><small>المرحلة</small><b>${esc(STAGES[s.stage] || "—")}</b></div><div><small>نوع التعليم</small><b>${esc(SYSTEMS[s.system] || "—")}</b></div><div><small>الصف</small><b>${esc(s.grade || "—")}</b></div></div></div>
   ${cityF}`;
+  if (lock) return `<div class="lockbox"><div class="lk-h">${ico('<rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>', 18)}<b>بياناتك الشخصية</b><small>مثبّتة — يعدّلها المدرس فقط</small></div>
+    <div class="lk-g"><div><small>الاسم الكامل</small><b>${esc(s.name || "—")}</b></div><div><small>اسم المدرسة</small><b>${esc(s.school || "—")}</b></div><div><small>رقم ولي الأمر</small><b><bdi dir="ltr">${esc(s.parentPhone || "—")}</bdi></b></div>
+    <div><small>المرحلة</small><b>${esc(STAGES[s.stage] || "—")}</b></div><div><small>نوع التعليم</small><b>${esc(SYSTEMS[s.system] || "—")}</b></div><div><small>الصف</small><b>${esc(s.grade || "—")}</b></div></div></div>${cityF}`;
   return `
   ${fld("الاسم الكامل", "user", `<input name="name" maxlength="60" autocomplete="name" placeholder="اكتب اسمك الثلاثي" value="${esc(s.name)}">`)}
   ${lock ? locked : open}
@@ -2780,8 +2783,8 @@ ${planCard(s)}
   form.addEventListener("submit", async e => {
     e.preventDefault(); showErr(""); const b = $("#sb");
     try {
-      const p = readProfile(form, true); b.disabled = true; b.textContent = "جاري الحفظ...";
-      const upd = { ...p, photo: getPhoto() };
+      b.disabled = true; b.textContent = "جاري الحفظ...";
+      const upd = { city: form.elements.city.value, photo: getPhoto() };
       await updateDoc(doc(db, "students", s.id), upd);
       S.student = { ...S.student, ...upd };
       toast("تم حفظ بياناتك", "ok"); renderProfile();

@@ -36,7 +36,7 @@ service cloud.firestore {
         request.auth != null
         && request.auth.uid == uid
         && resource.data.status == 'active'
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name','city','school','parentPhone','photo','devM','devD','progress'])
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['city','photo','devM','devD','progress'])
         && (request.resource.data.get('devM','') == resource.data.get('devM','') || resource.data.get('devM','') == '')
         && (request.resource.data.get('devD','') == resource.data.get('devD','') || resource.data.get('devD','') == '')
       );
