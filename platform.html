@@ -487,8 +487,16 @@ tr:last-child td{border-bottom:0}
 .sb-d{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;padding:10px 12px;border-radius:12px;background:var(--bg2);border:1px solid var(--line);font-size:.86rem;color:var(--muted)}.sb-left{margin-inline-start:auto;color:var(--fg)}.sb-card.soon .sb-left{color:var(--warn)}.sb-card.expired .sb-left{color:var(--bad)}
 .sb-act{display:flex;gap:8px;flex-wrap:wrap}.sb-act .btn{flex:1;justify-content:center}
 .badge.sb-ok{background:rgba(61,220,132,.14);color:var(--good);border-color:transparent}.badge.sb-soon{background:rgba(255,184,77,.14);color:var(--warn);border-color:transparent}.badge.sb-expired{background:rgba(255,107,122,.14);color:var(--bad);border-color:transparent}
-.pf-plan{display:inline-flex;flex-direction:column;gap:1px;margin-top:8px;padding:6px 14px;border-radius:14px;border:1px solid var(--accent);background:linear-gradient(135deg,rgba(212,167,58,.2),rgba(212,167,58,.04))}.pf-plan b{font-size:.88rem;color:var(--accent-text)}.pf-plan small{color:var(--muted);font-size:.74rem}
-.pf-plan.free,.pf-plan.ok{border-color:var(--good);background:rgba(61,220,132,.08)}.pf-plan.free b,.pf-plan.ok b{color:var(--good)}.pf-plan.soon{border-color:var(--warn);background:rgba(255,184,77,.1)}.pf-plan.soon b{color:var(--warn)}.pf-plan.expired{border-color:var(--bad);background:rgba(255,107,122,.1)}.pf-plan.expired b{color:var(--bad)}
+.pf-plan{grid-column:1/-1;display:flex;align-items:center;gap:16px;margin-bottom:16px;padding:18px 20px;border-radius:20px;border:1px solid var(--accent);background:linear-gradient(135deg,rgba(212,167,58,.22),rgba(212,167,58,.04));box-shadow:0 8px 28px rgba(0,0,0,.25)}
+.pf-pi{flex:none;width:58px;height:58px;border-radius:18px;display:grid;place-items:center;font-size:1.9rem;background:rgba(212,167,58,.18);border:1px solid var(--accent)}
+.pf-pb{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}.pf-pb small{color:var(--muted);font-size:.74rem}.pf-pb b{font-size:1.25rem;color:var(--accent-text)}.pf-ps{color:var(--muted);font-size:.84rem}
+.pf-bar{height:7px;border-radius:9px;background:rgba(255,255,255,.1);overflow:hidden;margin-top:8px}.pf-bar i{display:block;height:100%;border-radius:9px;background:var(--accent)}
+.pf-dts{display:flex;gap:16px;flex-wrap:wrap;margin-top:6px;font-size:.78rem;color:var(--muted)}
+.pf-pr{flex:none;display:flex;flex-direction:column;align-items:center;gap:8px}.pf-left{padding:5px 14px;border-radius:99px;font-weight:700;font-size:.85rem;background:rgba(212,167,58,.18);color:var(--accent-text);border:1px solid var(--accent);white-space:nowrap}
+.pf-plan.free,.pf-plan.ok{border-color:var(--good);background:linear-gradient(135deg,rgba(61,220,132,.16),rgba(61,220,132,.03))}.pf-plan.free .pf-pi,.pf-plan.ok .pf-pi,.pf-plan.free .pf-left,.pf-plan.ok .pf-left{border-color:var(--good);background:rgba(61,220,132,.12)}.pf-plan.free b,.pf-plan.ok b,.pf-plan.ok .pf-left{color:var(--good)}.pf-plan.free .pf-bar i,.pf-plan.ok .pf-bar i{background:var(--good)}
+.pf-plan.soon{border-color:var(--warn);background:linear-gradient(135deg,rgba(255,184,77,.18),rgba(255,184,77,.03))}.pf-plan.soon b,.pf-plan.soon .pf-left{color:var(--warn)}.pf-plan.soon .pf-bar i{background:var(--warn)}
+.pf-plan.expired{border-color:var(--bad);background:linear-gradient(135deg,rgba(255,107,122,.18),rgba(255,107,122,.03))}.pf-plan.expired b{color:var(--bad)}.pf-plan.expired .pf-pi{border-color:var(--bad)}
+@media(max-width:560px){.pf-plan{flex-wrap:wrap;padding:16px}.pf-pr{flex-direction:row;width:100%;justify-content:space-between}}
 /* ===== رصد الدرجات ===== */
 .gr-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px}.gr-head h2{margin:0}.gr-head small{color:var(--muted)}.gr-hi{flex:none;width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent-deep),var(--accent-2));color:#1b1405;box-shadow:0 8px 22px -10px var(--accent)}
 .gr-mn{margin-inline-start:auto;display:flex;align-items:center;gap:6px}.gr-mn input{max-width:none;width:200px}.gr-mn .ib{color:var(--fg)}
@@ -1382,10 +1390,18 @@ function subStrip(x) {
   const tot = Math.max(1, Math.round((x.subEndMs - new Date(x.subStart + "T00:00:00").getTime()) / 864e5)), pc = Math.max(0, Math.min(100, Math.round(i.days / tot * 100)));
   return `<div class="sb-strip ${i.state}">${fsv(i.state === "soon" ? SBI.clock : SBI.crown, 22)}<div class="sb-m"><b>${i.state === "soon" ? "⚠️ " + daysTxt(i.days) : "اشتراكك نشط — متبقي " + i.days + " يومًا"}</b><small>ينتهي في <bdi dir="ltr">${i.end}</bdi>${PLANS[x.subPlan] ? " · باقة " + PLANS[x.subPlan][0] : ""}</small><span class="sb-bar"><i style="width:${pc}%"></i></span></div>${i.state === "soon" ? `<a class="btn btn-fill btn-sm" href="#/pay">جدّد الآن</a>` : ""}</div>`;
 }
-function planChip(x) {
+function planCard(x) {
   const i = subInfo(x), nm = PLANS[x.subPlan]?.[0];
-  const t = { free: ["🎁", "الباقة المجانية", "بدون تاريخ انتهاء"], open: ["✨", "اشتراك مفتوح", "بدون تاريخ انتهاء"] }[i.state] || [i.state === "expired" ? "🔒" : i.state === "soon" ? "⏳" : "👑", `باقة ${nm || "اشتراك"}`, i.state === "expired" ? `انتهت في ${i.end}` : `${daysTxt(i.days)} · ${i.end}`];
-  return `<span class="pf-plan ${i.state}"><b>${t[0]} ${t[1]}</b><small><bdi>${t[2]}</bdi></small></span>`;
+  const m = { free: ["🎁", "الباقة المجانية", "استمتع بالمحتوى المتاح بدون تاريخ انتهاء"], open: ["✨", "اشتراك مفتوح", "اشتراكك مفتوح بدون تاريخ انتهاء"], ok: ["👑", `باقة ${nm || "اشتراك"}`, "اشتراكك نشط"], soon: ["⏳", `باقة ${nm || "اشتراك"}`, "اشتراكك على وشك الانتهاء، جدّد الآن"], expired: ["🔒", `باقة ${nm || "اشتراك"}`, "انتهى اشتراكك، جدّد للمتابعة"] }[i.state];
+  let bar = "", dates = "";
+  if (i.end && i.start && i.state !== "free" && i.state !== "open") {
+    const tot = Math.max(1, (new Date(i.end) - new Date(i.start)) / 864e5), left = Math.max(0, i.days || 0);
+    bar = `<div class="pf-bar"><i style="width:${Math.min(100, Math.round(left / tot * 100))}%"></i></div>`;
+  }
+  if (i.end && i.state !== "free" && i.state !== "open") dates = `<div class="pf-dts">${i.start ? `<span>البداية <bdi dir="ltr">${i.start}</bdi></span>` : ""}<span>الانتهاء <bdi dir="ltr">${i.end}</bdi></span></div>`;
+  const left = i.end && (i.state === "ok" || i.state === "soon") ? `<span class="pf-left">${daysTxt(i.days)}</span>` : "";
+  const renew = i.state === "soon" || i.state === "expired" ? `<a class="btn btn-fill btn-sm" href="#/pay">جدّد اشتراكك</a>` : "";
+  return `<div class="pf-plan ${i.state}"><div class="pf-pi">${m[0]}</div><div class="pf-pb"><small>باقتي الحالية</small><b>${m[1]}</b><span class="pf-ps">${m[2]}</span>${bar}${dates}</div><div class="pf-pr">${left}${renew}</div></div>`;
 }
 function renderExpired() {
   S.page = "expired"; const s = S.student, i = subInfo(s);
@@ -2669,7 +2685,8 @@ function paintActivity() {
 function renderProfile() {
   S.page = "profile"; const s = S.student;
   app.innerHTML = `${studentHeader()}<main class="wrap sec"><p style="margin-bottom:16px"><a class="btn btn-line btn-sm" href="#/">← العودة</a></p><div class="pf">
-  <div class="card"><div class="pf-top">${avatarHTML(s, 64)}<div><h2>${esc(s.name)}</h2><small>${esc(s.phone)}</small>${planChip(s)}</div></div>
+${planCard(s)}
+  <div class="card"><div class="pf-top">${avatarHTML(s, 64)}<div><h2>${esc(s.name)}</h2><small>${esc(s.phone)}</small></div></div>
     <div class="alert" id="err" hidden></div>
     <form id="f" novalidate>${profileFields(s, true)}${pickerHTML(s.photo || "", s)}<button class="btn btn-fill w100" id="sb">حفظ التعديلات</button></form></div>
   <div class="card"><h2 style="margin-bottom:6px">تغيير كلمة السر</h2><p class="sub" style="margin-bottom:12px">أرقام فقط (من 6 إلى 12 رقم)</p>
