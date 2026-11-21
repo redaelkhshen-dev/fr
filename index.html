@@ -253,7 +253,7 @@ input[dir=ltr]{text-align:left}
 .xh>.xnum{flex:none!important;width:30px;height:30px;border-radius:50%;display:inline-grid;place-items:center;background:var(--soft);font:800 .85rem var(--fd)}.xnum.ok{background:rgba(61,220,132,.14);color:var(--good)}.xnum.no{background:rgba(255,107,122,.14);color:var(--bad)}
 .xfoot{display:flex;gap:10px;margin-top:18px}.xfoot .btn{display:inline-flex;align-items:center;gap:7px}
 @media(max-width:560px){.xlist{grid-template-columns:1fr}.xc-meta.x4{grid-template-columns:repeat(2,1fr)}.xmini{width:56px;height:56px}.xcard{padding:16px}}
-.lockbox{margin:4px 0 14px;padding:14px;border:1px dashed var(--accent);border-radius:14px;background:var(--soft)}.lk-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;color:var(--accent-text)}.lk-h small{color:var(--muted);margin-inline-start:auto}.lk-g{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.lk-g>div{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 10px;display:grid;gap:2px}.lk-g small{color:var(--muted);font-size:.72rem}.lk-g b{font-size:.9rem}@media(max-width:520px){.lk-g{grid-template-columns:1fr}}
+input[readonly]{opacity:.75;cursor:not-allowed}.lockbox{margin:4px 0 14px;padding:14px;border:1px dashed var(--accent);border-radius:14px;background:var(--soft)}.lk-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;color:var(--accent-text)}.lk-h small{color:var(--muted);margin-inline-start:auto}.lk-g{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.lk-g>div{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 10px;display:grid;gap:2px}.lk-g small{color:var(--muted);font-size:.72rem}.lk-g b{font-size:.9rem}@media(max-width:520px){.lk-g{grid-template-columns:1fr}}
 .xres{text-align:center;margin-bottom:16px}.xbig{font:800 3.2rem/1.2 var(--fd);margin:6px 0}.xbig small{font-size:1.2rem;color:var(--muted)}.xbig.good{color:var(--good)}.xbig.warn{color:var(--warn)}.xbig.bad{color:var(--bad)}
 .qb{margin-bottom:12px;padding:14px}.qbh{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px}.qbh .qn{color:var(--accent-text)}.qbh select{flex:1;min-width:140px}.qpl{display:flex;gap:6px;align-items:center;font-size:.85rem}.qb .qpl input.qp{width:76px;flex:none}.qbh select{width:auto}
 .iq{white-space:pre-wrap;line-height:2.5;padding:12px 14px;background:var(--bg2);border-radius:10px;font-size:1.05rem}
@@ -1235,15 +1235,13 @@ function profileFields(s = {}, lock = false) {
   const locked = `<div class="lockbox"><div class="lk-h">${ico('<rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>', 18)}<b>البيانات الدراسية</b><small>مثبّتة — يعدّلها المدرس فقط</small></div>
     <div class="lk-g"><div><small>المرحلة</small><b>${esc(STAGES[s.stage] || "—")}</b></div><div><small>نوع التعليم</small><b>${esc(SYSTEMS[s.system] || "—")}</b></div><div><small>الصف</small><b>${esc(s.grade || "—")}</b></div></div></div>
   ${cityF}`;
-  if (lock) return `<div class="lockbox"><div class="lk-h">${ico('<rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>', 18)}<b>بياناتك الشخصية</b><small>مثبّتة — يعدّلها المدرس فقط</small></div>
-    <div class="lk-g"><div><small>الاسم الكامل</small><b>${esc(s.name || "—")}</b></div><div><small>اسم المدرسة</small><b>${esc(s.school || "—")}</b></div><div><small>رقم ولي الأمر</small><b><bdi dir="ltr">${esc(s.parentPhone || "—")}</bdi></b></div>
-    <div><small>المرحلة</small><b>${esc(STAGES[s.stage] || "—")}</b></div><div><small>نوع التعليم</small><b>${esc(SYSTEMS[s.system] || "—")}</b></div><div><small>الصف</small><b>${esc(s.grade || "—")}</b></div></div></div>${cityF}`;
+  const ro = lock ? " readonly" : "";
   return `
-  ${fld("الاسم الكامل", "user", `<input name="name" maxlength="60" autocomplete="name" placeholder="اكتب اسمك الثلاثي" value="${esc(s.name)}">`)}
+  ${fld("الاسم الكامل", "user", `<input name="name" maxlength="60" autocomplete="name" placeholder="اكتب اسمك الثلاثي" value="${esc(s.name)}"${ro}>`)}
   ${lock ? locked : open}
   <div class="row2">
-    ${fld("اسم المدرسة", "school", `<input name="school" maxlength="80" placeholder="مدرستك" value="${esc(s.school)}">`, true)}
-    ${fld("رقم ولي الأمر", "fam", `<input name="parentPhone" dir="ltr" inputmode="numeric" maxlength="11" placeholder="01XXXXXXXXX" value="${esc(s.parentPhone)}">`, true)}
+    ${fld("اسم المدرسة", "school", `<input name="school" maxlength="80" placeholder="مدرستك" value="${esc(s.school)}"${ro}>`, true)}
+    ${fld("رقم ولي الأمر", "fam", `<input name="parentPhone" dir="ltr" inputmode="numeric" maxlength="11" placeholder="01XXXXXXXXX" value="${esc(s.parentPhone)}"${ro}>`, true)}
   </div>`;
 }
 /* ---------- قوائم منسدلة مخصّصة ---------- */
