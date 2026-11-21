@@ -452,6 +452,13 @@ tr:last-child td{border-bottom:0}
 @keyframes insrg{0%{transform:scale(1);opacity:.55}100%{transform:scale(1.9);opacity:0}}@keyframes instw{0%,100%{opacity:0;transform:scale(.4) rotate(0)}50%{opacity:1;transform:scale(1.2) rotate(25deg)}}
 @media(prefers-reduced-motion:reduce){.ins-app,.ins-sh:after,.ins-dl,.ir,.isp{animation:none}.isp{opacity:.8}}
 .ins-hero h1{font-size:clamp(1.55rem,4.6vw,2.6rem);text-wrap:balance;overflow-wrap:anywhere;max-width:100%}
+.ins-acts{gap:14px}.ins-b{position:relative;overflow:hidden;display:inline-flex;align-items:center;gap:12px;min-width:220px;padding:12px 22px 12px 18px;border-radius:18px;font-family:inherit;text-decoration:none;cursor:pointer;transition:transform .2s,box-shadow .2s,border-color .2s}.ins-b:hover{transform:translateY(-3px)}.ins-b:active{transform:translateY(0) scale(.98)}
+.ib-i{flex:none;display:grid;place-items:center;width:44px;height:44px;border-radius:14px}.ib-t{display:grid;text-align:start;gap:1px}.ib-t b{font:800 1.05rem var(--fd)}.ib-t small{font-size:.76rem;opacity:.8}
+.ins-b.pri{border:0;color:#1b1405;background:linear-gradient(135deg,var(--accent-2),var(--accent) 55%,var(--accent-deep));box-shadow:0 16px 34px -14px var(--accent),inset 0 1px 0 rgba(255,255,255,.45)}.ins-b.pri:hover{box-shadow:0 22px 40px -14px var(--accent),inset 0 1px 0 rgba(255,255,255,.45)}.ins-b.pri .ib-i{background:rgba(27,20,5,.14)}.ins-b.pri .ib-i svg{animation:insdl 1.6s ease-in-out infinite}
+.ins-b.pri:after{content:"";position:absolute;top:0;bottom:0;width:40%;left:-60%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.5),transparent);transform:skewX(-20deg);animation:inssh 3.6s ease-in-out infinite}
+.ins-b.sec{color:var(--fg);border:1px solid var(--accent);background:linear-gradient(135deg,rgba(212,167,58,.14),rgba(212,167,58,.03))}.ins-b.sec:hover{background:linear-gradient(135deg,rgba(212,167,58,.24),rgba(212,167,58,.06));box-shadow:0 16px 30px -16px var(--accent)}.ins-b.sec .ib-i{background:var(--soft);color:var(--accent-2)}
+@media(max-width:520px){.ins-b{width:100%}}
+@media(prefers-reduced-motion:reduce){.ins-b.pri:after,.ins-b.pri .ib-i svg{animation:none}}
 /* ===== رصد الدرجات ===== */
 .gr-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px}.gr-head h2{margin:0}.gr-head small{color:var(--muted)}.gr-hi{flex:none;width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent-deep),var(--accent-2));color:#1b1405;box-shadow:0 8px 22px -10px var(--accent)}
 .gr-mn{margin-inline-start:auto;display:flex;align-items:center;gap:6px}.gr-mn input{max-width:none;width:200px}.gr-mn .ib{color:var(--fg)}
@@ -1456,8 +1463,7 @@ function renderInstall() {
   app.innerHTML = `${pubHeader()}<main>
   <section class="band ins-hero"><div class="wrap"><div class="ins-ico" aria-hidden="true"><span class="ir r1"></span><span class="ir r2"></span><span class="ir r3"></span><i class="isp s1">✦</i><i class="isp s2">✧</i><i class="isp s3">✦</i><div class="ins-app"><img src="icon-192.png" alt=""><span class="ins-sh"></span><b class="ins-dl">${fsv('<path d="M12 4v11m0 0-4.500-4.500M12 15l4.500-4.500M5 20h14"/>', 20)}</b></div></div><span class="eyebrow">التطبيق</span><h1>ثبّت المنصة على <span class="hl">موبايلك</span> كتطبيق</h1>
     <p class="lead">من غير متجر تطبيقات ومن غير مساحة كبيرة — خمس خطوات بسيطة وتصبح المنصة على شاشتك بأيقونة خاصة.</p>
-    <div class="ins-link"><span dir="ltr" id="insu">${INSTALL_URL}</span><button type="button" class="btn btn-fill btn-sm" id="insc">نسخ الرابط</button></div>
-    <div class="ins-acts">${isStandalone() ? "" : `<button type="button" class="btn btn-line ibtn" data-install>${fsv(LGI.dev, 18)} ثبّت الآن (بضغطة واحدة)</button>`}<a class="btn btn-line" href="#/login">تسجيل الدخول</a></div></div></section>
+    <div class="ins-acts">${isStandalone() ? "" : `<button type="button" class="ins-b pri" data-install><span class="ib-i">${fsv('<path d="M12 4v11m0 0-4.500-4.500M12 15l4.500-4.500M5 20h14"/>', 22)}</span><span class="ib-t"><b>ثبّت الآن</b><small>بضغطة واحدة</small></span></button>`}<a class="ins-b sec" href="#/login"><span class="ib-i">${fsv(LGI.key, 22)}</span><span class="ib-t"><b>تسجيل الدخول</b><small>لديّ حساب بالفعل</small></span></a></div></div></section>
   <section class="band alt"><div class="wrap"><ol class="ins-steps">${INS_STEPS.map(([t, d], i) => `<li class="ins-st"><div class="ins-tx"><span class="ins-n">${i + 1}</span><h2>${t}</h2><p>${d}</p></div><figure class="ins-ph"><img src="guide/step${i + 1}.jpg" alt="الخطوة ${i + 1}: ${t}" loading="lazy"></figure></li>`).join("")}</ol>
     <div class="ins-note">${fsv(INSI.phone, 22)}<span><b>على iPhone؟</b> افتح الرابط في Safari، اضغط زر المشاركة ثم <b>«إضافة إلى الشاشة الرئيسية»</b>.</span></div></div></section>
   <section class="band"><div class="wrap"><div class="ins-hd"><span class="eyebrow">لماذا التطبيق؟</span><h2>كل ما تحتاجه على شاشتك</h2></div>
@@ -1469,7 +1475,6 @@ function renderInstall() {
   </main><footer class="foot"><div class="wrap foot-in"><span>© 2026 مسيو رضا الخشن. جميع الحقوق محفوظة.</span><div class="srow sm">${socRow()}</div></div></footer>`;
   $$("[data-s]").forEach(b => b.onclick = () => { location.hash = "#/"; setTimeout(() => document.getElementById("s-" + b.dataset.s)?.scrollIntoView({ behavior: "smooth", block: "start" }), 200); });
   $("#insv").onclick = e => { const b = e.currentTarget; b.outerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${INS_VID}?autoplay=1&rel=0&modestbranding=1&playsinline=1" title="خطوات التعامل مع المنصة" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>`; };
-  $("#insc").onclick = () => { navigator.clipboard?.writeText(INSTALL_URL).then(() => toast("تم نسخ الرابط", "ok")); };
 }
 
 /* ---------- بانتظار موافقة المدرس ---------- */
