@@ -2749,7 +2749,7 @@ function renderActivity() {
     <section class="gm" id="gm"></section>
     <div class="stats astats" id="as" style="margin-top:22px"></div>
     <div class="pf"><div class="card"><h3 class="ch">${ico(XI.target, 20)} تقدمك الأسبوع</h3><div id="ovc"></div></div><div class="card"><h3 class="ch" style="margin-bottom:4px">${ico(XI.chart, 20)} نشاط آخر 7 أيام</h3><small style="color:var(--muted)">فيديوهات شاهدتها وتعليقات كتبتها في كل يوم</small><div class="wk" id="wk"></div></div></div>
-    <div class="tabs"><div class="trow">${[["videos", "فيديوهاتي", ST_IC.videos], ["comments", "تعليقاتي", XI.msg], ["ratings", "تقييماتي", XI.star], ["hw", "واجباتي", ST_IC.files], ["exams", "اختباراتي", ST_IC.exams]].map(([k, t, d]) => `<button class="tab" data-t="${k}"><i class="ti">${ico(d, 22)}</i><span class="tl">${t}</span><span class="tb"></span></button>`).join("")}</div></div>
+    <div class="tabs"><div class="trow">${[["videos", "فيديوهاتي", ST_IC.videos], ["exams", "اختباراتي", ST_IC.exams], ["comments", "تعليقاتي", XI.msg], ["ratings", "تقييماتي", XI.star], ["hw", "واجباتي", ST_IC.files]].map(([k, t, d]) => `<button class="tab" data-t="${k}"><i class="ti">${ico(d, 22)}</i><span class="tl">${t}</span><span class="tb"></span></button>`).join("")}</div></div>
     <div id="al"></div></main>`;
   $("#lo").onclick = doLogout;
   $$(".tab").forEach(b => b.onclick = () => { AC.tab = b.dataset.t; paintActivity(); });
