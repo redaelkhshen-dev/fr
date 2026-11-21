@@ -2663,7 +2663,7 @@ function renderActivity() {
     <section class="banner"><div><h1><span class="act-ic">${ico(XI.chart, 26)}</span> نشاطي وإحصائياتي</h1><p>تابع تقدمك في الفيديوهات وتعليقاتك وتقييماتك على المنصة</p></div><a class="btn btn-fill" id="resume" href="#/" hidden></a></section>
     <section class="gm" id="gm"></section>
     <div class="stats astats" id="as" style="margin-top:22px"></div>
-    <div class="pf"><div class="card"><h3 class="ch">${ico(XI.target, 20)} تقدمك العام</h3><div id="ovc"></div></div><div class="card"><h3 class="ch" style="margin-bottom:4px">${ico(XI.chart, 20)} نشاط آخر 7 أيام</h3><small style="color:var(--muted)">فيديوهات شاهدتها وتعليقات كتبتها في كل يوم</small><div class="wk" id="wk"></div></div></div>
+    <div class="pf"><div class="card"><h3 class="ch">${ico(XI.target, 20)} تقدمك الأسبوع</h3><div id="ovc"></div></div><div class="card"><h3 class="ch" style="margin-bottom:4px">${ico(XI.chart, 20)} نشاط آخر 7 أيام</h3><small style="color:var(--muted)">فيديوهات شاهدتها وتعليقات كتبتها في كل يوم</small><div class="wk" id="wk"></div></div></div>
     <div class="tabs"><div class="trow">${[["videos", "فيديوهاتي", ST_IC.videos], ["comments", "تعليقاتي", XI.msg], ["ratings", "تقييماتي", XI.star], ["exams", "اختباراتي", ST_IC.exams]].map(([k, t, d]) => `<button class="tab" data-t="${k}"><i class="ti">${ico(d, 22)}</i><span class="tl">${t}</span><span class="tb"></span></button>`).join("")}</div></div>
     <div id="al"></div></main>`;
   $("#lo").onclick = doLogout;
@@ -2731,7 +2731,9 @@ function paintActivity() {
   const gr = S.attempts.filter(a => a.score !== undefined), gavg = gr.length ? Math.round(gr.reduce((t, a) => t + pctOf(a), 0) / gr.length) : null;
   gmPaint(prog);
   $("#as").innerHTML = [["ok", "good", done.length, `فيديو مكتمل من ${vis.length}`], ["play", "gold", going.length, "قيد المشاهدة"], ["timer", "blue", fmtDur(secs), "مدة المشاهدة"], ["msg", "violet", AC.comments.length, "تعليق"], ["star", "gold", AC.ratings.length, "تقييم"], ["clip", "blue", S.attempts.length, "اختبار حللته"], ["target", gavg === null ? "violet" : pctCls(gavg), gavg === null ? "—" : gavg + "%", "متوسط درجاتك"], ["inbox", "gray", fresh.length, "لم تبدأها بعد"]].map(([i, c, n, l]) => `<div class="astat ${c}"><span class="ai">${ico(XI[i], 22)}</span><div><b>${n}</b><small>${l}</small></div></div>`).join("");
-  $("#ovc").innerHTML = `<div class="ovr"><div class="xmini ${pctCls(avg)}" style="--p:${avg};width:92px;height:92px"><b style="font-size:1.4rem">${avg}%</b></div><div class="ovt"><b>${done.length} من ${vis.length}</b><small>فيديو مكتمل</small><div class="pbar-track" style="margin-top:10px"><i style="width:${avg}%"></i></div></div></div>`;
+  const w0 = new Date(); w0.setHours(0, 0, 0, 0); w0.setDate(w0.getDate() - 6);
+  const tw = prog.filter(p => p.at >= w0.getTime()), twd = tw.filter(p => p.done).length, wavg = tw.length ? Math.round(tw.reduce((a, p) => a + Math.min(100, p.p), 0) / tw.length) : 0;
+  $("#ovc").innerHTML = `<div class="ovr"><div class="xmini ${pctCls(wavg)}" style="--p:${wavg};width:92px;height:92px"><b style="font-size:1.4rem">${wavg}%</b></div><div class="ovt"><b>${tw.length ? `${tw.length} ${tw.length === 1 ? "فيديو" : "فيديوهات"} هذا الأسبوع` : "لم تشاهد شيئًا هذا الأسبوع"}</b><small>${tw.length ? `${twd} مكتمل · متوسط التقدم ${wavg}%` : "ابدأ فيديو اليوم وسيظهر تقدمك هنا"}</small><div class="pbar-track" style="margin-top:10px"><i style="width:${wavg}%"></i></div></div></div>`;
   const last = [...going].sort((a, b) => b.at - a.at)[0] || [...fresh][0];
   const rb = $("#resume"); if (last) { rb.hidden = false; rb.href = "#/watch/" + last.v.id; rb.innerHTML = ico(XI.play, 18) + (going.length ? " تابع من حيث توقفت" : " ابدأ أول فيديو"); } else rb.hidden = true;
   // نشاط آخر 7 أيام
