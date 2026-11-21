@@ -2749,7 +2749,7 @@ function renderActivity() {
     <section class="gm" id="gm"></section>
     <div class="stats astats" id="as" style="margin-top:22px"></div>
     <div class="pf"><div class="card"><h3 class="ch">${ico(XI.target, 20)} تقدمك الأسبوع</h3><div id="ovc"></div></div><div class="card"><h3 class="ch" style="margin-bottom:4px">${ico(XI.chart, 20)} نشاط آخر 7 أيام</h3><small style="color:var(--muted)">فيديوهات شاهدتها وتعليقات كتبتها في كل يوم</small><div class="wk" id="wk"></div></div></div>
-    <div class="tabs"><div class="trow">${[["videos", "فيديوهاتي", ST_IC.videos], ["comments", "تعليقاتي", XI.msg], ["ratings", "تقييماتي", XI.star], ["exams", "اختباراتي", ST_IC.exams]].map(([k, t, d]) => `<button class="tab" data-t="${k}"><i class="ti">${ico(d, 22)}</i><span class="tl">${t}</span><span class="tb"></span></button>`).join("")}</div></div>
+    <div class="tabs"><div class="trow">${[["videos", "فيديوهاتي", ST_IC.videos], ["comments", "تعليقاتي", XI.msg], ["ratings", "تقييماتي", XI.star], ["hw", "واجباتي", ST_IC.files], ["exams", "اختباراتي", ST_IC.exams]].map(([k, t, d]) => `<button class="tab" data-t="${k}"><i class="ti">${ico(d, 22)}</i><span class="tl">${t}</span><span class="tb"></span></button>`).join("")}</div></div>
     <div id="al"></div></main>`;
   $("#lo").onclick = doLogout;
   $$(".tab").forEach(b => b.onclick = () => { AC.tab = b.dataset.t; paintActivity(); });
@@ -2838,6 +2838,15 @@ function paintActivity() {
   } else if (AC.tab === "exams") {
     const l = [...S.attempts].sort((a, b) => (b.createdAt?.seconds ?? 9e12) - (a.createdAt?.seconds ?? 9e12));
     al.innerHTML = l.map(a => { const p = pctOf(a); return `<div class="arow">${a.score === undefined ? `<div class="xmini none">${ico(XI.hour, 24)}</div>` : `<div class="xmini ${pctCls(p)}" style="--p:${p}"><b>${p}%</b><small>${a.score}/${a.total}</small></div>`}<div class="ainfo"><a href="#/exam/${esc(a.examId)}"><h3>${esc(a.title)}</h3></a><div style="margin:6px 0">${a.score === undefined ? xchip("hour", "جاري التصحيح…") : xchip(p >= 50 ? "ok" : "no", `الدرجة: ${a.score}/${a.total}`, pctCls(p))}${a.status === "review" ? xchip("hour", "بانتظار تصحيح المقالي", "warn") : ""}</div><small>${ago(a.createdAt)} · ${a.createdAt?.toDate ? a.createdAt.toDate().toLocaleDateString("ar-EG", { weekday: "long", day: "numeric", month: "long", year: "numeric" }) : ""}</small></div></div>`; }).join("") || `<div class="empty">لم تحل أي اختبار بعد.</div>`;
+  } else if (AC.tab === "hw") {
+    const tsOf = b => b?.updatedAt?.seconds ?? 0, hs = visible(S.homework || []).map(h => ({ h, sb: hwSub(h.id) && hwSub(h.id).status !== "draft" ? hwSub(h.id) : null })).sort((a, b) => (b.sb ? 1 : 0) - (a.sb ? 1 : 0) || tsOf(b.sb) - tsOf(a.sb));
+    al.innerHTML = hs.map(({ h, sb }) => {
+      const st = sb?.status === "graded" ? "graded" : sb ? "submitted" : "none", due = hwDue(h.due), late = st === "none" && due && due < new Date();
+      const chip = st === "graded" ? xchip("ok", "تم التصحيح", "good") : st === "submitted" ? xchip("clip", "تم التسليم — بانتظار التصحيح", "blue") : late ? xchip("no", "متأخر", "bad") : xchip("hour", "لم يُسلَّم بعد", "warn");
+      const pc = st === "graded" && sb.score !== undefined && sb.total ? Math.round(sb.score / sb.total * 100) : null;
+      const lead = pc !== null ? `<div class="xmini ${pctCls(pc)}" style="--p:${pc}"><b>${pc}%</b><small>${sb.score}/${sb.total}</small></div>` : `<span class="rico v">${ico(ST_IC.files, 22)}</span>`;
+      return `<div class="arow">${lead}<div class="ainfo"><a href="${h.questions?.length ? "#/hw/" + esc(h.id) : "#/"}"><h3>${esc(h.title)}</h3></a><div style="margin:6px 0">${chip}</div><small>${sb ? `${sb.grade && pc === null ? "الدرجة: " + esc(sb.grade) + " · " : ""}${ago(sb.updatedAt)}` : h.due ? "آخر موعد " + esc(h.due) : "ابدأ بحل الواجب من الرئيسية"}</small></div></div>`;
+    }).join("") || `<div class="empty">لا توجد واجبات متاحة لك بعد.</div>`;
   } else {
     const l = [...AC.ratings].sort((a, b) => (b.updatedAt?.seconds ?? 9e12) - (a.updatedAt?.seconds ?? 9e12));
     al.innerHTML = l.map(r => { const v = byId[r.videoId]; return v ? row(v, `<a href="#/watch/${esc(v.id)}"><h3>${esc(v.title)}</h3></a><div class="stars-ro" style="margin:6px 0">${"★".repeat(r.value)}${"☆".repeat(5 - r.value)}</div><small>${ago(r.updatedAt)}</small>`) : ""; }).join("") || `<div class="empty">لم تقيّم أي فيديو بعد.</div>`;
