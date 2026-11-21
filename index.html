@@ -1702,7 +1702,7 @@ function renderPlans() {
       <div class="pf-pi"><span class="pf-svg">${fsv(PTH[k], 38)}</span></div><h3>${t}</h3><small class="plc-d">${d}</small>
       <div class="plc-pr">${free ? `<b>مجانًا</b>` : has ? `<b>${price.toLocaleString("en")}</b><span>جنيه</span>` : `<em>تواصل لمعرفة السعر</em>`}</div>
       <small class="plc-pm">${!free && has && mo > 1 ? `يعادل ${Math.round(price / mo).toLocaleString("en")} جنيه / شهر` : "&nbsp;"}</small>
-      ${free ? `<a class="btn btn-line plc-b" href="${logged ? "#/" : "#/register"}">${logged ? "الرئيسية" : "ابدأ مجانًا"}</a>` : `<a class="btn btn-fill plc-b" href="${logged ? "#/pay" : "#/register"}">اشترك الآن</a><a class="plc-wa" href="${wa}" target="_blank" rel="noopener">استفسر على واتساب</a>`}</article>`;
+      ${free ? `<a class="btn btn-fill plc-b" href="${logged ? "#/" : "#/register"}">${logged ? "الرئيسية" : "ابدأ مجانًا"}</a>` : `<a class="btn btn-fill plc-b" href="${logged ? "#/pay" : "#/register"}">اشترك الآن</a><a class="plc-wa" href="${wa}" target="_blank" rel="noopener">استفسر على واتساب</a>`}</article>`;
   }).join("");
   app.innerHTML = `${logged ? studentHeader() : pubHeader()}<main class="wrap sec">
     <section class="ph-hero"><span class="ph-ic">${fsv(PTH.y1, 34)}</span><div><span class="ph-k">اختر ما يناسبك</span><h1>الباقات</h1><p>اشتراك واحد يفتح لك كل الفيديوهات والملفات والاختبارات والواجبات حسب مرحلتك، وتقدر تجدّد في أي وقت</p></div></section>
