@@ -497,6 +497,25 @@ tr:last-child td{border-bottom:0}
 .pf-plan.free,.pf-plan.ok{border-color:var(--good);background:linear-gradient(135deg,rgba(61,220,132,.16),rgba(61,220,132,.03))}.pf-plan.free .pf-pi,.pf-plan.ok .pf-pi,.pf-plan.free .pf-left,.pf-plan.ok .pf-left{border-color:var(--good);background:rgba(61,220,132,.12)}.pf-plan.free b,.pf-plan.ok b,.pf-plan.ok .pf-left{color:var(--good)}.pf-plan.free .pf-bar i,.pf-plan.ok .pf-bar i{background:var(--good)}
 .pf-plan.soon{border-color:var(--warn);background:linear-gradient(135deg,rgba(255,184,77,.18),rgba(255,184,77,.03))}.pf-plan.soon b,.pf-plan.soon .pf-left{color:var(--warn)}.pf-plan.soon .pf-bar i{background:var(--warn)}
 .pf-plan.expired{border-color:var(--bad);background:linear-gradient(135deg,rgba(255,107,122,.18),rgba(255,107,122,.03))}.pf-plan.expired b{color:var(--bad)}.pf-plan.expired .pf-pi{border-color:var(--bad)}
+.pf-plan{position:relative;overflow:hidden;isolation:isolate;animation:pfin .7s cubic-bezier(.2,.8,.2,1) both}
+.pf-plan::before{content:"";position:absolute;inset:-60% -30%;z-index:-1;background:linear-gradient(115deg,transparent 40%,rgba(255,236,170,.2) 50%,transparent 60%);transform:translateX(-120%);animation:pfsh 4.5s ease-in-out 1s infinite}
+.pf-plan::after{content:"";position:absolute;width:160px;height:160px;inset-inline-start:-40px;top:-60px;z-index:-1;border-radius:50%;background:radial-gradient(closest-side,currentColor,transparent);opacity:.12;animation:pfgl 4s ease-in-out infinite}
+.pf-plan.ok{color:var(--good)}.pf-plan.soon{color:var(--warn)}.pf-plan.expired{color:var(--bad)}.pf-plan.free,.pf-plan.open{color:var(--accent)}
+.pf-plan b,.pf-plan small,.pf-ps{color:inherit}.pf-plan .pf-pb small,.pf-plan .pf-ps,.pf-plan .pf-dts{color:var(--muted)}
+.pf-pi{position:relative;animation:pfbob 3.2s ease-in-out infinite}
+.pf-pi::after{content:"";position:absolute;inset:-5px;border-radius:22px;border:2px solid currentColor;opacity:0;animation:pfpl 2.8s ease-out infinite}
+.pf-bar i{transform-origin:right;animation:pfbar 1.2s cubic-bezier(.2,.8,.2,1) .4s both;position:relative;overflow:hidden}
+.pf-bar i::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);transform:translateX(120%);animation:pfbs 2.6s ease-in-out 1.6s infinite}
+.pf-left{animation:pfpop .5s cubic-bezier(.3,1.6,.5,1) .5s both}
+@keyframes pfin{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes pfsh{0%,60%{transform:translateX(-120%)}100%{transform:translateX(120%)}}
+@keyframes pfgl{0%,100%{transform:scale(.9);opacity:.08}50%{transform:scale(1.25);opacity:.2}}
+@keyframes pfbob{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-4px) rotate(-4deg)}}
+@keyframes pfpl{0%{transform:scale(.9);opacity:.55}100%{transform:scale(1.3);opacity:0}}
+@keyframes pfbar{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes pfbs{0%{transform:translateX(120%)}60%,100%{transform:translateX(-120%)}}
+@keyframes pfpop{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.pf-plan,.pf-plan::before,.pf-plan::after,.pf-pi,.pf-pi::after,.pf-bar i,.pf-bar i::after,.pf-left{animation:none}}
 @media(max-width:560px){.pf-plan{flex-wrap:wrap;padding:16px}.pf-pr{flex-direction:row;width:100%;justify-content:space-between}}
 .tc-lk{display:flex;color:inherit;transition:transform .25s,border-color .25s}.tc-lk:hover{transform:translateY(-3px);border-color:var(--accent)}.rp-nm{color:inherit}.rp-nm:hover{text-decoration:underline}a.rp-av{display:block}
 .tp-hero{position:relative;text-align:center;padding:34px 16px 30px;border-radius:26px;border:1px solid var(--accent);background:linear-gradient(160deg,rgba(212,167,58,.18),rgba(212,167,58,.03));overflow:hidden;margin-bottom:26px}
