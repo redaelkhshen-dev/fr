@@ -2943,10 +2943,11 @@ const TABS = {
     }
   },
   students: {
-    skel: () => `<div class="nt-head"><div><h2>إدارة الطلاب</h2></div>${xlBtn()}</div><div class="sstats" id="sst"></div><div class="toolbar"><span class="sq">${ico(SI.search, 18)}<input id="aq" placeholder="بحث بالاسم أو الرقم أو المدينة" value="${esc(A.q)}"></span>
+    skel: () => `<div class="nt-head"><div><h2>إدارة الطلاب</h2></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-fill btn-sm ibtn" id="addst" type="button">${ico('<path d="M12 5v14M5 12h14"/>', 16)} إضافة طالب</button>${xlBtn()}</div></div><div class="sstats" id="sst"></div><div class="toolbar"><span class="sq">${ico(SI.search, 18)}<input id="aq" placeholder="بحث بالاسم أو الرقم أو المدينة" value="${esc(A.q)}"></span>
       <select id="as"><option value="">كل المراحل</option>${opts(STAGES, A.fstage)}</select>
       <select id="at"><option value="">كل الحالات</option><option value="active" ${A.fstatus === "active" ? "selected" : ""}>نشط</option><option value="pending" ${A.fstatus === "pending" ? "selected" : ""}>قيد المراجعة</option><option value="rejected" ${A.fstatus === "rejected" ? "selected" : ""}>مرفوض</option><option value="banned" ${A.fstatus === "banned" ? "selected" : ""}>محظور</option></select></div><div class="tw" id="sl"></div>`,
     init: b => {
+      $("#addst", b).onclick = addStudent;
       $("#aq", b).oninput = e => { A.q = e.target.value; fillTab(); };
       $("#as", b).onchange = e => { A.fstage = e.target.value; fillTab(); };
       $("#at", b).onchange = e => { A.fstatus = e.target.value; fillTab(); };
@@ -3721,6 +3722,46 @@ function parentReport(x) {
     $("#prc", md).onclick = () => navigator.clipboard?.writeText(txt).then(() => toast("تم نسخ التقرير", "ok"));
   };
   paint();
+}
+function addStudent() {
+  const gen = () => String(Math.floor(100000 + Math.random() * 900000));
+  const m = openModal(`<h2>إضافة طالب يدويًا</h2><p class="sub">يُنشأ الحساب مفعّلًا مباشرة، ويقدر الطالب يدخل برقمه وكلمة السر.</p><div class="alert" id="err" hidden></div>
+    <form id="af" novalidate><label class="fl">رقم الواتس (يُستخدم في تسجيل الدخول)<input name="phn" inputmode="numeric" dir="ltr" maxlength="11" placeholder="01XXXXXXXXX" autocomplete="off"></label>
+    <label class="fl">كلمة السر (أرقام 6–12)<span style="display:flex;gap:8px"><input name="pw" inputmode="numeric" dir="ltr" maxlength="12" value="${gen()}" autocomplete="off" style="text-align:center;letter-spacing:2px;font-weight:700"><button type="button" class="btn btn-line btn-sm" id="gp">🎲 جديدة</button></span></label>
+    ${profileFields({})}
+    <div class="mact"><button class="btn btn-fill" id="sb">إضافة الطالب</button><button type="button" class="btn btn-line" data-close>إلغاء</button></div></form>`, true);
+  const form = $("#af", m); bindStageGrade(form);
+  $$('input[name="phn"],input[name="pw"],input[name="parentPhone"]', form).forEach(i => i.addEventListener("input", () => { i.value = toLatin(i.value).replace(/[^\d]/g, ""); }));
+  $("#gp", m).onclick = () => { form.elements.pw.value = gen(); };
+  form.addEventListener("submit", async e => {
+    e.preventDefault(); showErr(""); const b = $("#sb", m);
+    let a2;
+    try {
+      const p = readProfile(form), fd = new FormData(form), phone = toLatin(fd.get("phn") || "").replace(/\s/g, ""), pass = toLatin(fd.get("pw") || "");
+      if (!PHONE_RE.test(phone)) throw new Error("رقم الواتس غير صحيح (11 رقم)");
+      if (!/^\d{6,12}$/.test(pass)) throw new Error("كلمة السر أرقام فقط (من 6 إلى 12 رقم)");
+      if (S.students.some(z => z.phone === phone)) throw new Error("هذا الرقم مسجّل لطالب آخر");
+      b.disabled = true; b.textContent = "جاري الإضافة...";
+      let sec; try { sec = getApp("pwfix"); } catch { sec = initializeApp(firebaseConfig, "pwfix"); }
+      a2 = getAuth(sec); const email = `${phone}@${EMAIL_DOMAIN}`; let cred;
+      try { cred = await createUserWithEmailAndPassword(a2, email, pass); }
+      catch (er) {
+        if (er.code !== "auth/email-already-in-use") throw er;
+        try { cred = await signInWithEmailAndPassword(a2, email, pass); } catch { throw new Error("هذا الرقم له حساب دخول سابق بكلمة سر أخرى. احذف أي طالب قديم بهذا الرقم أولًا، أو جرّب كلمة سره القديمة."); }
+        if ((await getDoc(doc(db, "students", cred.user.uid))).exists()) throw new Error("هذا الرقم مسجّل بالفعل");
+      }
+      /* الوثيقة تُنشأ بصفة الطالب نفسه (حسب القواعد الحالية) ثم يفعّلها المدرس */
+      await setDoc(doc(getFirestore(sec), "students", cred.user.uid), { ...p, phone, photo: "", status: "pending", createdAt: serverTimestamp() });
+      await updateDoc(doc(db, "students", cred.user.uid), { status: "active" });
+      await setDoc(doc(db, "studentPw", cred.user.uid), { pw: pass, updatedAt: serverTimestamp() });
+      try { await signOut(a2); } catch {}
+      const intl = "2" + phone.replace(/^2/, ""), site = location.origin + location.pathname;
+      const wa = `https://wa.me/${intl}?text=` + encodeURIComponent(`مرحبًا ${p.name} 🌟\nتم تسجيلك في منصة مسيو رضا الخشن لتعلم اللغة الفرنسية.\nرقم الدخول: ${phone}\nكلمة السر: ${pass}\n${site}`);
+      toast("تمت إضافة الطالب", "ok");
+      form.outerHTML = `<div class="lockbox"><div class="lk-h"><b>✅ تم إنشاء الحساب</b></div><div class="lk-g"><div><small>الاسم</small><b>${esc(p.name)}</b></div><div><small>رقم الدخول</small><b dir="ltr">${esc(phone)}</b></div><div><small>كلمة السر</small><b dir="ltr">${esc(pass)}</b></div></div></div>
+        <div class="mact"><a class="btn btn-fill" href="${wa}" target="_blank" rel="noopener">إرسال البيانات على واتساب</a><button type="button" class="btn btn-line" data-close>إغلاق</button></div>`;
+    } catch (er) { try { if (a2) await signOut(a2); } catch {} showErr(er.code ? authMsg(er) : er.message); b.disabled = false; b.textContent = "إضافة الطالب"; }
+  });
 }
 function editStudent(x) {
   const m = openModal(`<h2>تعديل بيانات الطالب</h2><div class="alert" id="err" hidden></div>
