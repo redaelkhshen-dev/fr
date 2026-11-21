@@ -918,6 +918,9 @@ html[data-theme=light] .hl-fx b{background-image:linear-gradient(100deg,#7a520a 
 .cmp{display:flex;gap:12px;margin:18px 0;align-items:flex-start}
 .cmp>div{flex:1;min-width:0}
 .cmp textarea{min-height:84px}
+.emo{display:flex;gap:6px;overflow-x:auto;padding:8px 10px;margin-bottom:8px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(135deg,rgba(212,167,58,.12),rgba(212,167,58,.02));scrollbar-width:none}.emo::-webkit-scrollbar{display:none}
+.emo-b{flex:none;width:38px;height:38px;border-radius:12px;border:1px solid transparent;background:rgba(255,255,255,.04);font-size:1.3rem;line-height:1;cursor:pointer;transition:transform .18s,background .18s,border-color .18s}
+.emo-b:hover{transform:translateY(-3px) scale(1.18);background:rgba(212,167,58,.18);border-color:var(--accent)}.emo-b:active{transform:scale(.92)}
 .cmp-b{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
 .cmp-b small{color:var(--muted)}
 .cl{display:flex;flex-direction:column;gap:4px}
@@ -2183,8 +2186,13 @@ function startCommentSubs(v) {
   const box = $("#cm"); if (!box) return;
   CM.vid = v.id; CM.editing = null;
   box.innerHTML = `<h2>التقييم والتعليقات</h2><div class="rate" id="cr"></div>
-    <div class="cmp">${avatarHTML(S.student, 42)}<div><textarea id="ct" maxlength="500" placeholder="اكتب تعليقك أو سؤالك عن الدرس..."></textarea><div class="cmp-b"><small id="cc">0/500</small><button class="btn btn-fill btn-sm" id="cp">نشر التعليق</button></div></div></div>
+    <div class="cmp">${avatarHTML(S.student, 42)}<div><div class="emo" id="emo" role="toolbar" aria-label="إيموشنات">${["👍","❤️","😍","👏","🔥","💯","🌟","🎉","😊","😂","🙏","🤔","💪","✅","🇫🇷","📚"].map(e => `<button type="button" class="emo-b" data-e="${e}" aria-label="${e}">${e}</button>`).join("")}</div><textarea id="ct" maxlength="500" placeholder="اكتب تعليقك أو سؤالك عن الدرس..."></textarea><div class="cmp-b"><small id="cc">0/500</small><button class="btn btn-fill btn-sm" id="cp">نشر التعليق</button></div></div></div>
     <div class="cl" id="cl"></div>`;
+  $("#emo").addEventListener("click", e => {
+    const b = e.target.closest(".emo-b"); if (!b) return; const t = $("#ct"), em = b.dataset.e, a = t.selectionStart ?? t.value.length, z = t.selectionEnd ?? a;
+    if ((t.value.length - (z - a) + em.length) > 500) return;
+    t.value = t.value.slice(0, a) + em + t.value.slice(z); t.focus(); t.setSelectionRange(a + em.length, a + em.length); t.dispatchEvent(new Event("input"));
+  });
   $("#ct").addEventListener("input", e => { $("#cc").textContent = e.target.value.length + "/500"; });
   $("#cp").onclick = async () => {
     const t = $("#ct").value.trim(); if (!t) return toast("اكتب تعليقًا أولًا", "err");
