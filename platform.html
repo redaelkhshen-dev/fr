@@ -477,6 +477,16 @@ tr:last-child td{border-bottom:0}
 .ins-b.sec{color:var(--fg);border:1px solid var(--accent);background:linear-gradient(135deg,rgba(212,167,58,.14),rgba(212,167,58,.03))}.ins-b.sec:hover{background:linear-gradient(135deg,rgba(212,167,58,.24),rgba(212,167,58,.06));box-shadow:0 16px 30px -16px var(--accent)}.ins-b.sec .ib-i{background:var(--soft);color:var(--accent-2)}
 @media(max-width:520px){.ins-acts{flex-wrap:nowrap;gap:8px}.ins-b{flex:1 1 0;min-width:0;width:auto;gap:8px;padding:10px 10px;border-radius:16px;justify-content:center}.ib-i{width:34px;height:34px;border-radius:11px}.ib-i svg{width:18px;height:18px}.ib-t b{font-size:.92rem;white-space:nowrap}.ib-t small{font-size:.66rem;white-space:nowrap}}
 @media(prefers-reduced-motion:reduce){.ins-b.pri:after,.ins-b.pri .ib-i svg{animation:none}}
+/* ===== الاشتراكات ===== */
+.sb-strip{display:flex;align-items:center;gap:14px;padding:14px 18px;margin:16px 0 4px;border-radius:18px;border:1px solid var(--line);background:var(--card)}.sb-strip>svg{flex:none;color:var(--accent-text)}.sb-m{flex:1;display:grid;gap:4px;min-width:0}.sb-strip small{color:var(--muted)}.sb-strip.free{border-color:var(--good)}.sb-strip.free>svg{color:var(--good)}.sb-strip>div:not(.sb-m){flex:1;display:grid}
+.sb-bar{height:6px;border-radius:6px;background:var(--line);overflow:hidden}.sb-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent-deep),var(--accent-2))}
+.sb-strip.soon{border-color:var(--warn);background:linear-gradient(135deg,rgba(255,184,77,.14),transparent)}.sb-strip.soon>svg{color:var(--warn)}.sb-strip.soon .sb-bar i{background:var(--warn)}
+.sb-exp{text-align:center}.sb-lk{width:84px;height:84px;margin:0 auto 14px;border-radius:26px;display:grid;place-items:center;color:var(--bad);background:rgba(255,107,122,.12);border:1px solid var(--bad)}
+.sb-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,360px),1fr));gap:14px}.sb-card{padding:16px;border-radius:18px;border:1px solid var(--line);background:var(--card);display:grid;gap:12px;position:relative;transition:border-color .2s}.sb-card:hover{border-color:var(--accent)}.sb-card:before{content:"";position:absolute;inset-block:14px;inset-inline-start:0;width:3px;border-radius:3px;background:var(--good)}.sb-card.soon:before{background:var(--warn)}.sb-card.expired:before{background:var(--bad)}.sb-card.free:before,.sb-card.open:before{background:var(--muted);opacity:.5}
+.sb-h{display:flex;align-items:center;gap:12px}.sb-w{flex:1;min-width:0}.sb-w b{display:block}.sb-w small{color:var(--muted)}
+.sb-d{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;padding:10px 12px;border-radius:12px;background:var(--bg2);border:1px solid var(--line);font-size:.86rem;color:var(--muted)}.sb-left{margin-inline-start:auto;color:var(--fg)}.sb-card.soon .sb-left{color:var(--warn)}.sb-card.expired .sb-left{color:var(--bad)}
+.sb-act{display:flex;gap:8px;flex-wrap:wrap}.sb-act .btn{flex:1;justify-content:center}
+.badge.sb-ok{background:rgba(61,220,132,.14);color:var(--good);border-color:transparent}.badge.sb-soon{background:rgba(255,184,77,.14);color:var(--warn);border-color:transparent}.badge.sb-expired{background:rgba(255,107,122,.14);color:var(--bad);border-color:transparent}
 /* ===== رصد الدرجات ===== */
 .gr-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px}.gr-head h2{margin:0}.gr-head small{color:var(--muted)}.gr-hi{flex:none;width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent-deep),var(--accent-2));color:#1b1405;box-shadow:0 8px 22px -10px var(--accent)}
 .gr-mn{margin-inline-start:auto;display:flex;align-items:center;gap:6px}.gr-mn input{max-width:none;width:200px}.gr-mn .ib{color:var(--fg)}
@@ -1332,11 +1342,12 @@ async function attachStudent(u) {
     if (x.status === "rejected") return kick("تم رفض طلب تسجيلك. تواصل مع المدرس.");
     if (x[typ] && x[typ] !== dev) return kick(`تم تسجيل الدخول لهذا الحساب من ${devName(typ)} آخر.`);
     if (S.student?.[typ] && !x[typ]) return kick("تم فك ارتباط جهازك. سجّل الدخول مرة أخرى.");
-    const prev = S.student?.status;
+    const prev = S.student?.status, wasExp = S.student && subInfo(S.student).state === "expired";
     S.student = { id: u.uid, ...x };
+    if (wasExp && subInfo(S.student).state !== "expired") { toast("✅ تم تجديد اشتراكك", "ok"); setTimeout(() => location.reload(), 900); return; }
     if (prev !== x.status) { if (x.status === "active") { if (!x[typ]) updateDoc(dref, { [typ]: dev }).catch(() => {}); startContent(); toast("🎉 تم قبول حسابك، أهلًا بك في المنصة", "ok"); } render(); }
   }, () => {});
-  if (S.student.status === "active") startContent();
+  if (S.student.status === "active" && subInfo(S.student).state !== "expired") startContent();
   S.ready = true; render();
 }
 onAuthStateChanged(auth, async u => {
@@ -1350,6 +1361,35 @@ const doLogout = async () => { try { await signOut(auth); } catch {} go("/"); };
 
 /* ---------- الراوتر ---------- */
 window.addEventListener("hashchange", () => { closeModals(); render(); window.scrollTo(0, 0); });
+/* ---------- الاشتراكات ---------- */
+const PLANS = { free: ["مجانية", 0], m1: ["شهر", 30], m3: ["3 شهور", 90], m6: ["6 شهور", 180], y1: ["سنة", 365], custom: ["فترة محددة", 0] };
+const dKey = d => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+const addDaysStr = (str, n) => { const d = new Date(str + "T12:00:00"); d.setDate(d.getDate() + n); return dKey(d); };
+const endMsOf = str => new Date(str + "T23:59:59").getTime();
+function subInfo(x) {
+  if (!x?.subEndMs) return { state: x?.subPlan === "free" ? "free" : "open", days: null };
+  const left = x.subEndMs - Date.now(), days = Math.max(0, Math.ceil(left / 864e5));
+  return { state: left <= 0 ? "expired" : days <= 7 ? "soon" : "ok", days, end: x.subEnd, start: x.subStart, plan: x.subPlan };
+}
+const subLabel = i => ({ free: "باقة مجانية", open: "بدون اشتراك (مفتوح)", expired: "منتهي", soon: "ينتهي قريبًا", ok: "نشط" }[i.state]);
+const daysTxt = n => n === 0 ? "ينتهي اليوم" : n === 1 ? "ينتهي غدًا" : n === 2 ? "ينتهي بعد يومين" : n <= 10 ? `ينتهي بعد ${n} أيام` : `ينتهي بعد ${n} يومًا`;
+const SBI = { crown: '<path d="m3 8 4.500 4 5-7 5 7L22 8l-2 11H5z"/>', clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>', lock: '<rect x="5" y="11" width="14" height="9.500" rx="2.500"/><path d="M8 11V8a4 4 0 0 1 8 0v3M12 15v2"/>', ok: '<circle cx="12" cy="12" r="9"/><path d="m8 12.500 2.800 2.800L16 9.500"/>', gift: '<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M5 12v8h14v-8M12 8c-2-4-6-3-5 0 .600 1.500 3 1 5 0zM12 8c2-4 6-3 5 0-.600 1.500-3 1-5 0z"/>', wa: '<path d="M4 20l1.200-4A8 8 0 1 1 8 18.800z"/>', renew: '<path d="M20 11a8 8 0 0 0-14-4.500L4 9M4 4v5h5M4 13a8 8 0 0 0 14 4.500L20 15M20 20v-5h-5"/>', edit: '<path d="M12 20h9M16.500 3.500a2.100 2.100 0 0 1 3 3L7 19l-4 1 1-4z"/>', users: '<circle cx="9" cy="8" r="3.500"/><path d="M2.500 20c0-3.500 3-6 6.500-6s6.500 2.500 6.500 6M16 4.500a3.500 3.500 0 0 1 0 7M18 14c2 .8 3.500 2.700 3.500 6"/>' };
+function subStrip(x) {
+  const i = subInfo(x); if (i.state === "open" || i.state === "free" && !x.subStart) return "";
+  if (i.state === "free") return `<div class="sb-strip free">${fsv(SBI.gift, 22)}<div><b>باقتك مجانية</b><small>تستمتع بالمحتوى بدون تاريخ انتهاء</small></div></div>`;
+  const tot = Math.max(1, Math.round((x.subEndMs - new Date(x.subStart + "T00:00:00").getTime()) / 864e5)), pc = Math.max(0, Math.min(100, Math.round(i.days / tot * 100)));
+  return `<div class="sb-strip ${i.state}">${fsv(i.state === "soon" ? SBI.clock : SBI.crown, 22)}<div class="sb-m"><b>${i.state === "soon" ? "⚠️ " + daysTxt(i.days) : "اشتراكك نشط — متبقي " + i.days + " يومًا"}</b><small>ينتهي في <bdi dir="ltr">${i.end}</bdi>${PLANS[x.subPlan] ? " · باقة " + PLANS[x.subPlan][0] : ""}</small><span class="sb-bar"><i style="width:${pc}%"></i></span></div>${i.state === "soon" ? `<a class="btn btn-fill btn-sm" href="#/pay">جدّد الآن</a>` : ""}</div>`;
+}
+function renderExpired() {
+  S.page = "expired"; const s = S.student, i = subInfo(s);
+  app.innerHTML = `<header class="hdr"><div class="wrap hdr-in">${brand(true)}<div class="hdr-r">${themeBtn()}<button class="btn btn-line btn-sm" id="lo">خروج</button></div></div></header>
+  <main class="wrap sec"><div class="card pend sb-exp"><div class="sb-lk" aria-hidden="true">${fsv(SBI.lock, 40)}</div><h1>انتهى اشتراكك</h1>
+    <p class="lead">أهلًا يا ${esc(s.name.split(" ")[0])}، انتهت مدة اشتراكك${i.end ? ` بتاريخ <bdi dir="ltr">${i.end}</bdi>` : ""}. جدّد اشتراكك لتعود فيديوهاتك وملفاتك واختباراتك كما كانت، وكل تقدّمك محفوظ.</p>
+    <div class="hero-b" style="justify-content:center"><a class="btn btn-fill" href="#/pay">💳 جدّد الاشتراك الآن</a><a class="btn btn-line" href="${esc(LINKS.wa)}" target="_blank" rel="noopener">💬 تواصل مع المدرس</a></div></div></main>`;
+  $("#lo").onclick = doLogout;
+}
+setInterval(() => { if (S.student && S.ready && !isAdminUser()) { const st = subInfo(S.student).state; if (st !== S.subSt) { const was = S.subSt; S.subSt = st; if (was && (st === "expired" || was === "expired")) render(); } } }, 30000);
+
 function render() {
   if (!S.ready) return;
   stopTracker(); previewStop(); stopCommentSubs(); stopActivitySubs(); stopPaySubs();
@@ -1360,6 +1400,8 @@ function render() {
   if (route === "/install") return renderInstall();
   if (S.user && S.student) {
     if (S.student.status !== "active") return renderPending();
+    S.subSt = subInfo(S.student).state;
+    if (S.subSt === "expired" && route !== "/pay" && route !== "/profile") return renderExpired();
     if (route === "/pay") return renderPay();
     if (route === "/live") { H.tab = "live"; H.tabMoved = true; return go("/"); }
     if (route.startsWith("/live/")) return renderLiveRoom(route.slice(6));
@@ -1844,7 +1886,7 @@ function renderHome() {
   app.innerHTML = `${studentHeader()}<section class="shero"><div class="wrap shero-in"><div class="st"><span class="eyebrow">${STAGES[s.stage]} · ${SYSTEMS[s.system]}</span>
       <h1>أهلًا يا <span class="hl">${esc(s.name.split(" ")[0])}</span> 👋</h1><p class="lead">${esc(s.grade)} — جاهز تكمل رحلتك مع الفرنسية؟</p>
       <div class="mini"><div><b id="cv">0</b><span>فيديو متاح</span></div><div><b id="cf">0</b><span>ملف متاح</span></div><div><b>${SYSTEMS[s.system]}</b><span>${STAGES[s.stage]}</span></div></div><div class="ovp"><div class="pbar-top"><span id="ovt">تقدمك العام</span><b id="ovn">0%</b></div><div class="pbar-track"><i id="ovf"></i></div></div></div>
-      <div class="sv"><div class="disc sm">${avatarHTML(s, 200)}</div></div></div></section><main class="wrap"><div id="cont"></div>
+      <div class="sv"><div class="disc sm">${avatarHTML(s, 200)}</div></div></div></section><main class="wrap"><div id="subs"></div><div id="cont"></div>
     <div class="tabs"><div class="trow">${stabsHTML()}</div><input class="srch" id="q" placeholder="ابحث..." value="${esc(H.q)}"></div>
     <div class="grid" id="list"></div></main><footer class="foot">© منصة مسيو رضا الخشن — المحتوى للاستخدام الشخصي فقط</footer>`;
   $("#lo").onclick = doLogout;
@@ -1969,6 +2011,7 @@ function fillHome() {
   { const tl = $("#tablv"); if (tl) setTb(tl, liveNow().length ? `<i class="ldot"></i>` : ""); }
   { const tc = $("#tabce"); if (tc) setTb(tc, S.certs.length ? `<span class="pbadge">${S.certs.length}</span>` : ""); }
   { const te = $("#tabex"); if (te) { const n = visible(S.exams).filter(examOpen).filter(x => !attOf(x.id)).length; setTb(te, n ? `<span class="pbadge">${n}</span>` : ""); } }
+  { const sbx = $("#subs"); if (sbx) sbx.innerHTML = subStrip(S.student); }
   { const c = $("#cont"); if (c) { const cand = visible(S.videos).map(v => ({ v, ...getProg(v.id), at: Math.max(S.student.progress?.[v.id]?.at || 0, readLocal()[v.id]?.at || 0) })).filter(x => x.p > 0 && !x.done && x.t > 5).sort((a, b) => b.at - a.at)[0];
     c.innerHTML = cand ? `<a class="cont" href="#/watch/${esc(cand.v.id)}"><span class="cont-th"><img src="https://i.ytimg.com/vi/${esc(cand.v.ytId)}/mqdefault.jpg" alt=""><i>▶</i></span><span class="cont-b"><small>كمّل من حيث وقفت</small><b>${esc(cand.v.title)}</b><span class="cont-bar"><i style="width:${Math.min(100, cand.p)}%"></i></span><em>وقفت عند ${fmtTime(cand.t)}${cand.d ? " من " + fmtTime(cand.d) : ""} · ${agoMs(cand.at)}</em></span><span class="btn btn-fill cont-go">▶ كمّل من ${fmtTime(cand.t)}</span></a>` : ""; } }
   const q = H.q.trim().toLowerCase();
@@ -2680,6 +2723,7 @@ function renderAdminLogin() {
   });
 }
 const AD_IC = {
+  subs: '<path d="m3 8 4.500 4 5-7 5 7L22 8l-2 11H5z"/>',
   overview: '<rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/>',
   students: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8"/><path d="M18 14.3c2.2.7 3.5 2.6 3.5 5.7"/>',
   courses: '<path d="m12 3 9 5-9 5-9-5z"/><path d="m3 13 9 5 9-5"/><path d="m3 17.5 9 5 9-5"/>',
@@ -2695,7 +2739,7 @@ const AD_IC = {
   security: '<rect x="4.5" y="10.5" width="15" height="10.5" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/><circle cx="12" cy="15.5" r="1.3"/>',
   payments: '<rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19"/><path d="M6.5 15h4"/>'
 };
-const AD_GROUPS = [["الرئيسية", [["overview", "نظرة عامة"], ["students", "الطلاب"]]], ["المحتوى", [["courses", "الكورسات"], ["videos", "الفيديوهات"], ["files", "الملفات"], ["homework", "الواجبات"], ["exams", "الاختبارات"]]], ["التواصل", [["lives", "البث المباشر"], ["notices", "الإشعارات"], ["comments", "التعليقات"]]], ["التقييم", [["grades", "رصد الدرجات"], ["certs", "الشهادات"]]], ["المالية", [["payments", "المدفوعات"]]], ["الإعدادات", [["security", "الأمان وكلمة السر"]]]];
+const AD_GROUPS = [["الرئيسية", [["overview", "نظرة عامة"], ["students", "الطلاب"], ["subs", "اشتراكات"]]], ["المحتوى", [["courses", "الكورسات"], ["videos", "الفيديوهات"], ["files", "الملفات"], ["homework", "الواجبات"], ["exams", "الاختبارات"]]], ["التواصل", [["lives", "البث المباشر"], ["notices", "الإشعارات"], ["comments", "التعليقات"]]], ["التقييم", [["grades", "رصد الدرجات"], ["certs", "الشهادات"]]], ["المالية", [["payments", "المدفوعات"]]], ["الإعدادات", [["security", "الأمان وكلمة السر"]]]];
 function renderAdmin() {
   S.page = "admin";
   const nav = AD_GROUPS.map(([g, items], gi) => `${gi ? '<div class="sep"></div>' : ""}<div class="asg">${g}</div>${items.map(([k, t]) => `<button class="atab" data-t="${k}" title="${t}"><i class="ai"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${AD_IC[k]}</svg></i><span class="al">${t}</span><span class="ab"></span></button>`).join("")}`).join("");
@@ -3302,6 +3346,56 @@ TABS.security = {
   },
   fill: () => {}
 };
+
+
+/* ---------- تبويب الاشتراكات ---------- */
+TABS.subs = {
+  skel: () => `<div class="nt-head"><span class="nt-hi">${ico(SBI.crown, 26)}</span><div><h2>اشتراكات الطلاب</h2><small>حدّد مدة اشتراك كل طالب أو باقة مجانية، ويُقفل المحتوى تلقائيًا عند الانتهاء</small></div></div>
+    <div class="sstats" id="sbs"></div>${filterBar()}
+    <div class="toolbar"><span class="sq">${ico(SI.search, 18)}<input id="sbq" placeholder="بحث بالاسم أو الرقم" value="${esc(A.sbq || "")}"></span></div><div class="gr-chips" id="sbc"></div><div id="sbl"></div>`,
+  init: b => { b.onclick = e => { const c = e.target.closest("[data-sbf]"); if (c) { A.sbf = c.dataset.sbf; return fillTab(); } subAction(e); }; $("#sbq", b).oninput = e => { A.sbq = e.target.value; fillTab(); }; bindFilter(b); },
+  fill: b => {
+    const all = S.students.filter(x => x.status === "active").filter(passFilter).map(x => ({ x, i: subInfo(x) })), q = (A.sbq || "").trim().toLowerCase();
+    const bySt = k => all.filter(o => o.i.state === k).length;
+    $("#sbs", b).innerHTML = [["users", "all", "طلاب نشطون", all.length], ["ok", "good", "اشتراك ساري", bySt("ok")], ["clock", "warn", "ينتهي خلال 7 أيام", bySt("soon")], ["lock", "bad", "منتهي", bySt("expired")]].map(([i, t, l, n]) => `<div class="sst ${t}"><span class="ssi">${ico(SBI[i], 24)}</span><div><b>${n}</b><small>${l}</small></div></div>`).join("");
+    const chips = [["", "الكل", all.length], ["soon", "ينتهي قريبًا", bySt("soon")], ["expired", "منتهي", bySt("expired")], ["ok", "ساري", bySt("ok")], ["free", "مجاني", bySt("free")], ["open", "بدون اشتراك", bySt("open")]];
+    $("#sbc", b).innerHTML = chips.map(([k, t, n]) => `<button type="button" class="gr-ch ${(A.sbf || "") === k ? "on" : ""}" data-sbf="${k}">${t}<em>${n}</em></button>`).join("");
+    const ord = { expired: 0, soon: 1, ok: 2, free: 3, open: 4 };
+    const l = all.filter(o => (!A.sbf || o.i.state === A.sbf) && (!q || o.x.name.toLowerCase().includes(q) || (o.x.phone || "").includes(q))).sort((a, c) => ord[a.i.state] - ord[c.i.state] || (a.i.days ?? 1e9) - (c.i.days ?? 1e9));
+    $("#sbl", b).innerHTML = l.length ? `<div class="sb-list">${l.map(({ x, i }) => `<article class="sb-card ${i.state}"><div class="sb-h">${avatarHTML(x, 44)}<div class="sb-w"><b>${esc(x.name)}</b><small dir="ltr">${esc(x.phone)} · ${esc(gradeLabel(x))}</small></div><span class="badge sb-${i.state}">${subLabel(i)}</span></div>
+      <div class="sb-d">${i.state === "open" ? `<span>لم يُحدَّد اشتراك — المحتوى مفتوح للطالب</span>` : i.state === "free" ? `<span>${ico(SBI.gift, 16)} باقة مجانية بدون تاريخ انتهاء</span>` : `<span>${PLANS[x.subPlan]?.[0] ? "باقة " + PLANS[x.subPlan][0] : "اشتراك"}</span><span dir="ltr"><bdi>${x.subStart || "—"}</bdi> ← <bdi>${i.end}</bdi></span><b class="sb-left">${i.state === "expired" ? "انتهى" : daysTxt(i.days)}</b>`}</div>
+      <div class="sb-act"><button class="btn btn-fill btn-sm ibtn" data-a="subedit" data-id="${esc(x.id)}">${ico(SBI.renew, 16)} ${i.state === "open" ? "تحديد اشتراك" : "تجديد / تعديل"}</button>${i.state === "soon" || i.state === "expired" ? `<a class="btn btn-line btn-sm ibtn" target="_blank" rel="noopener" href="${subWaLink(x, i)}">${ico(SBI.wa, 16)} تذكير واتساب</a>` : ""}</div></article>`).join("")}</div>` : `<div class="empty">${ico(SBI.crown, 34)}<br>لا يوجد طلاب بهذه الفلاتر</div>`;
+  }
+};
+const toIntl = ph => { const d = String(ph || "").replace(/\D/g, "").replace(/^00/, ""); return d.startsWith("20") ? d : "20" + d.replace(/^0/, ""); };
+function subWaLink(x, i) {
+  const t = i.state === "expired" ? `مرحبًا ${x.name} 🌟\nانتهى اشتراكك في منصة مسيو رضا الخشن بتاريخ ${i.end}.\nللتجديد ادخل صفحة «الدفع» في المنصة وأرسل إيصال التحويل:\n${location.origin}${location.pathname}#/pay` : `مرحبًا ${x.name} 🌟\nاشتراكك في منصة مسيو رضا الخشن ${daysTxt(i.days)} (${i.end}).\nللتجديد ادخل صفحة «الدفع» في المنصة:\n${location.origin}${location.pathname}#/pay`;
+  return `https://wa.me/${toIntl(x.phone)}?text=` + encodeURIComponent(t);
+}
+function subAction(e) {
+  const b = e.target.closest("[data-a=subedit]"); if (!b) return; const x = S.students.find(z => z.id === b.dataset.id); if (x) subModal(x);
+}
+function subModal(x) {
+  const i = subInfo(x), today = dKey(new Date()), base = i.state === "ok" || i.state === "soon" ? x.subEnd : today;
+  const m = openModal(`<h2>اشتراك ${esc(x.name)}</h2><p class="sub" style="margin-bottom:10px">الحالة الحالية: <b>${subLabel(i)}</b>${i.end ? ` · ينتهي <bdi dir="ltr">${i.end}</bdi>` : ""}</p><div class="alert" id="err" hidden></div>
+    <form id="sf" novalidate>
+      <label class="fl">الباقة<select name="plan">${Object.entries(PLANS).map(([k, [t]]) => `<option value="${k}" ${(x.subPlan || (i.state === "open" ? "m1" : "m1")) === k ? "selected" : ""}>${k === "free" ? "🎁 مجانية (بدون انتهاء)" : k === "custom" ? "📅 فترة محددة (من – إلى)" : t}</option>`).join("")}</select></label>
+      <div class="row3" id="sdr"><label class="fl">تبدأ من<input type="date" name="start" value="${base}"></label><label class="fl">تنتهي في<input type="date" name="end" value=""></label></div>
+      <p class="sub" id="shint" style="font-size:.85rem;margin:0 0 6px"></p>
+      <div class="mact"><button class="btn btn-fill" id="sb">حفظ الاشتراك</button>${i.state !== "open" ? `<button type="button" class="btn btn-line" id="sclr">إلغاء الاشتراك (مفتوح)</button>` : ""}<button type="button" class="btn btn-line" data-close>إلغاء</button></div></form>`);
+  const f = $("#sf", m), pl = f.elements.plan, st = f.elements.start, en = f.elements.end, hint = $("#shint", m), dr = $("#sdr", m);
+  const upd = () => { const k = pl.value; dr.style.display = k === "free" ? "none" : ""; en.readOnly = k !== "custom"; st.readOnly = false;
+    if (k !== "custom" && k !== "free" && st.value) en.value = addDaysStr(st.value, PLANS[k][1]);
+    hint.textContent = k === "free" ? "الباقة المجانية: يبقى المحتوى متاحًا بدون تاريخ انتهاء." : (st.value && en.value ? `المدة: ${Math.round((new Date(en.value) - new Date(st.value)) / 864e5)} يومًا` + (base === x.subEnd && k !== "custom" ? " — محسوبة من نهاية اشتراكه الحالي (تجديد متصل)" : "") : ""); };
+  pl.onchange = upd; st.onchange = upd; en.onchange = upd; upd();
+  const save = async data => { $("#sb", m).disabled = true; try { await updateDoc(doc(db, "students", x.id), data); m.remove(); toast("تم تحديث الاشتراك", "ok"); } catch (er) { showErr("فشل الحفظ: " + (er.code || er.message)); $("#sb", m).disabled = false; } };
+  f.addEventListener("submit", e => { e.preventDefault(); showErr(""); const k = pl.value;
+    if (k === "free") return save({ subPlan: "free", subStart: deleteField(), subEnd: deleteField(), subEndMs: deleteField() });
+    if (!st.value || !en.value) return showErr("حدّد تاريخ البداية والنهاية");
+    if (en.value < st.value) return showErr("تاريخ النهاية قبل تاريخ البداية");
+    save({ subPlan: k, subStart: st.value, subEnd: en.value, subEndMs: endMsOf(en.value) }); });
+  const c = $("#sclr", m); if (c) c.onclick = () => { if (confirm("إلغاء الاشتراك؟ سيصبح المحتوى مفتوحًا للطالب بدون تاريخ انتهاء.")) save({ subPlan: deleteField(), subStart: deleteField(), subEnd: deleteField(), subEndMs: deleteField() }); };
+}
 
 TABS.payments = {
   skel: () => `<h2 style="margin-bottom:16px">المدفوعات</h2><div class="stats" id="ps" style="grid-template-columns:repeat(3,1fr)"></div><div class="toolbar"><select id="pst"><option value="">كل الحالات</option><option value="pending">بانتظار التأكيد</option><option value="confirmed">مؤكد</option><option value="rejected">مرفوض</option></select><input id="pq" placeholder="بحث بالاسم أو الرقم" value="${esc(A.pq || "")}"></div><div class="tw" id="pl"></div>`,

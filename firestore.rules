@@ -7,10 +7,18 @@ service cloud.firestore {
     function isAdmin() {
       return request.auth != null && request.auth.token.email == 'admin@reda-fr.app';
     }
-    function isActiveStudent() {
+    // حساب نشط (حتى لو انتهى اشتراكه): يكفي لصفحة الدفع وتجديد الاشتراك
+    function isActiveAccount() {
       return request.auth != null
         && exists(/databases/$(database)/documents/students/$(request.auth.uid))
         && get(/databases/$(database)/documents/students/$(request.auth.uid)).data.status == 'active';
+    }
+    // وصول للمحتوى: حساب نشط + اشتراك غير منتهٍ (subEndMs غير موجود = مفتوح/مجاني)
+    function isActiveStudent() {
+      return isActiveAccount()
+        && get(/databases/$(database)/documents/students/$(request.auth.uid)).data.get('subEndMs', 0) is number
+        && (get(/databases/$(database)/documents/students/$(request.auth.uid)).data.get('subEndMs', 0) == 0
+            || get(/databases/$(database)/documents/students/$(request.auth.uid)).data.get('subEndMs', 0) > request.time.toMillis());
     }
 
     match /students/{uid} {
@@ -105,7 +113,7 @@ service cloud.firestore {
     // المدفوعات: الطالب يسجّل تحويله ويراه، والأدمن يؤكد أو يرفض أو يحذف
     match /payments/{id} {
       allow read: if isAdmin() || (request.auth != null && resource.data.uid == request.auth.uid);
-      allow create: if isActiveStudent()
+      allow create: if isActiveAccount()
         && request.resource.data.uid == request.auth.uid
         && request.resource.data.status == 'pending'
         && request.resource.data.keys().hasOnly(['uid','name','phone','stage','system','grade','method','amount','from','note','status','createdAt','rcptId'])
@@ -119,7 +127,7 @@ service cloud.firestore {
     // صور إيصالات الدفع (مضغوطة base64): الطالب ينشئ إيصاله فقط، والمدرس وصاحب الإيصال يقرآن
     match /payrcpts/{id} {
       allow read: if isAdmin() || (request.auth != null && resource.data.uid == request.auth.uid);
-      allow create: if isActiveStudent()
+      allow create: if isActiveAccount()
         && request.resource.data.uid == request.auth.uid
         && request.resource.data.keys().hasOnly(['uid','img','createdAt'])
         && request.resource.data.img is string && request.resource.data.img.size() <= 400000
