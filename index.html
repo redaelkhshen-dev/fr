@@ -516,6 +516,27 @@ tr:last-child td{border-bottom:0}
 @keyframes pfbs{0%{transform:translateX(120%)}60%,100%{transform:translateX(-120%)}}
 @keyframes pfpop{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:none}}
 @media(prefers-reduced-motion:reduce){.pf-plan,.pf-plan::before,.pf-plan::after,.pf-pi,.pf-pi::after,.pf-bar i,.pf-bar i::after,.pf-left{animation:none}}
+.pf-plan.pl{border-color:var(--pc);background:linear-gradient(135deg,rgba(var(--pr),.2),rgba(var(--pr),.03));color:var(--pc)}
+.pl-free{--pc:#4fd1c5;--pr:79,209,197}.pl-m1{--pc:#34d399;--pr:52,211,153}.pl-m3{--pc:#5ab0ff;--pr:90,176,255}.pl-m6{--pc:#b79cff;--pr:183,156,255}.pl-y1{--pc:#f0cf6e;--pr:240,207,110}.pl-custom{--pc:#ff8fc4;--pr:255,143,196}.pl-open{--pc:#d4a73a;--pr:212,167,58}
+.pf-plan.pl.soon{--pc:var(--warn);--pr:255,184,77}.pf-plan.pl.expired{--pc:var(--bad);--pr:255,107,122}
+.pf-plan.pl .pf-pi{color:var(--pc);border-color:var(--pc);background:rgba(var(--pr),.14);box-shadow:0 0 22px -4px rgba(var(--pr),.6)}
+.pf-plan.pl .pf-pi::after{border-color:var(--pc)}.pf-plan.pl b,.pf-plan.pl .pf-left{color:var(--pc)}
+.pf-plan.pl .pf-left{border-color:var(--pc);background:rgba(var(--pr),.14)}.pf-plan.pl .pf-bar i{background:linear-gradient(90deg,rgba(var(--pr),.55),var(--pc))}
+.pf-svg{display:grid;place-items:center}.pf-svg svg{width:32px;height:32px;fill:rgba(var(--pr),.2);stroke:currentColor;stroke-width:1.8;filter:drop-shadow(0 0 6px rgba(var(--pr),.7))}
+.pl-m1 .pf-svg{transform-origin:50% 90%;animation:plsway 3s ease-in-out infinite}
+.pl-m3 .pf-svg{animation:plspin 9s linear infinite}.pl-m3 .pf-svg svg{animation:pltw 2s ease-in-out infinite}
+.pl-m6 .pf-pi::before{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(120deg,transparent 35%,rgba(255,255,255,.55) 50%,transparent 65%);transform:translateX(-130%);animation:plglint 3.2s ease-in-out infinite}.pl-m6 .pf-pi{overflow:hidden}
+.pl-y1 .pf-pi{background:conic-gradient(from 0deg,rgba(var(--pr),.5),rgba(var(--pr),.08),rgba(var(--pr),.5));animation:pfbob 3.2s ease-in-out infinite}.pl-y1 .pf-svg{animation:pltw 1.8s ease-in-out infinite}
+.pl-custom .pf-svg{animation:plbeat 1.6s ease-in-out infinite}
+.pl-free .pf-svg{transform-origin:50% 100%;animation:plwig 3.4s ease-in-out infinite}
+.pl-open .pf-svg{animation:pltw 2.2s ease-in-out infinite}
+@keyframes plsway{0%,100%{transform:rotate(-9deg)}50%{transform:rotate(9deg)}}
+@keyframes plspin{to{transform:rotate(360deg)}}
+@keyframes pltw{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.15);opacity:.8}}
+@keyframes plglint{0%,55%{transform:translateX(-130%)}100%{transform:translateX(130%)}}
+@keyframes plbeat{0%,100%{transform:scale(1)}15%{transform:scale(1.18)}30%{transform:scale(1)}}
+@keyframes plwig{0%,70%,100%{transform:rotate(0)}76%{transform:rotate(-12deg)}82%{transform:rotate(10deg)}88%{transform:rotate(-6deg)}94%{transform:rotate(3deg)}}
+@media(prefers-reduced-motion:reduce){.pf-svg,.pf-svg svg,.pl-m6 .pf-pi::before,.pl-y1 .pf-pi{animation:none}}
 @media(max-width:560px){.pf-plan{flex-wrap:wrap;padding:16px}.pf-pr{flex-direction:row;width:100%;justify-content:space-between}}
 .tc-lk{display:flex;color:inherit;transition:transform .25s,border-color .25s}.tc-lk:hover{transform:translateY(-3px);border-color:var(--accent)}.rp-nm{color:inherit}.rp-nm:hover{text-decoration:underline}a.rp-av{display:block}
 .tp-hero{position:relative;text-align:center;padding:34px 16px 30px;border-radius:26px;border:1px solid var(--accent);background:linear-gradient(160deg,rgba(212,167,58,.18),rgba(212,167,58,.03));overflow:hidden;margin-bottom:26px}
@@ -1467,6 +1488,15 @@ function subStrip(x) {
 }
 function planCard(x) {
   const i = subInfo(x), nm = PLANS[x.subPlan]?.[0];
+  const PTH = {
+    free: '<rect x="3.5" y="9" width="17" height="11" rx="2"/><path d="M12 9v11M3.5 13.5h17M12 9c-2.500 0-4.500-1-4.500-3s3-2.500 4.500 3c1.500-5.500 4.500-5 4.500-3s-2 3-4.500 3z"/>',
+    m1: '<path d="M12 21v-9"/><path d="M12 12c0-4 3-6.500 8-6.500 0 4.500-3 6.500-8 6.500z"/><path d="M12 15c0-3-2.500-5-7-5 0 3.500 2.500 5 7 5z"/>',
+    m3: '<path d="m12 3 2.700 5.600 6.100.9-4.400 4.300 1 6.100L12 17l-5.400 2.900 1-6.100L3.200 9.500l6.100-.9z"/>',
+    m6: '<path d="M6 4h12l3.500 5L12 21 2.500 9z"/><path d="M2.500 9h19M9 4l-2 5 5 12 5-12-2-5"/>',
+    y1: '<path d="m3 8 4.500 4L12 5l4.500 7L21 8l-1.500 11h-15z"/><path d="M5 19h14"/>',
+    custom: '<rect x="3.500" y="5" width="17" height="15" rx="2.500"/><path d="M3.500 10h17M8 3v4M16 3v4M9 14.500l2 2 4-4"/>',
+    open: '<path d="M12 3l1.800 5.200L19 10l-5.200 1.800L12 17l-1.800-5.200L5 10l5.200-1.800z"/><path d="M19 15l.8 2.200L22 18l-2.200.8L19 21l-.8-2.200L16 18l2.200-.8z"/>'
+  }, pk = i.state === "open" ? "open" : (x.subPlan && PTH[x.subPlan] ? x.subPlan : "open"), ic = `<span class="pf-svg">${fsv(PTH[pk], 32)}</span>`;
   const m = { free: ["🎁", "الباقة المجانية", "استمتع بالمحتوى المتاح بدون تاريخ انتهاء"], open: ["✨", "اشتراك مفتوح", "اشتراكك مفتوح بدون تاريخ انتهاء"], ok: ["👑", `باقة ${nm || "اشتراك"}`, "اشتراكك نشط"], soon: ["⏳", `باقة ${nm || "اشتراك"}`, "اشتراكك على وشك الانتهاء، جدّد الآن"], expired: ["🔒", `باقة ${nm || "اشتراك"}`, "انتهى اشتراكك، جدّد للمتابعة"] }[i.state];
   let bar = "", dates = "";
   if (i.end && i.start && i.state !== "free" && i.state !== "open") {
@@ -1476,7 +1506,7 @@ function planCard(x) {
   if (i.end && i.state !== "free" && i.state !== "open") dates = `<div class="pf-dts">${i.start ? `<span>البداية <bdi dir="ltr">${i.start}</bdi></span>` : ""}<span>الانتهاء <bdi dir="ltr">${i.end}</bdi></span></div>`;
   const left = i.end && (i.state === "ok" || i.state === "soon") ? `<span class="pf-left">${daysTxt(i.days)}</span>` : "";
   const renew = i.state === "soon" || i.state === "expired" ? `<a class="btn btn-fill btn-sm" href="#/pay">جدّد اشتراكك</a>` : "";
-  return `<div class="pf-plan ${i.state}"><div class="pf-pi">${m[0]}</div><div class="pf-pb"><small>باقتي الحالية</small><b>${m[1]}</b><span class="pf-ps">${m[2]}</span>${bar}${dates}</div><div class="pf-pr">${left}${renew}</div></div>`;
+  return `<div class="pf-plan pl pl-${pk} ${i.state}"><div class="pf-pi">${ic}</div><div class="pf-pb"><small>باقتي الحالية</small><b>${m[1]}</b><span class="pf-ps">${m[2]}</span>${bar}${dates}</div><div class="pf-pr">${left}${renew}</div></div>`;
 }
 function renderExpired() {
   S.page = "expired"; const s = S.student, i = subInfo(s);
