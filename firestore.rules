@@ -44,6 +44,17 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // صورة الطالب المصغّرة (تظهر بجوار اسمه في التعليقات للجميع)
+    match /avatars/{uid} {
+      allow read: if isAdmin() || isActiveStudent();
+      allow create, update: if isAdmin() || (isActiveAccount() && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['photo','updatedAt'])
+        && request.resource.data.photo is string
+        && (request.resource.data.photo.size() <= 12
+          || (request.resource.data.photo.size() <= 8000 && request.resource.data.photo.matches('data:image/jpeg;base64,[A-Za-z0-9+/=]*'))));
+      allow delete: if isAdmin();
+    }
+
     // كلمة سر الطالب (لعرضها للمدرس): الطالب يكتب كلمته فقط، والمدرس يقرأ ويكتب
     match /studentPw/{uid} {
       allow read, delete: if isAdmin();

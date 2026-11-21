@@ -2237,6 +2237,7 @@ const CM = { unsubs: [], vid: null, comments: [], ratings: [], editing: null, ed
 function stopCommentSubs() { CM.unsubs.forEach(f => f()); CM.unsubs = []; CM.vid = null; CM.comments = []; CM.ratings = []; CM.editing = null; }
 const ago = t => { if (!t?.toDate) return "الآن"; const d = (Date.now() - t.toDate().getTime()) / 1000; if (d < 60) return "الآن"; if (d < 3600) return `منذ ${Math.floor(d / 60)} دقيقة`; if (d < 86400) return `منذ ${Math.floor(d / 3600)} ساعة`; if (d < 604800) return `منذ ${Math.floor(d / 86400)} يوم`; return fmtDate(t); };
 /* الصورة التي تظهر بجوار اسمه في التعليقات: الأيقونة كما هي، والصورة المرفوعة تُصغَّر لمصغّرة 72px */
+const AVC = {}, AVP = new Set(); let AVSYNC = null;
 const myPhoto = () => new Promise(res => {
   const p = S.student?.photo || "";
   if (!p.startsWith("data:image/")) return res(p.length <= 12 ? p : "");
@@ -2244,7 +2245,19 @@ const myPhoto = () => new Promise(res => {
   img.onload = () => { try { const c = document.createElement("canvas"); c.width = c.height = 72; c.getContext("2d").drawImage(img, 0, 0, 72, 72); const t = c.toDataURL("image/jpeg", .7); res(t.length <= 8000 ? t : ""); } catch { res(""); } };
   img.onerror = () => res(""); img.src = p;
 });
+/* صورة كل طالب تُنشر في avatars/{uid} (مصغّرة) ليراها الجميع بجوار اسمه في التعليقات، حتى القديمة منها */
+async function syncMyAvatar() {
+  const st = S.student; if (!st) return; const key = st.id + "|" + (st.photo || "");
+  if (AVSYNC === key) return; AVSYNC = key;
+  try { const t = await myPhoto(); await setDoc(doc(db, "avatars", st.id), { photo: t, updatedAt: serverTimestamp() }); AVC[st.id] = t; } catch { AVSYNC = null; }
+}
+function loadAvatars(list) {
+  const need = [...new Set(list.map(c => c.uid))].filter(u => u && u !== S.student?.id && AVC[u] === undefined && !AVP.has(u)); if (!need.length) return;
+  need.forEach(u => AVP.add(u));
+  Promise.all(need.map(u => getDoc(doc(db, "avatars", u)).then(d => { AVC[u] = d.exists() ? (d.data().photo || false) : false; }).catch(() => { AVC[u] = false; }))).then(() => paintComments());
+}
 function startCommentSubs(v) {
+  syncMyAvatar();
   const box = $("#cm"); if (!box) return;
   CM.vid = v.id; CM.editing = null;
   box.innerHTML = `<h2>التقييم والتعليقات</h2><div class="rate" id="cr"></div>
@@ -2293,8 +2306,9 @@ function paintComments() {
   cr.innerHTML = `<div class="rate-avg"><b>${n ? avg.toFixed(1) : "—"}</b><span class="stars-ro">${"★".repeat(rd)}${"☆".repeat(5 - rd)}</span><small>${n} تقييم</small></div>
     <div class="rate-me"><span>${mine ? "تقييمك:" : "قيّم هذا الدرس:"}</span><div class="stars">${[1, 2, 3, 4, 5].map(i => `<button type="button" class="star ${i <= mine ? "on" : ""}" data-r="${i}" aria-label="${i} من 5">★</button>`).join("")}</div>${mine ? `<button type="button" class="lnk" data-r="0">إلغاء تقييمي</button>` : ""}</div>`;
   const list = [...CM.comments].sort((a, b) => (b.createdAt?.seconds ?? 9e12) - (a.createdAt?.seconds ?? 9e12));
+  loadAvatars(list);
   cl.innerHTML = list.map(c => { const own = c.uid === uid, ed = CM.editing === c.id;
-    return `<article class="ci">${avatarHTML({ photo: c.photo, name: c.name }, 38)}<div class="cb"><div class="ch"><b>${esc(c.name)}</b>${own ? `<span class="badge">أنت</span>` : ""}<small>${ago(c.createdAt)}${c.edited ? " · تم التعديل" : ""}</small></div>
+    return `<article class="ci">${avatarHTML(own ? S.student : { photo: AVC[c.uid] || c.photo, name: c.name }, 38)}<div class="cb"><div class="ch"><b>${esc(c.name)}</b>${own ? `<span class="badge">أنت</span>` : ""}<small>${ago(c.createdAt)}${c.edited ? " · تم التعديل" : ""}</small></div>
       ${ed ? `<textarea class="et" maxlength="500">${esc(CM.editText)}</textarea><div class="acts"><button class="btn btn-fill btn-sm" data-c="save" data-id="${esc(c.id)}">حفظ</button><button class="btn btn-line btn-sm" data-c="cancel" data-id="${esc(c.id)}">إلغاء</button></div>`
       : `<p>${esc(c.text)}</p>${c.reply ? rpHTML(c) : ""}${own ? `<div class="acts"><button class="lnk" data-c="edit" data-id="${esc(c.id)}">تعديل</button><button class="lnk bad" data-c="del" data-id="${esc(c.id)}">حذف</button></div>` : ""}`}</div></article>`; }).join("") || `<p class="sub">لا توجد تعليقات بعد. كن أول من يعلّق!</p>`;
 }
