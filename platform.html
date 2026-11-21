@@ -555,6 +555,10 @@ tr:last-child td{border-bottom:0}
 .ph-k{display:inline-block;padding:3px 12px;border-radius:99px;font-size:.74rem;font-weight:700;color:var(--accent-text);border:1px solid rgba(212,167,58,.5);background:rgba(212,167,58,.1)}
 .ph-hero h1{margin:8px 0 4px;font-size:clamp(1.6rem,5vw,2.2rem);background:linear-gradient(90deg,#f7e3a0,#d4a73a);-webkit-background-clip:text;background-clip:text;color:transparent}
 .ph-hero p{margin:0;color:var(--muted);line-height:1.8;max-width:640px}
+.ph-hero>.btn{margin-inline-start:auto;flex:none}.act-h .ph-ic svg{animation:actpulse 2.4s ease-in-out infinite}
+@keyframes actpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.14)}}
+@media(max-width:700px){.ph-hero>.btn{grid-column:1/-1;margin:12px 0 0;justify-content:center}}
+@media(prefers-reduced-motion:reduce){.act-h .ph-ic svg{animation:none}}
 .ph-steps{list-style:none;margin:18px 0 0;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:14px;counter-reset:s}
 .ph-steps li{position:relative;display:flex;align-items:flex-start;gap:12px;padding:16px;border-radius:18px;border:1px solid var(--line);background:linear-gradient(180deg,var(--card),var(--bg2));transition:transform .25s,border-color .25s}
 .ph-steps li:hover{transform:translateY(-3px);border-color:var(--accent)}
@@ -2720,7 +2724,7 @@ const dayKey = ms => { const d = new Date(ms); return d.getFullYear() + "-" + d.
 function renderActivity() {
   S.page = "activity"; const s = S.student;
   app.innerHTML = `${studentHeader()}<main class="wrap sec">
-    <section class="banner"><div><h1><span class="act-ic">${ico(XI.chart, 26)}</span> نشاطي وإحصائياتي</h1><p>تابع تقدمك في الفيديوهات وتعليقاتك وتقييماتك على المنصة</p></div><a class="btn btn-fill" id="resume" href="#/" hidden></a></section>
+    <section class="ph-hero act-h"><span class="ph-ic">${ico(XI.chart, 34)}</span><div><span class="ph-k">لوحة متابعتك</span><h1>نشاطي وإحصائياتي</h1><p>تابع تقدمك في الفيديوهات وتعليقاتك وتقييماتك على المنصة</p></div><a class="btn btn-fill" id="resume" href="#/" hidden></a></section>
     <section class="gm" id="gm"></section>
     <div class="stats astats" id="as" style="margin-top:22px"></div>
     <div class="pf"><div class="card"><h3 class="ch">${ico(XI.target, 20)} تقدمك الأسبوع</h3><div id="ovc"></div></div><div class="card"><h3 class="ch" style="margin-bottom:4px">${ico(XI.chart, 20)} نشاط آخر 7 أيام</h3><small style="color:var(--muted)">فيديوهات شاهدتها وتعليقات كتبتها في كل يوم</small><div class="wk" id="wk"></div></div></div>
