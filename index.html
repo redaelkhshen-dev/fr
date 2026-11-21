@@ -437,6 +437,9 @@ tr:last-child td{border-bottom:0}
 .ins-vt{position:absolute;bottom:16px;inset-inline-start:16px;padding:6px 14px;border-radius:20px;background:rgba(11,10,7,.75);backdrop-filter:blur(6px);font-size:.85rem}
 .ins-do{margin-bottom:30px}.ins-cta{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 @media(max-width:800px){.ins-feat{grid-template-columns:repeat(2,1fr)}.ins-play{width:64px;height:64px}}
+/* ===== لغة الأسئلة (فرنسي/إنجليزي) ===== */
+.xq[data-ql] .xh{direction:ltr}.xq[data-ql] .xh span:not(.xnum){text-align:left;unicode-bidi:plaintext}.xq[data-ql] .xo{direction:ltr;text-align:left}.xq[data-ql] textarea,.xq[data-ql] .iq,.xq[data-ql] .iqr{direction:ltr;text-align:left}.xq[data-ql] .badge,.xq[data-ql] .xh small{direction:rtl}
+#qs[data-ql] input:not([type=radio]):not([type=checkbox]):not([type=number]),#qs[data-ql] textarea{direction:ltr;text-align:left}
 /* ===== رصد الدرجات ===== */
 .gr-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px}.gr-head h2{margin:0}.gr-head small{color:var(--muted)}.gr-hi{flex:none;width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent-deep),var(--accent-2));color:#1b1405;box-shadow:0 8px 22px -10px var(--accent)}
 .gr-mn{margin-inline-start:auto;display:flex;align-items:center;gap:6px}.gr-mn input{max-width:none;width:200px}.gr-mn .ib{color:var(--fg)}
@@ -1865,7 +1868,7 @@ function renderHwQuiz(id) {
   S.examOk = true; const sb = hwSub(id);
   if (sb?.answers) return showHwResult(h, sb);
   app.innerHTML = `${studentHeader()}<main class="wrap sec"><div class="exam"><div class="banner" style="margin:0 0 18px"><div><h1>📝 ${esc(h.title)}</h1><p>${h.questions.length} سؤال · ${h.questions.reduce((t, q) => t + (Number(q.pts) || 1), 0)} درجة — يُحَل مرة واحدة، وتظهر الدرجة والأخطاء فور الإرسال</p></div></div>
-    <div class="alert" id="err" hidden></div><form id="xf" novalidate>${h.questions.map((q, i) => `<div class="card xq"><div class="xh"><b>${i + 1}.</b> <span>${esc(q.q)}</span><small class="badge">${Number(q.pts) || 1} درجة</small></div>
+    <div class="alert" id="err" hidden></div><form id="xf" novalidate>${h.questions.map((q, i) => `<div class="card xq"${QL(h)}><div class="xh"><b>${i + 1}.</b> <span>${esc(q.q)}</span><small class="badge">${Number(q.pts) || 1} درجة</small></div>
       ${isIQ(q) ? iqHTML(q, i) : q.t === "mcq" ? q.opts.map((o, j) => `<label class="xo"><input type="radio" name="q${i}" value="${j}"><span>${esc(o)}</span></label>`).join("") : `<textarea name="q${i}" maxlength="1500" placeholder="اكتب إجابتك هنا..."></textarea>`}</div>`).join("")}
     <div class="mact"><button class="btn btn-fill" id="sb">إرسال الإجابات</button><a class="btn btn-line" href="#/">إلغاء</a></div></form></div></main>`;
   $("#lo").onclick = doLogout;
@@ -2307,7 +2310,7 @@ function renderExam(id) {
   let t0 = S.exStart[id] || 0; if (!t0) { try { t0 = Number(localStorage.getItem(kst)) || 0; } catch {} if (t0) S.exStart[id] = t0; }
   if (dur && !t0) return examGate(ex, dur, () => { t0 = Date.now(); S.exStart[id] = t0; try { localStorage.setItem(kst, String(t0)); } catch {} renderExam(id); });
   app.innerHTML = `${studentHeader()}<main class="wrap sec"><div class="exam"><div class="banner" style="margin:0 0 18px"><div><h1>📋 ${esc(ex.title)}</h1><p>${ex.questions.length} سؤال · ${ex.questions.reduce((t, q) => t + (Number(q.pts) || 1), 0)} درجة — يُحَل مرة واحدة فقط، وتظهر الدرجة فور الإرسال</p></div></div>
-    ${dur ? `<div class="xtimer" id="xt">${ringHTML(dur * 60)}<div class="xti"><b>الوقت المتبقي</b><small>تُرسَل إجاباتك تلقائيًا عند انتهاء الوقت</small></div></div>` : ""}<div class="alert" id="err" hidden></div><form id="xf" novalidate>${ex.questions.map((q, i) => `<div class="card xq"><div class="xh"><b>${i + 1}.</b> <span>${esc(q.q)}</span><small class="badge">${Number(q.pts) || 1} درجة</small></div>
+    ${dur ? `<div class="xtimer" id="xt">${ringHTML(dur * 60)}<div class="xti"><b>الوقت المتبقي</b><small>تُرسَل إجاباتك تلقائيًا عند انتهاء الوقت</small></div></div>` : ""}<div class="alert" id="err" hidden></div><form id="xf" novalidate>${ex.questions.map((q, i) => `<div class="card xq"${QL(ex)}><div class="xh"><b>${i + 1}.</b> <span>${esc(q.q)}</span><small class="badge">${Number(q.pts) || 1} درجة</small></div>
       ${isIQ(q) ? iqHTML(q, i) : q.t === "mcq" ? q.opts.map((o, j) => `<label class="xo"><input type="radio" name="q${i}" value="${j}"><span>${esc(o)}</span></label>`).join("") : `<textarea name="q${i}" maxlength="1500" placeholder="اكتب إجابتك هنا..."></textarea>`}</div>`).join("")}
     <div class="mact"><button class="btn btn-fill" id="sb">إرسال الإجابات</button><a class="btn btn-line" href="#/">إلغاء</a></div></form></div></main>`;
   $("#lo").onclick = doLogout;
@@ -2382,7 +2385,7 @@ function quizResultPage({ title, ex, keys, answers, per, sc, tot, p, pend, back 
     <div class="xrw"><svg viewBox="0 0 130 130" aria-hidden="true"><circle class="b" cx="65" cy="65" r="54"/><circle class="f" cx="65" cy="65" r="54" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${C.toFixed(1)}" data-off="${(C * (1 - Math.min(100, p) / 100)).toFixed(1)}"/></svg><div class="xrc"><b>${p}<small>%</small></b><span>${sc ?? "—"} / ${tot ?? "—"}</span></div></div>
     ${cnt ? `<div class="xstats"><div class="g">${ico(XI.ok, 22)}<b>${cnt.ok}</b><small>صحيحة</small></div><div class="r">${ico(XI.no, 22)}<b>${cnt.no}</b><small>خاطئة</small></div><div class="w">${ico(XI.hour, 22)}<b>${cnt.wait}</b><small>بانتظار التصحيح</small></div></div>` : ""}
     <p class="xnote ${pend ? "w" : ""}">${pend ? ico(XI.hour, 17) + " الدرجة مبدئية — فيها أسئلة مقالية بانتظار تصحيح المدرس" : ico(XI.ok, 17) + " تم التصحيح وحفظ درجتك"}</p></div>
-    ${ex.questions.map((q, i) => { const r = per?.[i], ans = answers?.[i], st = r?.ok === true ? "ok" : r?.ok === false ? "no" : ""; return `<div class="card xq ${st}"><div class="xh"><span class="xnum ${st}">${r?.ok === true ? ico(XI.ok, 18) : r?.ok === false ? ico(XI.no, 18) : i + 1}</span> <span>${esc(q.q)}</span><small class="badge ${r ? (r.ok ? "good" : r.ok === false ? "bad" : "warn") : ""}">${r ? r.got : "—"} / ${Number(q.pts) || 1}</small></div>
+    ${ex.questions.map((q, i) => { const r = per?.[i], ans = answers?.[i], st = r?.ok === true ? "ok" : r?.ok === false ? "no" : ""; return `<div class="card xq ${st}"${QL(ex)}><div class="xh"><span class="xnum ${st}">${r?.ok === true ? ico(XI.ok, 18) : r?.ok === false ? ico(XI.no, 18) : i + 1}</span> <span>${esc(q.q)}</span><small class="badge ${r ? (r.ok ? "good" : r.ok === false ? "bad" : "warn") : ""}">${r ? r.got : "—"} / ${Number(q.pts) || 1}</small></div>
       ${isIQ(q) ? iqReview(q, ans, keys?.[i]) : q.t === "mcq" ? q.opts.map((o, j) => `<div class="xo r ${keys && keys[i]?.c === j ? "right" : ""} ${ans === j && keys?.[i]?.c !== j ? "wrong" : ""}"><span>${ans === j ? "●" : "○"} ${esc(o)}${keys && keys[i]?.c === j ? " ✓" : ""}</span></div>`).join("") : `<p class="xans">${ans ? esc(ans) : "<i>لم تُجب</i>"}</p>${keys?.[i]?.k?.length ? `<small class="sub">الكلمات المطلوبة: ${esc(keys[i].k.join("، "))}</small>` : `<small class="sub">يصحّحه المدرس</small>`}`}</div>`; }).join("")}
     ${mistakesHTML(ex, keys, answers || [], per)}
     <div class="xfoot"><a class="btn btn-line" href="${back}">${ico(XI.home, 17)} العودة</a><a class="btn btn-fill" href="#/activity">${ico(XI.pulse, 17)} نشاطي</a></div></div></main>`;
@@ -2808,7 +2811,7 @@ async function hwAction(e) {
 }
 function hwModal(h) {
   const m = openModal(`<h2>${h ? "تعديل واجب" : "إضافة واجب"}</h2><div class="alert" id="err" hidden></div>
-    <form id="hwf" novalidate><label class="fl">عنوان الواجب<input name="title" maxlength="120" value="${esc(h?.title)}"></label>${targetFields(h)}
+    <form id="hwf" novalidate><label class="fl">عنوان الواجب<input name="title" maxlength="120" value="${esc(h?.title)}"></label>${langField(h)}${targetFields(h)}
     <label class="fl">رابط ملف الواجب (PDF أو Word على Google Drive) — اختياري لو أضفت أسئلة<input name="url" dir="ltr" placeholder="https://drive.google.com/file/d/..." value="${esc(h?.url)}"></label>
     <div class="row3"><label class="fl">الصيغة<select name="ext"><option value="pdf" ${h?.ext === "pdf" ? "selected" : ""}>PDF</option><option value="docx" ${h?.ext === "docx" || h?.ext === "doc" ? "selected" : ""}>Word</option><option value="link" ${h?.ext === "link" ? "selected" : ""}>أخرى</option></select></label>
     <label class="fl">آخر موعد (اختياري)<input type="date" name="due" value="${esc(h?.due)}"></label></div>
@@ -2816,14 +2819,14 @@ function hwModal(h) {
     <h3 style="margin:14px 0 4px">أسئلة تفاعلية (اختياري)</h3><p class="sub" style="margin-bottom:8px;font-size:.85rem">أضف أسئلة اختيار من متعدد أو مقالية، وتُصحَّح تلقائيًا وتظهر للطالب أخطاؤه في الآخر.</p>
     <div id="qs">${(h?.questions || []).map((q, i) => qBlock(q, S.hwKeys?.[h.id]?.[i])).join("")}</div><button type="button" class="btn btn-line btn-sm" id="qa">+ إضافة سؤال</button>
     <div class="mact"><button class="btn btn-fill" id="sb">حفظ</button><button type="button" class="btn btn-line" data-close>إلغاء</button></div></form>`);
-  bindTarget($("#hwf", m), h); bindQs(m, $("#qs", m), 0);
+  bindTarget($("#hwf", m), h); bindQs(m, $("#qs", m), 0); bindLang($("#hwf", m), $("#qs", m));
   $("#hwf", m).addEventListener("submit", async e => {
     e.preventDefault(); showErr(""); const f = new FormData(e.target), title = (f.get("title") || "").trim(), link = (f.get("url") || "").trim();
     if (!title) return showErr("اكتب عنوان الواجب");
     const rq = readQs($("#qs", m)); if (rq.err) return showErr(rq.err);
     if (!link && !rq.questions.length) return showErr("ضع رابط ملف الواجب أو أضف أسئلة");
     if (link && !/^https?:\/\//i.test(link)) return showErr("الرابط يجب أن يبدأ بـ https://");
-    const data = { title, questions: rq.questions, url: link ? driveLink(link) : "", ext: f.get("ext"), due: f.get("due") || "", stage: f.get("stage"), system: f.get("system"), grade: f.get("grade") || "all", description: (f.get("description") || "").trim() };
+    const data = { title, lang: f.get("lang") === "en" ? "en" : "fr", questions: rq.questions, url: link ? driveLink(link) : "", ext: f.get("ext"), due: f.get("due") || "", stage: f.get("stage"), system: f.get("system"), grade: f.get("grade") || "all", description: (f.get("description") || "").trim() };
     $("#sb", m).disabled = true;
     try { const r = h ? doc(db, "homework", h.id) : doc(collection(db, "homework")); if (h) await updateDoc(r, data); else { await setDoc(r, { ...data, createdAt: serverTimestamp() }); await autoNotice({ ic: "📝", title: "واجب جديد: " + title, body: data.due ? "آخر موعد: " + data.due : "تم رفع واجب جديد", href: rq.questions.length ? "#/hw/" + r.id : "#/" }, data); } if (rq.questions.length) await setDoc(doc(db, "hwKeys", r.id), { keys: rq.ks }); m.remove(); toast("تم الحفظ", "ok"); }
     catch (er) { showErr("فشل الحفظ: " + (er.code || er.message)); $("#sb", m).disabled = false; }
@@ -2878,6 +2881,9 @@ async function examAction(e) {
   } catch (er) { toast("فشلت العملية: " + (er.code || er.message), "err"); }
 }
 let qSeq = 0;
+const QL = o => o?.lang === "en" || o?.lang === "fr" ? ` data-ql="${o.lang}" lang="${o.lang}"` : "";
+const langField = o => `<label class="fl">لغة الأسئلة<select name="lang"><option value="fr" ${(o?.lang || "fr") === "fr" ? "selected" : ""}>🇫🇷 الفرنسية (Français)</option><option value="en" ${o?.lang === "en" ? "selected" : ""}>🇬🇧 الإنجليزية (English)</option></select></label>`;
+const bindLang = (form, qs) => { const sel = form.elements.lang; if (!sel) return; const ap = () => { qs.dataset.ql = sel.value; qs.lang = sel.value; }; sel.onchange = ap; ap(); };
 function qBlock(q, key) {
   const n = ++qSeq, t = q?.t === "order" ? (q.m === "s" ? "orders" : "orderw") : (q?.t || "mcq"), opts = [...(q?.opts || []), "", "", "", ""].slice(0, 4), h = (...a) => a.includes(t) ? "" : "hidden";
   let tx = "", dis = "", mt = "";
@@ -2941,7 +2947,7 @@ function readQs(qs) {
 function examModal(ex) {
   const keys = ex ? S.examKeys?.[ex.id] : null;
   const m = openModal(`<h2>${ex ? "تعديل اختبار" : "إضافة اختبار"}</h2><div class="alert" id="err" hidden></div>
-    <form id="xf" novalidate><label class="fl">عنوان الاختبار<input name="title" maxlength="120" value="${esc(ex?.title)}"></label>${targetFields(ex)}
+    <form id="xf" novalidate><label class="fl">عنوان الاختبار<input name="title" maxlength="120" value="${esc(ex?.title)}"></label>${langField(ex)}${targetFields(ex)}
     <div class="pubbox"><label style="display:flex;align-items:center;gap:10px;cursor:pointer"><input type="checkbox" name="draft" style="width:20px;height:20px;flex:none" ${!ex || ex.draft ? "checked" : ""}> <span><b>حفظ كمسوّدة (غير منشور)</b><br><small class="sub">لن يراه أي طالب حتى تضغط «نشر الآن» من قائمة الاختبارات.</small></span></label></div>
     <label class="fl">تاريخ النشر (عند إلغاء المسوّدة يظهر للطلاب من هذا اليوم)<input type="date" name="publishAt" value="${esc(ex?.publishAt || todayStr())}"></label>
     <div class="fl"><label style="display:flex;align-items:center;gap:10px;cursor:pointer"><input type="checkbox" id="xtm" style="width:20px;height:20px;flex:none" ${ex?.duration ? "checked" : ""}> <span>⏱ تفعيل مؤقّت الاختبار (عدّاد تنازلي دائري للطالب)</span></label><input type="number" id="xdur" min="1" max="600" step="1" placeholder="مدة الاختبار بالدقائق" value="${esc(ex?.duration || 30)}" style="margin-top:8px" ${ex?.duration ? "" : "hidden"}><small class="sub">بدون تفعيل يكون الاختبار مفتوح الوقت. عند انتهاء الوقت تُرسَل إجابات الطالب تلقائيًا.</small></div>
@@ -2950,11 +2956,11 @@ function examModal(ex) {
     <div class="mact"><button class="btn btn-fill" id="sb">حفظ الاختبار</button><button type="button" class="btn btn-line" data-close>إلغاء</button></div></form>`, true);
   const form = $("#xf", m), qs = $("#qs", m); bindTarget(form, ex);
   $("#xtm", m).onchange = e => { $("#xdur", m).hidden = !e.target.checked; };
-  bindQs(m, qs, 1);
+  bindQs(m, qs, 1); bindLang(form, qs);
   form.addEventListener("submit", async e => {
     e.preventDefault(); showErr(""); const f = new FormData(form), title = (f.get("title") || "").trim(); if (!title) return showErr("اكتب عنوان الاختبار");
     const rq = readQs(qs); if (rq.err) return showErr(rq.err); const { questions, ks } = rq;
-    const data = { title, stage: f.get("stage"), system: f.get("system"), grade: f.get("grade") || "all", publishAt: f.get("publishAt") || todayStr(), draft: !!f.get("draft"), duration: $("#xtm", m).checked ? Math.max(1, Math.min(600, Math.round(Number($("#xdur", m).value) || 30))) : 0, questions };
+    const data = { title, lang: f.get("lang") === "en" ? "en" : "fr", stage: f.get("stage"), system: f.get("system"), grade: f.get("grade") || "all", publishAt: f.get("publishAt") || todayStr(), draft: !!f.get("draft"), duration: $("#xtm", m).checked ? Math.max(1, Math.min(600, Math.round(Number($("#xdur", m).value) || 30))) : 0, questions };
     $("#sb", m).disabled = true;
     try {
       const r = ex ? doc(db, "exams", ex.id) : doc(collection(db, "exams"));
