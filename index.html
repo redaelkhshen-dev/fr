@@ -36,7 +36,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;600;700;800&family=Tajawal:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;600;700;800&family=Tajawal:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap"></noscript>
 <style>
 :root{--bg:#0b0a07;--bg2:#100e09;--card:#17140c;--line:#3a3119;--fg:#faf5e8;--muted:#bcb193;--accent:#d4a73a;--accent-deep:#b8862b;--accent-2:#f0cf6e;--accent-text:#f0d078;--soft:rgba(212,167,58,.16);--good:#3ddc84;--bad:#ff6b7a;--warn:#ffb84d;--fd:"Cairo","Segoe UI",Tahoma,sans-serif;--fb:"Tajawal","Segoe UI",Tahoma,sans-serif;--fm:"IBM Plex Mono",ui-monospace,Consolas,monospace;color-scheme:dark}
-html[data-theme=light]{--bg:#eef2f9;--bg2:#e5ebf5;--card:#ffffff;--line:#d9e1ee;--fg:#16233f;--muted:#586783;--accent:#b8862b;--accent-deep:#a06f14;--accent-2:#d4a73a;--accent-text:#8a5f0a;--soft:rgba(184,134,43,.14);--good:#168a4a;--bad:#c62f43;--warn:#b86e00;color-scheme:light}
+html[data-theme=light]{--bg:#f3f5fa;--bg2:#eaeef6;--card:#ffffff;--line:#e2e8f2;--fg:#16233f;--muted:#586783;--accent:#b8862b;--accent-deep:#a06f14;--accent-2:#d4a73a;--accent-text:#8a5f0a;--soft:rgba(184,134,43,.14);--good:#168a4a;--bad:#c62f43;--warn:#b86e00;color-scheme:light}
 html[data-theme=light] .hdr{background:rgba(255,255,255,.88);backdrop-filter:blur(10px);box-shadow:0 2px 16px rgba(30,50,100,.07)}
 html[data-theme=light] .hero .bgphoto{opacity:.18}
 .tbtn{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--accent-text);cursor:pointer;transition:border-color .15s,transform .2s}
@@ -661,6 +661,19 @@ html[data-theme=light] .asb .atab:hover{background:rgba(255,255,255,.08);color:#
 html[data-theme=light] .asb .atab.on{color:#1a1405;background:linear-gradient(135deg,#e8c566,#c8932a);border-inline-start-color:transparent;box-shadow:0 6px 16px rgba(200,147,42,.35)}html[data-theme=light] .asb .atab.on .ai{background:rgba(255,255,255,.35);border-color:transparent;box-shadow:none}
 html[data-theme=light] .asg{color:rgba(255,255,255,.5)}html[data-theme=light] .asb .sep{background:rgba(255,255,255,.12)}
 html[data-theme=light] .btn-line{background:#fff;border-color:#cfd9ea}
+/* ---- الوضع النهاري: طراز لوحة عصرية (كحلي + ذهبي + أبيض) ---- */
+html[data-theme=light] .ph-hero{background:linear-gradient(135deg,#1f3157,#142040 75%);border-color:#22335a;box-shadow:0 12px 30px rgba(20,32,64,.22)}
+html[data-theme=light] .ph-hero h1{background-image:linear-gradient(90deg,#f7e3a0,#e0b552)}
+html[data-theme=light] .ph-hero p{color:rgba(255,255,255,.82)}
+html[data-theme=light] .ph-hero .ph-k{color:#f7e3a0;background:rgba(255,255,255,.1);border-color:rgba(247,227,160,.35)}
+html[data-theme=light] .ph-hero .btn-fill{box-shadow:0 6px 16px rgba(0,0,0,.25)}
+html[data-theme=light] .card,html[data-theme=light] .sb-card,html[data-theme=light] .ptx,html[data-theme=light] .vcard,html[data-theme=light] .fcd,html[data-theme=light] .ovp,html[data-theme=light] .mini>div{border-radius:20px;border-color:#e6ebf3;box-shadow:0 4px 18px rgba(30,50,100,.06)}
+html[data-theme=light] .mini>div{background:#fff}html[data-theme=light] .ovp{background:#fff}
+html[data-theme=light] .mini>div:before{opacity:.25}html[data-theme=light] .ovp:before{opacity:.25}
+html[data-theme=light] .mini>div:nth-child(1){--mc:59,110,214}html[data-theme=light] .mini>div:nth-child(2){--mc:22,160,100}html[data-theme=light] .mini>div:nth-child(3){--mc:214,150,20}
+html[data-theme=light] .mini .mn-i{background:rgba(var(--mc),.13);border-color:transparent;color:rgb(var(--mc));box-shadow:none}
+html[data-theme=light] .mini b{-webkit-text-fill-color:#16233f;color:#16233f}
+html[data-theme=light] .badge{border-radius:99px}
 /* ===== رصد الدرجات ===== */
 .gr-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px}.gr-head h2{margin:0}.gr-head small{color:var(--muted)}.gr-hi{flex:none;width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent-deep),var(--accent-2));color:#1b1405;box-shadow:0 8px 22px -10px var(--accent)}
 .gr-mn{margin-inline-start:auto;display:flex;align-items:center;gap:6px}.gr-mn input{max-width:none;width:200px}.gr-mn .ib{color:var(--fg)}
