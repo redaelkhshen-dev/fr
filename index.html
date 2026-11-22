@@ -1579,6 +1579,8 @@ const LINKS = {
   ig: "https://www.instagram.com/reda.elkhshen", li: "https://www.linkedin.com/in/redaelkhshen/"
 };
 const socRow = () => [["wa", LINKS.wa, "واتس اب"], ["fb", LINKS.fb, "فيس بوك"], ["page", LINKS.page, "صفحة الفيس بوك"], ["ig", LINKS.ig, "إنستجرام"]].map(([k, u, t]) => `<a class="sbtn s-${k}" href="${u}" target="_blank" rel="noopener" aria-label="${t}" title="${t}">${SVG[k]}</a>`).join("");
+/* أزرار القائمة العلوية في الصفحات غير الرئيسية: تعود للرئيسية ثم تنزل للقسم المطلوب */
+function bindPubNav() { $$("[data-s]").forEach(b => b.onclick = () => { location.hash = "#/"; setTimeout(() => document.getElementById("s-" + b.dataset.s)?.scrollIntoView({ behavior: "smooth", block: "start" }), 350); }); }
 function pubHeader() {
   return `<header class="hdr"><div class="wrap hdr-in">${brand()}
     <nav class="pnav" aria-label="التنقل"><button data-s="home">الرئيسية</button><button data-s="about">عن المنصة</button><button data-s="why">المميزات</button><button data-s="levels">المراحل</button><button data-s="contact">تواصل</button><a href="#/plans">الباقات</a><a href="#/install">تثبيت التطبيق</a></nav>
@@ -1708,7 +1710,7 @@ function renderPlans() {
     <section class="ph-hero"><span class="ph-ic">${fsv(PTH.y1, 34)}</span><div><span class="ph-k">اختر ما يناسبك</span><h1>الباقات</h1><p>اشتراك واحد يفتح لك كل الفيديوهات والملفات والاختبارات والواجبات حسب مرحلتك، وتقدر تجدّد في أي وقت</p></div></section>
     <div class="plc-grid">${cards}</div>
     <p class="sub" style="text-align:center;margin-top:22px">بعد التحويل أرسل الإيصال من صفحة «الدفع» ويتم تفعيل اشتراكك من مسيو رضا.</p></main>`;
-  if (logged) $("#lo").onclick = doLogout;
+  if (logged) $("#lo").onclick = doLogout; else bindPubNav();
   if (!S.prices) loadPrices().then(() => { if (S.page === "plans") renderPlans(); });
 }
 async function pricesModal() {
@@ -1733,6 +1735,7 @@ function renderTeacher() {
     <h1>مسيو رضا الخشن</h1><p class="tp-role">مدرّس اللغة الفرنسية</p><span class="tp-line" aria-hidden="true"></span>
     <ul class="tp-cr">${TP_CR.map(([i, t, u]) => `<li><span class="tp-cri">${fsv(TP_IC[i], 20)}</span><span><b>${t}</b><small>${u}</small></span></li>`).join("")}</ul></section>
   <section class="tp-sec"><h2>تواصل معي</h2><div class="tp-grid">${cards}</div></section></main>`;
+  if (!logged) bindPubNav();
   $("#tpb").onclick = () => (history.length > 1 ? history.back() : go("/"));
   const st = $(".tp-stage"), d = $("#tpd");
   if (st && d && !matchMedia("(prefers-reduced-motion:reduce)").matches) {
@@ -1755,7 +1758,7 @@ function renderInstall() {
     <div class="ins-feat ins-do">${INS_DO.map(([i, t, d], k) => `<div class="ins-f"><span class="ins-fi">${fsv(INSI[i], 26)}<em>${k + 1}</em></span><b>${t}</b><small>${d}</small></div>`).join("")}</div>
     <div class="ins-cta"><a class="btn btn-fill" href="#/register">ابدأ الآن — إنشاء حساب ${ARROW}</a><a class="btn btn-line" href="#/login">تسجيل الدخول</a></div></div></section>
   </main><footer class="foot"><div class="wrap foot-in"><span>© 2026 مسيو رضا الخشن. جميع الحقوق محفوظة.</span><div class="srow sm">${socRow()}</div></div></footer>`;
-  $$("[data-s]").forEach(b => b.onclick = () => { location.hash = "#/"; setTimeout(() => document.getElementById("s-" + b.dataset.s)?.scrollIntoView({ behavior: "smooth", block: "start" }), 200); });
+  bindPubNav();
   $("#insv").onclick = e => { const b = e.currentTarget; b.outerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${INS_VID}?autoplay=1&rel=0&modestbranding=1&playsinline=1" title="خطوات التعامل مع المنصة" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>`; };
 }
 
