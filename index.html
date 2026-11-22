@@ -617,6 +617,8 @@ tr:last-child td{border-bottom:0}
 .ptx-bot{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding-top:12px;border-top:1px dashed var(--line)}.ptx-acts{display:flex;gap:8px;flex-wrap:wrap}
 .ptx-mi{color:var(--gold,#d4a73a);background:linear-gradient(145deg,rgba(212,167,58,.22),rgba(212,167,58,.05));box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 4px 14px rgba(0,0,0,.35)}.ptx-mi.pm-instapay{color:#b48cff;background:linear-gradient(145deg,rgba(150,100,255,.25),rgba(150,100,255,.05));border-color:rgba(150,100,255,.4)}.ptx-mi.pm-vodafone{color:#ff6b6b;background:linear-gradient(145deg,rgba(230,50,50,.24),rgba(230,50,50,.05));border-color:rgba(230,50,50,.4)}
 .pxs{display:inline-grid;place-items:center}.pxs svg{display:block}.bdx{display:inline-flex;align-items:center;gap:5px}.ptx-acts .btn{display:inline-flex;align-items:center;gap:6px}.ptx-acts .btn svg{flex:none}
+.rmd{margin:0 0 16px;padding:14px;border-radius:18px;border:1px solid rgba(37,211,102,.35);background:linear-gradient(160deg,rgba(37,211,102,.09),rgba(212,167,58,.05));display:grid;gap:12px}.rmd-h{display:flex;align-items:center;gap:12px}.rmd-h>div:last-child{min-width:0;line-height:1.45}.rmd-h b{display:block;font-size:.98rem}.rmd-h small{display:block;color:var(--muted);font-size:.8rem;line-height:1.5;margin-top:2px}.rmd-w small{line-height:1.4}.rmd-i{flex:none;display:grid;place-items:center;width:42px;height:42px;border-radius:13px;color:#25d366;background:rgba(37,211,102,.14);border:1px solid rgba(37,211,102,.4)}
+.rmd-l{display:grid;gap:8px}.rmd-r{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:14px;background:rgba(0,0,0,.22);border:1px solid var(--line)}.rmd-r.sent{opacity:.7}.rmd-w{flex:1;min-width:0}.rmd-w b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rmd-w small{color:var(--warn)}.rmd-r .btn{flex:none;display:inline-flex;align-items:center;gap:6px}
 /* ===== رصد الدرجات ===== */
 .gr-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px}.gr-head h2{margin:0}.gr-head small{color:var(--muted)}.gr-hi{flex:none;width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent-deep),var(--accent-2));color:#1b1405;box-shadow:0 8px 22px -10px var(--accent)}
 .gr-mn{margin-inline-start:auto;display:flex;align-items:center;gap:6px}.gr-mn input{max-width:none;width:200px}.gr-mn .ib{color:var(--fg)}
@@ -3666,12 +3668,14 @@ TABS.security = {
 TABS.subs = {
   skel: () => `<div class="nt-head"><span class="nt-hi">${ico(SBI.crown, 26)}</span><div><h2>اشتراكات الطلاب</h2><small>حدّد مدة اشتراك كل طالب أو باقة مجانية، ويُقفل المحتوى تلقائيًا عند الانتهاء</small></div><button class="btn btn-fill btn-sm" id="plp" type="button" style="margin-inline-start:auto">💰 أسعار الباقات</button></div>
     <div class="sstats" id="sbs"></div>${filterBar()}
-    <div class="toolbar"><span class="sq">${ico(SI.search, 18)}<input id="sbq" placeholder="بحث بالاسم أو الرقم" value="${esc(A.sbq || "")}"></span></div><div class="gr-chips" id="sbc"></div><div id="sbl"></div>`,
-  init: b => { $("#plp", b).onclick = pricesModal; b.onclick = e => { const c = e.target.closest("[data-sbf]"); if (c) { A.sbf = c.dataset.sbf; return fillTab(); } subAction(e); }; $("#sbq", b).oninput = e => { A.sbq = e.target.value; fillTab(); }; bindFilter(b); },
+    <div class="toolbar"><span class="sq">${ico(SI.search, 18)}<input id="sbq" placeholder="بحث بالاسم أو الرقم" value="${esc(A.sbq || "")}"></span></div><div id="rmd"></div><div class="gr-chips" id="sbc"></div><div id="sbl"></div>`,
+  init: b => { $("#plp", b).onclick = pricesModal; b.onclick = e => { const rm = e.target.closest("[data-rm]"); if (rm) { const x = S.students.find(z => z.id === rm.dataset.rm); if (x) { try { localStorage.setItem(rmdKey(x), String(Date.now())); } catch (er) {} setTimeout(fillTab, 400); } return; } const c = e.target.closest("[data-sbf]"); if (c) { A.sbf = c.dataset.sbf; return fillTab(); } subAction(e); }; $("#sbq", b).oninput = e => { A.sbq = e.target.value; fillTab(); }; bindFilter(b); },
   fill: b => {
     const all = S.students.filter(x => x.status === "active").filter(passFilter).map(x => ({ x, i: subInfo(x) })), q = (A.sbq || "").trim().toLowerCase();
     const bySt = k => all.filter(o => o.i.state === k).length;
     $("#sbs", b).innerHTML = [["users", "all", "طلاب نشطون", all.length], ["ok", "good", "اشتراك ساري", bySt("ok")], ["clock", "warn", "ينتهي خلال 7 أيام", bySt("soon")], ["lock", "bad", "منتهي", bySt("expired")]].map(([i, t, l, n]) => `<div class="sst ${t}"><span class="ssi">${ico(SBI[i], 24)}</span><div><b>${n}</b><small>${l}</small></div></div>`).join("");
+    const due = all.filter(o => (o.i.state === "soon" || o.i.state === "ok") && o.i.days <= RMD_DAYS).sort((a, c) => a.i.days - c.i.days);
+    $("#rmd", b).innerHTML = due.length ? `<section class="rmd"><div class="rmd-h"><span class="rmd-i">${ico(SBI.wa, 22)}</span><div><b>تنبيه التجديد — ينتهي خلال ${RMD_DAYS} أيام</b><small>${due.length} طالب · اضغط «إرسال» لفتح واتساب برسالة جاهزة فيها رابط صفحة الباقات</small></div></div><div class="rmd-l">${due.map(({ x, i }) => `<div class="rmd-r${rmdSent(x) ? " sent" : ""}">${avatarHTML(x, 36)}<div class="rmd-w"><b>${esc(x.name)}</b><small>${daysTxt(i.days)} · <bdi dir="ltr">${esc(i.end)}</bdi></small></div><a class="btn ${rmdSent(x) ? "btn-line" : "btn-fill"} btn-sm ibtn" data-rm="${esc(x.id)}" target="_blank" rel="noopener" href="${rmdLink(x, i)}">${ico(SBI.wa, 15)} ${rmdSent(x) ? "تم الإرسال · إعادة" : "إرسال"}</a></div>`).join("")}</div></section>` : "";
     const chips = [["", "الكل", all.length], ["soon", "ينتهي قريبًا", bySt("soon")], ["expired", "منتهي", bySt("expired")], ["ok", "ساري", bySt("ok")], ["free", "مجاني", bySt("free")], ["open", "بدون اشتراك", bySt("open")]];
     $("#sbc", b).innerHTML = chips.map(([k, t, n]) => `<button type="button" class="gr-ch ${(A.sbf || "") === k ? "on" : ""}" data-sbf="${k}">${t}<em>${n}</em></button>`).join("");
     const ord = { expired: 0, soon: 1, ok: 2, free: 3, open: 4 };
@@ -3682,6 +3686,13 @@ TABS.subs = {
   }
 };
 const toIntl = ph => { const d = String(ph || "").replace(/\D/g, "").replace(/^00/, ""); return d.startsWith("20") ? d : "20" + d.replace(/^0/, ""); };
+const RMD_DAYS = 3;
+const rmdKey = x => "rf_rmd_" + x.id + "_" + (x.subEnd || "");
+const rmdSent = x => { try { return !!localStorage.getItem(rmdKey(x)); } catch (e) { return false; } };
+function rmdLink(x, i) {
+  const t = `مرحبًا ${x.name} 🌟\nاشتراكك في منصة مسيو رضا الخشن ${daysTxt(i.days)} (${i.end}).\nعشان تكمل مذاكرتك بدون انقطاع، شوف الباقات واختار المناسبة ليك وجدّد:\n${location.origin}${location.pathname}#/plans`;
+  return `https://wa.me/${toIntl(x.phone)}?text=` + encodeURIComponent(t);
+}
 function subWaLink(x, i) {
   const t = i.state === "expired" ? `مرحبًا ${x.name} 🌟\nانتهى اشتراكك في منصة مسيو رضا الخشن بتاريخ ${i.end}.\nللتجديد ادخل صفحة «الدفع» في المنصة وأرسل إيصال التحويل:\n${location.origin}${location.pathname}#/pay` : `مرحبًا ${x.name} 🌟\nاشتراكك في منصة مسيو رضا الخشن ${daysTxt(i.days)} (${i.end}).\nللتجديد ادخل صفحة «الدفع» في المنصة:\n${location.origin}${location.pathname}#/pay`;
   return `https://wa.me/${toIntl(x.phone)}?text=` + encodeURIComponent(t);
