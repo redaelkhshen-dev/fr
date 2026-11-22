@@ -607,6 +607,14 @@ tr:last-child td{border-bottom:0}
 .ppk-c input{position:absolute;opacity:0;pointer-events:none}.ppk-i{display:grid;place-items:center;width:32px;height:32px;border-radius:10px;color:var(--pc);background:rgba(var(--pr),.14)}.ppk-i svg{width:18px;height:18px;fill:rgba(var(--pr),.2);stroke:currentColor;stroke-width:1.8}
 .ppk-c b{font-size:.78rem;line-height:1.35;text-align:center}.ppk-c small{color:var(--muted);min-height:1.1em;font-size:.68rem}
 .ppk-c:hover{transform:translateY(-2px);border-color:var(--pc)}.ppk-c:has(input:checked){border-color:var(--pc);background:linear-gradient(160deg,rgba(var(--pr),.24),rgba(var(--pr),.05));box-shadow:0 0 0 2px rgba(var(--pr),.45)}.ppk-c:has(input:checked) b{color:var(--pc)}
+.ptx{--sc:var(--warn);position:relative;display:flex;flex-direction:column;gap:12px;padding:16px 18px;margin-bottom:14px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(180deg,var(--card),var(--bg2));overflow:hidden}
+.ptx::before{content:"";position:absolute;inset-block:0;inset-inline-start:0;width:4px;background:var(--sc)}.ptx.confirmed{--sc:var(--good)}.ptx.rejected{--sc:var(--bad)}
+.ptx-top{display:flex;align-items:center;gap:12px}.ptx-mi{flex:none;display:grid;place-items:center;width:44px;height:44px;border-radius:14px;font-size:1.4rem;background:rgba(212,167,58,.12);border:1px solid rgba(212,167,58,.35)}
+.ptx-t{flex:1;min-width:0;display:flex;flex-direction:column}.ptx-t b{font-size:1rem}.ptx-t small{color:var(--muted)}
+.ptx-amt{display:flex;align-items:baseline;gap:5px;white-space:nowrap}.ptx-amt b{font-size:1.5rem;color:var(--accent-text);font-family:var(--fd)}.ptx-amt span{color:var(--muted);font-size:.8rem}
+.ptx-mid{display:flex;flex-wrap:wrap;gap:8px}.ptx-ch{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:99px;font-size:.8rem;color:var(--muted);border:1px solid var(--line);background:rgba(255,255,255,.03)}
+.ptx-ch.pl{color:var(--pc);border-color:var(--pc);background:rgba(var(--pr),.12);font-weight:700}.ptx-ci{display:grid;place-items:center}.ptx-ci svg{fill:rgba(var(--pr),.2);stroke:currentColor;stroke-width:1.9}.ptx-nt{max-width:100%;overflow-wrap:anywhere}
+.ptx-bot{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding-top:12px;border-top:1px dashed var(--line)}.ptx-acts{display:flex;gap:8px;flex-wrap:wrap}
 /* ===== رصد الدرجات ===== */
 .gr-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px}.gr-head h2{margin:0}.gr-head small{color:var(--muted)}.gr-hi{flex:none;width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent-deep),var(--accent-2));color:#1b1405;box-shadow:0 8px 22px -10px var(--accent)}
 .gr-mn{margin-inline-start:auto;display:flex;align-items:center;gap:6px}.gr-mn input{max-width:none;width:200px}.gr-mn .ib{color:var(--fg)}
@@ -2424,7 +2432,7 @@ const payMsg = p => `السلام عليكم مسيو رضا 👋
 🎓 المرحلة: ${STAGES[p.stage] || ""} · ${SYSTEMS[p.system] || ""} · ${p.grade || ""}
 💳 طريقة الدفع: ${PAY[p.method]?.name || p.method}
 ${p.plan ? `📦 الباقة: ${PLAN_NAME[p.plan] || p.plan}\n` : ""}💰 المبلغ: ${p.amount} جنيه
-📞 المحوّل منه: ${p.from}${p.note ? `\n📝 ملاحظة: ${p.note}` : ""}${p.rcptId ? `\n🧾 تم رفع صورة الإيصال على المنصة (لوحة التحكم ← المدفوعات ← عرض الإيصال)` : ""}
+📞 المحوّل منه: ${p.from}${p.note ? `\n📝 ملاحظة: ${p.note}` : ""}${p.rcptId ? `\n🧾 تم رفع صورة الإيصال على المنصة بنجاح` : ""}
 🕒 ${new Date().toLocaleString("ar-EG")}`;
 const openWA = text => { const u = `https://wa.me/${PAY_WA}?text=${encodeURIComponent(text)}`; const w = window.open(u, "_blank"); if (!w) location.href = u; };
 const PYI = { card: '<rect x="2.5" y="5" width="19" height="14" rx="2.500"/><path d="M2.500 10h19M6.500 15h4"/>', cash: '<rect x="2.500" y="6" width="19" height="12" rx="2.500"/><circle cx="12" cy="12" r="2.800"/><path d="M6 9.500v.01M18 14.500v.01"/>', note: '<path d="M5 4h14v16H5zM9 9h6M9 13h6M9 17h3"/>', up: '<path d="M7 18a4.500 4.500 0 0 1-.6-8.960A6 6 0 0 1 18 9.500 4 4 0 0 1 17.500 18M12 12v7M9 14.500l3-3 3 3"/>', send: '<path d="m21 3-9.500 18-2.500-7.500L1.500 11zM9 13.500 21 3"/>', lock: '<rect x="5" y="11" width="14" height="9.500" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>' };
@@ -2516,7 +2524,10 @@ function renderPay() {
 function paintPay() {
   const ph = $("#ph"); if (!ph || S.page !== "pay") return;
   const l = [...PY.list].sort((a, b) => (b.createdAt?.seconds ?? 9e12) - (a.createdAt?.seconds ?? 9e12));
-  ph.innerHTML = l.map(p => `<div class="arow"><div class="ainfo"><h3>${PAY[p.method]?.icon || ""} ${esc(PAY[p.method]?.name || p.method)} · ${esc(p.amount)} جنيه${p.plan ? ` · ${esc(PLAN_NAME[p.plan] || "")}` : ""}</h3><small>${ago(p.createdAt)} · من <span dir="ltr">${esc(p.from)}</span>${p.note ? " · " + esc(p.note) : ""}</small></div><div class="acts">${p.rcptId || p.rcpt ? `<button type="button" class="btn btn-line btn-sm" data-rc="${esc(p.id)}">🧾 الإيصال</button>` : ""}${payStatus(p.status)}${p.status === "pending" ? `<button class="btn btn-line btn-sm" data-wa="${esc(p.id)}">إعادة إرسال واتساب</button>` : ""}</div></div>`).join("") || `<div class="empty">لا توجد تحويلات مسجلة بعد.</div>`;
+  ph.innerHTML = l.map(p => { const m = PAY[p.method] || {}, pl = PLAN_NAME[p.plan];
+    return `<article class="ptx ${esc(p.status)}"><div class="ptx-top"><span class="ptx-mi">${m.icon || "💳"}</span><div class="ptx-t"><b>${esc(m.name || p.method)}</b><small>${ago(p.createdAt)}</small></div><div class="ptx-amt"><b>${esc(Number(p.amount).toLocaleString("en"))}</b><span>جنيه</span></div></div>
+    <div class="ptx-mid">${pl ? `<span class="ptx-ch pl pl-${esc(p.plan)} ok"><span class="ptx-ci">${fsv(PTH[p.plan], 15)}</span>${pl}</span>` : ""}<span class="ptx-ch">من <bdi dir="ltr">${esc(p.from)}</bdi></span>${p.note ? `<span class="ptx-ch ptx-nt">📝 ${esc(p.note)}</span>` : ""}</div>
+    <div class="ptx-bot">${payStatus(p.status)}<div class="ptx-acts">${p.rcptId || p.rcpt ? `<button type="button" class="btn btn-line btn-sm" data-rc="${esc(p.id)}">🧾 الإيصال</button>` : ""}${p.status === "pending" ? `<button class="btn btn-line btn-sm" data-wa="${esc(p.id)}">إعادة إرسال واتساب</button>` : ""}</div></div></article>`; }).join("") || `<div class="empty">لا توجد تحويلات مسجلة بعد.</div>`;
   $$("[data-rc]", ph).forEach(b => b.onclick = () => { const p = PY.list.find(x => x.id === b.dataset.rc); if (p) showRcpt(p); });
   $$("[data-wa]", ph).forEach(b => b.onclick = () => { const p = PY.list.find(x => x.id === b.dataset.wa); if (p) openWA(payMsg(p)); });
 }
