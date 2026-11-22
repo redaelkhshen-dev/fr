@@ -619,6 +619,17 @@ tr:last-child td{border-bottom:0}
 .pxs{display:inline-grid;place-items:center}.pxs svg{display:block}.bdx{display:inline-flex;align-items:center;gap:5px}.ptx-acts .btn{display:inline-flex;align-items:center;gap:6px}.ptx-acts .btn svg{flex:none}
 .rmd{margin:0 0 16px;padding:14px;border-radius:18px;border:1px solid rgba(37,211,102,.35);background:linear-gradient(160deg,rgba(37,211,102,.09),rgba(212,167,58,.05));display:grid;gap:12px}.rmd-h{display:flex;align-items:center;gap:12px}.rmd-h>div:last-child{min-width:0;line-height:1.45}.rmd-h b{display:block;font-size:.98rem}.rmd-h small{display:block;color:var(--muted);font-size:.8rem;line-height:1.5;margin-top:2px}.rmd-w small{line-height:1.4}.rmd-i{flex:none;display:grid;place-items:center;width:42px;height:42px;border-radius:13px;color:#25d366;background:rgba(37,211,102,.14);border:1px solid rgba(37,211,102,.4)}
 .rmd-l{display:grid;gap:8px}.rmd-r{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:14px;background:rgba(0,0,0,.22);border:1px solid var(--line)}.rmd-r.sent{opacity:.7}.rmd-w{flex:1;min-width:0}.rmd-w b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rmd-w small{color:var(--warn)}.rmd-r .btn{flex:none;display:inline-flex;align-items:center;gap:6px}
+.ovp{width:100%;max-width:560px;position:relative;overflow:hidden;isolation:isolate;display:flex;align-items:center;gap:14px;margin-top:14px;padding:14px 16px;border-radius:20px;border:1px solid rgba(212,167,58,.32);background:linear-gradient(155deg,rgba(212,167,58,.13),rgba(212,167,58,.03) 55%,rgba(0,0,0,.2));box-shadow:0 8px 22px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.07)}
+.ovp:before{content:"";position:absolute;inset-inline-end:-30px;top:-40px;width:130px;height:130px;border-radius:50%;background:radial-gradient(circle,rgba(212,167,58,.28),transparent 70%);z-index:-1}
+.ov-ring{--p:0;flex:none;position:relative;display:grid;place-items:center;width:68px;height:68px;border-radius:50%;background:conic-gradient(from 0deg,#f6dc8c calc(var(--p)*1%),rgba(255,255,255,.09) 0);transition:background .6s;box-shadow:0 0 18px rgba(212,167,58,.25)}
+.ov-ring:before{content:"";position:absolute;inset:6px;border-radius:50%;background:#15120a;box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
+.ov-ring b{position:relative;font:800 1.05rem var(--fd);color:var(--accent-text)}
+.ov-m{flex:1;min-width:0;display:grid;gap:9px}.ov-t{display:grid;gap:2px;line-height:1.4}.ov-t em{font-style:normal;font-weight:800;font-size:1rem;color:#fff}.ov-t small{color:var(--muted);font-size:.82rem}
+.ovp .pbar-track{height:8px}
+.ov-cup{flex:none;display:grid;place-items:center;width:38px;height:38px;border-radius:12px;color:rgba(212,167,58,.55);background:rgba(255,255,255,.04);border:1px solid var(--line);transition:.4s}
+.ovp.full{border-color:rgba(246,220,140,.7);box-shadow:0 10px 26px rgba(0,0,0,.35),0 0 26px rgba(212,167,58,.28)}.ovp.full .ov-cup{color:#1a1405;background:linear-gradient(145deg,#f6dc8c,#b8862b);border-color:#f6dc8c;box-shadow:0 0 16px rgba(246,220,140,.5);animation:ovPop 1.8s ease-in-out infinite}
+@keyframes ovPop{50%{transform:scale(1.1) rotate(-6deg)}}
+@media(max-width:420px){.ovp{gap:10px;padding:12px}.ov-ring{width:58px;height:58px}.ov-ring b{font-size:.92rem}.ov-cup{display:none}}
 /* ===== رصد الدرجات ===== */
 .gr-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px}.gr-head h2{margin:0}.gr-head small{color:var(--muted)}.gr-hi{flex:none;width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent-deep),var(--accent-2));color:#1b1405;box-shadow:0 8px 22px -10px var(--accent)}
 .gr-mn{margin-inline-start:auto;display:flex;align-items:center;gap:6px}.gr-mn input{max-width:none;width:200px}.gr-mn .ib{color:var(--fg)}
@@ -946,7 +957,6 @@ html[data-theme=light] .hl-fx b{background-image:linear-gradient(100deg,#7a520a 
 .pbar.wpb.fin100{border-color:var(--good)}.pbar.wpb.fin100 .ring b{color:var(--good)}
 @media(max-width:600px){.pbar.wpb{padding:12px 14px;gap:12px}.ring{width:56px;height:56px}.ring b{font-size:.9rem}}
 .pbar small{display:block;margin-top:6px;color:var(--muted);font-size:.82rem;min-height:1.2em}
-.ovp{width:min(100%,460px)}
 @keyframes barshine{to{background-position:-200% 0}}
 @media(prefers-reduced-motion:reduce){.vcard,.play i,.pbar-track i{animation:none!important}.thumb img.fr{transition:none}}
 
@@ -1125,7 +1135,7 @@ const ADMIN_EMAIL = "admin@reda-fr.app";
 const EMAIL_DOMAIN = "students.reda-fr.app";
 /* ================================================================================== */
 
-const MNI = { v: '<rect x="3" y="5" width="18" height="14" rx="3"/><path d="m10 9.500 5 2.500-5 2.500z"/>', f: '<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h4"/>', g: '<path d="m2 9 10-5 10 5-10 5z"/><path d="M6 11.500V16c0 1.500 2.700 3 6 3s6-1.500 6-3v-4.500M22 9v6"/>' };
+const MNI = { cup: '<path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4v1.500A3 3 0 0 0 7 10.500M17 6h3v1.500a3 3 0 0 1-3 3M12 14v4M8.500 20h7"/>', v: '<rect x="3" y="5" width="18" height="14" rx="3"/><path d="m10 9.500 5 2.500-5 2.500z"/>', f: '<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h4"/>', g: '<path d="m2 9 10-5 10 5-10 5z"/><path d="M6 11.500V16c0 1.500 2.700 3 6 3s6-1.500 6-3v-4.500M22 9v6"/>' };
 const STAGES = { primary: "الابتدائية", prep: "الإعدادية", secondary: "الثانوية" };
 const SYSTEMS = { gov: "حكومي", lang: "لغات", intl: "لغات إنترناشونال", natl: "لغات ناشيونال" };
 const GRADES = {
@@ -2154,7 +2164,7 @@ function renderHome() {
   S.page = "home"; const s = S.student;
   app.innerHTML = `${studentHeader()}<section class="shero"><div class="wrap shero-in"><div class="st"><span class="eyebrow">${STAGES[s.stage]} · ${SYSTEMS[s.system]}</span>
       <h1>أهلًا يا <span class="hl">${esc(s.name.split(" ")[0])}</span> 👋</h1><p class="lead">${esc(s.grade)} — جاهز تكمل رحلتك مع الفرنسية؟</p>
-      <div class="mini"><div><span class="mn-i">${ico(MNI.v, 22)}</span><b id="cv">0</b><span>فيديو متاح</span></div><div><span class="mn-i">${ico(MNI.f, 22)}</span><b id="cf">0</b><span>ملف متاح</span></div><div><span class="mn-i">${ico(MNI.g, 22)}</span><b>${SYSTEMS[s.system]}</b><span>${STAGES[s.stage]}</span></div></div><div class="ovp"><div class="pbar-top"><span id="ovt">تقدمك العام</span><b id="ovn">0%</b></div><div class="pbar-track"><i id="ovf"></i></div></div></div>
+      <div class="mini"><div><span class="mn-i">${ico(MNI.v, 22)}</span><b id="cv">0</b><span>فيديو متاح</span></div><div><span class="mn-i">${ico(MNI.f, 22)}</span><b id="cf">0</b><span>ملف متاح</span></div><div><span class="mn-i">${ico(MNI.g, 22)}</span><b>${SYSTEMS[s.system]}</b><span>${STAGES[s.stage]}</span></div></div><div class="ovp" id="ovp"><span class="ov-ring" id="ovr"><b id="ovn">0%</b></span><div class="ov-m"><div class="ov-t" id="ovt"><em>تقدمك العام</em></div><div class="pbar-track"><i id="ovf"></i></div></div><span class="ov-cup">${ico(MNI.cup, 20)}</span></div></div>
       <div class="sv"><div class="disc sm">${avatarHTML(s, 200)}</div></div></div></section><main class="wrap"><div id="subs"></div><div id="cont"></div>
     <div class="tabs"><div class="trow">${stabsHTML()}</div><input class="srch" id="q" placeholder="ابحث..." value="${esc(H.q)}"></div>
     <div class="grid" id="list"></div></main><footer class="foot">© منصة مسيو رضا الخشن — المحتوى للاستخدام الشخصي فقط</footer>`;
@@ -2273,7 +2283,7 @@ const setTb = (el, html) => { const t = el && $(".tb", el); if (t) t.innerHTML =
 function fillHome() {
   const list = $("#list"); if (!list) return;
   const cv = $("#cv"), cf = $("#cf"); if (cv) cv.textContent = visible(S.videos).length; if (cf) cf.textContent = visible(S.files).length;
-  if ($("#ovn")) { const vis = visible(S.videos), ps = vis.map(x => getProg(x.id)), dn = ps.filter(p => p.done).length, avg = vis.length ? Math.round(ps.reduce((a, p) => a + Math.min(100, p.p), 0) / vis.length) : 0; $("#ovn").textContent = avg + "%"; $("#ovf").style.width = avg + "%"; $("#ovt").textContent = `تقدمك العام · أكملت ${dn} من ${vis.length} فيديو`; }
+  if ($("#ovn")) { const vis = visible(S.videos), ps = vis.map(x => getProg(x.id)), dn = ps.filter(p => p.done).length, avg = vis.length ? Math.round(ps.reduce((a, p) => a + Math.min(100, p.p), 0) / vis.length) : 0; $("#ovn").textContent = avg + "%"; $("#ovf").style.width = avg + "%"; $("#ovt").innerHTML = `<em>تقدمك العام</em><small>أكملت <bdi>${dn}</bdi> من <bdi>${vis.length}</bdi> فيديو</small>`; $("#ovr").style.setProperty("--p", avg); $("#ovp").classList.toggle("full", avg >= 100 && vis.length > 0); }
   $$(".tab").forEach(b => b.classList.toggle("on", b.dataset.t === H.tab));
   if (H.tabMoved) { H.tabMoved = false; { const r = $(".trow"), t = $(".tab.on"); if (r && t) r.scrollBy({ left: (t.getBoundingClientRect().left + t.offsetWidth / 2) - (r.getBoundingClientRect().left + r.clientWidth / 2), behavior: "smooth" }); } }
   { const th = $("#tabhw"); if (th) { const n = visible(S.homework).filter(h => hwStatus(h.id) !== "graded").length; setTb(th, n ? `<span class="pbadge">${n}</span>` : ""); } }
