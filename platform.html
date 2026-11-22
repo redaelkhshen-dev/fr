@@ -706,6 +706,13 @@ html[data-theme=light] .pbar.wpb .vtrack{background:rgba(255,255,255,.28)}
 html[data-theme=light] .pbar.wpb .vtrack i{background:linear-gradient(90deg,#fff,#ffe9a8,#fff);background-size:200% 100%;box-shadow:0 0 12px rgba(255,255,255,.55)}
 html[data-theme=light] .pbar.wpb .vtrack u{background:#fff}
 html[data-theme=light] .pbar.wpb.fin100{box-shadow:0 12px 26px rgba(20,110,140,.38),0 0 0 2px rgba(255,255,255,.45)}html[data-theme=light] .pbar.wpb.fin100 .ring b{color:#fff}
+/* ---- النهاري: تبويبات الأقسام بألوان مميزة ---- */
+html[data-theme=light] .tab{--tc:59,110,214;background:#fff;border-color:#e3e9f3;box-shadow:0 3px 12px rgba(30,50,100,.05)}
+html[data-theme=light] .tab[data-t=videos]{--tc:59,110,214}html[data-theme=light] .tab[data-t=files]{--tc:30,150,115}html[data-theme=light] .tab[data-t=hw]{--tc:224,132,24}html[data-theme=light] .tab[data-t=exams]{--tc:116,92,200}html[data-theme=light] .tab[data-t=live]{--tc:216,70,100}html[data-theme=light] .tab[data-t=certs]{--tc:201,138,42}html[data-theme=light] .tab[data-t=comments]{--tc:30,134,168}html[data-theme=light] .tab[data-t=ratings]{--tc:214,160,20}
+html[data-theme=light] .tab .ti{background:rgba(var(--tc),.12);border-color:transparent;color:rgb(var(--tc))}
+html[data-theme=light] .tab:hover{border-color:rgba(var(--tc),.55);color:rgb(var(--tc));box-shadow:0 10px 22px rgba(var(--tc),.2)}html[data-theme=light] .tab:hover .ti{border-color:transparent;color:rgb(var(--tc))}
+html[data-theme=light] .tab.on{background:linear-gradient(135deg,rgba(var(--tc),.8),rgb(var(--tc)));border-color:transparent;color:#fff;box-shadow:0 10px 22px rgba(var(--tc),.38)}
+html[data-theme=light] .tab.on .ti{background:rgba(255,255,255,.25);border:1px solid rgba(255,255,255,.4);color:#fff}
 /* ===== رصد الدرجات ===== */
 .gr-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px}.gr-head h2{margin:0}.gr-head small{color:var(--muted)}.gr-hi{flex:none;width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent-deep),var(--accent-2));color:#1b1405;box-shadow:0 8px 22px -10px var(--accent)}
 .gr-mn{margin-inline-start:auto;display:flex;align-items:center;gap:6px}.gr-mn input{max-width:none;width:200px}.gr-mn .ib{color:var(--fg)}
