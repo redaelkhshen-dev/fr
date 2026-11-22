@@ -855,10 +855,18 @@ html[data-theme=light] .hl-fx b{background-image:linear-gradient(100deg,#7a520a 
 .shero-in{display:grid;grid-template-columns:1.3fr .7fr;gap:32px;align-items:center}
 .shero .st{display:flex;flex-direction:column;align-items:flex-start;gap:14px}
 .shero h1{font-size:clamp(1.7rem,4.4vw,2.6rem);font-weight:800}
-.mini{display:flex;gap:14px;flex-wrap:wrap;margin-top:6px}
-.mini>div{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 20px;min-width:110px}
-.mini b{display:block;font:800 1.45rem var(--fd);line-height:1.25}
-.mini span{color:var(--muted);font-size:.84rem}
+.mini{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:8px}
+.mini>div{--mc:212,167,58;position:relative;overflow:hidden;isolation:isolate;display:grid;grid-template-columns:auto 1fr;align-items:center;gap:4px 12px;padding:14px 16px;border-radius:18px;border:1px solid rgba(var(--mc),.32);background:linear-gradient(155deg,rgba(var(--mc),.14),rgba(var(--mc),.03) 55%,rgba(0,0,0,.18));box-shadow:0 8px 22px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.07);transition:transform .25s,border-color .25s,box-shadow .25s;animation:mnIn .6s both}
+.mini>div:nth-child(2){--mc:96,165,250;animation-delay:.08s}.mini>div:nth-child(3){--mc:52,211,153;animation-delay:.16s}
+.mini>div:before{content:"";position:absolute;inset-inline-end:-26px;top:-30px;width:90px;height:90px;border-radius:50%;background:radial-gradient(circle,rgba(var(--mc),.35),transparent 70%);z-index:-1;transition:transform .4s}
+.mini>div:after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 35%,rgba(255,255,255,.09) 50%,transparent 65%);transform:translateX(-120%);z-index:-1}
+.mini>div:hover{transform:translateY(-3px);border-color:rgba(var(--mc),.7);box-shadow:0 14px 30px rgba(0,0,0,.4),0 0 0 1px rgba(var(--mc),.25),0 0 24px rgba(var(--mc),.22)}.mini>div:hover:before{transform:scale(1.35)}.mini>div:hover:after{transform:translateX(120%);transition:transform .8s}
+.mini .mn-i{grid-row:span 2;display:grid;place-items:center;width:44px;height:44px;border-radius:14px;color:rgb(var(--mc));background:linear-gradient(145deg,rgba(var(--mc),.28),rgba(var(--mc),.06));border:1px solid rgba(var(--mc),.45);box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 0 16px rgba(var(--mc),.25)}
+.mini b{display:block;font:800 1.5rem var(--fd);line-height:1.15;min-width:0;overflow-wrap:anywhere;background:linear-gradient(180deg,#fff,rgb(var(--mc)));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.mini span{color:var(--muted);font-size:.82rem;line-height:1.3}
+@keyframes mnIn{from{opacity:0;transform:translateY(10px) scale(.97)}to{opacity:1;transform:none}}
+@media(max-width:560px){.mini{gap:8px}.mini>div{grid-template-columns:1fr;justify-items:center;text-align:center;padding:12px 6px;gap:4px}.mini .mn-i{grid-row:auto;width:38px;height:38px;border-radius:12px}.mini b{font-size:1.2rem}.mini span{font-size:.74rem}}
+@media(prefers-reduced-motion:reduce){.mini>div{animation:none}.mini>div:after{display:none}}
 .num{position:absolute;top:10px;inset-inline-start:12px;z-index:2;font:500 .8rem var(--fm);background:rgba(11,10,7,.78);padding:0 8px;border-radius:6px;color:var(--accent-text)}
 .authx{min-height:100vh;display:grid;grid-template-columns:.85fr 1.15fr}
 @media(min-width:901px){.authx{align-items:stretch}.authx .aside{align-items:start;justify-items:center;overflow:visible}.authx .aside-in{position:sticky;top:28px}}
@@ -1117,6 +1125,7 @@ const ADMIN_EMAIL = "admin@reda-fr.app";
 const EMAIL_DOMAIN = "students.reda-fr.app";
 /* ================================================================================== */
 
+const MNI = { v: '<rect x="3" y="5" width="18" height="14" rx="3"/><path d="m10 9.500 5 2.500-5 2.500z"/>', f: '<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h4"/>', g: '<path d="m2 9 10-5 10 5-10 5z"/><path d="M6 11.500V16c0 1.500 2.700 3 6 3s6-1.500 6-3v-4.500M22 9v6"/>' };
 const STAGES = { primary: "الابتدائية", prep: "الإعدادية", secondary: "الثانوية" };
 const SYSTEMS = { gov: "حكومي", lang: "لغات", intl: "لغات إنترناشونال", natl: "لغات ناشيونال" };
 const GRADES = {
@@ -2145,7 +2154,7 @@ function renderHome() {
   S.page = "home"; const s = S.student;
   app.innerHTML = `${studentHeader()}<section class="shero"><div class="wrap shero-in"><div class="st"><span class="eyebrow">${STAGES[s.stage]} · ${SYSTEMS[s.system]}</span>
       <h1>أهلًا يا <span class="hl">${esc(s.name.split(" ")[0])}</span> 👋</h1><p class="lead">${esc(s.grade)} — جاهز تكمل رحلتك مع الفرنسية؟</p>
-      <div class="mini"><div><b id="cv">0</b><span>فيديو متاح</span></div><div><b id="cf">0</b><span>ملف متاح</span></div><div><b>${SYSTEMS[s.system]}</b><span>${STAGES[s.stage]}</span></div></div><div class="ovp"><div class="pbar-top"><span id="ovt">تقدمك العام</span><b id="ovn">0%</b></div><div class="pbar-track"><i id="ovf"></i></div></div></div>
+      <div class="mini"><div><span class="mn-i">${ico(MNI.v, 22)}</span><b id="cv">0</b><span>فيديو متاح</span></div><div><span class="mn-i">${ico(MNI.f, 22)}</span><b id="cf">0</b><span>ملف متاح</span></div><div><span class="mn-i">${ico(MNI.g, 22)}</span><b>${SYSTEMS[s.system]}</b><span>${STAGES[s.stage]}</span></div></div><div class="ovp"><div class="pbar-top"><span id="ovt">تقدمك العام</span><b id="ovn">0%</b></div><div class="pbar-track"><i id="ovf"></i></div></div></div>
       <div class="sv"><div class="disc sm">${avatarHTML(s, 200)}</div></div></div></section><main class="wrap"><div id="subs"></div><div id="cont"></div>
     <div class="tabs"><div class="trow">${stabsHTML()}</div><input class="srch" id="q" placeholder="ابحث..." value="${esc(H.q)}"></div>
     <div class="grid" id="list"></div></main><footer class="foot">© منصة مسيو رضا الخشن — المحتوى للاستخدام الشخصي فقط</footer>`;
