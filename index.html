@@ -1083,7 +1083,7 @@ html[data-theme=light] .hl-fx b{background-image:linear-gradient(100deg,#7a520a 
 <script type="module">
 import { initializeApp, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, deleteUser, updateEmail, updatePassword, reauthenticateWithCredential, EmailAuthProvider, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, deleteField, increment, writeBatch, collection, addDoc, onSnapshot, query, orderBy, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, getDocs, doc, getDoc, setDoc, updateDoc, deleteDoc, deleteField, increment, writeBatch, collection, addDoc, onSnapshot, query, orderBy, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
 /* =====================  الإعدادات (املأها من Firebase Console)  ===================== */
@@ -1207,7 +1207,8 @@ const auth = getAuth(fbApp);
 // بقاء الدخول مفتوحًا على هذا الجهاز حتى يضغط المستخدم "خروج"
 setPersistence(auth, browserLocalPersistence).catch(() => {});
 try { navigator.storage?.persist?.(); } catch {}
-const db = getFirestore(fbApp);
+/* كاش دائم على الجهاز: فتح أسرع، وأقل قراءات عند إعادة الاتصال، ويعمل مع تعدد التبويبات */
+let db; try { db = initializeFirestore(fbApp, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) }); } catch { db = getFirestore(fbApp); }
 const storage = getStorage(fbApp);
 
 /* ---------- الحالة ---------- */
@@ -1396,7 +1397,9 @@ function sub(col, key) {
 const vNum = id => S.vcount[id] || 0, vFmt = n => n >= 1000 ? (n / 1000).toFixed(n >= 10000 ? 0 : 1).replace(/\.0$/, "") + "K" : String(n);
 const vwEye = n => ico('<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>', n);
 const vwBadge = (id, cls = "") => `<span class="vw ${cls}" title="عدد المشاهدين">${vwEye(15)}<b>${vFmt(vNum(id))}</b></span>`;
-const subViews = () => S.unsubs.push(onSnapshot(collection(db, "vcount"), q => { S.vcount = {}; q.docs.forEach(d => { S.vcount[d.id] = d.data().n || 0; }); onData(); }, e => console.warn("vcount", e.code)));
+/* عدّاد المشاهدات: قراءة واحدة عند الفتح ثم كل 5 دقائق — بدل مستمع حيّ يقرأ لكل طالب مع كل مشاهدة جديدة */
+const loadViews = async () => { try { const q = await getDocs(collection(db, "vcount")); S.vcount = {}; q.docs.forEach(d => { S.vcount[d.id] = d.data().n || 0; }); onData(); } catch (e) { console.warn("vcount", e.code); } };
+const subViews = () => { loadViews(); const t = setInterval(() => { if (!document.hidden) loadViews(); }, 300000); S.unsubs.push(() => clearInterval(t)); };
 async function countView(id) {
   const uid = S.student?.id; if (!uid || S.user?.email === ADMIN_EMAIL) return; const k = "rf_vw2_" + uid + "_" + id;
   try { if (localStorage.getItem(k)) return; } catch {}
@@ -1404,7 +1407,7 @@ async function countView(id) {
   try {
     if ((await getDoc(mk)).exists()) return done();
     const b = writeBatch(db); b.set(mk, { videoId: id, uid, at: serverTimestamp() }); b.set(doc(db, "vcount", id), { n: increment(1) }, { merge: true });
-    await b.commit(); done();
+    await b.commit(); done(); S.vcount[id] = (S.vcount[id] || 0) + 1; onData();
   } catch (er) { console.warn("view count", er.code || er); }
 }
 const startContent = () => { if (S.contentOn) return; S.contentOn = true; subViews(); sub("videos", "videos"); sub("files", "files"); sub("homework", "homework"); sub("exams", "exams"); sub("lives", "lives"); sub("notices", "notices"); sub("courses", "courses"); if (S.student?.id) S.unsubs.push(onSnapshot(query(collection(db, "certs"), where("uid", "==", S.student.id)), q => { S.certs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, e => console.warn("certs", e.code))); if (S.student?.id) S.unsubs.push(onSnapshot(query(collection(db, "attempts"), where("uid", "==", S.student.id)), q => { S.attempts = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, e => console.warn("attempts", e.code))); if (S.student?.id) S.unsubs.push(onSnapshot(query(collection(db, "hwsubs"), where("uid", "==", S.student.id)), q => { S.hwsubs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, e => console.warn("hwsubs", e.code))); };
@@ -2321,6 +2324,10 @@ function stopCommentSubs() { CM.unsubs.forEach(f => f()); CM.unsubs = []; CM.vid
 const ago = t => { if (!t?.toDate) return "الآن"; const d = (Date.now() - t.toDate().getTime()) / 1000; if (d < 60) return "الآن"; if (d < 3600) return `منذ ${Math.floor(d / 60)} دقيقة`; if (d < 86400) return `منذ ${Math.floor(d / 3600)} ساعة`; if (d < 604800) return `منذ ${Math.floor(d / 86400)} يوم`; return fmtDate(t); };
 /* الصورة التي تظهر بجوار اسمه في التعليقات: الأيقونة كما هي، والصورة المرفوعة تُصغَّر لمصغّرة 72px */
 const AVC = {}, AVP = new Set(); let AVSYNC = null;
+/* صور المعلّقين تُحفظ على الجهاز يومًا كاملًا لتجنّب قراءتها في كل زيارة */
+const AVK = "rf_avc1", AVTTL = 864e5, AVT = {};
+try { const o = JSON.parse(localStorage.getItem(AVK) || "{}"), n = Date.now(); for (const u in o) if (n - o[u][1] < AVTTL) { AVC[u] = o[u][0] === 0 ? false : o[u][0]; AVT[u] = o[u][1]; } } catch {}
+const avSave = () => { try { const o = {}; Object.keys(AVC).filter(u => AVT[u]).slice(-80).forEach(u => { o[u] = [AVC[u] === false ? 0 : AVC[u], AVT[u]]; }); localStorage.setItem(AVK, JSON.stringify(o)); } catch {} };
 const myPhoto = () => new Promise(res => {
   const p = S.student?.photo || "";
   if (!p.startsWith("data:image/")) return res(p.length <= 12 ? p : "");
@@ -2337,7 +2344,7 @@ async function syncMyAvatar() {
 function loadAvatars(list) {
   const need = [...new Set(list.map(c => c.uid))].filter(u => u && u !== S.student?.id && AVC[u] === undefined && !AVP.has(u)); if (!need.length) return;
   need.forEach(u => AVP.add(u));
-  Promise.all(need.map(u => getDoc(doc(db, "avatars", u)).then(d => { AVC[u] = d.exists() ? (d.data().photo || false) : false; }).catch(() => { AVC[u] = false; }))).then(() => paintComments());
+  Promise.all(need.map(u => getDoc(doc(db, "avatars", u)).then(d => { AVC[u] = d.exists() ? (d.data().photo || false) : false; AVT[u] = Date.now(); }).catch(() => { AVC[u] = false; }))).then(() => { avSave(); paintComments(); });
 }
 function startCommentSubs(v) {
   syncMyAvatar();
