@@ -602,6 +602,11 @@ tr:last-child td{border-bottom:0}
 .plc-pm{color:var(--pc);font-size:.8rem;min-height:1.2em}
 .plc-b{width:100%;margin-top:12px}.plc-wa{margin-top:8px;font-size:.82rem;color:var(--muted);text-decoration:underline}.plc-wa:hover{color:var(--pc)}
 @media(prefers-reduced-motion:reduce){.plc::before{animation:none}}
+.ppk{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.ppk-c{position:relative;display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:16px;border:1px solid var(--line);background:var(--card);cursor:pointer;text-align:center;transition:transform .2s,border-color .2s,background .2s}
+.ppk-c input{position:absolute;opacity:0;pointer-events:none}.ppk-i{display:grid;place-items:center;width:40px;height:40px;border-radius:12px;color:var(--pc);background:rgba(var(--pr),.14)}.ppk-i svg{fill:rgba(var(--pr),.2);stroke:currentColor;stroke-width:1.8}
+.ppk-c b{font-size:.9rem}.ppk-c small{color:var(--muted);min-height:1.1em}
+.ppk-c:hover{transform:translateY(-2px);border-color:var(--pc)}.ppk-c:has(input:checked){border-color:var(--pc);background:linear-gradient(160deg,rgba(var(--pr),.24),rgba(var(--pr),.05));box-shadow:0 0 0 2px rgba(var(--pr),.45)}.ppk-c:has(input:checked) b{color:var(--pc)}
 /* ===== رصد الدرجات ===== */
 .gr-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px}.gr-head h2{margin:0}.gr-head small{color:var(--muted)}.gr-hi{flex:none;width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent-deep),var(--accent-2));color:#1b1405;box-shadow:0 8px 22px -10px var(--accent)}
 .gr-mn{margin-inline-start:auto;display:flex;align-items:center;gap:6px}.gr-mn input{max-width:none;width:200px}.gr-mn .ib{color:var(--fg)}
@@ -1707,12 +1712,13 @@ function renderPlans() {
       <div class="pf-pi"><span class="pf-svg">${fsv(PTH[k], 38)}</span></div><h3>${t}</h3><small class="plc-d">${d}</small>
       <div class="plc-pr">${free ? `<b>مجانًا</b>` : has ? `<b>${price.toLocaleString("en")}</b><span>جنيه</span>` : `<em>تواصل لمعرفة السعر</em>`}</div>
       <small class="plc-pm">${!free && has && mo > 1 ? `يعادل ${Math.round(price / mo).toLocaleString("en")} جنيه / شهر` : "&nbsp;"}</small>
-      ${free ? `<a class="btn btn-fill plc-b" href="${logged ? "#/" : "#/register"}">${logged ? "الرئيسية" : "ابدأ مجانًا"}</a>` : `<a class="btn btn-fill plc-b" href="${logged ? "#/pay" : "#/register"}">اشترك الآن</a><a class="plc-wa" href="${wa}" target="_blank" rel="noopener">استفسر على واتساب</a>`}</article>`;
+      ${free ? `<a class="btn btn-fill plc-b" href="${logged ? "#/" : "#/register"}">${logged ? "الرئيسية" : "ابدأ مجانًا"}</a>` : `<a class="btn btn-fill plc-b" data-plan="${k}" href="${logged ? "#/pay" : "#/register"}">اشترك الآن</a><a class="plc-wa" href="${wa}" target="_blank" rel="noopener">استفسر على واتساب</a>`}</article>`;
   }).join("");
   app.innerHTML = `${logged ? studentHeader() : pubHeader()}<main class="wrap sec">
     <section class="ph-hero"><span class="ph-ic">${fsv(PTH.y1, 34)}</span><div><span class="ph-k">اختر ما يناسبك</span><h1>الباقات</h1><p>اشتراك واحد يفتح لك كل الفيديوهات والملفات والاختبارات والواجبات حسب مرحلتك، وتقدر تجدّد في أي وقت</p></div></section>
     <div class="plc-grid">${cards}</div>
     <p class="sub" style="text-align:center;margin-top:22px">بعد التحويل أرسل الإيصال من صفحة «الدفع» ويتم تفعيل اشتراكك من مسيو رضا.</p></main>`;
+  $$("[data-plan]").forEach(a => a.addEventListener("click", () => { PY.plan = a.dataset.plan; }));
   if (logged) $("#lo").onclick = doLogout; else bindPubNav();
   if (!S.prices) loadPrices().then(() => { if (S.page === "plans") renderPlans(); });
 }
@@ -2407,16 +2413,17 @@ function paintComments() {
 /* ---------- الدفع (الطالب) ---------- */
 const PAY = { vodafone: { name: "فودافون كاش", number: "01005664564", icon: "📱", link: "http://vf.eg/vfcash?id=mt&qrId=ojDCHl", qr: "qr-vodafone.jpg", cls: "vf" }, instapay: { name: "إنستا باي (InstaPay)", number: "01558186187", icon: "🏦", link: "https://ipn.eg/S/redaelkhshen/instapay/6Jcs4X", qr: "qr-instapay.jpg", cls: "ip" } };
 const PAY_WA = "201558186187";
-const PY = { unsub: null, list: [], method: "vodafone" };
+const PY = { unsub: null, list: [], method: "vodafone", plan: "" };
 function stopPaySubs() { if (PY.unsub) PY.unsub(); PY.unsub = null; PY.list = []; }
 const payStatus = st => st === "confirmed" ? `<span class="badge good">✅ تم التأكيد</span>` : st === "rejected" ? `<span class="badge bad">مرفوض</span>` : `<span class="badge warn">⏳ بانتظار التأكيد</span>`;
+const PLAN_NAME = { m1: "باقة شهر", m3: "باقة 3 شهور", m6: "باقة 6 شهور", y1: "باقة سنة" };
 const payMsg = p => `السلام عليكم مسيو رضا 👋
 أود تأكيد تحويل الدفع:
 👤 الاسم: ${p.name}
 📱 رقم الطالب: ${p.phone}
 🎓 المرحلة: ${STAGES[p.stage] || ""} · ${SYSTEMS[p.system] || ""} · ${p.grade || ""}
 💳 طريقة الدفع: ${PAY[p.method]?.name || p.method}
-💰 المبلغ: ${p.amount} جنيه
+${p.plan ? `📦 الباقة: ${PLAN_NAME[p.plan] || p.plan}\n` : ""}💰 المبلغ: ${p.amount} جنيه
 📞 المحوّل منه: ${p.from}${p.note ? `\n📝 ملاحظة: ${p.note}` : ""}${p.rcptId ? `\n🧾 تم رفع صورة الإيصال على المنصة (لوحة التحكم ← المدفوعات ← عرض الإيصال)` : ""}
 🕒 ${new Date().toLocaleString("ar-EG")}`;
 const openWA = text => { const u = `https://wa.me/${PAY_WA}?text=${encodeURIComponent(text)}`; const w = window.open(u, "_blank"); if (!w) location.href = u; };
@@ -2451,6 +2458,7 @@ function renderPay() {
     <div class="card pyx"><div class="pyx-h"><span class="pyx-hi">${fsv(PYI.card, 24)}</span><div><h3>بيانات التحويل</h3><small>املأ البيانات وارفع صورة الإيصال ليراجعها المدرس</small></div></div>
       <div class="alert" id="err" hidden></div>
       <form id="pf2" novalidate>
+        <div class="fl ff"><span class="fl-t">الباقة التي تشترك فيها<em class="optb req">مطلوب</em></span><div class="ppk" id="ppk">${Object.entries(PLAN_NAME).map(([k, t]) => `<label class="ppk-c pl pl-${k} ok"><input type="radio" name="plan" value="${k}" ${PY.plan === k ? "checked" : ""}><span class="ppk-i">${fsv(PTH[k], 22)}</span><b>${t}</b><small data-pp="${k}"></small></label>`).join("")}</div></div>
         ${fld("المبلغ المحوّل", PYI.cash, `<input name="amount" type="number" inputmode="decimal" min="1" max="100000" step="any" dir="ltr" placeholder="0"><em class="pyx-cur">جنيه</em>`)}
         ${fld("الرقم الذي حوّلت منه", "phone", `<input name="from" type="tel" inputmode="numeric" dir="ltr" maxlength="11" placeholder="01XXXXXXXXX" value="${esc(s.phone)}">`)}
         ${fld("ملاحظة أو رقم العملية", PYI.note, `<input name="note" maxlength="200" placeholder="مثال: رقم العملية 123456">`, true)}
@@ -2465,6 +2473,10 @@ function renderPay() {
     <h3 style="margin:30px 0 12px">تحويلاتي السابقة</h3><div id="ph"></div></main>`;
   $("#lo").onclick = doLogout;
   $("#pm").addEventListener("change", e => { if (e.target.name === "method") PY.method = e.target.value; });
+  const priceOf = k => { const n = Number((S.prices || {})[k]); return isFinite(n) && n > 0 ? n : 0; };
+  const paintPP = () => $$("[data-pp]").forEach(el => { const n = priceOf(el.dataset.pp); el.textContent = n ? n.toLocaleString("en") + " جنيه" : ""; });
+  paintPP(); if (!S.prices) loadPrices().then(paintPP);
+  $("#ppk").addEventListener("change", e => { if (e.target.name !== "plan") return; PY.plan = e.target.value; const n = priceOf(PY.plan), am = $("#pf2").elements.amount; if (n && am) am.value = n; });
   let rcpt = null; const dz = $("#dz"), rf = $("#rf");
   const setFile = async f => {
     showErr(""); if (!f) return;
@@ -2483,12 +2495,13 @@ function renderPay() {
   $("#pf2").addEventListener("submit", async e => {
     e.preventDefault(); showErr("");
     const f = new FormData(e.target), amount = parseFloat(toLatin(f.get("amount"))), from = toLatin(f.get("from")).replace(/\s/g, ""), note = (f.get("note") || "").trim();
+    const plan = f.get("plan"); if (!PLAN_NAME[plan]) return showErr("اختر الباقة التي تشترك فيها");
     if (!(amount > 0 && amount <= 100000)) return showErr("اكتب المبلغ المحوّل بشكل صحيح");
     if (!PHONE_RE.test(from)) return showErr("اكتب الرقم الذي حوّلت منه (11 رقم)");
     if (!rcpt) return showErr("ارفع صورة إيصال التحويل أولًا");
     const sb = $("#sb"), pgb = $("#pgb"), bar = $("i", pgb); sb.disabled = true; pgb.hidden = false; bar.style.width = "0%";
     const go = text => setTimeout(() => { location.href = `https://wa.me/${PAY_WA}?text=${encodeURIComponent(text)}`; }, 700);
-    const rec = { uid: s.id, name: s.name, phone: s.phone, stage: s.stage, system: s.system, grade: s.grade, method: PY.method, amount, from, note, status: "pending" };
+    const rec = { uid: s.id, name: s.name, phone: s.phone, stage: s.stage, system: s.system, grade: s.grade, method: PY.method, plan, amount, from, note, status: "pending" };
     try {
       bar.style.width = "40%"; const rr = doc(collection(db, "payrcpts"));
       await setDoc(rr, { uid: s.id, img: rcpt, createdAt: serverTimestamp() }); rec.rcptId = rr.id; bar.style.width = "100%";
@@ -2503,7 +2516,7 @@ function renderPay() {
 function paintPay() {
   const ph = $("#ph"); if (!ph || S.page !== "pay") return;
   const l = [...PY.list].sort((a, b) => (b.createdAt?.seconds ?? 9e12) - (a.createdAt?.seconds ?? 9e12));
-  ph.innerHTML = l.map(p => `<div class="arow"><div class="ainfo"><h3>${PAY[p.method]?.icon || ""} ${esc(PAY[p.method]?.name || p.method)} · ${esc(p.amount)} جنيه</h3><small>${ago(p.createdAt)} · من <span dir="ltr">${esc(p.from)}</span>${p.note ? " · " + esc(p.note) : ""}</small></div><div class="acts">${p.rcptId || p.rcpt ? `<button type="button" class="btn btn-line btn-sm" data-rc="${esc(p.id)}">🧾 الإيصال</button>` : ""}${payStatus(p.status)}${p.status === "pending" ? `<button class="btn btn-line btn-sm" data-wa="${esc(p.id)}">إعادة إرسال واتساب</button>` : ""}</div></div>`).join("") || `<div class="empty">لا توجد تحويلات مسجلة بعد.</div>`;
+  ph.innerHTML = l.map(p => `<div class="arow"><div class="ainfo"><h3>${PAY[p.method]?.icon || ""} ${esc(PAY[p.method]?.name || p.method)} · ${esc(p.amount)} جنيه${p.plan ? ` · ${esc(PLAN_NAME[p.plan] || "")}` : ""}</h3><small>${ago(p.createdAt)} · من <span dir="ltr">${esc(p.from)}</span>${p.note ? " · " + esc(p.note) : ""}</small></div><div class="acts">${p.rcptId || p.rcpt ? `<button type="button" class="btn btn-line btn-sm" data-rc="${esc(p.id)}">🧾 الإيصال</button>` : ""}${payStatus(p.status)}${p.status === "pending" ? `<button class="btn btn-line btn-sm" data-wa="${esc(p.id)}">إعادة إرسال واتساب</button>` : ""}</div></div>`).join("") || `<div class="empty">لا توجد تحويلات مسجلة بعد.</div>`;
   $$("[data-rc]", ph).forEach(b => b.onclick = () => { const p = PY.list.find(x => x.id === b.dataset.rc); if (p) showRcpt(p); });
   $$("[data-wa]", ph).forEach(b => b.onclick = () => { const p = PY.list.find(x => x.id === b.dataset.wa); if (p) openWA(payMsg(p)); });
 }
@@ -3692,7 +3705,7 @@ TABS.payments = {
     const q = (A.pq || "").trim().toLowerCase();
     const l = P.filter(p => (!A.pst || p.status === A.pst) && (!q || [p.name, p.phone, p.from].some(t => (t || "").toLowerCase().includes(q)))).sort((a, b2) => (b2.status === "pending") - (a.status === "pending"));
     $("#pl", b).innerHTML = `<table><thead><tr><th>الطالب</th><th>الطريقة</th><th>المبلغ</th><th>المحوّل منه</th><th>الإيصال</th><th>ملاحظة</th><th>التاريخ</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody>${l.map(p => `<tr>
-      <td><b>${esc(p.name)}</b><br><small class="ph">${esc(p.phone)}</small></td><td>${PAY[p.method]?.icon || ""} ${esc(PAY[p.method]?.name || p.method)}</td><td><b>${esc(p.amount)}</b> جنيه</td><td class="ph">${esc(p.from)}</td><td>${p.rcptId || p.rcpt ? `<button type="button" class="btn btn-fill btn-sm" data-a="prcpt" data-id="${esc(p.id)}">🧾 عرض</button>` : `<small style="color:var(--muted)">بدون صورة</small>`}</td><td style="max-width:200px">${esc(p.note || "—")}</td><td>${fmtDate(p.createdAt)}</td><td>${payStatus(p.status)}</td>
+      <td><b>${esc(p.name)}</b><br><small class="ph">${esc(p.phone)}</small></td><td>${PAY[p.method]?.icon || ""} ${esc(PAY[p.method]?.name || p.method)}</td><td><b>${esc(p.amount)}</b> جنيه${p.plan ? `<br><small class="ph">${esc(PLAN_NAME[p.plan] || "")}</small>` : ""}</td><td class="ph">${esc(p.from)}</td><td>${p.rcptId || p.rcpt ? `<button type="button" class="btn btn-fill btn-sm" data-a="prcpt" data-id="${esc(p.id)}">🧾 عرض</button>` : `<small style="color:var(--muted)">بدون صورة</small>`}</td><td style="max-width:200px">${esc(p.note || "—")}</td><td>${fmtDate(p.createdAt)}</td><td>${payStatus(p.status)}</td>
       <td><div class="acts">${p.status === "pending" ? `<button class="btn btn-good btn-sm" data-a="pconf" data-id="${esc(p.id)}">تأكيد</button><button class="btn btn-bad btn-sm" data-a="prej" data-id="${esc(p.id)}">رفض</button>` : ""}<a class="btn btn-line btn-sm" target="_blank" rel="noopener" href="https://wa.me/2${esc(p.phone)}">واتس</a><button class="btn btn-bad btn-sm" data-a="pdel" data-id="${esc(p.id)}">حذف</button></div></td></tr>`).join("") || `<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:32px">لا توجد تحويلات</td></tr>`}</tbody></table>`;
   }
 };
@@ -3700,7 +3713,24 @@ async function payAction(e) {
   const btn = e.target.closest("[data-a]"); if (!btn || btn.tagName === "A") return;
   const a = btn.dataset.a, id = btn.dataset.id, p = S.payments.find(x => x.id === id); if (!p) return;
   try {
-    if (a === "pconf") { await updateDoc(doc(db, "payments", id), { status: "confirmed", confirmedAt: serverTimestamp() }); toast("تم تأكيد التحويل", "ok"); }
+    if (a === "pconf") {
+      const st = S.students.find(x => x.id === p.uid), days = PLANS[p.plan]?.[1];
+      if (st && days) {
+        /* التجديد يبدأ من تاريخ الانتهاء الحالي لو الاشتراك ساري، وإلا من اليوم */
+        const i = subInfo(st), today = dKey(new Date()), live = i.state === "ok" || i.state === "soon", from = live ? st.subEnd : today, end = addDaysStr(from, days), start = live && st.subStart ? st.subStart : today;
+        if (!confirm(`تأكيد تحويل ${p.name} وتجديد اشتراكه (${PLAN_NAME[p.plan]}) ${live ? `من ${from} ` : ""}حتى ${end}؟`)) return;
+        const b = writeBatch(db);
+        b.update(doc(db, "payments", id), { status: "confirmed", confirmedAt: serverTimestamp(), renewedTo: end });
+        b.update(doc(db, "students", st.id), { subPlan: p.plan, subStart: start, subEnd: end, subEndMs: endMsOf(end) });
+        await b.commit(); toast("تم تأكيد التحويل وتجديد الاشتراك", "ok");
+        const wa = `https://wa.me/2${st.phone}?text=` + encodeURIComponent(`مرحبًا ${st.name} 🌟\nتم تأكيد دفعك وتجديد اشتراكك (${PLAN_NAME[p.plan]}) حتى ${end}.\nاستمتع بالمذاكرة، ومع تحيات مسيو رضا الخشن.`);
+        const m = openModal(`<h2>✅ تم تجديد الاشتراك</h2><p class="sub">${esc(st.name)} — ${PLAN_NAME[p.plan]} حتى <bdi dir="ltr">${end}</bdi></p><div class="mact"><a class="btn btn-fill" href="${wa}" target="_blank" rel="noopener">إرسال تأكيد للطالب على واتساب</a><button type="button" class="btn btn-line" data-close>إغلاق</button></div>`);
+      } else {
+        await updateDoc(doc(db, "payments", id), { status: "confirmed", confirmedAt: serverTimestamp() });
+        toast(st ? "تم تأكيد التحويل — حدّد الاشتراك يدويًا (لا توجد باقة في هذا الإيصال)" : "تم تأكيد التحويل", "ok");
+        if (st) subModal(st);
+      }
+    }
     else if (a === "prej") { if (confirm(`رفض تحويل ${p.name}؟`)) { await updateDoc(doc(db, "payments", id), { status: "rejected" }); toast("تم رفض التحويل", "ok"); } }
     else if (a === "prcpt") { showRcpt(p); }
     else if (a === "pdel") { if (confirm("حذف سجل التحويل نهائيًا؟")) { if (p.rcptId) { try { await deleteDoc(doc(db, "payrcpts", p.rcptId)); } catch {} } await deleteDoc(doc(db, "payments", id)); toast("تم الحذف", "ok"); } }
