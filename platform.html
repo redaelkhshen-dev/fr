@@ -615,6 +615,8 @@ tr:last-child td{border-bottom:0}
 .ptx-mid{display:flex;flex-wrap:wrap;gap:8px}.ptx-ch{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:99px;font-size:.8rem;color:var(--muted);border:1px solid var(--line);background:rgba(255,255,255,.03)}
 .ptx-ch.pl{color:var(--pc);border-color:var(--pc);background:rgba(var(--pr),.12);font-weight:700}.ptx-ci{display:grid;place-items:center}.ptx-ci svg{fill:rgba(var(--pr),.2);stroke:currentColor;stroke-width:1.9}.ptx-nt{max-width:100%;overflow-wrap:anywhere}
 .ptx-bot{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding-top:12px;border-top:1px dashed var(--line)}.ptx-acts{display:flex;gap:8px;flex-wrap:wrap}
+.ptx-mi{color:var(--gold,#d4a73a);background:linear-gradient(145deg,rgba(212,167,58,.22),rgba(212,167,58,.05));box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 4px 14px rgba(0,0,0,.35)}.ptx-mi.pm-instapay{color:#b48cff;background:linear-gradient(145deg,rgba(150,100,255,.25),rgba(150,100,255,.05));border-color:rgba(150,100,255,.4)}.ptx-mi.pm-vodafone{color:#ff6b6b;background:linear-gradient(145deg,rgba(230,50,50,.24),rgba(230,50,50,.05));border-color:rgba(230,50,50,.4)}
+.pxs{display:inline-grid;place-items:center}.pxs svg{display:block}.bdx{display:inline-flex;align-items:center;gap:5px}.ptx-acts .btn{display:inline-flex;align-items:center;gap:6px}.ptx-acts .btn svg{flex:none}
 /* ===== رصد الدرجات ===== */
 .gr-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px}.gr-head h2{margin:0}.gr-head small{color:var(--muted)}.gr-hi{flex:none;width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent-deep),var(--accent-2));color:#1b1405;box-shadow:0 8px 22px -10px var(--accent)}
 .gr-mn{margin-inline-start:auto;display:flex;align-items:center;gap:6px}.gr-mn input{max-width:none;width:200px}.gr-mn .ib{color:var(--fg)}
@@ -2423,7 +2425,9 @@ const PAY = { vodafone: { name: "فودافون كاش", number: "01005664564", 
 const PAY_WA = "201558186187";
 const PY = { unsub: null, list: [], method: "vodafone", plan: "" };
 function stopPaySubs() { if (PY.unsub) PY.unsub(); PY.unsub = null; PY.list = []; }
-const payStatus = st => st === "confirmed" ? `<span class="badge good">✅ تم التأكيد</span>` : st === "rejected" ? `<span class="badge bad">مرفوض</span>` : `<span class="badge warn">⏳ بانتظار التأكيد</span>`;
+const PXI = { vodafone: '<rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/><path d="M10 6.5h4"/>', instapay: '<path d="M3 10l9-6 9 6"/><path d="M5 10v8M9.5 10v8M14.5 10v8M19 10v8"/><path d="M3 21h18"/>', rcpt: '<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9.5 8h5M9.5 12h5"/>', note: '<path d="M5 4h14v12l-5 5H5z"/><path d="M14 21v-5h5"/><path d="M8.5 9h7M8.5 13h4"/>', wa: '<path d="M21 12a9 9 0 1 1-4-7.5"/><path d="M21 4v5h-5"/>', ok: '<circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.8 2.8L16 9.5"/>', wait: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>', no: '<circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/>' };
+const pxs = (k, t) => `<span class="pxs">${ico(PXI[k], 14)}</span>${t}`;
+const payStatus = st => st === "confirmed" ? `<span class="badge good bdx">${pxs("ok", "تم التأكيد")}</span>` : st === "rejected" ? `<span class="badge bad bdx">${pxs("no", "مرفوض")}</span>` : `<span class="badge warn bdx">${pxs("wait", "بانتظار التأكيد")}</span>`;
 const PLAN_NAME = { m1: "باقة شهر", m3: "باقة 3 شهور", m6: "باقة 6 شهور", y1: "باقة سنة" };
 const payMsg = p => `السلام عليكم مسيو رضا 👋
 أود تأكيد تحويل الدفع:
@@ -2525,9 +2529,9 @@ function paintPay() {
   const ph = $("#ph"); if (!ph || S.page !== "pay") return;
   const l = [...PY.list].sort((a, b) => (b.createdAt?.seconds ?? 9e12) - (a.createdAt?.seconds ?? 9e12));
   ph.innerHTML = l.map(p => { const m = PAY[p.method] || {}, pl = PLAN_NAME[p.plan];
-    return `<article class="ptx ${esc(p.status)}"><div class="ptx-top"><span class="ptx-mi">${m.icon || "💳"}</span><div class="ptx-t"><b>${esc(m.name || p.method)}</b><small>${ago(p.createdAt)}</small></div><div class="ptx-amt"><b>${esc(Number(p.amount).toLocaleString("en"))}</b><span>جنيه</span></div></div>
-    <div class="ptx-mid">${pl ? `<span class="ptx-ch pl pl-${esc(p.plan)} ok"><span class="ptx-ci">${fsv(PTH[p.plan], 15)}</span>${pl}</span>` : ""}<span class="ptx-ch">من <bdi dir="ltr">${esc(p.from)}</bdi></span>${p.note ? `<span class="ptx-ch ptx-nt">📝 ${esc(p.note)}</span>` : ""}</div>
-    <div class="ptx-bot">${payStatus(p.status)}<div class="ptx-acts">${p.rcptId || p.rcpt ? `<button type="button" class="btn btn-line btn-sm" data-rc="${esc(p.id)}">🧾 الإيصال</button>` : ""}${p.status === "pending" ? `<button class="btn btn-line btn-sm" data-wa="${esc(p.id)}">إعادة إرسال واتساب</button>` : ""}</div></div></article>`; }).join("") || `<div class="empty">لا توجد تحويلات مسجلة بعد.</div>`;
+    return `<article class="ptx ${esc(p.status)}"><div class="ptx-top"><span class="ptx-mi pm-${esc(p.method)}">${ico(PXI[p.method] || PXI.vodafone, 24)}</span><div class="ptx-t"><b>${esc(m.name || p.method)}</b><small>${ago(p.createdAt)}</small></div><div class="ptx-amt"><b>${esc(Number(p.amount).toLocaleString("en"))}</b><span>جنيه</span></div></div>
+    <div class="ptx-mid">${pl ? `<span class="ptx-ch pl pl-${esc(p.plan)} ok"><span class="ptx-ci">${fsv(PTH[p.plan], 15)}</span>${pl}</span>` : ""}<span class="ptx-ch">من <bdi dir="ltr">${esc(p.from)}</bdi></span>${p.note ? `<span class="ptx-ch ptx-nt"><span class="pxs">${ico(PXI.note, 14)}</span>${esc(p.note)}</span>` : ""}</div>
+    <div class="ptx-bot">${payStatus(p.status)}<div class="ptx-acts">${p.rcptId || p.rcpt ? `<button type="button" class="btn btn-line btn-sm" data-rc="${esc(p.id)}">${ico(PXI.rcpt, 15)} الإيصال</button>` : ""}${p.status === "pending" ? `<button class="btn btn-line btn-sm" data-wa="${esc(p.id)}">${ico(PXI.wa, 15)} إعادة إرسال واتساب</button>` : ""}</div></div></article>`; }).join("") || `<div class="empty">لا توجد تحويلات مسجلة بعد.</div>`;
   $$("[data-rc]", ph).forEach(b => b.onclick = () => { const p = PY.list.find(x => x.id === b.dataset.rc); if (p) showRcpt(p); });
   $$("[data-wa]", ph).forEach(b => b.onclick = () => { const p = PY.list.find(x => x.id === b.dataset.wa); if (p) openWA(payMsg(p)); });
 }
