@@ -696,19 +696,21 @@ html[data-theme=light] .ovp .pbar-track i{background:linear-gradient(90deg,#fff,
 html[data-theme=light] .ov-cup{color:#fff;background:rgba(255,255,255,.22);border-color:rgba(255,255,255,.35)}
 html[data-theme=light] .ovp.full{box-shadow:0 12px 26px rgba(70,50,150,.35),0 0 0 2px rgba(255,255,255,.45)}html[data-theme=light] .ovp.full .ov-cup{color:#6a58b8;background:linear-gradient(145deg,#fff,#ffe9a8);border-color:#fff;box-shadow:0 0 16px rgba(255,255,255,.6)}
 html[data-theme=light] .shero h1 .hl{background-image:linear-gradient(100deg,#5a46a8,#7a68c8 50%,#6a58b8);-webkit-background-clip:text;background-clip:text;color:transparent}
-/* ---- النهاري: تقدمك في هذا الفيديو زمردي + ذهبي بتأثير لمعة ---- */
-html[data-theme=light] .pbar.wpb{position:relative;overflow:hidden;isolation:isolate;border:0;background:radial-gradient(120% 140% at 100% 0%,rgba(255,223,140,.35),transparent 55%),linear-gradient(135deg,#1fae85,#0f7a68 60%,#0b5f5a);box-shadow:0 12px 26px rgba(11,95,90,.32),inset 0 1px 0 rgba(255,255,255,.3)}
-html[data-theme=light] .pbar.wpb:after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(110deg,transparent 35%,rgba(255,255,255,.2) 50%,transparent 65%);transform:translateX(-120%);animation:wpbSw 5s ease-in-out infinite}
+/* ---- النهاري: تقدمك في هذا الفيديو توت/وردي بموجات ولمعة ---- */
+html[data-theme=light] .pbar.wpb{position:relative;overflow:hidden;isolation:isolate;border:0;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='120' viewBox='0 0 400 120'%3E%3Cpath d='M0 70 Q50 30 100 70 T200 70 T300 70 T400 70 V120 H0Z' fill='%23fff' fill-opacity='.10'/%3E%3Cpath d='M0 90 Q50 55 100 90 T200 90 T300 90 T400 90 V120 H0Z' fill='%23fff' fill-opacity='.10'/%3E%3C/svg%3E") repeat-x 0 100%/260px 80px,radial-gradient(90px 90px at 96% 12%,rgba(255,255,255,.22),transparent 70%),radial-gradient(120px 120px at 4% 110%,rgba(130,150,235,.35),transparent 70%),linear-gradient(135deg,#e5497a,#c92c5f 60%,#a8204f);box-shadow:0 14px 28px rgba(190,35,90,.32),inset 0 1px 0 rgba(255,255,255,.35);animation:wpbWave 14s linear infinite}
+@keyframes wpbWave{to{background-position:260px 100%,0 0,0 0,0 0}}
+html[data-theme=light] .pbar.wpb:after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(110deg,transparent 35%,rgba(255,255,255,.22) 50%,transparent 65%);transform:translateX(-120%);animation:wpbSw 5s ease-in-out infinite}
 @keyframes wpbSw{0%,60%{transform:translateX(-120%)}100%{transform:translateX(120%)}}
-html[data-theme=light] .pbar.wpb .ring{background:conic-gradient(#ffe9a8 calc(var(--p)*1%),rgba(255,255,255,.22) 0);box-shadow:0 0 18px rgba(255,223,140,.45)}
-html[data-theme=light] .pbar.wpb .ring:before{background:#0e6f62}
-html[data-theme=light] .pbar.wpb .ring b{color:#ffe9a8}
-html[data-theme=light] .pbar.wpb .vph span{color:#fff}html[data-theme=light] .pbar.wpb .vph small{color:rgba(255,255,255,.9)}
-html[data-theme=light] .pbar.wpb .vtrack{background:rgba(0,0,0,.2);box-shadow:inset 0 1px 3px rgba(0,0,0,.25)}
-html[data-theme=light] .pbar.wpb .vtrack i{background:linear-gradient(90deg,#f0c04a,#ffe9a8,#f0c04a);background-size:200% 100%;box-shadow:0 0 14px rgba(255,223,140,.7)}
+html[data-theme=light] .pbar.wpb .ring{background:conic-gradient(#fff4e4 calc(var(--p)*1%),rgba(255,255,255,.26) 0);box-shadow:0 0 0 4px rgba(255,255,255,.12),0 0 20px rgba(255,214,225,.5)}
+html[data-theme=light] .pbar.wpb .ring:before{background:linear-gradient(145deg,#d63a69,#b32558)}
+html[data-theme=light] .pbar.wpb .ring b{color:#fff4e4}
+html[data-theme=light] .pbar.wpb .vph span{color:#fff;text-shadow:0 1px 2px rgba(120,10,50,.3)}html[data-theme=light] .pbar.wpb .vph small{color:rgba(255,244,228,.92)}
+html[data-theme=light] .pbar.wpb .vtrack{height:10px;background:rgba(255,255,255,.28);box-shadow:inset 0 1px 3px rgba(120,10,50,.3)}
+html[data-theme=light] .pbar.wpb .vtrack i{overflow:visible;background:linear-gradient(90deg,#ffd9e4,#fff4e4,#ffd9e4);background-size:200% 100%;box-shadow:0 0 14px rgba(255,230,238,.75)}
+html[data-theme=light] .pbar.wpb .vtrack i:after{content:"";position:absolute;inset-inline-end:-8px;top:50%;width:18px;height:18px;margin-top:-9px;border-radius:50%;background:#fff4e4;border:4px solid #d63a69;box-shadow:0 0 0 3px rgba(255,255,255,.35),0 3px 10px rgba(120,10,50,.45)}
 html[data-theme=light] .pbar.wpb .vtrack u{background:rgba(255,255,255,.7)}html[data-theme=light] .pbar.wpb .vtrack u.fin{background:none}
-html[data-theme=light] .pbar.wpb.fin100{box-shadow:0 14px 30px rgba(11,95,90,.4),0 0 0 2px rgba(255,223,140,.7)}html[data-theme=light] .pbar.wpb.fin100 .ring b{color:#ffe9a8}
-@media(prefers-reduced-motion:reduce){html[data-theme=light] .pbar.wpb:after{animation:none}}
+html[data-theme=light] .pbar.wpb.fin100{box-shadow:0 16px 32px rgba(190,35,90,.42),0 0 0 2px rgba(255,244,228,.8)}html[data-theme=light] .pbar.wpb.fin100 .ring b{color:#fff4e4}
+@media(prefers-reduced-motion:reduce){html[data-theme=light] .pbar.wpb,html[data-theme=light] .pbar.wpb:after{animation:none}}
 /* ===== رصد الدرجات ===== */
 .gr-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px}.gr-head h2{margin:0}.gr-head small{color:var(--muted)}.gr-hi{flex:none;width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent-deep),var(--accent-2));color:#1b1405;box-shadow:0 8px 22px -10px var(--accent)}
 .gr-mn{margin-inline-start:auto;display:flex;align-items:center;gap:6px}.gr-mn input{max-width:none;width:200px}.gr-mn .ib{color:var(--fg)}
