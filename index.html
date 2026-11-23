@@ -797,6 +797,17 @@ html[data-theme=light] body:has(.pnav.sn) :is(.vcard,.athumb,.cont-th,.avpick bu
 html[data-theme=light] body:has(.pnav.sn) main :is(.avatar,.thumb,.athumb,.cont-th) img:hover,html[data-theme=light] body:has(.pnav.sn) .picker img:hover,html[data-theme=light] body:has(.pnav.sn) .cb img:hover{outline:2px solid rgba(214,58,105,.6);outline-offset:2px}
 html[data-theme=light] body:has(.pnav.sn) .emo button:hover,html[data-theme=light] body:has(.pnav.sn) .emo span:hover{background:rgba(214,58,105,.12)}
 html[data-theme=light] body:has(.pnav.sn) .ci{padding-inline:10px;margin-inline:-10px;border-radius:14px;transition:background .2s}html[data-theme=light] body:has(.pnav.sn) .ci:hover{background:rgba(214,58,105,.06)}
+/* ---- النهاري: الأزرار الذهبية، الشاشة التحميل، بطاقة المدرس، شريط الإيموشن ---- */
+html[data-theme=light] .eif svg stop:nth-child(1){stop-color:#ffb3c8}html[data-theme=light] .eif svg stop:nth-child(2){stop-color:#c92c5f}
+html[data-theme=light] .eif svg{filter:drop-shadow(0 4px 12px rgba(214,58,105,.4))}
+html[data-theme=light] .eif .esp{background:#ffd3df;box-shadow:0 0 10px 3px rgba(214,58,105,.7)}
+html[data-theme=light] body:has(.pnav.sn) .btn-fill{background:linear-gradient(135deg,#e5497a,#c92c5f 60%,#a8204f);color:#fff4e4;border-color:transparent;box-shadow:0 10px 24px -8px rgba(190,35,90,.55),inset 0 1px 0 rgba(255,255,255,.3)}
+html[data-theme=light] body:has(.pnav.sn) .btn-fill:hover{filter:brightness(1.07);box-shadow:0 14px 28px -8px rgba(190,35,90,.65),inset 0 1px 0 rgba(255,255,255,.3)}
+html[data-theme=light] .tcard .disc{background:linear-gradient(160deg,#f58aa5 0%,#d63a69 55%,#8f1d47 100%);box-shadow:0 14px 34px -8px rgba(190,35,90,.45)}
+html[data-theme=light] .tcard .disc::before{background:conic-gradient(from 0deg,transparent 0 25%,#d63a69 50%,#f58aa5 75%,transparent 100%)}
+html[data-theme=light] .tcard .orbit i{background:#ffe3ec;box-shadow:0 0 12px 3px rgba(214,58,105,.75)}
+html[data-theme=light] .tcard:hover{border-color:rgba(214,58,105,.5)}
+html[data-theme=light] .emo{background:linear-gradient(135deg,rgba(214,58,105,.08),rgba(130,150,235,.07));border-color:rgba(214,58,105,.2)}
 /* ===== رصد الدرجات ===== */
 .gr-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px}.gr-head h2{margin:0}.gr-head small{color:var(--muted)}.gr-hi{flex:none;width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent-deep),var(--accent-2));color:#1b1405;box-shadow:0 8px 22px -10px var(--accent)}
 .gr-mn{margin-inline-start:auto;display:flex;align-items:center;gap:6px}.gr-mn input{max-width:none;width:200px}.gr-mn .ib{color:var(--fg)}
