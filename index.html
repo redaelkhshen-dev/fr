@@ -787,6 +787,16 @@ html[data-theme=light] .play i{background:rgba(214,58,105,.94);color:#fff4e4;ani
 html[data-theme=light] .vcard:hover{border-color:rgba(214,58,105,.5);box-shadow:0 12px 26px rgba(190,35,90,.14)}
 html[data-theme=light] .num{color:#ffb8cd}
 html[data-theme=light] .vw svg{color:#ff9db8}
+/* ---- النهاري: لون التوت لكل أيقونات صفحة الطالب وتأثير المرور ---- */
+html[data-theme=light] body:has(.pnav.sn){--accent-text:#c92c5f}
+html[data-theme=light] body:has(.pnav.sn) main .fsv,html[data-theme=light] body:has(.pnav.sn) main .ch svg,html[data-theme=light] body:has(.pnav.sn) main .xchip svg,html[data-theme=light] body:has(.pnav.sn) .vs svg,html[data-theme=light] body:has(.pnav.sn) .empty svg{color:#c92c5f}
+html[data-theme=light] body:has(.pnav.sn) main .btn-fill svg,html[data-theme=light] body:has(.pnav.sn) main .btn-fill .fsv,html[data-theme=light] body:has(.pnav.sn) .tab.on svg,html[data-theme=light] body:has(.pnav.sn) .pnav a.pn.on svg{color:inherit}
+html[data-theme=light] body:has(.pnav.sn) .stars-ro,html[data-theme=light] body:has(.pnav.sn) .star.on{color:#e5497a}
+html[data-theme=light] body:has(.pnav.sn) :is(.fcard,.hwc,.xcard,.arow,.ci,.vs,.rate,.fcd,.sb-card):hover{border-color:rgba(214,58,105,.5);box-shadow:0 10px 24px rgba(190,35,90,.12)}
+html[data-theme=light] body:has(.pnav.sn) :is(.vcard,.athumb,.cont-th,.avpick button,.picker button,.avgrid button,.pk-av):hover{border-color:rgba(214,58,105,.55);box-shadow:0 10px 24px rgba(190,35,90,.16)}
+html[data-theme=light] body:has(.pnav.sn) main :is(.avatar,.thumb,.athumb,.cont-th) img:hover,html[data-theme=light] body:has(.pnav.sn) .picker img:hover,html[data-theme=light] body:has(.pnav.sn) .cb img:hover{outline:2px solid rgba(214,58,105,.6);outline-offset:2px}
+html[data-theme=light] body:has(.pnav.sn) .emo button:hover,html[data-theme=light] body:has(.pnav.sn) .emo span:hover{background:rgba(214,58,105,.12)}
+html[data-theme=light] body:has(.pnav.sn) .ci{padding-inline:10px;margin-inline:-10px;border-radius:14px;transition:background .2s}html[data-theme=light] body:has(.pnav.sn) .ci:hover{background:rgba(214,58,105,.06)}
 /* ===== رصد الدرجات ===== */
 .gr-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px}.gr-head h2{margin:0}.gr-head small{color:var(--muted)}.gr-hi{flex:none;width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent-deep),var(--accent-2));color:#1b1405;box-shadow:0 8px 22px -10px var(--accent)}
 .gr-mn{margin-inline-start:auto;display:flex;align-items:center;gap:6px}.gr-mn input{max-width:none;width:200px}.gr-mn .ib{color:var(--fg)}
