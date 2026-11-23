@@ -812,6 +812,37 @@ html[data-theme=light] .tcard .orbit i{background:#ffe3ec;box-shadow:0 0 12px 3p
 html[data-theme=light] .tcard:hover{border-color:rgba(214,58,105,.5)}
 html[data-theme=light] .emo{background:linear-gradient(135deg,rgba(214,58,105,.08),rgba(130,150,235,.07));border-color:rgba(214,58,105,.2)}
 html[data-theme=light] .shero h1 .hl{background-image:linear-gradient(100deg,#c92c5f,#e5497a 50%,#a8204f);-webkit-background-clip:text;background-clip:text;color:transparent}
+/* ===== صفحة المدرس بتصميم الملف الشخصي ===== */
+.tpf-main{padding-top:20px}.tpf{max-width:640px;margin:0 auto;border-radius:30px;overflow:hidden;background:var(--card);border:1px solid var(--line);box-shadow:0 24px 60px -20px rgba(0,0,0,.5);animation:tpfIn .6s both}
+@keyframes tpfIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.tpf-top{--g1:#e8c566;--g2:#b8862b;--g3:#7a5712;position:relative;height:210px;padding:18px 18px 0;background:linear-gradient(145deg,var(--g1),var(--g2) 60%,var(--g3));color:#1a1405;display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.tpf-c{position:absolute;border-radius:50%;background:rgba(255,255,255,.2);pointer-events:none}.tpf-c.c1{width:150px;height:150px;top:-50px;inset-inline-end:-40px;background:rgba(255,255,255,.16)}.tpf-c.c2{width:46px;height:46px;top:70px;inset-inline-start:70%;background:rgba(255,255,255,.28);animation:tpfF 6s ease-in-out infinite}.tpf-c.c3{width:20px;height:20px;top:104px;inset-inline-start:14%;background:rgba(255,230,160,.9);animation:tpfF 5s ease-in-out -2s infinite}.tpf-c.c4{width:90px;height:90px;top:90px;inset-inline-start:-30px;background:rgba(255,255,255,.14)}
+@keyframes tpfF{50%{transform:translateY(-9px)}}
+.tpf-bk,.tpf-lv{position:relative;z-index:1}.tpf-bk{width:40px;height:40px;border-radius:50%;border:0;background:#fff;color:#2a2310;display:grid;place-items:center;cursor:pointer;box-shadow:0 6px 14px rgba(0,0,0,.2)}.tpf-bk svg{width:18px;height:18px}
+.tpf-ttl{position:absolute;inset-inline:0;top:26px;text-align:center;font-weight:800;pointer-events:none}
+.tpf-lv{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:99px;background:rgba(255,255,255,.35);font-size:.8rem;font-weight:800;border:1px solid rgba(255,255,255,.5)}
+.tpf-av{position:absolute;left:50%;bottom:-58px;width:116px;height:116px;margin-left:-58px;border-radius:50%;padding:4px;background:var(--card);box-shadow:0 12px 28px rgba(0,0,0,.35);z-index:2;animation:tpfP .8s .15s cubic-bezier(.2,.8,.2,1) both}
+@keyframes tpfP{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:none}}
+.tpf-av img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block}.tpf-ok{position:absolute;inset-inline-end:2px;bottom:6px;width:30px;height:30px;border-radius:50%;background:#2fb872;color:#fff;border:3px solid var(--card);display:grid;place-items:center}
+.tpf-sheet{position:relative;margin-top:-26px;padding:96px 20px 22px;border-radius:30px 30px 0 0;background:var(--card);text-align:center}
+.tpf-sheet h1{font:800 1.6rem var(--fd);color:var(--fg)}.tpf-role{display:inline-flex;align-items:center;gap:6px;margin-top:4px;color:var(--muted);font-size:.95rem}.tpf-role svg{color:var(--accent-text)}
+.tpf-st{display:grid;grid-template-columns:repeat(3,1fr);margin:18px 0 6px;padding:14px 4px;border-radius:20px;border:1px solid var(--line);background:color-mix(in srgb,var(--accent) 5%,var(--card))}
+.tpf-st>div{display:grid;justify-items:center;gap:3px;padding:0 4px}.tpf-st>div+div{border-inline-start:1px solid var(--line)}.tpf-si{color:var(--accent-text);display:grid;place-items:center}.tpf-st b{font:800 1.5rem var(--fd);color:var(--fg);line-height:1.1}.tpf-st small{color:var(--muted);font-size:.78rem}
+.tpf-h{font-size:1.02rem;font-weight:800;text-align:start;margin:18px 0 8px;color:var(--fg)}.tpf-hh{display:flex;align-items:baseline;justify-content:space-between;margin-top:6px}.tpf-hh span{color:var(--accent-text);font-size:.8rem;font-weight:700}
+.tpf-note{text-align:start;color:var(--muted);line-height:1.9;font-size:.93rem}
+.tpf-cr{list-style:none;display:grid;gap:10px;padding:0;margin:4px 0 6px}.tpf-cr li{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:18px;border:1px solid var(--line);background:var(--card);text-align:start;box-shadow:0 3px 12px rgba(0,0,0,.06);transition:transform .25s,border-color .25s,box-shadow .25s;animation:tpfIn .5s var(--d,0ms) both}.tpf-cr li:hover{transform:translateY(-2px);border-color:var(--accent);box-shadow:0 10px 22px rgba(0,0,0,.14)}
+.tpf-ci{flex:none;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;color:#fff;box-shadow:0 6px 14px -4px rgba(0,0,0,.35)}.tpf-ci.c0{background:linear-gradient(135deg,#f08a5d,#d9534f)}.tpf-ci.c1{background:linear-gradient(135deg,#4fc3c7,#2a8fa6)}.tpf-ci.c2{background:linear-gradient(135deg,#9a88dc,#6a58b8)}.tpf-ci.c3{background:linear-gradient(135deg,#e8c566,#b8862b)}
+.tpf-ct{flex:1;min-width:0}.tpf-ct b{display:block;font-size:.93rem;line-height:1.55;color:var(--fg)}.tpf-ct small{color:var(--muted);font-size:.8rem;line-height:1.5}
+.tpf-vf{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:rgba(47,184,114,.15);color:#2fb872}
+.tpf .tp-grid{margin-top:8px;text-align:start}
+.tpf-cta{display:flex;align-items:center;gap:14px;margin-top:20px;padding:14px 18px;border-radius:22px;text-align:start;color:#1a1405;background:linear-gradient(135deg,#e8c566,#b8862b 70%);box-shadow:0 14px 28px -10px rgba(184,134,43,.6);transition:transform .25s}.tpf-cta:hover{transform:translateY(-2px)}
+.tpf-cta>span:nth-child(2){flex:1}.tpf-cta b{display:block}.tpf-cta small{opacity:.8}.tpf-gi{width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.4);display:grid;place-items:center}.tpf-gi svg{width:22px;height:22px}.tpf-ar{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.4);display:grid;place-items:center}
+html[data-theme=light] .tpf-top{--g1:#ee5b88;--g2:#c92c5f;--g3:#9c1e4b;color:#fff}html[data-theme=light] .tpf-bk{color:#c92c5f}html[data-theme=light] .tpf-lv{color:#fff;background:rgba(255,255,255,.22)}
+html[data-theme=light] .tpf{box-shadow:0 20px 50px -18px rgba(190,35,90,.35)}html[data-theme=light] .tpf-role svg,html[data-theme=light] .tpf-si,html[data-theme=light] .tpf-hh span{color:#c92c5f}html[data-theme=light] .tpf-st{background:rgba(214,58,105,.05);border-color:rgba(214,58,105,.18)}
+html[data-theme=light] .tpf-cr li{border-color:#f0dfe6}html[data-theme=light] .tpf-cr li:hover{border-color:rgba(214,58,105,.5);box-shadow:0 10px 22px rgba(190,35,90,.14)}
+html[data-theme=light] .tpf-cta{color:#fff4e4;background:linear-gradient(135deg,#e5497a,#c92c5f 60%,#a8204f);box-shadow:0 14px 28px -10px rgba(190,35,90,.6)}
+@media(max-width:480px){.tpf-ttl{display:none}.tpf{border-radius:24px}.tpf-top{height:190px}.tpf-sheet{padding:92px 14px 18px}.tpf-sheet h1{font-size:1.4rem}}
+@media(prefers-reduced-motion:reduce){.tpf,.tpf-av,.tpf-cr li,.tpf-c{animation:none}}
 /* ===== رصد الدرجات ===== */
 .gr-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px}.gr-head h2{margin:0}.gr-head small{color:var(--muted)}.gr-hi{flex:none;width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent-deep),var(--accent-2));color:#1b1405;box-shadow:0 8px 22px -10px var(--accent)}
 .gr-mn{margin-inline-start:auto;display:flex;align-items:center;gap:6px}.gr-mn input{max-width:none;width:200px}.gr-mn .ib{color:var(--fg)}
@@ -1952,18 +1983,19 @@ function renderTeacher() {
   S.page = "teacher";
   const logged = S.user && S.student && S.student.status === "active";
   const cards = Object.values(TPI).map(([k, t, h, u, d]) => `<a class="tp-c s-${k}" href="${esc(u)}" target="_blank" rel="noopener"><span class="tp-ci">${SVG[k] || fsv('<path d="M6 9h4v11H6zM8 4a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm4 5h4v2c.8-1.4 2.300-2.200 4-2.200V20h-4v-5c0-1.300-.7-2-1.800-2S14 13.700 14 15v5h-4z"/>', 24)}</span><span class="tp-ct"><b>${t}</b><small>${d}</small><bdi dir="ltr">${h}</bdi></span><span class="tp-go">${ARROW}</span></a>`).join("");
-  app.innerHTML = `${logged ? studentHeader() : pubHeader()}<main class="wrap sec"><p style="margin-bottom:16px"><button class="btn btn-line btn-sm" id="tpb" type="button">← العودة</button></p>
-  <section class="tp-hero"><div class="tp-glow" aria-hidden="true"></div><div class="tp-stage"><span class="tp-rg g1" aria-hidden="true"></span><span class="tp-rg g2" aria-hidden="true"></span><span class="tp-sp p1">✦</span><span class="tp-sp p2">✧</span><span class="tp-sp p3">✦</span><span class="tp-sp p4">✧</span><div class="disc-wrap tp-disc" id="tpd"><div class="disc"><span class="orbit" aria-hidden="true"><i></i></span><img src="teacher.jpg" alt="مسيو رضا الخشن"></div></div></div>
-    <h1>مسيو رضا الخشن</h1><p class="tp-role">مدرّس اللغة الفرنسية</p><span class="tp-line" aria-hidden="true"></span>
-    <ul class="tp-cr">${TP_CR.map(([i, t, u]) => `<li><span class="tp-cri">${fsv(TP_IC[i], 20)}</span><span><b>${t}</b><small>${u}</small></span></li>`).join("")}</ul></section>
-  <section class="tp-sec"><h2>تواصل معي</h2><div class="tp-grid">${cards}</div></section></main>`;
+  app.innerHTML = `${logged ? studentHeader() : pubHeader()}<main class="wrap sec tpf-main">
+  <div class="tpf"><header class="tpf-top" aria-hidden="false"><span class="tpf-c c1"></span><span class="tpf-c c2"></span><span class="tpf-c c3"></span><span class="tpf-c c4"></span>
+    <button class="tpf-bk" id="tpb" type="button" aria-label="رجوع">${fsv('<path d="M9 5l7 7-7 7"/>', 20)}</button><span class="tpf-ttl">الملف الشخصي</span><span class="tpf-lv">${fsv(TP_IC.cap, 16)} مدرّس معتمد</span>
+    <div class="tpf-av"><img src="teacher.jpg" alt="مسيو رضا الخشن"><span class="tpf-ok">${fsv('<path d="M5 12.500l4.500 4.500L19 7.500"/>', 16)}</span></div></header>
+  <section class="tpf-sheet"><h1>مسيو رضا الخشن</h1><p class="tpf-role">${fsv(TP_IC.book, 15)} مدرّس اللغة الفرنسية</p>
+    <div class="tpf-st"><div><span class="tpf-si">${fsv(TP_IC.cap, 20)}</span><b>${TP_CR.length}</b><small>شهادة ومؤهل</small></div><div><span class="tpf-si">${fsv(TP_IC.globe, 20)}</span><b>${Object.keys(TPI).length}</b><small>وسائل تواصل</small></div><div><span class="tpf-si">${fsv(TP_IC.check, 20)}</span><b>${Object.keys(STAGES).length}</b><small>مراحل دراسية</small></div></div>
+    <h2 class="tpf-h">نبذة</h2><p class="tpf-note">مدرّس اللغة الفرنسية، حاصل على دراسات عليا في مناهج وطرق تدريس اللغة الفرنسية من جامعة المنصورة، وعلى شهادات دولية في التعليم عن بُعد والذكاء الاصطناعي وتقييم اختبارات اللغة الفرنسية.</p>
+    <div class="tpf-hh"><h2 class="tpf-h">الشهادات والمؤهلات</h2><span>${TP_CR.length} شهادات</span></div>
+    <ul class="tpf-cr">${TP_CR.map(([i, t, u], n) => `<li style="--d:${n * 60}ms"><span class="tpf-ci c${n % 4}">${fsv(TP_IC[i], 22)}</span><span class="tpf-ct"><b>${t}</b><small>${u}</small></span><span class="tpf-vf" title="معتمد">${fsv('<path d="M5 12.500l4.500 4.500L19 7.500"/>', 14)}</span></li>`).join("")}</ul>
+    <div class="tpf-hh"><h2 class="tpf-h">تواصل معي</h2></div><div class="tp-grid">${cards}</div>
+    <a class="tpf-cta" href="${esc(LINKS.wa)}" target="_blank" rel="noopener"><span class="tpf-gi">${SVG.wa || fsv('<path d="M21 12a9 9 0 1 1-4-7.500"/>', 22)}</span><span><b>راسلني على واتساب</b><small>أجيب على استفساراتك مباشرة</small></span><span class="tpf-ar">${ARROW}</span></a></section></div></main>`;
   if (!logged) bindPubNav();
   $("#tpb").onclick = () => (history.length > 1 ? history.back() : go("/"));
-  const st = $(".tp-stage"), d = $("#tpd");
-  if (st && d && !matchMedia("(prefers-reduced-motion:reduce)").matches) {
-    st.addEventListener("pointermove", e => { const r = st.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5; d.style.transform = `perspective(700px) rotateY(${x * 18}deg) rotateX(${-y * 18}deg)`; });
-    st.addEventListener("pointerleave", () => { d.style.transform = ""; });
-  }
 }
 function renderInstall() {
   S.page = "install";
