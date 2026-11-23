@@ -684,18 +684,21 @@ html[data-theme=light] .mini .mn-i{color:#fff;background:rgba(255,255,255,.24);b
 html[data-theme=light] .mini b{-webkit-text-fill-color:#fff;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.15)}
 html[data-theme=light] .mini span{color:rgba(255,255,255,.92)}
 html[data-theme=light] .mini>div:hover{box-shadow:0 14px 28px rgba(30,50,100,.24)}
-/* ---- النهاري: تقدمك العام بنفسجي مميز ---- */
-html[data-theme=light] .ovp{border:0;background:linear-gradient(135deg,#9a88dc,#6a58b8);box-shadow:0 10px 22px rgba(70,50,150,.25),inset 0 1px 0 rgba(255,255,255,.3)}
-html[data-theme=light] .ovp:before{opacity:1;background:radial-gradient(circle,rgba(255,255,255,.28),transparent 70%)}
-html[data-theme=light] .ov-ring{background:conic-gradient(from 0deg,#fff calc(var(--p)*1%),rgba(255,255,255,.25) 0)}
-html[data-theme=light] .ov-ring:before{background:#7463c4}
-html[data-theme=light] .ov-ring b{color:#fff}
-html[data-theme=light] .ov-t em{color:#fff}html[data-theme=light] .ov-t small{color:rgba(255,255,255,.88)}
-html[data-theme=light] .ovp .pbar-track{background:rgba(255,255,255,.28);border-color:transparent}
-html[data-theme=light] .ovp .pbar-track i{background:linear-gradient(90deg,#fff,#ffe9a8,#fff);background-size:200% 100%}
-html[data-theme=light] .ov-cup{color:#fff;background:rgba(255,255,255,.22);border-color:rgba(255,255,255,.35)}
-html[data-theme=light] .ovp.full{box-shadow:0 12px 26px rgba(70,50,150,.35),0 0 0 2px rgba(255,255,255,.45)}html[data-theme=light] .ovp.full .ov-cup{color:#6a58b8;background:linear-gradient(145deg,#fff,#ffe9a8);border-color:#fff;box-shadow:0 0 16px rgba(255,255,255,.6)}
-html[data-theme=light] .shero h1 .hl{background-image:linear-gradient(100deg,#5a46a8,#7a68c8 50%,#6a58b8);-webkit-background-clip:text;background-clip:text;color:transparent}
+/* ---- النهاري: تقدمك العام بنفس توت/وردي تقدمك في الفيديو (حجم مناسب للكمبيوتر) ---- */
+html[data-theme=light] .ovp{max-width:520px;gap:16px;padding:14px 18px;border:0;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='120' viewBox='0 0 400 120'%3E%3Cpath d='M0 70 Q50 30 100 70 T200 70 T300 70 T400 70 V120 H0Z' fill='%23fff' fill-opacity='.10'/%3E%3Cpath d='M0 90 Q50 55 100 90 T200 90 T300 90 T400 90 V120 H0Z' fill='%23fff' fill-opacity='.10'/%3E%3C/svg%3E") repeat-x 0 100%/220px 64px,radial-gradient(90px 90px at 96% 12%,rgba(255,255,255,.22),transparent 70%),radial-gradient(120px 120px at 4% 110%,rgba(130,150,235,.35),transparent 70%),linear-gradient(135deg,#e5497a,#c92c5f 60%,#a8204f);box-shadow:0 14px 28px rgba(190,35,90,.32),inset 0 1px 0 rgba(255,255,255,.35);animation:ovWave 14s linear infinite}
+@keyframes ovWave{to{background-position:220px 100%,0 0,0 0,0 0}}
+html[data-theme=light] .ovp:before{opacity:1;inset:0;width:auto;height:auto;border-radius:0;background:linear-gradient(110deg,transparent 35%,rgba(255,255,255,.22) 50%,transparent 65%);transform:translateX(-120%);animation:wpbSw 5s ease-in-out infinite}
+html[data-theme=light] .ov-ring{width:64px;height:64px;background:conic-gradient(from 0deg,#fff4e4 calc(var(--p)*1%),rgba(255,255,255,.26) 0);box-shadow:0 0 0 4px rgba(255,255,255,.12),0 0 20px rgba(255,214,225,.5)}
+html[data-theme=light] .ov-ring:before{background:linear-gradient(145deg,#d63a69,#b32558)}
+html[data-theme=light] .ov-ring b{color:#fff4e4;font-size:1rem}
+html[data-theme=light] .ov-t em{color:#fff;font-size:1.02rem;text-shadow:0 1px 2px rgba(120,10,50,.3)}html[data-theme=light] .ov-t small{color:rgba(255,244,228,.92)}
+html[data-theme=light] .ovp .pbar-track{height:10px;background:rgba(255,255,255,.28);box-shadow:inset 0 1px 3px rgba(120,10,50,.3);border-color:transparent;overflow:visible}
+html[data-theme=light] .ovp .pbar-track i{position:relative;overflow:visible;background:linear-gradient(90deg,#ffd9e4,#fff4e4,#ffd9e4);background-size:200% 100%;box-shadow:0 0 14px rgba(255,230,238,.75)}
+html[data-theme=light] .ovp .pbar-track i:after{content:"";position:absolute;inset-inline-end:-8px;top:50%;width:18px;height:18px;margin-top:-9px;border-radius:50%;background:#fff4e4;border:4px solid #d63a69;box-shadow:0 0 0 3px rgba(255,255,255,.35),0 3px 10px rgba(120,10,50,.45)}
+html[data-theme=light] .ov-cup{color:#fff4e4;background:rgba(255,255,255,.2);border-color:rgba(255,244,228,.4)}
+html[data-theme=light] .ovp.full{box-shadow:0 16px 32px rgba(190,35,90,.42),0 0 0 2px rgba(255,244,228,.8)}html[data-theme=light] .ovp.full .ov-cup{color:#c92c5f;background:linear-gradient(145deg,#fff,#ffe3ec);border-color:#fff;box-shadow:0 0 16px rgba(255,255,255,.6)}
+@media(prefers-reduced-motion:reduce){html[data-theme=light] .ovp,html[data-theme=light] .ovp:before{animation:none}}
+@media(max-width:420px){html[data-theme=light] .ovp{padding:12px;gap:10px}html[data-theme=light] .ov-ring{width:56px;height:56px}}
 /* ---- النهاري: تقدمك في هذا الفيديو توت/وردي بموجات ولمعة ---- */
 html[data-theme=light] .pbar.wpb{position:relative;overflow:hidden;isolation:isolate;border:0;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='120' viewBox='0 0 400 120'%3E%3Cpath d='M0 70 Q50 30 100 70 T200 70 T300 70 T400 70 V120 H0Z' fill='%23fff' fill-opacity='.10'/%3E%3Cpath d='M0 90 Q50 55 100 90 T200 90 T300 90 T400 90 V120 H0Z' fill='%23fff' fill-opacity='.10'/%3E%3C/svg%3E") repeat-x 0 100%/260px 80px,radial-gradient(90px 90px at 96% 12%,rgba(255,255,255,.22),transparent 70%),radial-gradient(120px 120px at 4% 110%,rgba(130,150,235,.35),transparent 70%),linear-gradient(135deg,#e5497a,#c92c5f 60%,#a8204f);box-shadow:0 14px 28px rgba(190,35,90,.32),inset 0 1px 0 rgba(255,255,255,.35);animation:wpbWave 14s linear infinite}
 @keyframes wpbWave{to{background-position:260px 100%,0 0,0 0,0 0}}
@@ -808,6 +811,7 @@ html[data-theme=light] .tcard .disc::before{background:conic-gradient(from 0deg,
 html[data-theme=light] .tcard .orbit i{background:#ffe3ec;box-shadow:0 0 12px 3px rgba(214,58,105,.75)}
 html[data-theme=light] .tcard:hover{border-color:rgba(214,58,105,.5)}
 html[data-theme=light] .emo{background:linear-gradient(135deg,rgba(214,58,105,.08),rgba(130,150,235,.07));border-color:rgba(214,58,105,.2)}
+html[data-theme=light] .shero h1 .hl{background-image:linear-gradient(100deg,#c92c5f,#e5497a 50%,#a8204f);-webkit-background-clip:text;background-clip:text;color:transparent}
 /* ===== رصد الدرجات ===== */
 .gr-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px}.gr-head h2{margin:0}.gr-head small{color:var(--muted)}.gr-hi{flex:none;width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent-deep),var(--accent-2));color:#1b1405;box-shadow:0 8px 22px -10px var(--accent)}
 .gr-mn{margin-inline-start:auto;display:flex;align-items:center;gap:6px}.gr-mn input{max-width:none;width:200px}.gr-mn .ib{color:var(--fg)}
