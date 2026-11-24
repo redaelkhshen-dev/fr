@@ -812,6 +812,13 @@ html[data-theme=light] .tcard .orbit i{background:#ffe3ec;box-shadow:0 0 12px 3p
 html[data-theme=light] .tcard:hover{border-color:rgba(214,58,105,.5)}
 html[data-theme=light] .emo{background:linear-gradient(135deg,rgba(214,58,105,.08),rgba(130,150,235,.07));border-color:rgba(214,58,105,.2)}
 html[data-theme=light] .shero h1 .hl{background-image:linear-gradient(100deg,#c92c5f,#e5497a 50%,#a8204f);-webkit-background-clip:text;background-clip:text;color:transparent}
+/* ---- النهاري: إطار صورة الطالب/المدرس بتدرج التوت + لمعة ---- */
+html[data-theme=light] body:has(.pnav.sn) .disc{background:linear-gradient(160deg,#f7a1ba 0%,#e5497a 50%,#a8204f 100%);box-shadow:0 26px 60px -14px rgba(214,58,105,.5),0 0 0 6px rgba(214,58,105,.08)}
+html[data-theme=light] body:has(.pnav.sn) .disc{animation:pop .9s cubic-bezier(.2,.8,.2,1) both,float 6s ease-in-out .9s infinite}
+html[data-theme=light] body:has(.pnav.sn) .disc::before{background:conic-gradient(from 0deg,transparent 0 25%,#c92c5f 50%,#f58aa5 75%,transparent 100%)}
+html[data-theme=light] body:has(.pnav.sn) .disc::after{background:linear-gradient(110deg,transparent 38%,rgba(255,226,236,.6) 50%,transparent 62%);background-size:260% 100%}
+html[data-theme=light] body:has(.pnav.sn) .disc img,html[data-theme=light] body:has(.pnav.sn) .disc .av{border-color:#fff4e4;box-shadow:inset 0 0 22px rgba(214,58,105,.28),0 0 0 3px rgba(255,244,228,.35)}
+html[data-theme=light] body:has(.pnav.sn) .disc img{filter:saturate(1.06) contrast(1.02)}
 /* ===== صفحة المدرس بتصميم الملف الشخصي ===== */
 .tpf-main{padding-top:20px}.tpf{max-width:640px;margin:0 auto;border-radius:30px;overflow:hidden;background:var(--card);border:1px solid var(--line);box-shadow:0 24px 60px -20px rgba(0,0,0,.5);animation:tpfIn .6s both}
 @keyframes tpfIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
