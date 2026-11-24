@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#0b0a07">
-<script>try{if(localStorage.getItem("theme")==="light")document.documentElement.dataset.theme="light"}catch(e){}</script>
+<script>try{if(localStorage.getItem("theme")==="light")document.documentElement.dataset.theme="light"}catch(e){}try{var n=navigator,c=n.connection||{};if((n.deviceMemory&&n.deviceMemory<=4)||(n.hardwareConcurrency&&n.hardwareConcurrency<=4)||c.saveData||/2g/.test(c.effectiveType||""))document.documentElement.classList.add("lite");document.addEventListener("visibilitychange",function(){document.documentElement.classList.toggle("hid",document.hidden)})}catch(e){}</script>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -32,7 +32,7 @@
 <meta name="twitter:description" content="فيديوهات شرح وملفات واختبارات وواجبات لكل المراحل.">
 <meta name="twitter:image" content="https://redaelkhshen-dev.github.io/fr/og-image.jpg">
 
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="preconnect" href="https://www.gstatic.com" crossorigin><link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js" crossorigin><link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js" crossorigin><link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js" crossorigin><link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;600;700;800&family=Tajawal:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;600;700;800&family=Tajawal:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap"></noscript>
 <style>
 :root{--bg:#0b0a07;--bg2:#100e09;--card:#17140c;--line:#3a3119;--fg:#faf5e8;--muted:#bcb193;--accent:#d4a73a;--accent-deep:#b8862b;--accent-2:#f0cf6e;--accent-text:#f0d078;--soft:rgba(212,167,58,.16);--good:#3ddc84;--bad:#ff6b7a;--warn:#ffb84d;--fd:"Cairo","Segoe UI",Tahoma,sans-serif;--fb:"Tajawal","Segoe UI",Tahoma,sans-serif;--fm:"IBM Plex Mono",ui-monospace,Consolas,monospace;color-scheme:dark}
@@ -1362,6 +1362,12 @@ html[data-theme=light] .cont-bar{height:9px;background:rgba(214,58,105,.15);box-
 html[data-theme=light] .cont-bar i{position:relative;border-radius:9px;background:linear-gradient(90deg,#f58aab,#e5497a 55%,#c92c5f);box-shadow:0 0 10px rgba(229,73,122,.55);overflow:hidden}
 html[data-theme=light] .cont-bar i:after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.55) 50%,transparent 70%);background-size:220% 100%;animation:wpbSw 3.2s ease-in-out infinite}
 html[data-theme=light] .cont .btn,html[data-theme=light] .cont-go{background:linear-gradient(135deg,#e5497a,#c92c5f 60%,#a8204f);color:#fff4e4;border-color:transparent;box-shadow:0 10px 22px -8px rgba(190,35,90,.55),inset 0 1px 0 rgba(255,255,255,.3)}
+/* ---- أداء: وضع خفيف للأجهزة الضعيفة + إيقاف الحركة والتبويب مخفي + تأجيل رسم ما خارج الشاشة ---- */
+html.hid *,html.hid *:before,html.hid *:after{animation-play-state:paused!important}
+html.lite *,html.lite *:before,html.lite *:after{animation-iteration-count:1!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+html.lite .spin,html.lite .ldr,html.lite [class*=load],html.lite [class*=spin]{animation-iteration-count:infinite!important}
+html.lite *{text-shadow:none!important}
+img{decoding:async}
 </style>
 </head>
 <body>
@@ -1724,7 +1730,9 @@ function checkPay() {
 }
 function payTab() { const t = $('.atab[data-t="payments"] .ab'); if (t) t.innerHTML = S.pp ? `<span class="pbadge">${S.pp}</span>` : ""; }
 function tabBadge() { const t = $('.atab[data-t="students"] .ab'); if (t) t.innerHTML = S.pn ? `<span class="pbadge">${S.pn}</span>` : ""; }
-function onData() {
+let _odT = 0;
+function onData() { if (_odT) return; _odT = setTimeout(() => { _odT = 0; onDataNow(); }, 40); }
+function onDataNow() {
   if (!isAdminUser() && S.student) { paintBell(); maybeNotify(); }
   if (isAdminUser()) { if ($("#abody")) fillTab(); paintHwModal(); }
   else if (S.page === "home") fillHome();
@@ -2558,7 +2566,7 @@ function fillHome() {
   { const te = $("#tabex"); if (te) { const n = visible(S.exams).filter(examOpen).filter(x => !attOf(x.id)).length; setTb(te, n ? `<span class="pbadge">${n}</span>` : ""); } }
   { const sbx = $("#subs"); if (sbx) sbx.innerHTML = subStrip(S.student); }
   { const c = $("#cont"); if (c) { const cand = visible(S.videos).map(v => ({ v, ...getProg(v.id), at: Math.max(S.student.progress?.[v.id]?.at || 0, readLocal()[v.id]?.at || 0) })).filter(x => x.p > 0 && !x.done && x.t > 5).sort((a, b) => b.at - a.at)[0];
-    c.innerHTML = cand ? `<a class="cont" href="#/watch/${esc(cand.v.id)}"><span class="cont-th"><img src="https://i.ytimg.com/vi/${esc(cand.v.ytId)}/mqdefault.jpg" alt=""><i>▶</i></span><span class="cont-b"><small>كمّل من حيث وقفت</small><b>${esc(cand.v.title)}</b><span class="cont-bar"><i style="width:${Math.min(100, cand.p)}%"></i></span><em>وقفت عند ${fmtTime(cand.t)}${cand.d ? " من " + fmtTime(cand.d) : ""} · ${agoMs(cand.at)}</em></span><span class="btn btn-fill cont-go">▶ كمّل من ${fmtTime(cand.t)}</span></a>` : ""; } }
+    c.innerHTML = cand ? `<a class="cont" href="#/watch/${esc(cand.v.id)}"><span class="cont-th"><img loading="lazy" src="https://i.ytimg.com/vi/${esc(cand.v.ytId)}/mqdefault.jpg" alt=""><i>▶</i></span><span class="cont-b"><small>كمّل من حيث وقفت</small><b>${esc(cand.v.title)}</b><span class="cont-bar"><i style="width:${Math.min(100, cand.p)}%"></i></span><em>وقفت عند ${fmtTime(cand.t)}${cand.d ? " من " + fmtTime(cand.d) : ""} · ${agoMs(cand.at)}</em></span><span class="btn btn-fill cont-go">▶ كمّل من ${fmtTime(cand.t)}</span></a>` : ""; } }
   const q = H.q.trim().toLowerCase();
   const m = x => !q || (x.title || "").toLowerCase().includes(q) || (x.description || "").toLowerCase().includes(q);
   if (H.tab === "videos") {
