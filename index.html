@@ -1431,6 +1431,9 @@ html[data-theme=light] .cr-p,html[data-theme=light] .spk-b{color:#c92c5f}html[da
 @media(max-width:600px){.cr-w{font-size:1.9rem}.cr-card{min-height:320px}.cr-rate{gap:6px}.cr-r b{font-size:.85rem}}
 @media(prefers-reduced-motion:reduce){.cr-card{transition:none}}
 @media(max-width:820px){.pnav.sn a.pn{font-size:.74rem;padding:8px 2px 7px;min-width:0}.pnav.sn a.pn span{overflow:hidden;text-overflow:ellipsis;max-width:100%}}
+/* ---- هيدر الطالب على الكمبيوتر: يتسع لخمس روابط في صف واحد ---- */
+@media(min-width:821px){.hdr-in{flex-wrap:nowrap}.pnav.sn{gap:2px;flex:1;justify-content:center;min-width:0}.pnav.sn a.pn{padding:8px 12px;font-size:.9rem;gap:6px}.hdr-r.st{gap:8px;flex:none}.hdr-r.st .chipuser .n{max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}}
+@media(min-width:821px) and (max-width:1100px){.pnav.sn a.pn span{display:none}.pnav.sn a.pn.on span{display:inline}.hdr-r.st .chipuser .n{display:none}}
 </style>
 </head>
 <body>
@@ -2269,7 +2272,7 @@ const PN_IC = {
 };
 function pnavHTML() {
   const h = location.hash.replace(/^#/, "") || "/", cur = h.startsWith("/activity") ? "activity" : h.startsWith("/profile") ? "profile" : h.startsWith("/pay") ? "pay" : h.startsWith("/cards") ? "cards" : "home";
-  return [["home", "#/", "الرئيسية"], ["activity", "#/activity", "نشاطي"], ["cards", "#/cards", "مراجعة"], ["profile", "#/profile", "بياناتي"], ["pay", "#/pay", "الدفع"]].map(([k, href, t]) => `<a class="pn ${cur === k ? "on" : ""}" href="${href}" ${cur === k ? 'aria-current="page"' : ""}><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${PN_IC[k]}</svg><span>${t}</span></a>`).join("");
+  return [["home", "#/", "الرئيسية"], ["activity", "#/activity", "نشاطي"], ["profile", "#/profile", "بياناتي"], ["pay", "#/pay", "الدفع"], ["cards", "#/cards", "مراجعة"]].map(([k, href, t]) => `<a class="pn ${cur === k ? "on" : ""}" href="${href}" ${cur === k ? 'aria-current="page"' : ""}><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${PN_IC[k]}</svg><span>${t}</span></a>`).join("");
 }
 function studentHeader(active) {
   const s = S.student;
