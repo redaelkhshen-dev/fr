@@ -1463,6 +1463,30 @@ html[data-theme=light] .cr-card{background:#fff}html[data-theme=light] .cr-ring:
 /* ---- هيدر الطالب على الكمبيوتر: يتسع لخمس روابط في صف واحد ---- */
 @media(min-width:821px){.hdr-in{flex-wrap:nowrap}.pnav.sn{gap:2px;flex:1;justify-content:center;min-width:0}.pnav.sn a.pn{padding:8px 12px;font-size:.9rem;gap:6px}.hdr-r.st{gap:8px;flex:none}.hdr-r.st .chipuser .n{max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}}
 @media(min-width:821px) and (max-width:1100px){.pnav.sn a.pn span{display:none}.pnav.sn a.pn.on span{display:inline}.hdr-r.st .chipuser .n{display:none}}
+/* ---- تأثيرات الأزرار والبطاقة ---- */
+.cr-stage{position:relative}
+.cr-card.out{animation:none}
+.cr-card.fx-good{animation:crGood .52s cubic-bezier(.4,0,.2,1) forwards}
+.cr-card.fx-easy{animation:crEasy .56s cubic-bezier(.4,0,.2,1) forwards}
+.cr-card.fx-hard{animation:crHard .38s ease-in forwards}
+.cr-card.fx-again{animation:crAgain .33s ease-in forwards}
+.cr-card.fx-skip{animation:crSkip .3s ease-in forwards}
+@keyframes crGood{0%{box-shadow:0 0 0 0 rgba(34,197,94,.7)}30%{transform:scale(1.05);border-color:#22c55e;box-shadow:0 0 0 14px rgba(34,197,94,.28),0 0 50px rgba(34,197,94,.6)}100%{transform:translateY(-150px) scale(.82) rotate(-5deg);opacity:0;border-color:#22c55e}}
+@keyframes crEasy{0%{box-shadow:0 0 0 0 rgba(56,189,248,.7)}30%{transform:scale(1.08);border-color:#38bdf8;box-shadow:0 0 0 14px rgba(56,189,248,.28),0 0 50px rgba(56,189,248,.6)}100%{transform:translateY(-190px) scale(1.15) rotate(4deg);opacity:0;border-color:#38bdf8}}
+@keyframes crHard{15%{transform:translateX(-12px)}30%{transform:translateX(12px)}45%{transform:translateX(-9px)}60%{transform:translateX(7px);border-color:#f97316}100%{transform:translateY(40px) scale(.9);opacity:0;border-color:#f97316}}
+@keyframes crAgain{30%{transform:rotate(5deg) scale(.97);border-color:#ef4444}100%{transform:translateX(120%) rotate(18deg);opacity:0;border-color:#ef4444}}
+@keyframes crSkip{to{transform:translateX(-120%) rotate(-10deg);opacity:0}}
+.cr-bp{position:absolute;width:var(--s);height:var(--s);border-radius:50%;pointer-events:none;z-index:5;animation:crBp .8s cubic-bezier(.2,.8,.3,1) forwards}
+@keyframes crBp{0%{transform:translate(-50%,-50%) scale(1);opacity:1}100%{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy) + 60px)) scale(.2);opacity:0}}
+.cr-pop{position:absolute;inset:0;display:grid;place-content:center;justify-items:center;pointer-events:none;z-index:6;animation:crPop .75s cubic-bezier(.2,1.4,.4,1) forwards}
+.cr-pop b{width:86px;height:86px;border-radius:50%;display:grid;place-items:center;font-size:2.6rem;color:#fff;box-shadow:0 12px 30px rgba(0,0,0,.35)}
+.cr-pop.good b{background:linear-gradient(135deg,#4ade80,#16a34a)}.cr-pop.easy b{background:linear-gradient(135deg,#38bdf8,#2563eb)}
+.cr-pop span{margin-top:8px;padding:4px 16px;border-radius:999px;background:rgba(0,0,0,.6);color:#fff;font-weight:800}
+@keyframes crPop{0%{transform:scale(0);opacity:0}35%{transform:scale(1.2);opacity:1}70%{transform:scale(1);opacity:1}100%{transform:scale(1.1) translateY(-30px);opacity:0}}
+.cr-a{position:relative;overflow:hidden}.cr-a:active span{transform:scale(.85)}.cr-a span{transition:transform .15s}
+.cr-a.good:hover span,.cr-a.easy:hover span{transform:scale(1.12) rotate(-6deg)}
+@media(prefers-reduced-motion:reduce){.cr-card[class*=fx-]{animation:none;opacity:0}.cr-bp,.cr-pop{display:none}}
+body:has(#cr){overflow-x:clip}.crp{overflow-x:clip}
 </style>
 </head>
 <body>
@@ -4230,16 +4254,26 @@ function pickFr() {
   _frV = fr.sort((x, y) => score(y) - score(x))[0] || null; return _frV;
 }
 if ("speechSynthesis" in window) { try { speechSynthesis.onvoiceschanged = () => { _frV = null; pickFr(); }; pickFr(); } catch {} }
-function speak(t, slow) {
-  if (!("speechSynthesis" in window) || !t) return;
+const ttsUrl = (t, slow) => "https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=fr&q=" + encodeURIComponent(t) + (slow ? "&ttsspeed=0.3" : "");
+let _au = null, _tok = 0; const _pre = new Map();
+function speakDevice(t, slow) {
+  if (!("speechSynthesis" in window)) return;
   try {
-    speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t); u.lang = "fr-FR"; u.rate = slow ? .55 : .9; u.pitch = 1;
+    speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t); u.lang = "fr-FR"; u.rate = slow ? .55 : .9;
     const v = _frV || pickFr(); if (v) { u.voice = v; u.lang = v.lang; }
     else if (!_frWarn && speechSynthesis.getVoices().length) { _frWarn = true; toast("جهازك مفيهوش صوت فرنسي — ثبّت لغة French من إعدادات الصوت/اللغة"); }
     speechSynthesis.speak(u);
   } catch {}
 }
-const spkBtns = t => ("speechSynthesis" in window && t) ? `<span class="spk"><button type="button" class="spk-b" data-say="${esc(t)}" aria-label="نطق">${ico(SPK, 22)}</button><button type="button" class="spk-b slow" data-say="${esc(t)}" data-slow="1" aria-label="نطق بطيء" title="نطق بطيء">🐢</button></span>` : "";
+function speak(t, slow) {
+  if (!t) return; const tok = ++_tok;
+  try { if (_au) { _au.pause(); _au = null; } if ("speechSynthesis" in window) speechSynthesis.cancel(); } catch {}
+  const url = ttsUrl(t, slow), au = _pre.get(url) || new Audio(url); _pre.delete(url); _au = au; au.currentTime = 0;
+  let failed = false; const fb = () => { if (failed || tok !== _tok) return; failed = true; speakDevice(t, slow); };
+  au.onerror = fb; const p = au.play(); if (p && p.catch) p.catch(fb);
+}
+function preSpeak(t) { if (!t) return; const url = ttsUrl(t, false); if (_pre.has(url) || _pre.size > 12) return; try { const a = new Audio(url); a.preload = "auto"; a.load(); _pre.set(url, a); } catch {} }
+const spkBtns = t => (t) ? `<span class="spk"><button type="button" class="spk-b" data-say="${esc(t)}" aria-label="نطق">${ico(SPK, 22)}</button><button type="button" class="spk-b slow" data-say="${esc(t)}" data-slow="1" aria-label="نطق بطيء" title="نطق بطيء">🐢</button></span>` : "";
 const crAll = () => visible(S.cards || []).filter(c => c.kind !== "grammar");
 const crPool = () => crAll().filter(c => !CR.deck || (c.deck || "عام") === CR.deck);
 function crStats(pool = crPool()) {
@@ -4295,23 +4329,39 @@ function paintSession(enter) {
       ${c.ex ? `<div class="cr-ex"><div dir="ltr">${esc(c.ex)}</div>${c.exAr ? `<small dir="rtl">${esc(c.exAr)}</small>` : ""}${spkBtns(c.ex)}</div>` : ""}</article></div>
     <p class="cr-hint">قيّم الكلمة وانتقل للتالية 👇</p>
     <div class="cr-acts">${[["again", "مرة تانية", 0], ["hard", "صعبة", 1], ["good", "عرفتها", 2], ["easy", "سهلة", 3]].map(([k, t, g]) => `<button type="button" class="cr-a ${k}" data-g="${g}"><span>${ico(CIC[k], 26)}</span><b>${t}</b><small>${dayLbl(srsNext(box, g).days)}</small></button>`).join("")}<button type="button" class="cr-a skip" id="cskip"><span>${ico(CIC.next, 26)}</span><b>التالية</b><small>تخطّي</small></button></div>`;
-  $$(".cr-a[data-g]", b).forEach(x => x.onclick = () => rate(+x.dataset.g));
-  $("#cskip").onclick = () => advance();
+  $$(".cr-a[data-g]", b).forEach(x => x.onclick = e => rate(+x.dataset.g, e));
+  $("#cskip").onclick = e => advance(null, "skip", e);
   $("#cex").onclick = () => { srsFlush(); CR.running = false; paintCards(); };
   if (CR.auto) speak(c.front);
+  [CR.q[CR.i + 1], CR.q[CR.i + 2]].forEach(n => n && preSpeak(n.front));
 }
-function advance(after) {
-  if (CR.busy) return; CR.busy = true; const el = $("#ccard"); if (el) el.classList.add("out");
-  setTimeout(() => { if (after) after(); CR.i++; CR.busy = false; paintSession(true); }, el ? 190 : 0);
+const FX = { 0: ["again", 330], 1: ["hard", 380], 2: ["good", 520], 3: ["easy", 560], skip: ["skip", 300] };
+const FXT = { 2: ["✓", "عرفتها!"], 3: ["⚡", "ممتاز!"] };
+function burst(kind, from) {
+  const st = $(".cr-stage"); if (!st) return; const col = kind === 3 ? ["#38bdf8", "#facc15", "#a78bfa", "#fff"] : ["#22c55e", "#facc15", "#4ade80", "#fff"];
+  const r = st.getBoundingClientRect(), x = (from?.x ?? r.left + r.width / 2) - r.left, y = (from?.y ?? r.top + r.height / 2) - r.top;
+  for (let i = 0; i < 22; i++) {
+    const p = document.createElement("i"), ang = Math.random() * Math.PI * 2, d = 70 + Math.random() * 130;
+    p.className = "cr-bp"; p.style.cssText = `left:${x}px;top:${y}px;background:${col[i % col.length]};--dx:${Math.cos(ang) * d}px;--dy:${Math.sin(ang) * d - 40}px;--s:${6 + Math.random() * 8}px;animation-delay:${Math.random() * .08}s`;
+    st.appendChild(p); setTimeout(() => p.remove(), 900);
+  }
+  const t = FXT[kind]; if (t) { const o = document.createElement("div"); o.className = "cr-pop " + (kind === 3 ? "easy" : "good"); o.innerHTML = `<b>${t[0]}</b><span>${t[1]}</span>`; st.appendChild(o); setTimeout(() => o.remove(), 800); }
 }
-function rate(g) {
+function advance(after, kind = "skip", ev) {
+  if (CR.busy) return; CR.busy = true; const el = $("#ccard"), fx = FX[kind] || FX.skip;
+  if (el) { el.classList.remove("in"); el.classList.add("out", "fx-" + fx[0]); }
+  if (kind === 2 || kind === 3) burst(kind, ev && ev.clientX ? { x: ev.clientX, y: ev.clientY - 90 } : null);
+  if (navigator.vibrate) { try { navigator.vibrate(kind === 2 || kind === 3 ? 18 : 8); } catch {} }
+  setTimeout(() => { if (after) after(); CR.i++; CR.busy = false; paintSession(true); }, el ? fx[1] : 0);
+}
+function rate(g, ev) {
   const c = CR.q[CR.i]; if (!c || CR.busy) return; const m = srsRec().m || {}, n = srsNext(m[c.id]?.[0] || 0, g);
-  srsSet(c.id, n.box, n.due); advance(() => { if (g === 0) { CR.again++; CR.q.push(c); } });
+  srsSet(c.id, n.box, n.due); advance(() => { if (g === 0) { CR.again++; CR.q.push(c); } }, g, ev);
 }
 document.addEventListener("click", e => { const b = e.target.closest?.("[data-say]"); if (!b) return; e.stopPropagation(); speak(b.dataset.say, b.dataset.slow === "1"); }, true);
 document.addEventListener("keydown", e => {
   if (S.page !== "cards" || !CR.running || e.target.closest("input,select,textarea")) return;
-  if (/^[1-4]$/.test(e.key)) rate(+e.key - 1); else if (e.key === " " || e.key === "Enter" || e.key === "ArrowLeft") { e.preventDefault(); advance(); }
+  if (/^[1-4]$/.test(e.key)) rate(+e.key - 1); else if (e.key === " " || e.key === "Enter" || e.key === "ArrowLeft") { e.preventDefault(); advance(null, "skip"); }
 });
 /* ---- لوحة المدرس: إدارة الكلمات ---- */
 TABS.cards = {
