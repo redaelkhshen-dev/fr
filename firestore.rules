@@ -218,6 +218,12 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // بطاقات المراجعة (مفردات وقواعد): المدرس يكتب والطلاب النشطون يقرؤون
+    match /cards/{id} {
+      allow read: if isAdmin() || isActiveStudent();
+      allow write: if isAdmin();
+    }
+
     // الكورسات: عنوان ومرحلة، وتنتمي إليها الفيديوهات عبر courseId
     match /courses/{id} {
       allow read: if isAdmin() || isActiveStudent();

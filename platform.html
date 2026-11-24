@@ -942,7 +942,7 @@ section[id]{scroll-margin-top:84px}
 .pnav{display:flex;align-items:center;gap:28px}.pnav.sn{gap:6px}
 .pnav a.pn{display:flex;align-items:center;gap:8px;padding:8px 16px;border:1px solid transparent;border-radius:999px;color:var(--muted);font:600 .94rem var(--fb);transition:background .18s,color .18s,border-color .18s,transform .18s}
 .pnav a.pn svg{flex:none;width:19px;height:19px}.pnav a.pn:hover{color:var(--fg);background:var(--soft)}.pnav a.pn.on{color:var(--accent-text);background:var(--soft);border-color:rgba(212,167,58,.45)}
-@media(max-width:820px){.pnav.sn{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;overflow:visible;padding-bottom:10px}.pnav a.pn{flex-direction:column;gap:4px;padding:9px 4px 8px;border-radius:14px;border-color:var(--line);background:var(--card);font-size:.8rem;text-align:center}.pnav a.pn svg{width:22px;height:22px}.pnav a.pn.on{background:linear-gradient(135deg,var(--accent-2),var(--accent));border-color:var(--accent);color:#1a1405;box-shadow:0 4px 14px rgba(212,167,58,.28)}.pnav a.pn:active{transform:scale(.95)}}
+@media(max-width:820px){.pnav.sn{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;overflow:visible;padding-bottom:10px}.pnav a.pn{flex-direction:column;gap:4px;padding:9px 4px 8px;border-radius:14px;border-color:var(--line);background:var(--card);font-size:.8rem;text-align:center}.pnav a.pn svg{width:22px;height:22px}.pnav a.pn.on{background:linear-gradient(135deg,var(--accent-2),var(--accent));border-color:var(--accent);color:#1a1405;box-shadow:0 4px 14px rgba(212,167,58,.28)}.pnav a.pn:active{transform:scale(.95)}}
 
 .pnav button,.pnav a{white-space:nowrap;background:none;border:0;color:var(--muted);font:500 .95rem var(--fb);cursor:pointer;padding:8px 0;transition:color .15s}
 .pnav button:hover,.pnav a:hover{color:var(--fg)}
@@ -1406,6 +1406,31 @@ html[data-theme=light] .rv-ki{color:#d6396a;background:rgba(214,58,105,.12)}
 html[data-theme=light] .rv-k.main{background:linear-gradient(135deg,rgba(245,138,171,.28),rgba(255,255,255,.7));border-color:rgba(214,58,105,.35)}
 html[data-theme=light] .rv-br i{background:rgba(214,58,105,.12)}html[data-theme=light] .rv-br u{background:linear-gradient(90deg,#f58aab,#d6396a)}
 @media(prefers-reduced-motion:reduce){.rv-ln,.rv-br u{animation:none}}
+/* ---- بطاقات المراجعة ---- */
+.cr-top{display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:14px}
+.cr-st{grid-template-columns:repeat(auto-fit,minmax(130px,1fr))!important;margin-bottom:14px}
+.cr-go{display:flex;align-items:center;gap:16px;flex-wrap:wrap;justify-content:space-between}.cr-go h3{margin:0 0 4px}.cr-go select{width:auto;padding:4px 8px;display:inline-block}
+.cr-au{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:.9rem}.cr-au input{width:auto}
+.cr-bar{display:flex;align-items:center;gap:12px;margin-bottom:16px}.cr-bar .pbar-track{flex:1}.cr-bar span{color:var(--muted);font-variant-numeric:tabular-nums;font-size:.9rem}
+.cr-stage{perspective:1200px;max-width:640px;margin:0 auto}
+.cr-card{position:relative;min-height:340px;cursor:pointer;transition:transform .55s cubic-bezier(.2,.8,.2,1);transform-style:preserve-3d;outline:0}
+.cr-card.flip{transform:rotateY(180deg)}
+.cr-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:24px;padding:26px 22px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;border:1px solid var(--accent);background:linear-gradient(145deg,rgba(232,197,102,.2),rgba(184,134,43,.06)),var(--card);box-shadow:0 22px 50px -26px rgba(0,0,0,.6);overflow:auto}
+.cr-face.back{transform:rotateY(180deg)}
+.cr-k{position:absolute;top:14px;inset-inline-start:16px;font-size:.78rem;color:var(--muted)}
+.cr-w{font-size:2.3rem;font-weight:800;line-height:1.3;word-break:break-word}.cr-w.ar{font-size:1.6rem}
+.cr-p{color:var(--accent);font-size:1.1rem}.cr-tip{position:absolute;bottom:12px;color:var(--muted);opacity:.7}
+.cr-ex{margin-top:6px;padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.05);width:100%;display:flex;flex-direction:column;gap:4px;align-items:center}.cr-ex small{color:var(--muted)}
+.spk{display:inline-flex;gap:8px}.spk-b{border:1px solid var(--line);background:var(--card);color:var(--accent);width:44px;height:44px;border-radius:50%;display:grid;place-items:center;cursor:pointer;font-size:1.1rem;transition:transform .15s}.spk-b:hover{transform:scale(1.1)}.spk-b:active{transform:scale(.92)}
+.cr-rate{display:none;grid-template-columns:repeat(4,1fr);gap:10px;max-width:640px;margin:18px auto 0}.cr-rate.on{display:grid}.cr-rate-h{max-width:640px;margin:18px auto 0}
+.cr-r{border:0;border-radius:14px;padding:12px 6px;cursor:pointer;color:#fff;display:flex;flex-direction:column;gap:2px;align-items:center;font:inherit;transition:transform .15s,filter .2s}.cr-r:hover{transform:translateY(-2px);filter:brightness(1.1)}.cr-r small{opacity:.85;font-size:.74rem}
+.cr-r.again{background:linear-gradient(135deg,#ef4444,#b91c1c)}.cr-r.hard{background:linear-gradient(135deg,#f59e0b,#b45309)}.cr-r.good{background:linear-gradient(135deg,#22c55e,#15803d)}.cr-r.easy{background:linear-gradient(135deg,#38bdf8,#0369a1)}
+.cr-done{text-align:center;padding:40px 20px;max-width:520px;margin:0 auto}.cr-trophy{font-size:3.4rem}
+html[data-theme=light] .cr-face{background:linear-gradient(145deg,rgba(245,138,171,.22),rgba(255,255,255,.7)),#fff;border-color:rgba(214,58,105,.35)}
+html[data-theme=light] .cr-p,html[data-theme=light] .spk-b{color:#c92c5f}html[data-theme=light] .cr-ex{background:rgba(214,58,105,.07)}
+@media(max-width:600px){.cr-w{font-size:1.9rem}.cr-card{min-height:320px}.cr-rate{gap:6px}.cr-r b{font-size:.85rem}}
+@media(prefers-reduced-motion:reduce){.cr-card{transition:none}}
+@media(max-width:820px){.pnav.sn a.pn{font-size:.74rem;padding:8px 2px 7px;min-width:0}.pnav.sn a.pn span{overflow:hidden;text-overflow:ellipsis;max-width:100%}}
 </style>
 </head>
 <body>
@@ -1547,7 +1572,7 @@ let db; try { db = initializeFirestore(fbApp, { localCache: persistentLocalCache
 const storage = getStorage(fbApp);
 
 /* ---------- الحالة ---------- */
-const S = { vcount: {}, ready: false, user: null, student: null, busy: false, flash: "", videos: [], files: [], homework: [], hwsubs: [], exams: [], lives: [], notices: [], courses: [], attempts: [], examKeys: {}, hwKeys: {}, certs: [], students: [], pw: {}, comments: [], ratings: [], payments: [], unsubs: [], unsubSelf: null, page: "" };
+const S = { vcount: {}, ready: false, user: null, student: null, busy: false, flash: "", videos: [], files: [], homework: [], hwsubs: [], exams: [], lives: [], notices: [], cards: [], courses: [], attempts: [], examKeys: {}, hwKeys: {}, certs: [], students: [], pw: {}, comments: [], ratings: [], payments: [], unsubs: [], unsubSelf: null, page: "" };
 const H = { tab: "videos", q: "", closed: new Set() };
 const A = { fq: "", fty: "", vq: "", cvid: "", cq: "", cstage: "", cgrade: "", tab: "overview", q: "", fstage: "", fstatus: "" };
 
@@ -1755,7 +1780,7 @@ async function countView(id) {
     await b.commit(); done(); S.vcount[id] = (S.vcount[id] || 0) + 1; onData();
   } catch (er) { console.warn("view count", er.code || er); }
 }
-const startContent = () => { if (S.contentOn) return; S.contentOn = true; subViews(); sub("videos", "videos"); sub("files", "files"); sub("homework", "homework"); sub("exams", "exams"); sub("lives", "lives"); sub("notices", "notices"); sub("courses", "courses"); if (S.student?.id) S.unsubs.push(onSnapshot(query(collection(db, "certs"), where("uid", "==", S.student.id)), q => { S.certs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, e => console.warn("certs", e.code))); if (S.student?.id) S.unsubs.push(onSnapshot(query(collection(db, "attempts"), where("uid", "==", S.student.id)), q => { S.attempts = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, e => console.warn("attempts", e.code))); if (S.student?.id) S.unsubs.push(onSnapshot(query(collection(db, "hwsubs"), where("uid", "==", S.student.id)), q => { S.hwsubs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, e => console.warn("hwsubs", e.code))); };
+const startContent = () => { if (S.contentOn) return; S.contentOn = true; subViews(); sub("videos", "videos"); sub("files", "files"); sub("homework", "homework"); sub("exams", "exams"); sub("lives", "lives"); sub("notices", "notices"); sub("cards", "cards"); sub("courses", "courses"); if (S.student?.id) S.unsubs.push(onSnapshot(query(collection(db, "certs"), where("uid", "==", S.student.id)), q => { S.certs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, e => console.warn("certs", e.code))); if (S.student?.id) S.unsubs.push(onSnapshot(query(collection(db, "attempts"), where("uid", "==", S.student.id)), q => { S.attempts = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, e => console.warn("attempts", e.code))); if (S.student?.id) S.unsubs.push(onSnapshot(query(collection(db, "hwsubs"), where("uid", "==", S.student.id)), q => { S.hwsubs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, e => console.warn("hwsubs", e.code))); };
 function checkNew() {
   const pn = S.students.filter(x => x.status === "pending").length;
   if (S.pn === undefined ? pn > 0 : pn > S.pn) toast(`🔔 ${pn} طلب تسجيل بانتظار مراجعتك`, "ok");
@@ -1776,6 +1801,7 @@ function onDataNow() {
   else if (S.page === "home") fillHome();
   else if (S.page === "watch" && !S.watchOk) render();
   else if (S.page === "activity") paintActivity();
+  else if (S.page === "cards") paintCards();
   else if (S.page === "certs") paintCerts();
   else if (S.page === "live") paintLive();
   else if (S.page === "liveroom") { const l = S.lives.find(x => x.id === LV.cur?.id); if (!LV.cur || l?.status !== LV.cur.st) render(); }
@@ -1822,7 +1848,7 @@ async function attachStudent(u) {
 onAuthStateChanged(auth, async u => {
   clearSubs(); S.user = u; S.student = null;
   if (!u) { S.ready = true; render(); return; }
-  if (u.email === ADMIN_EMAIL) { subViews(); sub("students", "students"); sub("videos", "videos"); sub("files", "files"); sub("homework", "homework"); sub("exams", "exams"); sub("lives", "lives"); sub("notices", "notices"); sub("courses", "courses"); S.unsubs.push(onSnapshot(collection(db, "certs"), q => { S.certs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "attempts"), q => { S.attempts = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "hwKeys"), q => { S.hwKeys = Object.fromEntries(q.docs.map(d => [d.id, d.data().keys])); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "examKeys"), q => { S.examKeys = Object.fromEntries(q.docs.map(d => [d.id, d.data().keys])); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "hwsubs"), q => { S.hwsubs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); sub("comments", "comments"); sub("payments", "payments"); S.unsubs.push(onSnapshot(collection(db, "studentPw"), q => { S.pw = Object.fromEntries(q.docs.map(d => [d.id, d.data().pw])); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "ratings"), s => { S.ratings = s.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.ready = true; render(); return; }
+  if (u.email === ADMIN_EMAIL) { subViews(); sub("students", "students"); sub("videos", "videos"); sub("files", "files"); sub("homework", "homework"); sub("exams", "exams"); sub("lives", "lives"); sub("notices", "notices"); sub("cards", "cards"); sub("courses", "courses"); S.unsubs.push(onSnapshot(collection(db, "certs"), q => { S.certs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "attempts"), q => { S.attempts = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "hwKeys"), q => { S.hwKeys = Object.fromEntries(q.docs.map(d => [d.id, d.data().keys])); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "examKeys"), q => { S.examKeys = Object.fromEntries(q.docs.map(d => [d.id, d.data().keys])); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "hwsubs"), q => { S.hwsubs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); sub("comments", "comments"); sub("payments", "payments"); S.unsubs.push(onSnapshot(collection(db, "studentPw"), q => { S.pw = Object.fromEntries(q.docs.map(d => [d.id, d.data().pw])); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "ratings"), s => { S.ratings = s.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.ready = true; render(); return; }
   if (S.busy) return;
   await attachStudent(u);
 });
@@ -1901,6 +1927,7 @@ function render() {
     if (route.startsWith("/live/")) return renderLiveRoom(route.slice(6));
     if (route === "/certs") return renderCerts();
     if (route === "/activity") return renderActivity();
+    if (route === "/cards") return renderCards();
     if (route.startsWith("/exam/")) return renderExam(route.slice(6));
     if (route.startsWith("/hw/")) return renderHwQuiz(route.slice(4));
     if (route === "/profile") return renderProfile();
@@ -2234,14 +2261,15 @@ function bindFs(pl) {
 }
 /* ---------- هيدر الطالب ---------- */
 const PN_IC = {
+  cards: '<rect x="3" y="7" width="14" height="13" rx="2.5"/><path d="M7 4h12a2 2 0 0 1 2 2v11"/><path d="M7 12h6M7 15.500h4"/>',
   home: '<path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-5h4v5h4a1 1 0 0 0 1-1v-9"/>',
   activity: '<path d="M3 12h4l3-8 4 16 3-8h4"/>',
   profile: '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.2 3.6-7 8-7s8 2.8 8 7"/>',
   pay: '<rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19"/><path d="M6.5 15h4"/>'
 };
 function pnavHTML() {
-  const h = location.hash.replace(/^#/, "") || "/", cur = h.startsWith("/activity") ? "activity" : h.startsWith("/profile") ? "profile" : h.startsWith("/pay") ? "pay" : "home";
-  return [["home", "#/", "الرئيسية"], ["activity", "#/activity", "نشاطي"], ["profile", "#/profile", "بياناتي"], ["pay", "#/pay", "الدفع"]].map(([k, href, t]) => `<a class="pn ${cur === k ? "on" : ""}" href="${href}" ${cur === k ? 'aria-current="page"' : ""}><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${PN_IC[k]}</svg><span>${t}</span></a>`).join("");
+  const h = location.hash.replace(/^#/, "") || "/", cur = h.startsWith("/activity") ? "activity" : h.startsWith("/profile") ? "profile" : h.startsWith("/pay") ? "pay" : h.startsWith("/cards") ? "cards" : "home";
+  return [["home", "#/", "الرئيسية"], ["activity", "#/activity", "نشاطي"], ["cards", "#/cards", "مراجعة"], ["profile", "#/profile", "بياناتي"], ["pay", "#/pay", "الدفع"]].map(([k, href, t]) => `<a class="pn ${cur === k ? "on" : ""}" href="${href}" ${cur === k ? 'aria-current="page"' : ""}><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${PN_IC[k]}</svg><span>${t}</span></a>`).join("");
 }
 function studentHeader(active) {
   const s = S.student;
@@ -3392,6 +3420,7 @@ function renderAdminLogin() {
   });
 }
 const AD_IC = {
+  cards: '<rect x="3" y="7" width="14" height="13" rx="2.5"/><path d="M7 4h12a2 2 0 0 1 2 2v11"/>',
   revenue: '<path d="M3 20h18"/><path d="M5 16l4.500-5 3.500 3L19 6"/><path d="M15 6h4v4"/>',
   subs: '<path d="m3 8 4.500 4 5-7 5 7L22 8l-2 11H5z"/>',
   overview: '<rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/>',
@@ -3409,7 +3438,7 @@ const AD_IC = {
   security: '<rect x="4.5" y="10.5" width="15" height="10.5" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/><circle cx="12" cy="15.5" r="1.3"/>',
   payments: '<rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19"/><path d="M6.5 15h4"/>'
 };
-const AD_GROUPS = [["الرئيسية", [["overview", "نظرة عامة"], ["students", "الطلاب"], ["subs", "اشتراكات"], ["revenue", "الإيرادات"]]], ["المحتوى", [["courses", "الكورسات"], ["videos", "الفيديوهات"], ["files", "الملفات"], ["homework", "الواجبات"], ["exams", "الاختبارات"]]], ["التواصل", [["lives", "البث المباشر"], ["notices", "الإشعارات"], ["comments", "التعليقات"]]], ["التقييم", [["grades", "رصد الدرجات"], ["certs", "الشهادات"]]], ["المالية", [["payments", "المدفوعات"]]], ["الإعدادات", [["security", "الأمان وكلمة السر"]]]];
+const AD_GROUPS = [["الرئيسية", [["overview", "نظرة عامة"], ["students", "الطلاب"], ["subs", "اشتراكات"], ["revenue", "الإيرادات"]]], ["المحتوى", [["courses", "الكورسات"], ["cards", "بطاقات المراجعة"], ["videos", "الفيديوهات"], ["files", "الملفات"], ["homework", "الواجبات"], ["exams", "الاختبارات"]]], ["التواصل", [["lives", "البث المباشر"], ["notices", "الإشعارات"], ["comments", "التعليقات"]]], ["التقييم", [["grades", "رصد الدرجات"], ["certs", "الشهادات"]]], ["المالية", [["payments", "المدفوعات"]]], ["الإعدادات", [["security", "الأمان وكلمة السر"]]]];
 function renderAdmin() {
   S.page = "admin";
   const nav = AD_GROUPS.map(([g, items], gi) => `${gi ? '<div class="sep"></div>' : ""}<div class="asg">${g}</div>${items.map(([k, t]) => `<button class="atab" data-t="${k}" title="${t}"><i class="ai"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${AD_IC[k]}</svg></i><span class="al">${t}</span><span class="ab"></span></button>`).join("")}`).join("");
@@ -4131,6 +4160,166 @@ TABS.revenue = {
     <div class="card" style="margin-top:14px"><h3 class="ch">اشتراكات تنتهي خلال 30 يوم</h3>${up.length ? `<div class="tw"><table><thead><tr><th>الطالب</th><th>الباقة</th><th>تنتهي في</th><th>المتبقي</th><th>المتوقع</th><th></th></tr></thead><tbody>${up.slice(0, 15).map(x => { const dl = Math.ceil((x.subEndMs - now) / 864e5); return `<tr><td><b>${esc(x.name)}</b><br><small class="ph">${esc(x.phone)}</small></td><td>${esc(PLAN_NAME[x.subPlan] || PLANS[x.subPlan]?.[0] || "")}</td><td>${esc(x.subEnd)}</td><td><span class="badge ${dl <= 3 ? "bad" : "warn"}">${dl} يوم</span></td><td>${egp(lastAmt[x.id] || allAvg)} جنيه</td><td><a class="btn btn-line btn-sm" target="_blank" rel="noopener" href="https://wa.me/2${esc(x.phone)}">واتس</a></td></tr>`; }).join("")}</tbody></table></div>${up.length > 15 ? `<p class="sub" style="margin-top:8px">و ${up.length - 15} آخرين...</p>` : ""}` : `<div class="empty">لا توجد اشتراكات تنتهي خلال 30 يوم.</div>`}</div>`;
   }
 };
+
+/* ===== بطاقات المراجعة (Flashcards) بنظام التكرار المتباعد ===== */
+const SPK = '<path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.500 8.500a5 5 0 0 1 0 7"/><path d="M19 6a8.500 8.500 0 0 1 0 12"/>';
+const CARD_IC = PN_IC.cards;
+const SRS_DAYS = [0, 0, 1, 3, 7, 14, 30, 60];
+const srsLs = () => "rf_srs_" + (S.student?.id || "");
+const srsRec = () => { const a = S.student?.progress?.__srs; let b = null; try { b = JSON.parse(localStorage.getItem(srsLs()) || "null"); } catch {} return (b && (b.at || 0) > ((a && a.at) || 0)) ? b : (a || { m: {}, at: 0 }); };
+let _srsT = 0;
+const srsFlush = () => { clearTimeout(_srsT); _srsT = 0; if (!S.student) return; const rec = srsRec(); updateDoc(doc(db, "students", S.student.id), { "progress.__srs": rec }).catch(() => {}); };
+function srsSet(id, box, due) {
+  const cur = srsRec(), rec = { m: { ...(cur.m || {}), [id]: [box, due] }, at: Date.now() };
+  try { localStorage.setItem(srsLs(), JSON.stringify(rec)); } catch {}
+  S.student.progress = { ...(S.student.progress || {}), __srs: rec };
+  if (!_srsT) _srsT = setTimeout(srsFlush, 2500);
+}
+window.addEventListener("pagehide", () => { if (_srsT) srsFlush(); });
+const srsNext = (box, g) => { const nb = g === 0 ? 1 : g === 1 ? Math.max(2, box) : g === 2 ? Math.min(7, box + 1 || 2) : Math.min(7, Math.max(box, 1) + 2); const days = g === 0 ? 0 : g === 1 ? Math.max(1, Math.round(SRS_DAYS[nb] / 2)) : SRS_DAYS[nb]; return { box: nb, days, due: Date.now() + (g === 0 ? 6e5 : days * 864e5) }; };
+const dayLbl = d => d === 0 ? "الآن" : d === 1 ? "يوم" : d < 30 ? d + " أيام" : d < 60 ? "شهر" : "شهرين";
+const isAr = t => /[؀-ۿ]/.test(t || "");
+const CR = { kind: "all", deck: "", newN: 10, q: [], i: 0, flip: false, total: 0, again: 0, good: 0, running: false, auto: (() => { try { return localStorage.getItem("rf_cauto") === "1"; } catch { return false; } })() };
+let _frV = null;
+function speak(t, slow) {
+  if (!("speechSynthesis" in window) || !t) return;
+  try {
+    speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t); u.lang = "fr-FR"; u.rate = slow ? .5 : .85;
+    const vs = speechSynthesis.getVoices(); _frV = _frV || vs.find(v => /^fr[-_]FR/i.test(v.lang)) || vs.find(v => /^fr/i.test(v.lang)); if (_frV) u.voice = _frV;
+    speechSynthesis.speak(u);
+  } catch {}
+}
+const spkBtns = t => ("speechSynthesis" in window && t && !isAr(t)) ? `<span class="spk"><button type="button" class="spk-b" data-say="${esc(t)}" aria-label="نطق">${ico(SPK, 20)}</button><button type="button" class="spk-b slow" data-say="${esc(t)}" data-slow="1" aria-label="نطق بطيء" title="نطق بطيء">🐢</button></span>` : "";
+const crPool = () => visible(S.cards || []).filter(c => (CR.kind === "all" || c.kind === CR.kind) && (!CR.deck || c.deck === CR.deck));
+function crStats() {
+  const m = srsRec().m || {}, now = Date.now(), pool = crPool(), due = pool.filter(c => m[c.id] && m[c.id][1] <= now), fresh = pool.filter(c => !m[c.id]), mast = pool.filter(c => m[c.id] && m[c.id][0] >= 5);
+  return { pool, due, fresh, mast, learning: pool.length - fresh.length - mast.length };
+}
+function renderCards() {
+  S.page = "cards"; CR.running = false;
+  app.innerHTML = `${studentHeader()}<main class="wrap sec"><section class="ph-hero act-h"><span class="ph-ic">${ico(CARD_IC, 34)}</span><div><span class="ph-k">مراجعة ذكية</span><h1>بطاقات المراجعة</h1><p>مفردات وقواعد بنظام التكرار المتباعد — البطاقة الصعبة بترجعلك أكتر</p></div></section><div id="cr" style="margin-top:20px"></div></main>`;
+  $("#lo").onclick = doLogout; paintCards();
+}
+function paintCards() {
+  const b = $("#cr"); if (!b || S.page !== "cards") return;
+  if (CR.running) return;
+  const all = visible(S.cards || []);
+  if (!all.length) { b.innerHTML = `<div class="empty">${ico(CARD_IC, 40)}<br>لا توجد بطاقات متاحة لك حاليًا.<br><small>هتظهر هنا أول ما يضيفها مسيو رضا.</small></div>`; return; }
+  const decks = [...new Set(all.map(c => c.deck).filter(Boolean))], st = crStats(), m = srsRec().m || {};
+  const todo = Math.min(st.due.length + Math.min(st.fresh.length, CR.newN), 9999);
+  b.innerHTML = `<div class="cr-top"><div class="gr-chips">${[["all", "الكل"], ["vocab", "مفردات"], ["grammar", "قواعد"]].map(([k, t]) => `<button type="button" class="gr-ch ${CR.kind === k ? "on" : ""}" data-ck="${k}">${t}</button>`).join("")}</div>
+    <select id="cdk"><option value="">كل المجموعات</option>${decks.map(d => `<option value="${esc(d)}" ${CR.deck === d ? "selected" : ""}>${esc(d)}</option>`).join("")}</select></div>
+    <div class="stats cr-st"><div class="stat"><b>${st.due.length}</b><span>مستحقة للمراجعة</span></div><div class="stat"><b>${st.fresh.length}</b><span>جديدة</span></div><div class="stat"><b>${st.learning}</b><span>قيد التعلّم</span></div><div class="stat"><b>${st.mast.length}</b><span>متقنة ✔</span></div></div>
+    <div class="cr-go card"><div><h3>جلسة اليوم</h3><small>${st.due.length} مراجعة + حتى <select id="cnn">${[5, 10, 20, 40].map(n => `<option value="${n}" ${CR.newN === n ? "selected" : ""}>${n}</option>`).join("")}</select> جديدة</small></div>
+      <label class="cr-au"><input type="checkbox" id="cau" ${CR.auto ? "checked" : ""}> نطق تلقائي</label>
+      <button class="btn btn-fill" id="cgo" ${todo ? "" : "disabled"}>${todo ? `ابدأ المراجعة (${todo})` : "خلّصت كل المطلوب 🎉"}</button></div>
+    ${decks.length ? `<div class="card" style="margin-top:14px"><h3 class="ch">المجموعات</h3>${decks.map(d => { const l = all.filter(c => c.deck === d), mt = l.filter(c => m[c.id] && m[c.id][0] >= 5).length, p = Math.round(mt / l.length * 100); return `<div class="rv-br"><span>${esc(d)}</span><i><u style="width:${Math.max(p, 3)}%"></u></i><b>${mt}/${l.length}</b></div>`; }).join("")}</div>` : ""}`;
+  $$("[data-ck]", b).forEach(x => x.onclick = () => { CR.kind = x.dataset.ck; paintCards(); });
+  $("#cdk", b).onchange = e => { CR.deck = e.target.value; paintCards(); };
+  const nn = $("#cnn", b); if (nn) nn.onchange = e => { CR.newN = +e.target.value; paintCards(); };
+  $("#cau", b).onchange = e => { CR.auto = e.target.checked; try { localStorage.setItem("rf_cauto", CR.auto ? "1" : "0"); } catch {} };
+  $("#cgo", b).onclick = startSession;
+}
+const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+function startSession() {
+  const st = crStats(); CR.q = [...shuffle(st.due.slice()), ...shuffle(st.fresh.slice()).slice(0, CR.newN)]; CR.i = 0; CR.flip = false; CR.total = CR.q.length; CR.again = 0; CR.good = 0; CR.running = true; paintSession();
+}
+function paintSession() {
+  const b = $("#cr"); if (!b) return;
+  if (CR.i >= CR.q.length) {
+    srsFlush(); CR.running = false;
+    b.innerHTML = `<div class="card cr-done"><div class="cr-trophy">🎉</div><h2>أحسنت! خلّصت الجلسة</h2><p>راجعت <b>${CR.total}</b> بطاقة${CR.again ? ` — منهم <b>${CR.again}</b> محتاجين مراجعة تانية قريب` : ""}</p><div class="mact" style="justify-content:center"><button class="btn btn-fill" id="cbk">رجوع</button></div></div>`;
+    $("#cbk").onclick = paintCards; return;
+  }
+  const c = CR.q[CI()], m = srsRec().m || {}, box = m[c.id]?.[0] || 0, fr = c.front || "", pct = Math.round(CR.i / Math.max(1, CR.q.length) * 100);
+  const frontAr = isAr(fr);
+  b.innerHTML = `<div class="cr-bar"><button class="btn btn-line btn-sm" id="cex">✕ إنهاء</button><div class="pbar-track"><i style="width:${pct}%"></i></div><span>${CR.i + 1} / ${CR.q.length}</span></div>
+    <div class="cr-stage"><div class="cr-card ${CR.flip ? "flip" : ""}" id="ccard" tabindex="0">
+      <div class="cr-face front"><span class="cr-k">${c.kind === "grammar" ? "قاعدة" : "مفردة"}${c.deck ? " · " + esc(c.deck) : ""}</span><div class="cr-w" dir="${frontAr ? "rtl" : "ltr"}">${esc(fr)}</div>${c.pron ? `<div class="cr-p">${esc(c.pron)}</div>` : ""}${spkBtns(fr)}<small class="cr-tip">اضغط لقلب البطاقة</small></div>
+      <div class="cr-face back"><span class="cr-k">${box ? "مستوى " + box : "جديدة"}</span><div class="cr-w ar" dir="rtl" style="white-space:pre-wrap">${esc(c.back || "")}</div>${c.ex ? `<div class="cr-ex"><div dir="ltr">${esc(c.ex)}</div>${c.exAr ? `<small dir="rtl">${esc(c.exAr)}</small>` : ""}${spkBtns(c.ex)}</div>` : ""}</div></div></div>
+    <div class="cr-rate ${CR.flip ? "on" : ""}">${[["again", "مرة تانية", 0], ["hard", "صعب", 1], ["good", "كويس", 2], ["easy", "سهل", 3]].map(([k, t, g]) => `<button type="button" class="cr-r ${k}" data-g="${g}"><b>${t}</b><small>${dayLbl(srsNext(box, g).days)}</small></button>`).join("")}</div>
+    ${CR.flip ? "" : `<div class="cr-rate-h"><button class="btn btn-fill w100" id="cfl">اعرض الإجابة</button></div>`}`;
+  const flip = () => { CR.flip = true; paintSession(); if (CR.auto && c.ex) speak(c.ex); };
+  $("#ccard").onclick = e => { if (e.target.closest(".spk")) return; if (!CR.flip) flip(); };
+  const fb = $("#cfl"); if (fb) fb.onclick = flip;
+  $("#cex").onclick = () => { srsFlush(); CR.running = false; paintCards(); };
+  $$(".cr-r", b).forEach(x => x.onclick = () => rate(+x.dataset.g));
+  if (CR.auto && !CR.flip && !frontAr) speak(fr);
+}
+const CI = () => CR.i;
+function rate(g) {
+  const c = CR.q[CR.i]; if (!c) return; const m = srsRec().m || {}, box = m[c.id]?.[0] || 0, n = srsNext(box, g);
+  srsSet(c.id, n.box, n.due);
+  if (g === 0) { CR.again++; CR.q.push(c); } else CR.good++;
+  CR.i++; CR.flip = false; paintSession();
+}
+document.addEventListener("click", e => { const b = e.target.closest?.("[data-say]"); if (!b) return; e.stopPropagation(); speak(b.dataset.say, b.dataset.slow === "1"); }, true);
+document.addEventListener("keydown", e => {
+  if (S.page !== "cards" || !CR.running || e.target.closest("input,select,textarea")) return;
+  if ((e.key === " " || e.key === "Enter") && !CR.flip) { e.preventDefault(); CR.flip = true; paintSession(); }
+  else if (CR.flip && /^[1-4]$/.test(e.key)) rate(+e.key - 1);
+});
+/* ---- لوحة المدرس: إدارة البطاقات ---- */
+const CK = { vocab: "مفردة", grammar: "قاعدة" };
+TABS.cards = {
+  skel: () => `<div class="nt-head"><span class="nt-hi">${ico(CARD_IC, 26)}</span><div><h2>بطاقات المراجعة</h2><small>مفردات وقواعد للطلاب بنظام التكرار المتباعد مع النطق الصوتي</small></div><div class="acts"><button class="btn btn-fill" data-a="cadd">+ بطاقة</button><button class="btn btn-line" data-a="cimp">📥 استيراد مجموعة</button></div></div>
+    <div class="stats" id="cs" style="grid-template-columns:repeat(4,1fr);margin-bottom:14px"></div><div class="toolbar"><input id="cq" placeholder="بحث..." value="${esc(A.cq2 || "")}"><select id="ck"><option value="">كل الأنواع</option><option value="vocab">مفردات</option><option value="grammar">قواعد</option></select><select id="cd"></select></div><div class="tw" id="cl"></div>`,
+  init: b => { b.onclick = cardAction; $("#cq", b).oninput = e => { A.cq2 = e.target.value; fillTab(); }; $("#ck", b).value = A.ck || ""; $("#ck", b).onchange = e => { A.ck = e.target.value; fillTab(); }; $("#cd", b).onchange = e => { A.cd = e.target.value; fillTab(); }; },
+  fill: b => {
+    const all = S.cards || [], decks = [...new Set(all.map(c => c.deck).filter(Boolean))];
+    $("#cs", b).innerHTML = [["إجمالي البطاقات", all.length], ["مفردات", all.filter(c => c.kind !== "grammar").length], ["قواعد", all.filter(c => c.kind === "grammar").length], ["المجموعات", decks.length]].map(([t, n]) => `<div class="stat"><b>${n}</b><span>${t}</span></div>`).join("");
+    const cd = $("#cd", b); cd.innerHTML = `<option value="">كل المجموعات</option>` + decks.map(d => `<option value="${esc(d)}" ${A.cd === d ? "selected" : ""}>${esc(d)}</option>`).join("");
+    const q = (A.cq2 || "").trim().toLowerCase(), l = all.filter(c => (!A.ck || c.kind === A.ck) && (!A.cd || c.deck === A.cd) && (!q || [c.front, c.back, c.deck, c.pron].some(t => (t || "").toLowerCase().includes(q))));
+    $("#cl", b).innerHTML = `<table><thead><tr><th>البطاقة</th><th>المعنى / الشرح</th><th>النوع</th><th>المجموعة</th><th>المستهدف</th><th></th></tr></thead><tbody>${l.slice(0, 300).map(c => `<tr><td dir="ltr" style="text-align:right"><b>${esc(c.front)}</b>${c.pron ? `<br><small class="ph">${esc(c.pron)}</small>` : ""}</td><td style="max-width:260px;white-space:pre-wrap">${esc(c.back)}${c.ex ? `<br><small class="ph" dir="ltr">${esc(c.ex)}</small>` : ""}</td><td><span class="badge ${c.kind === "grammar" ? "warn" : ""}">${CK[c.kind] || "مفردة"}</span></td><td>${esc(c.deck || "—")}</td><td><small>${stageLabel(c.stage)} · ${sysLabel(c.system)}${c.grade && c.grade !== "all" ? " · " + esc(c.grade) : ""}</small></td><td><div class="acts"><button class="btn btn-line btn-sm" data-a="cedit" data-id="${esc(c.id)}">تعديل</button><button class="btn btn-bad btn-sm" data-a="cdel" data-id="${esc(c.id)}">حذف</button></div></td></tr>`).join("") || `<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:32px">لا توجد بطاقات — اضغط «+ بطاقة» أو «استيراد مجموعة»</td></tr>`}</tbody></table>${l.length > 300 ? `<p class="sub" style="padding:8px">يتم عرض أول 300 من ${l.length}</p>` : ""}`;
+  }
+};
+async function cardAction(e) {
+  const btn = e.target.closest("[data-a]"); if (!btn || btn.tagName === "A") return; const a = btn.dataset.a, c = (S.cards || []).find(x => x.id === btn.dataset.id);
+  if (a === "cadd") return cardModal(null);
+  if (a === "cimp") return cardImport();
+  if (a === "cedit" && c) return cardModal(c);
+  if (a === "cdel" && c) { if (!confirm(`حذف البطاقة "${c.front}"؟`)) return; try { await deleteDoc(doc(db, "cards", c.id)); toast("تم الحذف", "ok"); } catch (er) { toast("فشل الحذف", "bad"); } }
+}
+const deckList = () => `<datalist id="dkl">${[...new Set((S.cards || []).map(c => c.deck).filter(Boolean))].map(d => `<option value="${esc(d)}">`).join("")}</datalist>`;
+function cardModal(c) {
+  const m = openModal(`<h2>${c ? "تعديل بطاقة" : "إضافة بطاقة"}</h2><div class="alert" id="err" hidden></div>
+    <form id="cf" novalidate><div class="row3"><label class="fl">النوع<select name="kind"><option value="vocab" ${c?.kind !== "grammar" ? "selected" : ""}>مفردة</option><option value="grammar" ${c?.kind === "grammar" ? "selected" : ""}>قاعدة</option></select></label><label class="fl">المجموعة<input name="deck" list="dkl" maxlength="50" placeholder="مثال: Unité 1" value="${esc(c?.deck)}"></label></div>${deckList()}
+    <label class="fl">الوجه الأمامي (الكلمة بالفرنسية / عنوان القاعدة)<input name="front" dir="auto" maxlength="160" value="${esc(c?.front)}"></label>
+    <label class="fl">النطق بالعربي (اختياري)<input name="pron" dir="rtl" maxlength="80" placeholder="مثال: بونجور" value="${esc(c?.pron)}"></label>
+    <label class="fl">المعنى بالعربي / شرح القاعدة<textarea name="back" rows="3" maxlength="800">${esc(c?.back)}</textarea></label>
+    <label class="fl">جملة مثال بالفرنسية (اختياري — بيتنطق صوتيًا)<input name="ex" dir="ltr" maxlength="200" value="${esc(c?.ex)}"></label>
+    <label class="fl">ترجمة المثال (اختياري)<input name="exAr" dir="rtl" maxlength="200" value="${esc(c?.exAr)}"></label>${targetFields(c)}
+    <div class="mact"><button class="btn btn-fill" id="sb">حفظ</button><button type="button" class="btn btn-line" data-close>إلغاء</button></div></form>`);
+  bindTarget($("#cf", m), c);
+  $("#cf", m).addEventListener("submit", async e => {
+    e.preventDefault(); showErr(""); const f = new FormData(e.target), g = k => (f.get(k) || "").trim(), data = { kind: g("kind"), deck: g("deck"), front: g("front"), pron: g("pron"), back: g("back"), ex: g("ex"), exAr: g("exAr"), stage: f.get("stage"), system: f.get("system"), grade: f.get("grade") || "all" };
+    if (!data.front || !data.back) return showErr("اكتب الوجه الأمامي والمعنى");
+    $("#sb", m).disabled = true;
+    try { if (c) await updateDoc(doc(db, "cards", c.id), data); else await addDoc(collection(db, "cards"), { ...data, createdAt: serverTimestamp() }); closeModals(); toast("تم الحفظ", "ok"); }
+    catch (er) { showErr("فشل الحفظ: " + (er.code || er.message)); $("#sb", m).disabled = false; }
+  });
+}
+function cardImport() {
+  const m = openModal(`<h2>استيراد مجموعة بطاقات</h2><div class="alert" id="err" hidden></div>
+    <form id="cf" novalidate><div class="row3"><label class="fl">النوع<select name="kind"><option value="vocab">مفردات</option><option value="grammar">قواعد</option></select></label><label class="fl">المجموعة<input name="deck" list="dkl" maxlength="50" placeholder="مثال: Unité 1"></label></div>${deckList()}
+    <label class="fl">كل بطاقة في سطر، والأعمدة مفصولة بـ | (أو الصقها من Excel):<br><small style="color:var(--muted)">الفرنسي | المعنى | النطق (اختياري) | جملة مثال (اختياري) | ترجمة المثال (اختياري)</small>
+    <textarea name="rows" dir="auto" rows="9" placeholder="bonjour | صباح الخير / مرحبًا | بونجور | Bonjour, comment ça va ? | مرحبًا، كيف حالك؟&#10;merci | شكرًا | ميرسي"></textarea></label>${targetFields()}
+    <p class="sub" id="cim" style="font-size:.84rem"></p><div class="mact"><button class="btn btn-fill" id="sb">استيراد</button><button type="button" class="btn btn-line" data-close>إلغاء</button></div></form>`, true);
+  bindTarget($("#cf", m), null);
+  const parse = t => t.split(/\r?\n/).map(l => l.split(/\||\t/).map(x => x.trim())).filter(r => r[0] && r[1]);
+  $('textarea[name="rows"]', m).addEventListener("input", e => { $("#cim", m).textContent = parse(e.target.value).length + " بطاقة جاهزة للاستيراد"; });
+  $("#cf", m).addEventListener("submit", async e => {
+    e.preventDefault(); showErr(""); const f = new FormData(e.target), rows = parse(f.get("rows") || "");
+    if (!rows.length) return showErr("اكتب بطاقة واحدة على الأقل (الفرنسي | المعنى)");
+    if (rows.length > 400) return showErr("الحد الأقصى 400 بطاقة في المرة");
+    $("#sb", m).disabled = true;
+    try {
+      const b = writeBatch(db), base = { kind: f.get("kind"), deck: (f.get("deck") || "").trim(), stage: f.get("stage"), system: f.get("system"), grade: f.get("grade") || "all" };
+      rows.forEach(r => b.set(doc(collection(db, "cards")), { ...base, front: r[0], back: r[1], pron: r[2] || "", ex: r[3] || "", exAr: r[4] || "", createdAt: serverTimestamp() }));
+      await b.commit(); closeModals(); toast(`تم استيراد ${rows.length} بطاقة`, "ok");
+    } catch (er) { showErr("فشل الاستيراد: " + (er.code || er.message)); $("#sb", m).disabled = false; }
+  });
+}
 TABS.payments = {
   skel: () => `<h2 style="margin-bottom:16px">المدفوعات</h2><div class="stats" id="ps" style="grid-template-columns:repeat(3,1fr)"></div><div class="toolbar"><select id="pst"><option value="">كل الحالات</option><option value="pending">بانتظار التأكيد</option><option value="confirmed">مؤكد</option><option value="rejected">مرفوض</option></select><input id="pq" placeholder="بحث بالاسم أو الرقم" value="${esc(A.pq || "")}"></div><div class="tw" id="pl"></div>`,
   init: b => { b.onclick = payAction; $("#pst", b).value = A.pst || ""; $("#pst", b).onchange = e => { A.pst = e.target.value; fillTab(); }; $("#pq", b).oninput = e => { A.pq = e.target.value; fillTab(); }; },
