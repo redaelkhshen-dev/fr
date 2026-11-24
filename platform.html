@@ -4223,12 +4223,19 @@ const srsNext = (box, g) => { const nb = g === 0 ? 1 : g === 1 ? Math.max(2, box
 const dayLbl = d => d === 0 ? "الآن" : d === 1 ? "يوم" : d < 30 ? d + " أيام" : d < 60 ? "شهر" : "شهرين";
 const CR = { deck: "", newN: 10, q: [], i: 0, total: 0, again: 0, busy: false, running: false, auto: (() => { try { return localStorage.getItem("rf_cauto") === "1"; } catch { return false; } })() };
 const CPAL = [["#f59e0b", "#f97316"], ["#8b5cf6", "#6366f1"], ["#10b981", "#059669"], ["#ec4899", "#e11d48"], ["#0ea5e9", "#2563eb"], ["#14b8a6", "#0d9488"]], CEMO = ["🌟", "📘", "🎯", "🚀", "🍎", "🌍", "🎨", "🧩", "🦋", "🔥"];
-let _frV = null;
+let _frV = null, _frWarn = false;
+function pickFr() {
+  const vs = speechSynthesis.getVoices(), fr = vs.filter(v => /^fr([-_]|$)/i.test(v.lang) || /fran|french/i.test(v.name));
+  const score = v => (/^fr[-_]FR/i.test(v.lang) ? 4 : 0) + (/google|natural|neural|online|premium|enhanced/i.test(v.name) ? 3 : 0) + (v.localService ? 0 : 1);
+  _frV = fr.sort((x, y) => score(y) - score(x))[0] || null; return _frV;
+}
+if ("speechSynthesis" in window) { try { speechSynthesis.onvoiceschanged = () => { _frV = null; pickFr(); }; pickFr(); } catch {} }
 function speak(t, slow) {
   if (!("speechSynthesis" in window) || !t) return;
   try {
-    speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t); u.lang = "fr-FR"; u.rate = slow ? .5 : .85;
-    const vs = speechSynthesis.getVoices(); _frV = _frV || vs.find(v => /^fr[-_]FR/i.test(v.lang)) || vs.find(v => /^fr/i.test(v.lang)); if (_frV) u.voice = _frV;
+    speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t); u.lang = "fr-FR"; u.rate = slow ? .55 : .9; u.pitch = 1;
+    const v = _frV || pickFr(); if (v) { u.voice = v; u.lang = v.lang; }
+    else if (!_frWarn && speechSynthesis.getVoices().length) { _frWarn = true; toast("جهازك مفيهوش صوت فرنسي — ثبّت لغة French من إعدادات الصوت/اللغة"); }
     speechSynthesis.speak(u);
   } catch {}
 }
