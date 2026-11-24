@@ -1507,6 +1507,7 @@ body:has(#cr){overflow-x:clip}.crp{overflow-x:clip}
 .cd-n{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:rgba(212,164,55,.15);color:var(--accent);font-weight:800;flex:none}
 .cd-mv{display:flex;flex-direction:column;gap:3px}.cd-mv .btn{padding:0 8px;min-height:22px;line-height:1;font-size:.7rem}
 .cd-t{flex:1;min-width:160px;display:flex;flex-direction:column}.cd-t small{color:var(--muted)}
+.cr-live{margin-inline-start:6px;padding:4px 10px;border-radius:99px;background:rgba(250,204,21,.16);color:#facc15;font-weight:800;font-size:.82rem;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -4252,7 +4253,8 @@ const srsLs = () => "rf_srs_" + (S.student?.id || "");
 const srsRec = () => { const a = S.student?.progress?.__srs; let b = null; try { b = JSON.parse(localStorage.getItem(srsLs()) || "null"); } catch {} return (b && (b.at || 0) > ((a && a.at) || 0)) ? b : (a || { m: {}, at: 0 }); };
 const cDay = (off = 0) => { const d = new Date(Date.now() - off * 864e5); return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate(); };
 let _srsT = 0;
-const srsFlush = () => { clearTimeout(_srsT); _srsT = 0; if (!S.student) return; updateDoc(doc(db, "students", S.student.id), { "progress.__srs": srsRec() }).catch(() => {}); };
+let _srsErr = false;
+const srsFlush = () => { clearTimeout(_srsT); _srsT = 0; if (!S.student) return; updateDoc(doc(db, "students", S.student.id), { "progress.__srs": JSON.parse(JSON.stringify(srsRec())) }).catch(e => { console.warn("srs", e.code); if (!_srsErr) { _srsErr = true; toast("تعذّر حفظ تقدّمك على السيرفر (" + (e.code || "خطأ") + ") — محفوظ على جهازك فقط"); } }); };
 function srsSet(id, box, due, g) {
   const cur = srsRec(), k = cDay(); let st = cur.s || 0, t = cur.t || 0;
   if (cur.d !== k) { st = cur.d === cDay(1) ? st + 1 : 1; t = 0; }
@@ -4304,12 +4306,12 @@ function crStats(pool = crPool()) {
   return { pool, due, fresh, mast };
 }
 function renderCards() {
-  S.page = "cards"; CR.running = false;
+  S.page = "cards"; CR.running = false; CR.done = false;
   app.innerHTML = `${studentHeader()}<main class="wrap sec crp"><div id="cr"></div></main>`;
   $("#lo").onclick = doLogout; paintCards();
 }
 function paintCards() {
-  const b = $("#cr"); if (!b || S.page !== "cards" || CR.running) return;
+  const b = $("#cr"); if (!b || S.page !== "cards" || CR.running || CR.done) return;
   const all = crAll();
   if (!all.length) { b.innerHTML = `<div class="empty">${ico(CARD_IC, 40)}<br>لا توجد كلمات متاحة لك حاليًا.<br><small>هتظهر هنا أول ما يضيفها مسيو رضا.</small></div>`; return; }
   CR.deck = ""; const info = srsInfo(), st = crStats(all), M = st.mast.length, lvl = Math.floor(M / 10) + 1, lp = (M % 10) * 10;
@@ -4318,40 +4320,41 @@ function paintCards() {
   const pts = decks.map((d, i) => [pos[i % 4], 70 + i * H]);
   const path = pts.map((p, i) => i ? `C${pts[i - 1][0]},${(pts[i - 1][1] + p[1]) / 2} ${p[0]},${(pts[i - 1][1] + p[1]) / 2} ${p[0]},${p[1]}` : `M${p[0]},${p[1]}`).join(" ");
   const m = srsRec().m || {};
-  b.innerHTML = `<div class="cr-hud"><div class="cr-pill fire"><span>🔥</span><b>${info.streak}</b><small>يوم متتالي</small></div><div class="cr-pill lvl"><span>⭐</span><b>مستوى ${lvl}</b><i><u style="width:${lp}%"></u></i></div><div class="cr-pill due"><span>⏰</span><b>${st.due.length}</b><small>مستحقة</small></div></div>
-    <div class="cr-goal"><div class="cr-gt"><div class="cr-gi">🎯</div><div><h3>${info.today >= GOAL ? "أنجزت هدف اليوم! 🎉" : "هدف اليوم"}</h3><small>${Math.min(info.today, GOAL)} / ${GOAL} كلمة</small></div></div><div class="cr-gb"><i style="width:${gp}%"></i></div>
+  b.innerHTML = `<div class="cr-hud"><div class="cr-pill fire"><span>🔥</span><b data-cu="${info.streak}">0</b><small>يوم متتالي</small></div><div class="cr-pill lvl"><span>⭐</span><b>مستوى ${lvl}</b><i><u style="width:${lp}%"></u></i></div><div class="cr-pill due"><span>⏰</span><b data-cu="${st.due.length}">0</b><small>مستحقة</small></div></div>
+    <div class="cr-goal"><div class="cr-gt"><div class="cr-gi">🎯</div><div><h3>${info.today >= GOAL ? "أنجزت هدف اليوم! 🎉" : "هدف اليوم"}</h3><small><b data-cu="${Math.min(info.today, GOAL)}">0</b> / ${GOAL} كلمة</small></div></div><div class="cr-gb"><i style="width:${gp}%"></i></div>
       <div class="cr-gact"><button class="cr-start" id="cgo" ${todo ? "" : "disabled"}>${todo ? `ابدأ جلسة اليوم · ${todo} كلمة` : "خلّصت كل المطلوب ✓"}</button><label class="cr-au"><input type="checkbox" id="cau" ${CR.auto ? "checked" : ""}> نطق تلقائي</label><select id="cnn" aria-label="عدد الكلمات الجديدة">${[5, 10, 20, 40].map(n => `<option value="${n}" ${CR.newN === n ? "selected" : ""}>${n} جديدة</option>`).join("")}</select></div></div>
     <h2 class="cr-h">رحلتك في الكلمات</h2>
     <div class="cr-map" style="height:${decks.length * H + 20}px"><svg class="cr-path" viewBox="0 0 100 ${decks.length * H + 20}" preserveAspectRatio="none" aria-hidden="true"><path d="${path}" vector-effect="non-scaling-stroke"/></svg>
     ${decks.map((d, i) => { const l = all.filter(c => (c.deck || "عام") === d), mt = l.filter(c => m[c.id] && m[c.id][0] >= 2).length, du = l.filter(c => m[c.id] && m[c.id][1] <= Date.now()).length, fr = l.filter(c => !m[c.id]).length, p = Math.round(mt / l.length * 100), pal = CPAL[i % CPAL.length];
       return `<button type="button" class="cr-node ${p === 100 ? "done" : ""}" data-deck="${esc(d)}" style="left:${pts[i][0]}%;top:${pts[i][1] - 54}px;--c1:${pal[0]};--c2:${pal[1]};--p:${p}"><span class="cr-ring"><span class="cr-ic">${CEMO[i % CEMO.length]}</span>${p === 100 ? `<em class="cr-ck">${ico(CIC.good, 16)}</em>` : ""}${du ? `<em class="cr-bd">${du}</em>` : ""}</span><b>${esc(d)}</b><small>${p === 100 ? "مكتملة ✓" : `${mt}/${l.length} مكتملة${fr ? ` · ${fr} جديدة` : ""}`}</small></button>`; }).join("")}</div>${hardTable(all, m)}`;
-  $$("[data-deck]", b).forEach(x => x.onclick = () => { CR.deck = x.dataset.deck; const s2 = crStats(); if (!s2.due.length && !s2.fresh.length) { CR.deck = x.dataset.deck; startSession(true); } else startSession(); });
+  $$("[data-deck]", b).forEach(x => x.onclick = () => { CR.deck = x.dataset.deck; const s2 = crStats(); if (!s2.due.length && !s2.fresh.length) { startSession(true); } else startSession(30); });
+  $$("[data-cu]", b).forEach(el => countTo(el, +el.dataset.cu));
   const nn = $("#cnn", b); nn.onchange = e => { CR.newN = +e.target.value; paintCards(); };
   $("#cau", b).onchange = e => { CR.auto = e.target.checked; try { localStorage.setItem("rf_cauto", CR.auto ? "1" : "0"); } catch {} };
   $("#cgo", b).onclick = () => { CR.deck = ""; startSession(); };
   const hb = $("#chard", b); if (hb) hb.onclick = () => { const mm = srsRec().m || {}, q = hardWords(all, mm); CR.deck = ""; CR.q = shuffle(q.slice()); CR.i = 0; CR.total = CR.q.length; CR.again = 0; CR.busy = false; CR.running = true; paintSession(true); };
 }
-const hardWords = (all, m) => all.filter(c => m[c.id] && (m[c.id][2] || 0) >= 1 && m[c.id][0] < 4).sort((a, b) => (m[b.id][2] || 0) - (m[a.id][2] || 0));
+const hardWords = (all, m) => all.filter(c => m[c.id] && (m[c.id][2] || 0) > 0 && m[c.id][0] < 4).sort((a, b) => (m[b.id][2] || 0) - (m[a.id][2] || 0));
 function hardTable(all, m) {
   const hw = hardWords(all, m);
   return `<section class="cr-hard"><div class="cr-hh"><h2>🧠 الكلمات الصعبة</h2><small>${hw.length ? "الكلمات اللي بتغلط فيها أو بتصنّفها صعبة — بتختفي أول ما تتقنها" : "ممتاز! لا توجد كلمات صعبة حاليًا 🎉"}</small></div>
-  ${hw.length ? `<div class="cr-hl">${hw.map(c => { const e = m[c.id], lap = Math.max(1, Math.round(e[2] || 0)); return `<div class="cr-hi"><button type="button" class="spk-b" data-say="${esc(c.front)}" aria-label="نطق">${ico(SPK, 18)}</button><div class="cr-hw" dir="ltr"><b>${esc(c.front)}</b>${c.pron ? `<small dir="rtl">${esc(c.pron)}</small>` : ""}</div><div class="cr-hm"><span dir="rtl">${esc(c.back)}</span>${c.mfr ? `<em dir="ltr">${esc(c.mfr)}</em>` : ""}</div><span class="cr-lp ${lap >= 3 ? "hi" : ""}" title="عدد الغلطات">${lap}×</span></div>`; }).join("")}</div><button class="cr-start" id="chard" style="margin-top:14px;width:100%">راجع الكلمات الصعبة (${hw.length})</button>` : ""}</section>`;
+  ${hw.length ? `<div class="cr-hl">${hw.map(c => { const e = m[c.id], lap = Math.max(1, Math.ceil(e[2] || 0)); return `<div class="cr-hi"><button type="button" class="spk-b" data-say="${esc(c.front)}" aria-label="نطق">${ico(SPK, 18)}</button><div class="cr-hw" dir="ltr"><b>${esc(c.front)}</b>${c.pron ? `<small dir="rtl">${esc(c.pron)}</small>` : ""}</div><div class="cr-hm"><span dir="rtl">${esc(c.back)}</span>${c.mfr ? `<em dir="ltr">${esc(c.mfr)}</em>` : ""}</div><span class="cr-lp ${lap >= 3 ? "hi" : ""}" title="عدد الغلطات">${lap}×</span></div>`; }).join("")}</div><button class="cr-start" id="chard" style="margin-top:14px;width:100%">راجع الكلمات الصعبة (${hw.length})</button>` : ""}</section>`;
 }
 const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 function startSession(review) {
-  const st = crStats(); let q = [...shuffle(st.due.slice()), ...shuffle(st.fresh.slice()).slice(0, CR.newN)];
+  const st = crStats(); let q = [...shuffle(st.due.slice()), ...shuffle(st.fresh.slice()).slice(0, typeof review === "number" ? review : CR.newN)];
   if (review && !q.length) q = shuffle(st.pool.slice()).slice(0, 15);
-  CR.q = q; CR.i = 0; CR.total = q.length; CR.again = 0; CR.busy = false; CR.running = true; paintSession(true);
+  CR.done = false; CR.q = q; CR.i = 0; CR.total = q.length; CR.again = 0; CR.busy = false; CR.running = true; paintSession(true);
 }
 function paintSession(enter) {
   const b = $("#cr"); if (!b) return;
   if (CR.i >= CR.q.length) {
-    srsFlush(); CR.running = false; const info = srsInfo();
+    srsFlush(); CR.running = false; CR.done = true; const info = srsInfo();
     b.innerHTML = `<div class="cr-done"><div class="cr-bigck"><svg viewBox="0 0 52 52" width="96" height="96"><circle cx="26" cy="26" r="24" fill="none" stroke="#22c55e" stroke-width="3"/><path d="M14 27l8 8 16-17" fill="none" stroke="#22c55e" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h2>اكتملت الجلسة ✓</h2><p>راجعت <b>${CR.total}</b> كلمة${CR.again ? ` — و<b>${CR.again}</b> هترجعلك قريب للتثبيت` : ""}</p><div class="cr-pill fire" style="margin:14px auto"><span>🔥</span><b>${info.streak}</b><small>يوم متتالي</small></div><button class="cr-start" id="cbk">رجوع للرحلة</button></div>`;
-    $("#cbk").onclick = () => { CR.running = false; paintCards(); }; return;
+    $("#cbk").onclick = () => { CR.running = false; CR.done = false; paintCards(); }; return;
   }
   const c = CR.q[CR.i], m = srsRec().m || {}, box = m[c.id]?.[0] || 0, pct = Math.round(CR.i / Math.max(1, CR.q.length) * 100), pal = CPAL[Math.abs([...(c.deck || "")].reduce((a, ch) => a + ch.charCodeAt(0), 0)) % CPAL.length];
-  b.innerHTML = `<div class="cr-bar"><button class="cr-x" id="cex" aria-label="إنهاء">✕</button><div class="cr-pb"><i style="width:${pct}%"></i></div><span>${CR.i + 1}/${CR.q.length}</span></div>
+  b.innerHTML = `<div class="cr-bar"><button class="cr-x" id="cex" aria-label="إنهاء">✕</button><div class="cr-pb"><i style="width:${pct}%"></i></div><span>${CR.i + 1}/${CR.q.length}</span><span class="cr-live" title="كلمات اليوم">🎯 ${srsInfo().today}/${GOAL}</span></div>
     <div class="cr-stage"><article class="cr-card ${enter ? "in" : ""}" id="ccard" style="--c1:${pal[0]};--c2:${pal[1]}">
       <div class="cr-cap"><span>${box ? "مستوى " + box : "✨ كلمة جديدة"}</span><span>${esc(c.deck || "")}</span></div>
       <div class="cr-word" dir="ltr">${esc(c.front)}</div>${c.pron ? `<div class="cr-pron">${esc(c.pron)}</div>` : ""}${spkBtns(c.front)}
@@ -4361,7 +4364,7 @@ function paintSession(enter) {
     <div class="cr-acts">${[["again", "مرة تانية", 0], ["hard", "صعبة", 1], ["good", "عرفتها", 2], ["easy", "سهلة", 3]].map(([k, t, g]) => `<button type="button" class="cr-a ${k}" data-g="${g}"><span>${ico(CIC[k], 26)}</span><b>${t}</b><small>${dayLbl(srsNext(box, g).days)}</small></button>`).join("")}<button type="button" class="cr-a skip" id="cskip"><span>${ico(CIC.next, 26)}</span><b>التالية</b><small>تخطّي</small></button></div>`;
   $$(".cr-a[data-g]", b).forEach(x => x.onclick = e => rate(+x.dataset.g, e));
   $("#cskip").onclick = e => advance(null, "skip", e);
-  $("#cex").onclick = () => { srsFlush(); CR.running = false; paintCards(); };
+  $("#cex").onclick = () => { srsFlush(); CR.running = false; CR.done = false; paintCards(); };
   if (CR.auto) speak(c.front);
   [CR.q[CR.i + 1], CR.q[CR.i + 2]].forEach(n => n && preSpeak(n.front));
 }
