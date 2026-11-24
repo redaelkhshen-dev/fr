@@ -1406,31 +1406,60 @@ html[data-theme=light] .rv-ki{color:#d6396a;background:rgba(214,58,105,.12)}
 html[data-theme=light] .rv-k.main{background:linear-gradient(135deg,rgba(245,138,171,.28),rgba(255,255,255,.7));border-color:rgba(214,58,105,.35)}
 html[data-theme=light] .rv-br i{background:rgba(214,58,105,.12)}html[data-theme=light] .rv-br u{background:linear-gradient(90deg,#f58aab,#d6396a)}
 @media(prefers-reduced-motion:reduce){.rv-ln,.rv-br u{animation:none}}
-/* ---- بطاقات المراجعة ---- */
-.cr-top{display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:14px}
-.cr-st{grid-template-columns:repeat(auto-fit,minmax(130px,1fr))!important;margin-bottom:14px}
-.cr-go{display:flex;align-items:center;gap:16px;flex-wrap:wrap;justify-content:space-between}.cr-go h3{margin:0 0 4px}.cr-go select{width:auto;padding:4px 8px;display:inline-block}
-.cr-au{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:.9rem}.cr-au input{width:auto}
-.cr-bar{display:flex;align-items:center;gap:12px;margin-bottom:16px}.cr-bar .pbar-track{flex:1}.cr-bar span{color:var(--muted);font-variant-numeric:tabular-nums;font-size:.9rem}
-.cr-stage{perspective:1200px;max-width:640px;margin:0 auto}
-.cr-card{position:relative;min-height:340px;cursor:pointer;transition:transform .55s cubic-bezier(.2,.8,.2,1);transform-style:preserve-3d;outline:0}
-.cr-card.flip{transform:rotateY(180deg)}
-.cr-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:24px;padding:26px 22px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;border:1px solid var(--accent);background:linear-gradient(145deg,rgba(232,197,102,.2),rgba(184,134,43,.06)),var(--card);box-shadow:0 22px 50px -26px rgba(0,0,0,.6);overflow:auto}
-.cr-face.back{transform:rotateY(180deg)}
-.cr-k{position:absolute;top:14px;inset-inline-start:16px;font-size:.78rem;color:var(--muted)}
-.cr-w{font-size:2.3rem;font-weight:800;line-height:1.3;word-break:break-word}.cr-w.ar{font-size:1.6rem}
-.cr-p{color:var(--accent);font-size:1.1rem}.cr-tip{position:absolute;bottom:12px;color:var(--muted);opacity:.7}
-.cr-ex{margin-top:6px;padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.05);width:100%;display:flex;flex-direction:column;gap:4px;align-items:center}.cr-ex small{color:var(--muted)}
-.spk{display:inline-flex;gap:8px}.spk-b{border:1px solid var(--line);background:var(--card);color:var(--accent);width:44px;height:44px;border-radius:50%;display:grid;place-items:center;cursor:pointer;font-size:1.1rem;transition:transform .15s}.spk-b:hover{transform:scale(1.1)}.spk-b:active{transform:scale(.92)}
-.cr-rate{display:none;grid-template-columns:repeat(4,1fr);gap:10px;max-width:640px;margin:18px auto 0}.cr-rate.on{display:grid}.cr-rate-h{max-width:640px;margin:18px auto 0}
-.cr-r{border:0;border-radius:14px;padding:12px 6px;cursor:pointer;color:#fff;display:flex;flex-direction:column;gap:2px;align-items:center;font:inherit;transition:transform .15s,filter .2s}.cr-r:hover{transform:translateY(-2px);filter:brightness(1.1)}.cr-r small{opacity:.85;font-size:.74rem}
-.cr-r.again{background:linear-gradient(135deg,#ef4444,#b91c1c)}.cr-r.hard{background:linear-gradient(135deg,#f59e0b,#b45309)}.cr-r.good{background:linear-gradient(135deg,#22c55e,#15803d)}.cr-r.easy{background:linear-gradient(135deg,#38bdf8,#0369a1)}
-.cr-done{text-align:center;padding:40px 20px;max-width:520px;margin:0 auto}.cr-trophy{font-size:3.4rem}
-html[data-theme=light] .cr-face{background:linear-gradient(145deg,rgba(245,138,171,.22),rgba(255,255,255,.7)),#fff;border-color:rgba(214,58,105,.35)}
-html[data-theme=light] .cr-p,html[data-theme=light] .spk-b{color:#c92c5f}html[data-theme=light] .cr-ex{background:rgba(214,58,105,.07)}
-@media(max-width:600px){.cr-w{font-size:1.9rem}.cr-card{min-height:320px}.cr-rate{gap:6px}.cr-r b{font-size:.85rem}}
-@media(prefers-reduced-motion:reduce){.cr-card{transition:none}}
-@media(max-width:820px){.pnav.sn a.pn{font-size:.74rem;padding:8px 2px 7px;min-width:0}.pnav.sn a.pn span{overflow:hidden;text-overflow:ellipsis;max-width:100%}}
+/* ---- بطاقات الكلمات (لعبة تعلّم) ---- */
+.crp{max-width:760px;margin-inline:auto}
+.cr-hud{display:grid;grid-template-columns:1fr 1.5fr 1fr;gap:10px;margin-bottom:14px}
+.cr-pill{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:10px 14px;box-shadow:0 8px 20px -14px rgba(0,0,0,.5)}
+.cr-pill span{font-size:1.5rem}.cr-pill b{font-size:1.15rem}.cr-pill small{color:var(--muted);width:100%;margin-top:-6px;padding-inline-start:36px}
+.cr-pill.fire{background:linear-gradient(135deg,rgba(249,115,22,.2),rgba(245,158,11,.06))}.cr-pill.lvl{background:linear-gradient(135deg,rgba(139,92,246,.2),rgba(99,102,241,.06))}.cr-pill.due{background:linear-gradient(135deg,rgba(16,185,129,.2),rgba(5,150,105,.06))}
+.cr-pill i{flex:1;min-width:60px;height:9px;border-radius:9px;background:rgba(139,92,246,.2);overflow:hidden}.cr-pill i u{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,#a78bfa,#6366f1);transition:width .6s}
+.cr-goal{background:linear-gradient(135deg,#7c3aed,#6366f1 60%,#4f46e5);color:#fff;border-radius:24px;padding:18px 20px;box-shadow:0 22px 40px -20px rgba(99,102,241,.8);position:relative;overflow:hidden}
+.cr-goal:before{content:"";position:absolute;width:170px;height:170px;border-radius:50%;background:rgba(255,255,255,.12);top:-70px;inset-inline-end:-40px}
+.cr-gt{display:flex;align-items:center;gap:12px;margin-bottom:12px;position:relative}.cr-gt h3{margin:0;font-size:1.1rem}.cr-gt small{opacity:.85}
+.cr-gi{width:48px;height:48px;border-radius:50%;background:#fff;display:grid;place-items:center;font-size:1.6rem}
+.cr-gb{height:12px;border-radius:12px;background:rgba(255,255,255,.28);overflow:hidden;position:relative}.cr-gb i{display:block;height:100%;border-radius:12px;background:linear-gradient(90deg,#fde047,#facc15);transition:width .7s}
+.cr-gact{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:14px;position:relative}
+.cr-start{flex:1;min-width:200px;border:0;cursor:pointer;font:800 1.05rem var(--fb);padding:14px 20px;border-radius:16px;color:#3b2a00;background:linear-gradient(180deg,#fde047,#facc15);box-shadow:0 6px 0 #ca9a04,0 14px 24px -10px rgba(0,0,0,.45);transition:transform .12s,box-shadow .12s}
+.cr-start:hover{transform:translateY(-2px)}.cr-start:active{transform:translateY(4px);box-shadow:0 2px 0 #ca9a04}.cr-start:disabled{opacity:.7;cursor:default;transform:none;background:#e5e7eb;box-shadow:0 6px 0 #b7bcc6;color:#6b7280}
+.cr-au{display:flex;align-items:center;gap:6px;font-size:.86rem}.cr-au input{width:auto}.cr-gact select{width:auto;padding:8px 10px;border-radius:12px;background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.35)}.cr-gact select option{color:#111}
+.cr-h{margin:26px 0 4px;font-size:1.25rem;text-align:center}
+.cr-map{position:relative;margin-top:6px}.cr-path{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.cr-path path{fill:none;stroke:var(--line);stroke-width:5;stroke-dasharray:3 12;stroke-linecap:round;opacity:.9}
+.cr-node{position:absolute;transform:translateX(-50%);width:170px;display:flex;flex-direction:column;align-items:center;gap:6px;background:none;border:0;cursor:pointer;color:var(--fg);font:inherit;text-align:center;transition:transform .2s}
+.cr-node:hover{transform:translateX(-50%) translateY(-4px) scale(1.04)}
+.cr-ring{position:relative;width:108px;height:108px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--c1) calc(var(--p)*1%),rgba(128,128,128,.22) 0);box-shadow:0 14px 24px -12px rgba(0,0,0,.5)}
+.cr-ring:before{content:"";position:absolute;inset:8px;border-radius:50%;background:var(--card)}
+.cr-ic{position:relative;width:78px;height:78px;border-radius:50%;display:grid;place-items:center;font-size:2.3rem;background:linear-gradient(145deg,var(--c1),var(--c2));box-shadow:inset 0 -6px 10px rgba(0,0,0,.2),inset 0 4px 8px rgba(255,255,255,.3)}
+.cr-ck{position:absolute;bottom:-2px;inset-inline-end:-2px;width:30px;height:30px;border-radius:50%;background:#22c55e;color:#fff;display:grid;place-items:center;border:3px solid var(--card);font-style:normal}
+.cr-bd{position:absolute;top:-4px;inset-inline-start:-4px;min-width:26px;height:26px;padding:0 6px;border-radius:13px;background:#ef4444;color:#fff;font:700 .8rem var(--fb);display:grid;place-items:center;border:3px solid var(--card);font-style:normal}
+.cr-node b{font-size:1.02rem;line-height:1.2}.cr-node small{color:var(--muted);font-size:.78rem}
+.cr-bar{display:flex;align-items:center;gap:12px;margin-bottom:18px}.cr-bar>span{color:var(--muted);font-variant-numeric:tabular-nums;font-weight:700}
+.cr-x{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--muted);cursor:pointer;font-size:1.05rem;flex:none}
+.cr-pb{flex:1;height:16px;border-radius:16px;background:rgba(128,128,128,.22);overflow:hidden}.cr-pb i{display:block;height:100%;border-radius:16px;background:linear-gradient(90deg,#4ade80,#16a34a);box-shadow:inset 0 3px 0 rgba(255,255,255,.3);transition:width .5s}
+.cr-stage{perspective:1200px;max-width:620px;margin:0 auto}
+.cr-card{position:relative;border-radius:30px;padding:70px 22px 24px;text-align:center;background:var(--card);border:2px solid var(--c1);box-shadow:0 26px 50px -26px rgba(0,0,0,.6),0 8px 0 -2px var(--c2);display:flex;flex-direction:column;align-items:center;gap:10px;overflow:hidden;transform-origin:center}
+.cr-card:before{content:"";position:absolute;inset:0 0 auto 0;height:56px;background:linear-gradient(135deg,var(--c1),var(--c2))}
+.cr-card.in{animation:crIn .42s cubic-bezier(.2,.8,.2,1)}.cr-card.out{animation:crOut .19s ease-in forwards}
+@keyframes crIn{from{transform:rotateY(-90deg) scale(.95);opacity:.2}to{transform:none;opacity:1}}@keyframes crOut{to{transform:rotateY(90deg) scale(.95);opacity:.2}}
+.cr-cap{position:absolute;top:0;inset-inline:0;height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;color:#fff;font:700 .86rem var(--fb)}
+.cr-word{font-size:2.7rem;font-weight:800;line-height:1.2;word-break:break-word}.cr-pron{color:var(--c2);font-weight:700;font-size:1.15rem;background:rgba(128,128,128,.12);padding:3px 14px;border-radius:999px}
+.cr-mean{width:100%;display:grid;gap:10px;margin-top:6px}
+.cr-m{display:flex;align-items:center;gap:12px;border-radius:16px;padding:12px 14px;text-align:start}
+.cr-m i{flex:none;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;color:#fff;font:800 .8rem var(--fb);font-style:normal}
+.cr-m p{margin:0;flex:1;font-size:1.2rem;font-weight:700;line-height:1.5}
+.cr-m.ar{background:rgba(34,197,94,.13)}.cr-m.ar i{background:#16a34a}.cr-m.fr{background:rgba(59,130,246,.13)}.cr-m.fr i{background:#2563eb}.cr-m.fr p{font-weight:600;font-size:1.05rem}
+.cr-ex{margin-top:2px;padding:12px 14px;border-radius:16px;border:2px dashed rgba(128,128,128,.35);width:100%;display:flex;flex-direction:column;gap:4px;align-items:center}.cr-ex small{color:var(--muted)}
+.spk{display:inline-flex;gap:8px}.spk-b{border:0;background:linear-gradient(145deg,var(--c1,#e8c566),var(--c2,#b8862b));color:#fff;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;cursor:pointer;font-size:1.15rem;box-shadow:0 5px 0 rgba(0,0,0,.22);transition:transform .12s,box-shadow .12s}.spk-b:hover{transform:translateY(-2px)}.spk-b:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.22)}
+.cr-hint{text-align:center;color:var(--muted);margin:16px 0 8px;font-size:.9rem}
+.cr-acts{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;max-width:620px;margin:0 auto}
+.cr-a{border:0;cursor:pointer;color:#fff;border-radius:18px;padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:2px;font:inherit;box-shadow:0 5px 0 rgba(0,0,0,.25);transition:transform .12s,box-shadow .12s}
+.cr-a:hover{transform:translateY(-2px)}.cr-a:active{transform:translateY(4px);box-shadow:0 1px 0 rgba(0,0,0,.25)}
+.cr-a span{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.22);display:grid;place-items:center}.cr-a b{font-size:.88rem}.cr-a small{opacity:.85;font-size:.72rem}
+.cr-a.again{background:#ef4444}.cr-a.hard{background:#f97316}.cr-a.good{background:#22c55e}.cr-a.easy{background:#0ea5e9}.cr-a.skip{background:#8b5cf6}
+.cr-done{text-align:center;padding:40px 16px;max-width:520px;margin:0 auto}.cr-trophy{font-size:4rem;animation:crIn .6s}
+html[data-theme=light] .cr-card{background:#fff}html[data-theme=light] .cr-ring:before{background:#fff}
+@media(max-width:600px){.cr-word{font-size:2.2rem}.cr-hud{grid-template-columns:1fr 1.3fr 1fr;gap:6px}.cr-pill{padding:8px 10px}.cr-pill span{font-size:1.2rem}.cr-pill b{font-size:.95rem}.cr-pill small{padding-inline-start:0;margin-top:0;width:auto;font-size:.7rem}.cr-acts{gap:5px}.cr-a span{width:36px;height:36px}.cr-a b{font-size:.78rem}.cr-node{width:140px}.cr-ring{width:92px;height:92px}.cr-ic{width:66px;height:66px;font-size:2rem}.cr-m p{font-size:1.05rem}}
+@media(prefers-reduced-motion:reduce){.cr-card.in,.cr-card.out,.cr-trophy{animation:none}}
 /* ---- هيدر الطالب على الكمبيوتر: يتسع لخمس روابط في صف واحد ---- */
 @media(min-width:821px){.hdr-in{flex-wrap:nowrap}.pnav.sn{gap:2px;flex:1;justify-content:center;min-width:0}.pnav.sn a.pn{padding:8px 12px;font-size:.9rem;gap:6px}.hdr-r.st{gap:8px;flex:none}.hdr-r.st .chipuser .n{max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}}
 @media(min-width:821px) and (max-width:1100px){.pnav.sn a.pn span{display:none}.pnav.sn a.pn.on span{display:inline}.hdr-r.st .chipuser .n{display:none}}
@@ -2272,7 +2301,7 @@ const PN_IC = {
 };
 function pnavHTML() {
   const h = location.hash.replace(/^#/, "") || "/", cur = h.startsWith("/activity") ? "activity" : h.startsWith("/profile") ? "profile" : h.startsWith("/pay") ? "pay" : h.startsWith("/cards") ? "cards" : "home";
-  return [["home", "#/", "الرئيسية"], ["activity", "#/activity", "نشاطي"], ["profile", "#/profile", "بياناتي"], ["pay", "#/pay", "الدفع"], ["cards", "#/cards", "مراجعة"]].map(([k, href, t]) => `<a class="pn ${cur === k ? "on" : ""}" href="${href}" ${cur === k ? 'aria-current="page"' : ""}><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${PN_IC[k]}</svg><span>${t}</span></a>`).join("");
+  return [["home", "#/", "الرئيسية"], ["activity", "#/activity", "نشاطي"], ["profile", "#/profile", "بياناتي"], ["pay", "#/pay", "الدفع"], ["cards", "#/cards", "كلماتي"]].map(([k, href, t]) => `<a class="pn ${cur === k ? "on" : ""}" href="${href}" ${cur === k ? 'aria-current="page"' : ""}><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${PN_IC[k]}</svg><span>${t}</span></a>`).join("");
 }
 function studentHeader(active) {
   const s = S.student;
@@ -3441,7 +3470,7 @@ const AD_IC = {
   security: '<rect x="4.5" y="10.5" width="15" height="10.5" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/><circle cx="12" cy="15.5" r="1.3"/>',
   payments: '<rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19"/><path d="M6.5 15h4"/>'
 };
-const AD_GROUPS = [["الرئيسية", [["overview", "نظرة عامة"], ["students", "الطلاب"], ["subs", "اشتراكات"], ["revenue", "الإيرادات"]]], ["المحتوى", [["courses", "الكورسات"], ["cards", "بطاقات المراجعة"], ["videos", "الفيديوهات"], ["files", "الملفات"], ["homework", "الواجبات"], ["exams", "الاختبارات"]]], ["التواصل", [["lives", "البث المباشر"], ["notices", "الإشعارات"], ["comments", "التعليقات"]]], ["التقييم", [["grades", "رصد الدرجات"], ["certs", "الشهادات"]]], ["المالية", [["payments", "المدفوعات"]]], ["الإعدادات", [["security", "الأمان وكلمة السر"]]]];
+const AD_GROUPS = [["الرئيسية", [["overview", "نظرة عامة"], ["students", "الطلاب"], ["subs", "اشتراكات"], ["revenue", "الإيرادات"]]], ["المحتوى", [["courses", "الكورسات"], ["cards", "بطاقات الكلمات"], ["videos", "الفيديوهات"], ["files", "الملفات"], ["homework", "الواجبات"], ["exams", "الاختبارات"]]], ["التواصل", [["lives", "البث المباشر"], ["notices", "الإشعارات"], ["comments", "التعليقات"]]], ["التقييم", [["grades", "رصد الدرجات"], ["certs", "الشهادات"]]], ["المالية", [["payments", "المدفوعات"]]], ["الإعدادات", [["security", "الأمان وكلمة السر"]]]];
 function renderAdmin() {
   S.page = "admin";
   const nav = AD_GROUPS.map(([g, items], gi) => `${gi ? '<div class="sep"></div>' : ""}<div class="asg">${g}</div>${items.map(([k, t]) => `<button class="atab" data-t="${k}" title="${t}"><i class="ai"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${AD_IC[k]}</svg></i><span class="al">${t}</span><span class="ab"></span></button>`).join("")}`).join("");
@@ -4164,25 +4193,36 @@ TABS.revenue = {
   }
 };
 
-/* ===== بطاقات المراجعة (Flashcards) بنظام التكرار المتباعد ===== */
+/* ===== بطاقات الكلمات (Flashcards) بنظام التكرار المتباعد ===== */
 const SPK = '<path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.500 8.500a5 5 0 0 1 0 7"/><path d="M19 6a8.500 8.500 0 0 1 0 12"/>';
 const CARD_IC = PN_IC.cards;
-const SRS_DAYS = [0, 0, 1, 3, 7, 14, 30, 60];
+const CIC = {
+  again: '<path d="M3 12a9 9 0 0 1 15.500-6.200L21 8"/><path d="M21 3v5h-5"/>',
+  hard: '<path d="M12 3c1 4 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 .3 1.500 1 2 2 2 0-3-1-5 1-8z"/>',
+  good: '<path d="m5 12.500 4.500 4.500L19 7"/>',
+  easy: '<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>',
+  next: '<path d="M15 5l-7 7 7 7"/>'
+};
+const SRS_DAYS = [0, 0, 1, 3, 7, 14, 30, 60], GOAL = 15;
 const srsLs = () => "rf_srs_" + (S.student?.id || "");
 const srsRec = () => { const a = S.student?.progress?.__srs; let b = null; try { b = JSON.parse(localStorage.getItem(srsLs()) || "null"); } catch {} return (b && (b.at || 0) > ((a && a.at) || 0)) ? b : (a || { m: {}, at: 0 }); };
+const cDay = (off = 0) => { const d = new Date(Date.now() - off * 864e5); return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate(); };
 let _srsT = 0;
-const srsFlush = () => { clearTimeout(_srsT); _srsT = 0; if (!S.student) return; const rec = srsRec(); updateDoc(doc(db, "students", S.student.id), { "progress.__srs": rec }).catch(() => {}); };
+const srsFlush = () => { clearTimeout(_srsT); _srsT = 0; if (!S.student) return; updateDoc(doc(db, "students", S.student.id), { "progress.__srs": srsRec() }).catch(() => {}); };
 function srsSet(id, box, due) {
-  const cur = srsRec(), rec = { m: { ...(cur.m || {}), [id]: [box, due] }, at: Date.now() };
+  const cur = srsRec(), k = cDay(); let st = cur.s || 0, t = cur.t || 0;
+  if (cur.d !== k) { st = cur.d === cDay(1) ? st + 1 : 1; t = 0; }
+  const rec = { m: { ...(cur.m || {}), [id]: [box, due] }, at: Date.now(), d: k, s: st, t: t + 1 };
   try { localStorage.setItem(srsLs(), JSON.stringify(rec)); } catch {}
   S.student.progress = { ...(S.student.progress || {}), __srs: rec };
   if (!_srsT) _srsT = setTimeout(srsFlush, 2500);
 }
+const srsInfo = () => { const r = srsRec(), k = cDay(); return { streak: (r.d === k || r.d === cDay(1)) ? (r.s || 0) : 0, today: r.d === k ? (r.t || 0) : 0 }; };
 window.addEventListener("pagehide", () => { if (_srsT) srsFlush(); });
-const srsNext = (box, g) => { const nb = g === 0 ? 1 : g === 1 ? Math.max(2, box) : g === 2 ? Math.min(7, box + 1 || 2) : Math.min(7, Math.max(box, 1) + 2); const days = g === 0 ? 0 : g === 1 ? Math.max(1, Math.round(SRS_DAYS[nb] / 2)) : SRS_DAYS[nb]; return { box: nb, days, due: Date.now() + (g === 0 ? 6e5 : days * 864e5) }; };
+const srsNext = (box, g) => { const nb = g === 0 ? 1 : g === 1 ? Math.max(2, box) : g === 2 ? Math.min(7, (box || 1) + 1) : Math.min(7, Math.max(box, 1) + 2); const days = g === 0 ? 0 : g === 1 ? Math.max(1, Math.round(SRS_DAYS[nb] / 2)) : SRS_DAYS[nb]; return { box: nb, days, due: Date.now() + (g === 0 ? 6e5 : days * 864e5) }; };
 const dayLbl = d => d === 0 ? "الآن" : d === 1 ? "يوم" : d < 30 ? d + " أيام" : d < 60 ? "شهر" : "شهرين";
-const isAr = t => /[؀-ۿ]/.test(t || "");
-const CR = { kind: "all", deck: "", newN: 10, q: [], i: 0, flip: false, total: 0, again: 0, good: 0, running: false, auto: (() => { try { return localStorage.getItem("rf_cauto") === "1"; } catch { return false; } })() };
+const CR = { deck: "", newN: 10, q: [], i: 0, total: 0, again: 0, busy: false, running: false, auto: (() => { try { return localStorage.getItem("rf_cauto") === "1"; } catch { return false; } })() };
+const CPAL = [["#f59e0b", "#f97316"], ["#8b5cf6", "#6366f1"], ["#10b981", "#059669"], ["#ec4899", "#e11d48"], ["#0ea5e9", "#2563eb"], ["#14b8a6", "#0d9488"]], CEMO = ["🌟", "📘", "🎯", "🚀", "🍎", "🌍", "🎨", "🧩", "🦋", "🔥"];
 let _frV = null;
 function speak(t, slow) {
   if (!("speechSynthesis" in window) || !t) return;
@@ -4192,88 +4232,91 @@ function speak(t, slow) {
     speechSynthesis.speak(u);
   } catch {}
 }
-const spkBtns = t => ("speechSynthesis" in window && t && !isAr(t)) ? `<span class="spk"><button type="button" class="spk-b" data-say="${esc(t)}" aria-label="نطق">${ico(SPK, 20)}</button><button type="button" class="spk-b slow" data-say="${esc(t)}" data-slow="1" aria-label="نطق بطيء" title="نطق بطيء">🐢</button></span>` : "";
-const crPool = () => visible(S.cards || []).filter(c => (CR.kind === "all" || c.kind === CR.kind) && (!CR.deck || c.deck === CR.deck));
-function crStats() {
-  const m = srsRec().m || {}, now = Date.now(), pool = crPool(), due = pool.filter(c => m[c.id] && m[c.id][1] <= now), fresh = pool.filter(c => !m[c.id]), mast = pool.filter(c => m[c.id] && m[c.id][0] >= 5);
-  return { pool, due, fresh, mast, learning: pool.length - fresh.length - mast.length };
+const spkBtns = t => ("speechSynthesis" in window && t) ? `<span class="spk"><button type="button" class="spk-b" data-say="${esc(t)}" aria-label="نطق">${ico(SPK, 22)}</button><button type="button" class="spk-b slow" data-say="${esc(t)}" data-slow="1" aria-label="نطق بطيء" title="نطق بطيء">🐢</button></span>` : "";
+const crAll = () => visible(S.cards || []).filter(c => c.kind !== "grammar");
+const crPool = () => crAll().filter(c => !CR.deck || (c.deck || "عام") === CR.deck);
+function crStats(pool = crPool()) {
+  const m = srsRec().m || {}, now = Date.now(), due = pool.filter(c => m[c.id] && m[c.id][1] <= now), fresh = pool.filter(c => !m[c.id]), mast = pool.filter(c => m[c.id] && m[c.id][0] >= 5);
+  return { pool, due, fresh, mast };
 }
 function renderCards() {
   S.page = "cards"; CR.running = false;
-  app.innerHTML = `${studentHeader()}<main class="wrap sec"><section class="ph-hero act-h"><span class="ph-ic">${ico(CARD_IC, 34)}</span><div><span class="ph-k">مراجعة ذكية</span><h1>بطاقات المراجعة</h1><p>مفردات وقواعد بنظام التكرار المتباعد — البطاقة الصعبة بترجعلك أكتر</p></div></section><div id="cr" style="margin-top:20px"></div></main>`;
+  app.innerHTML = `${studentHeader()}<main class="wrap sec crp"><div id="cr"></div></main>`;
   $("#lo").onclick = doLogout; paintCards();
 }
 function paintCards() {
-  const b = $("#cr"); if (!b || S.page !== "cards") return;
-  if (CR.running) return;
-  const all = visible(S.cards || []);
-  if (!all.length) { b.innerHTML = `<div class="empty">${ico(CARD_IC, 40)}<br>لا توجد بطاقات متاحة لك حاليًا.<br><small>هتظهر هنا أول ما يضيفها مسيو رضا.</small></div>`; return; }
-  const decks = [...new Set(all.map(c => c.deck).filter(Boolean))], st = crStats(), m = srsRec().m || {};
-  const todo = Math.min(st.due.length + Math.min(st.fresh.length, CR.newN), 9999);
-  b.innerHTML = `<div class="cr-top"><div class="gr-chips">${[["all", "الكل"], ["vocab", "مفردات"], ["grammar", "قواعد"]].map(([k, t]) => `<button type="button" class="gr-ch ${CR.kind === k ? "on" : ""}" data-ck="${k}">${t}</button>`).join("")}</div>
-    <select id="cdk"><option value="">كل المجموعات</option>${decks.map(d => `<option value="${esc(d)}" ${CR.deck === d ? "selected" : ""}>${esc(d)}</option>`).join("")}</select></div>
-    <div class="stats cr-st"><div class="stat"><b>${st.due.length}</b><span>مستحقة للمراجعة</span></div><div class="stat"><b>${st.fresh.length}</b><span>جديدة</span></div><div class="stat"><b>${st.learning}</b><span>قيد التعلّم</span></div><div class="stat"><b>${st.mast.length}</b><span>متقنة ✔</span></div></div>
-    <div class="cr-go card"><div><h3>جلسة اليوم</h3><small>${st.due.length} مراجعة + حتى <select id="cnn">${[5, 10, 20, 40].map(n => `<option value="${n}" ${CR.newN === n ? "selected" : ""}>${n}</option>`).join("")}</select> جديدة</small></div>
-      <label class="cr-au"><input type="checkbox" id="cau" ${CR.auto ? "checked" : ""}> نطق تلقائي</label>
-      <button class="btn btn-fill" id="cgo" ${todo ? "" : "disabled"}>${todo ? `ابدأ المراجعة (${todo})` : "خلّصت كل المطلوب 🎉"}</button></div>
-    ${decks.length ? `<div class="card" style="margin-top:14px"><h3 class="ch">المجموعات</h3>${decks.map(d => { const l = all.filter(c => c.deck === d), mt = l.filter(c => m[c.id] && m[c.id][0] >= 5).length, p = Math.round(mt / l.length * 100); return `<div class="rv-br"><span>${esc(d)}</span><i><u style="width:${Math.max(p, 3)}%"></u></i><b>${mt}/${l.length}</b></div>`; }).join("")}</div>` : ""}`;
-  $$("[data-ck]", b).forEach(x => x.onclick = () => { CR.kind = x.dataset.ck; paintCards(); });
-  $("#cdk", b).onchange = e => { CR.deck = e.target.value; paintCards(); };
-  const nn = $("#cnn", b); if (nn) nn.onchange = e => { CR.newN = +e.target.value; paintCards(); };
+  const b = $("#cr"); if (!b || S.page !== "cards" || CR.running) return;
+  const all = crAll();
+  if (!all.length) { b.innerHTML = `<div class="empty">${ico(CARD_IC, 40)}<br>لا توجد كلمات متاحة لك حاليًا.<br><small>هتظهر هنا أول ما يضيفها مسيو رضا.</small></div>`; return; }
+  CR.deck = ""; const info = srsInfo(), st = crStats(all), M = st.mast.length, lvl = Math.floor(M / 10) + 1, lp = (M % 10) * 10;
+  const decks = [...new Set(all.map(c => c.deck || "عام"))], todo = st.due.length + Math.min(st.fresh.length, CR.newN), gp = Math.min(100, Math.round(info.today / GOAL * 100));
+  const H = 168, pos = [50, 76, 50, 24];
+  const pts = decks.map((d, i) => [pos[i % 4], 70 + i * H]);
+  const path = pts.map((p, i) => i ? `C${pts[i - 1][0]},${(pts[i - 1][1] + p[1]) / 2} ${p[0]},${(pts[i - 1][1] + p[1]) / 2} ${p[0]},${p[1]}` : `M${p[0]},${p[1]}`).join(" ");
+  const m = srsRec().m || {};
+  b.innerHTML = `<div class="cr-hud"><div class="cr-pill fire"><span>🔥</span><b>${info.streak}</b><small>يوم متتالي</small></div><div class="cr-pill lvl"><span>⭐</span><b>مستوى ${lvl}</b><i><u style="width:${lp}%"></u></i></div><div class="cr-pill due"><span>⏰</span><b>${st.due.length}</b><small>مستحقة</small></div></div>
+    <div class="cr-goal"><div class="cr-gt"><div class="cr-gi">🎯</div><div><h3>${info.today >= GOAL ? "أنجزت هدف اليوم! 🎉" : "هدف اليوم"}</h3><small>${Math.min(info.today, GOAL)} / ${GOAL} كلمة</small></div></div><div class="cr-gb"><i style="width:${gp}%"></i></div>
+      <div class="cr-gact"><button class="cr-start" id="cgo" ${todo ? "" : "disabled"}>${todo ? `ابدأ جلسة اليوم · ${todo} كلمة` : "خلّصت كل المطلوب ✓"}</button><label class="cr-au"><input type="checkbox" id="cau" ${CR.auto ? "checked" : ""}> نطق تلقائي</label><select id="cnn" aria-label="عدد الكلمات الجديدة">${[5, 10, 20, 40].map(n => `<option value="${n}" ${CR.newN === n ? "selected" : ""}>${n} جديدة</option>`).join("")}</select></div></div>
+    <h2 class="cr-h">رحلتك في الكلمات</h2>
+    <div class="cr-map" style="height:${decks.length * H + 20}px"><svg class="cr-path" viewBox="0 0 100 ${decks.length * H + 20}" preserveAspectRatio="none" aria-hidden="true"><path d="${path}" vector-effect="non-scaling-stroke"/></svg>
+    ${decks.map((d, i) => { const l = all.filter(c => (c.deck || "عام") === d), mt = l.filter(c => m[c.id] && m[c.id][0] >= 5).length, du = l.filter(c => m[c.id] && m[c.id][1] <= Date.now()).length, fr = l.filter(c => !m[c.id]).length, p = Math.round(mt / l.length * 100), pal = CPAL[i % CPAL.length];
+      return `<button type="button" class="cr-node ${p === 100 ? "done" : ""}" data-deck="${esc(d)}" style="left:${pts[i][0]}%;top:${pts[i][1] - 54}px;--c1:${pal[0]};--c2:${pal[1]};--p:${p}"><span class="cr-ring"><span class="cr-ic">${CEMO[i % CEMO.length]}</span>${p === 100 ? `<em class="cr-ck">${ico(CIC.good, 16)}</em>` : ""}${du ? `<em class="cr-bd">${du}</em>` : ""}</span><b>${esc(d)}</b><small>${mt}/${l.length} متقنة${fr ? ` · ${fr} جديدة` : ""}</small></button>`; }).join("")}</div>`;
+  $$("[data-deck]", b).forEach(x => x.onclick = () => { CR.deck = x.dataset.deck; const s2 = crStats(); if (!s2.due.length && !s2.fresh.length) { CR.deck = x.dataset.deck; startSession(true); } else startSession(); });
+  const nn = $("#cnn", b); nn.onchange = e => { CR.newN = +e.target.value; paintCards(); };
   $("#cau", b).onchange = e => { CR.auto = e.target.checked; try { localStorage.setItem("rf_cauto", CR.auto ? "1" : "0"); } catch {} };
-  $("#cgo", b).onclick = startSession;
+  $("#cgo", b).onclick = () => { CR.deck = ""; startSession(); };
 }
 const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
-function startSession() {
-  const st = crStats(); CR.q = [...shuffle(st.due.slice()), ...shuffle(st.fresh.slice()).slice(0, CR.newN)]; CR.i = 0; CR.flip = false; CR.total = CR.q.length; CR.again = 0; CR.good = 0; CR.running = true; paintSession();
+function startSession(review) {
+  const st = crStats(); let q = [...shuffle(st.due.slice()), ...shuffle(st.fresh.slice()).slice(0, CR.newN)];
+  if (review && !q.length) q = shuffle(st.pool.slice()).slice(0, 15);
+  CR.q = q; CR.i = 0; CR.total = q.length; CR.again = 0; CR.busy = false; CR.running = true; paintSession(true);
 }
-function paintSession() {
+function paintSession(enter) {
   const b = $("#cr"); if (!b) return;
   if (CR.i >= CR.q.length) {
-    srsFlush(); CR.running = false;
-    b.innerHTML = `<div class="card cr-done"><div class="cr-trophy">🎉</div><h2>أحسنت! خلّصت الجلسة</h2><p>راجعت <b>${CR.total}</b> بطاقة${CR.again ? ` — منهم <b>${CR.again}</b> محتاجين مراجعة تانية قريب` : ""}</p><div class="mact" style="justify-content:center"><button class="btn btn-fill" id="cbk">رجوع</button></div></div>`;
-    $("#cbk").onclick = paintCards; return;
+    srsFlush(); CR.running = false; const info = srsInfo();
+    b.innerHTML = `<div class="cr-done"><div class="cr-trophy">🏆</div><h2>أحسنت! خلّصت الجلسة</h2><p>راجعت <b>${CR.total}</b> كلمة${CR.again ? ` — و<b>${CR.again}</b> هترجعلك قريب للتثبيت` : ""}</p><div class="cr-pill fire" style="margin:14px auto"><span>🔥</span><b>${info.streak}</b><small>يوم متتالي</small></div><button class="cr-start" id="cbk">رجوع للرحلة</button></div>`;
+    $("#cbk").onclick = () => { CR.running = false; paintCards(); }; return;
   }
-  const c = CR.q[CI()], m = srsRec().m || {}, box = m[c.id]?.[0] || 0, fr = c.front || "", pct = Math.round(CR.i / Math.max(1, CR.q.length) * 100);
-  const frontAr = isAr(fr);
-  b.innerHTML = `<div class="cr-bar"><button class="btn btn-line btn-sm" id="cex">✕ إنهاء</button><div class="pbar-track"><i style="width:${pct}%"></i></div><span>${CR.i + 1} / ${CR.q.length}</span></div>
-    <div class="cr-stage"><div class="cr-card ${CR.flip ? "flip" : ""}" id="ccard" tabindex="0">
-      <div class="cr-face front"><span class="cr-k">${c.kind === "grammar" ? "قاعدة" : "مفردة"}${c.deck ? " · " + esc(c.deck) : ""}</span><div class="cr-w" dir="${frontAr ? "rtl" : "ltr"}">${esc(fr)}</div>${c.pron ? `<div class="cr-p">${esc(c.pron)}</div>` : ""}${spkBtns(fr)}<small class="cr-tip">اضغط لقلب البطاقة</small></div>
-      <div class="cr-face back"><span class="cr-k">${box ? "مستوى " + box : "جديدة"}</span><div class="cr-w ar" dir="rtl" style="white-space:pre-wrap">${esc(c.back || "")}</div>${c.ex ? `<div class="cr-ex"><div dir="ltr">${esc(c.ex)}</div>${c.exAr ? `<small dir="rtl">${esc(c.exAr)}</small>` : ""}${spkBtns(c.ex)}</div>` : ""}</div></div></div>
-    <div class="cr-rate ${CR.flip ? "on" : ""}">${[["again", "مرة تانية", 0], ["hard", "صعب", 1], ["good", "كويس", 2], ["easy", "سهل", 3]].map(([k, t, g]) => `<button type="button" class="cr-r ${k}" data-g="${g}"><b>${t}</b><small>${dayLbl(srsNext(box, g).days)}</small></button>`).join("")}</div>
-    ${CR.flip ? "" : `<div class="cr-rate-h"><button class="btn btn-fill w100" id="cfl">اعرض الإجابة</button></div>`}`;
-  const flip = () => { CR.flip = true; paintSession(); if (CR.auto && c.ex) speak(c.ex); };
-  $("#ccard").onclick = e => { if (e.target.closest(".spk")) return; if (!CR.flip) flip(); };
-  const fb = $("#cfl"); if (fb) fb.onclick = flip;
+  const c = CR.q[CR.i], m = srsRec().m || {}, box = m[c.id]?.[0] || 0, pct = Math.round(CR.i / Math.max(1, CR.q.length) * 100), pal = CPAL[Math.abs([...(c.deck || "")].reduce((a, ch) => a + ch.charCodeAt(0), 0)) % CPAL.length];
+  b.innerHTML = `<div class="cr-bar"><button class="cr-x" id="cex" aria-label="إنهاء">✕</button><div class="cr-pb"><i style="width:${pct}%"></i></div><span>${CR.i + 1}/${CR.q.length}</span></div>
+    <div class="cr-stage"><article class="cr-card ${enter ? "in" : ""}" id="ccard" style="--c1:${pal[0]};--c2:${pal[1]}">
+      <div class="cr-cap"><span>${box ? "مستوى " + box : "✨ كلمة جديدة"}</span><span>${esc(c.deck || "")}</span></div>
+      <div class="cr-word" dir="ltr">${esc(c.front)}</div>${c.pron ? `<div class="cr-pron">${esc(c.pron)}</div>` : ""}${spkBtns(c.front)}
+      <div class="cr-mean">${c.mfr ? `<div class="cr-m fr"><i>FR</i><p dir="ltr">${esc(c.mfr)}</p></div>` : ""}<div class="cr-m ar"><i>ع</i><p dir="rtl" style="white-space:pre-wrap">${esc(c.back || "")}</p></div></div>
+      ${c.ex ? `<div class="cr-ex"><div dir="ltr">${esc(c.ex)}</div>${c.exAr ? `<small dir="rtl">${esc(c.exAr)}</small>` : ""}${spkBtns(c.ex)}</div>` : ""}</article></div>
+    <p class="cr-hint">قيّم الكلمة وانتقل للتالية 👇</p>
+    <div class="cr-acts">${[["again", "مرة تانية", 0], ["hard", "صعبة", 1], ["good", "عرفتها", 2], ["easy", "سهلة", 3]].map(([k, t, g]) => `<button type="button" class="cr-a ${k}" data-g="${g}"><span>${ico(CIC[k], 26)}</span><b>${t}</b><small>${dayLbl(srsNext(box, g).days)}</small></button>`).join("")}<button type="button" class="cr-a skip" id="cskip"><span>${ico(CIC.next, 26)}</span><b>التالية</b><small>تخطّي</small></button></div>`;
+  $$(".cr-a[data-g]", b).forEach(x => x.onclick = () => rate(+x.dataset.g));
+  $("#cskip").onclick = () => advance();
   $("#cex").onclick = () => { srsFlush(); CR.running = false; paintCards(); };
-  $$(".cr-r", b).forEach(x => x.onclick = () => rate(+x.dataset.g));
-  if (CR.auto && !CR.flip && !frontAr) speak(fr);
+  if (CR.auto) speak(c.front);
 }
-const CI = () => CR.i;
+function advance(after) {
+  if (CR.busy) return; CR.busy = true; const el = $("#ccard"); if (el) el.classList.add("out");
+  setTimeout(() => { if (after) after(); CR.i++; CR.busy = false; paintSession(true); }, el ? 190 : 0);
+}
 function rate(g) {
-  const c = CR.q[CR.i]; if (!c) return; const m = srsRec().m || {}, box = m[c.id]?.[0] || 0, n = srsNext(box, g);
-  srsSet(c.id, n.box, n.due);
-  if (g === 0) { CR.again++; CR.q.push(c); } else CR.good++;
-  CR.i++; CR.flip = false; paintSession();
+  const c = CR.q[CR.i]; if (!c || CR.busy) return; const m = srsRec().m || {}, n = srsNext(m[c.id]?.[0] || 0, g);
+  srsSet(c.id, n.box, n.due); advance(() => { if (g === 0) { CR.again++; CR.q.push(c); } });
 }
 document.addEventListener("click", e => { const b = e.target.closest?.("[data-say]"); if (!b) return; e.stopPropagation(); speak(b.dataset.say, b.dataset.slow === "1"); }, true);
 document.addEventListener("keydown", e => {
   if (S.page !== "cards" || !CR.running || e.target.closest("input,select,textarea")) return;
-  if ((e.key === " " || e.key === "Enter") && !CR.flip) { e.preventDefault(); CR.flip = true; paintSession(); }
-  else if (CR.flip && /^[1-4]$/.test(e.key)) rate(+e.key - 1);
+  if (/^[1-4]$/.test(e.key)) rate(+e.key - 1); else if (e.key === " " || e.key === "Enter" || e.key === "ArrowLeft") { e.preventDefault(); advance(); }
 });
-/* ---- لوحة المدرس: إدارة البطاقات ---- */
-const CK = { vocab: "مفردة", grammar: "قاعدة" };
+/* ---- لوحة المدرس: إدارة الكلمات ---- */
 TABS.cards = {
-  skel: () => `<div class="nt-head"><span class="nt-hi">${ico(CARD_IC, 26)}</span><div><h2>بطاقات المراجعة</h2><small>مفردات وقواعد للطلاب بنظام التكرار المتباعد مع النطق الصوتي</small></div><div class="acts"><button class="btn btn-fill" data-a="cadd">+ بطاقة</button><button class="btn btn-line" data-a="cimp">📥 استيراد مجموعة</button></div></div>
-    <div class="stats" id="cs" style="grid-template-columns:repeat(4,1fr);margin-bottom:14px"></div><div class="toolbar"><input id="cq" placeholder="بحث..." value="${esc(A.cq2 || "")}"><select id="ck"><option value="">كل الأنواع</option><option value="vocab">مفردات</option><option value="grammar">قواعد</option></select><select id="cd"></select></div><div class="tw" id="cl"></div>`,
-  init: b => { b.onclick = cardAction; $("#cq", b).oninput = e => { A.cq2 = e.target.value; fillTab(); }; $("#ck", b).value = A.ck || ""; $("#ck", b).onchange = e => { A.ck = e.target.value; fillTab(); }; $("#cd", b).onchange = e => { A.cd = e.target.value; fillTab(); }; },
+  skel: () => `<div class="nt-head"><span class="nt-hi">${ico(CARD_IC, 26)}</span><div><h2>بطاقات الكلمات</h2><small>كلمات فرنسية بمعناها بالعربي والفرنسي مع النطق الصوتي والتكرار المتباعد</small></div><div class="acts"><button class="btn btn-fill" data-a="cadd">+ كلمة</button><button class="btn btn-line" data-a="cimp">📥 استيراد مجموعة</button></div></div>
+    <div class="stats" id="cs" style="grid-template-columns:repeat(3,1fr);margin-bottom:14px"></div><div class="toolbar"><input id="cq" placeholder="بحث..." value="${esc(A.cq2 || "")}"><select id="cd"></select></div><div class="tw" id="cl"></div>`,
+  init: b => { b.onclick = cardAction; $("#cq", b).oninput = e => { A.cq2 = e.target.value; fillTab(); }; $("#cd", b).onchange = e => { A.cd = e.target.value; fillTab(); }; },
   fill: b => {
-    const all = S.cards || [], decks = [...new Set(all.map(c => c.deck).filter(Boolean))];
-    $("#cs", b).innerHTML = [["إجمالي البطاقات", all.length], ["مفردات", all.filter(c => c.kind !== "grammar").length], ["قواعد", all.filter(c => c.kind === "grammar").length], ["المجموعات", decks.length]].map(([t, n]) => `<div class="stat"><b>${n}</b><span>${t}</span></div>`).join("");
+    const all = (S.cards || []).filter(c => c.kind !== "grammar"), decks = [...new Set(all.map(c => c.deck).filter(Boolean))];
+    $("#cs", b).innerHTML = [["إجمالي الكلمات", all.length], ["المجموعات", decks.length], ["بجملة مثال", all.filter(c => c.ex).length]].map(([t, n]) => `<div class="stat"><b>${n}</b><span>${t}</span></div>`).join("");
     const cd = $("#cd", b); cd.innerHTML = `<option value="">كل المجموعات</option>` + decks.map(d => `<option value="${esc(d)}" ${A.cd === d ? "selected" : ""}>${esc(d)}</option>`).join("");
-    const q = (A.cq2 || "").trim().toLowerCase(), l = all.filter(c => (!A.ck || c.kind === A.ck) && (!A.cd || c.deck === A.cd) && (!q || [c.front, c.back, c.deck, c.pron].some(t => (t || "").toLowerCase().includes(q))));
-    $("#cl", b).innerHTML = `<table><thead><tr><th>البطاقة</th><th>المعنى / الشرح</th><th>النوع</th><th>المجموعة</th><th>المستهدف</th><th></th></tr></thead><tbody>${l.slice(0, 300).map(c => `<tr><td dir="ltr" style="text-align:right"><b>${esc(c.front)}</b>${c.pron ? `<br><small class="ph">${esc(c.pron)}</small>` : ""}</td><td style="max-width:260px;white-space:pre-wrap">${esc(c.back)}${c.ex ? `<br><small class="ph" dir="ltr">${esc(c.ex)}</small>` : ""}</td><td><span class="badge ${c.kind === "grammar" ? "warn" : ""}">${CK[c.kind] || "مفردة"}</span></td><td>${esc(c.deck || "—")}</td><td><small>${stageLabel(c.stage)} · ${sysLabel(c.system)}${c.grade && c.grade !== "all" ? " · " + esc(c.grade) : ""}</small></td><td><div class="acts"><button class="btn btn-line btn-sm" data-a="cedit" data-id="${esc(c.id)}">تعديل</button><button class="btn btn-bad btn-sm" data-a="cdel" data-id="${esc(c.id)}">حذف</button></div></td></tr>`).join("") || `<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:32px">لا توجد بطاقات — اضغط «+ بطاقة» أو «استيراد مجموعة»</td></tr>`}</tbody></table>${l.length > 300 ? `<p class="sub" style="padding:8px">يتم عرض أول 300 من ${l.length}</p>` : ""}`;
+    const q = (A.cq2 || "").trim().toLowerCase(), l = all.filter(c => (!A.cd || c.deck === A.cd) && (!q || [c.front, c.back, c.mfr, c.deck, c.pron].some(t => (t || "").toLowerCase().includes(q))));
+    $("#cl", b).innerHTML = `<table><thead><tr><th>الكلمة</th><th>بالعربي</th><th>بالفرنسي</th><th>المجموعة</th><th>المستهدف</th><th></th></tr></thead><tbody>${l.slice(0, 300).map(c => `<tr><td dir="ltr" style="text-align:right"><b>${esc(c.front)}</b>${c.pron ? `<br><small class="ph">${esc(c.pron)}</small>` : ""}</td><td style="max-width:200px;white-space:pre-wrap">${esc(c.back)}</td><td dir="ltr" style="text-align:right;max-width:220px">${esc(c.mfr || "—")}${c.ex ? `<br><small class="ph">${esc(c.ex)}</small>` : ""}</td><td>${esc(c.deck || "—")}</td><td><small>${stageLabel(c.stage)} · ${sysLabel(c.system)}${c.grade && c.grade !== "all" ? " · " + esc(c.grade) : ""}</small></td><td><div class="acts"><button class="btn btn-line btn-sm" data-a="cedit" data-id="${esc(c.id)}">تعديل</button><button class="btn btn-bad btn-sm" data-a="cdel" data-id="${esc(c.id)}">حذف</button></div></td></tr>`).join("") || `<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:32px">لا توجد كلمات — اضغط «+ كلمة» أو «استيراد مجموعة»</td></tr>`}</tbody></table>${l.length > 300 ? `<p class="sub" style="padding:8px">يتم عرض أول 300 من ${l.length}</p>` : ""}`;
   }
 };
 async function cardAction(e) {
@@ -4281,48 +4324,50 @@ async function cardAction(e) {
   if (a === "cadd") return cardModal(null);
   if (a === "cimp") return cardImport();
   if (a === "cedit" && c) return cardModal(c);
-  if (a === "cdel" && c) { if (!confirm(`حذف البطاقة "${c.front}"؟`)) return; try { await deleteDoc(doc(db, "cards", c.id)); toast("تم الحذف", "ok"); } catch (er) { toast("فشل الحذف", "bad"); } }
+  if (a === "cdel" && c) { if (!confirm(`حذف الكلمة "${c.front}"؟`)) return; try { await deleteDoc(doc(db, "cards", c.id)); toast("تم الحذف", "ok"); } catch (er) { toast("فشل الحذف", "bad"); } }
 }
 const deckList = () => `<datalist id="dkl">${[...new Set((S.cards || []).map(c => c.deck).filter(Boolean))].map(d => `<option value="${esc(d)}">`).join("")}</datalist>`;
 function cardModal(c) {
-  const m = openModal(`<h2>${c ? "تعديل بطاقة" : "إضافة بطاقة"}</h2><div class="alert" id="err" hidden></div>
-    <form id="cf" novalidate><div class="row3"><label class="fl">النوع<select name="kind"><option value="vocab" ${c?.kind !== "grammar" ? "selected" : ""}>مفردة</option><option value="grammar" ${c?.kind === "grammar" ? "selected" : ""}>قاعدة</option></select></label><label class="fl">المجموعة<input name="deck" list="dkl" maxlength="50" placeholder="مثال: Unité 1" value="${esc(c?.deck)}"></label></div>${deckList()}
-    <label class="fl">الوجه الأمامي (الكلمة بالفرنسية / عنوان القاعدة)<input name="front" dir="auto" maxlength="160" value="${esc(c?.front)}"></label>
+  const m = openModal(`<h2>${c ? "تعديل كلمة" : "إضافة كلمة"}</h2><div class="alert" id="err" hidden></div>
+    <form id="cf" novalidate><label class="fl">المجموعة<input name="deck" list="dkl" maxlength="50" placeholder="مثال: Unité 1" value="${esc(c?.deck)}"></label>${deckList()}
+    <label class="fl">الكلمة بالفرنسية<input name="front" dir="ltr" maxlength="120" value="${esc(c?.front)}"></label>
     <label class="fl">النطق بالعربي (اختياري)<input name="pron" dir="rtl" maxlength="80" placeholder="مثال: بونجور" value="${esc(c?.pron)}"></label>
-    <label class="fl">المعنى بالعربي / شرح القاعدة<textarea name="back" rows="3" maxlength="800">${esc(c?.back)}</textarea></label>
-    <label class="fl">جملة مثال بالفرنسية (اختياري — بيتنطق صوتيًا)<input name="ex" dir="ltr" maxlength="200" value="${esc(c?.ex)}"></label>
+    <label class="fl">المعنى بالعربي<input name="back" dir="rtl" maxlength="300" value="${esc(c?.back)}"></label>
+    <label class="fl">المعنى بالفرنسية (تعريف أو مرادف — اختياري)<input name="mfr" dir="ltr" maxlength="300" placeholder="ex: salutation du matin" value="${esc(c?.mfr)}"></label>
+    <label class="fl">جملة مثال بالفرنسية (اختياري — بتتنطق صوتيًا)<input name="ex" dir="ltr" maxlength="200" value="${esc(c?.ex)}"></label>
     <label class="fl">ترجمة المثال (اختياري)<input name="exAr" dir="rtl" maxlength="200" value="${esc(c?.exAr)}"></label>${targetFields(c)}
     <div class="mact"><button class="btn btn-fill" id="sb">حفظ</button><button type="button" class="btn btn-line" data-close>إلغاء</button></div></form>`);
   bindTarget($("#cf", m), c);
   $("#cf", m).addEventListener("submit", async e => {
-    e.preventDefault(); showErr(""); const f = new FormData(e.target), g = k => (f.get(k) || "").trim(), data = { kind: g("kind"), deck: g("deck"), front: g("front"), pron: g("pron"), back: g("back"), ex: g("ex"), exAr: g("exAr"), stage: f.get("stage"), system: f.get("system"), grade: f.get("grade") || "all" };
-    if (!data.front || !data.back) return showErr("اكتب الوجه الأمامي والمعنى");
+    e.preventDefault(); showErr(""); const f = new FormData(e.target), g = k => (f.get(k) || "").trim(), data = { kind: "vocab", deck: g("deck"), front: g("front"), pron: g("pron"), back: g("back"), mfr: g("mfr"), ex: g("ex"), exAr: g("exAr"), stage: f.get("stage"), system: f.get("system"), grade: f.get("grade") || "all" };
+    if (!data.front || !data.back) return showErr("اكتب الكلمة ومعناها بالعربي");
     $("#sb", m).disabled = true;
     try { if (c) await updateDoc(doc(db, "cards", c.id), data); else await addDoc(collection(db, "cards"), { ...data, createdAt: serverTimestamp() }); closeModals(); toast("تم الحفظ", "ok"); }
     catch (er) { showErr("فشل الحفظ: " + (er.code || er.message)); $("#sb", m).disabled = false; }
   });
 }
 function cardImport() {
-  const m = openModal(`<h2>استيراد مجموعة بطاقات</h2><div class="alert" id="err" hidden></div>
-    <form id="cf" novalidate><div class="row3"><label class="fl">النوع<select name="kind"><option value="vocab">مفردات</option><option value="grammar">قواعد</option></select></label><label class="fl">المجموعة<input name="deck" list="dkl" maxlength="50" placeholder="مثال: Unité 1"></label></div>${deckList()}
-    <label class="fl">كل بطاقة في سطر، والأعمدة مفصولة بـ | (أو الصقها من Excel):<br><small style="color:var(--muted)">الفرنسي | المعنى | النطق (اختياري) | جملة مثال (اختياري) | ترجمة المثال (اختياري)</small>
-    <textarea name="rows" dir="auto" rows="9" placeholder="bonjour | صباح الخير / مرحبًا | بونجور | Bonjour, comment ça va ? | مرحبًا، كيف حالك؟&#10;merci | شكرًا | ميرسي"></textarea></label>${targetFields()}
+  const m = openModal(`<h2>استيراد مجموعة كلمات</h2><div class="alert" id="err" hidden></div>
+    <form id="cf" novalidate><label class="fl">المجموعة<input name="deck" list="dkl" maxlength="50" placeholder="مثال: Unité 1"></label>${deckList()}
+    <label class="fl">كل كلمة في سطر، والأعمدة مفصولة بـ | (أو الصقها من Excel):<br><small style="color:var(--muted)">الفرنسي | المعنى بالعربي | المعنى بالفرنسي | النطق | جملة مثال | ترجمة المثال</small>
+    <textarea name="rows" dir="auto" rows="9" placeholder="bonjour | مرحبًا | salutation du matin | بونجور | Bonjour, comment ça va ? | مرحبًا، كيف حالك؟&#10;merci | شكرًا | mot de gratitude | ميرسي"></textarea></label>${targetFields()}
     <p class="sub" id="cim" style="font-size:.84rem"></p><div class="mact"><button class="btn btn-fill" id="sb">استيراد</button><button type="button" class="btn btn-line" data-close>إلغاء</button></div></form>`, true);
   bindTarget($("#cf", m), null);
   const parse = t => t.split(/\r?\n/).map(l => l.split(/\||\t/).map(x => x.trim())).filter(r => r[0] && r[1]);
-  $('textarea[name="rows"]', m).addEventListener("input", e => { $("#cim", m).textContent = parse(e.target.value).length + " بطاقة جاهزة للاستيراد"; });
+  $('textarea[name="rows"]', m).addEventListener("input", e => { $("#cim", m).textContent = parse(e.target.value).length + " كلمة جاهزة للاستيراد"; });
   $("#cf", m).addEventListener("submit", async e => {
     e.preventDefault(); showErr(""); const f = new FormData(e.target), rows = parse(f.get("rows") || "");
-    if (!rows.length) return showErr("اكتب بطاقة واحدة على الأقل (الفرنسي | المعنى)");
-    if (rows.length > 400) return showErr("الحد الأقصى 400 بطاقة في المرة");
+    if (!rows.length) return showErr("اكتب كلمة واحدة على الأقل (الفرنسي | العربي)");
+    if (rows.length > 400) return showErr("الحد الأقصى 400 كلمة في المرة");
     $("#sb", m).disabled = true;
     try {
-      const b = writeBatch(db), base = { kind: f.get("kind"), deck: (f.get("deck") || "").trim(), stage: f.get("stage"), system: f.get("system"), grade: f.get("grade") || "all" };
-      rows.forEach(r => b.set(doc(collection(db, "cards")), { ...base, front: r[0], back: r[1], pron: r[2] || "", ex: r[3] || "", exAr: r[4] || "", createdAt: serverTimestamp() }));
-      await b.commit(); closeModals(); toast(`تم استيراد ${rows.length} بطاقة`, "ok");
+      const b = writeBatch(db), base = { kind: "vocab", deck: (f.get("deck") || "").trim(), stage: f.get("stage"), system: f.get("system"), grade: f.get("grade") || "all" };
+      rows.forEach(r => b.set(doc(collection(db, "cards")), { ...base, front: r[0], back: r[1], mfr: r[2] || "", pron: r[3] || "", ex: r[4] || "", exAr: r[5] || "", createdAt: serverTimestamp() }));
+      await b.commit(); closeModals(); toast(`تم استيراد ${rows.length} كلمة`, "ok");
     } catch (er) { showErr("فشل الاستيراد: " + (er.code || er.message)); $("#sb", m).disabled = false; }
   });
 }
+
 TABS.payments = {
   skel: () => `<h2 style="margin-bottom:16px">المدفوعات</h2><div class="stats" id="ps" style="grid-template-columns:repeat(3,1fr)"></div><div class="toolbar"><select id="pst"><option value="">كل الحالات</option><option value="pending">بانتظار التأكيد</option><option value="confirmed">مؤكد</option><option value="rejected">مرفوض</option></select><input id="pq" placeholder="بحث بالاسم أو الرقم" value="${esc(A.pq || "")}"></div><div class="tw" id="pl"></div>`,
   init: b => { b.onclick = payAction; $("#pst", b).value = A.pst || ""; $("#pst", b).onchange = e => { A.pst = e.target.value; fillTab(); }; $("#pq", b).oninput = e => { A.pq = e.target.value; fillTab(); }; },
