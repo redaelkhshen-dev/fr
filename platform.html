@@ -1487,6 +1487,20 @@ html[data-theme=light] .cr-card{background:#fff}html[data-theme=light] .cr-ring:
 .cr-a.good:hover span,.cr-a.easy:hover span{transform:scale(1.12) rotate(-6deg)}
 @media(prefers-reduced-motion:reduce){.cr-card[class*=fx-]{animation:none;opacity:0}.cr-bp,.cr-pop{display:none}}
 body:has(#cr){overflow-x:clip}.crp{overflow-x:clip}
+/* ---- علامة الاكتمال + جدول الكلمات الصعبة ---- */
+.cr-node.done .cr-ring{background:conic-gradient(#22c55e 100%,#22c55e 0);box-shadow:0 0 0 4px rgba(34,197,94,.2),0 14px 24px -12px rgba(34,197,94,.6)}
+.cr-node.done .cr-ck{width:34px;height:34px;animation:crTick .5s cubic-bezier(.2,1.5,.4,1) both}@keyframes crTick{from{transform:scale(0) rotate(-40deg)}}
+.cr-node.done small{color:#22c55e;font-weight:800}
+.cr-bigck{margin:0 auto 6px;width:96px}.cr-bigck circle{stroke-dasharray:152;stroke-dashoffset:152;animation:crDraw .6s ease-out forwards}.cr-bigck path{stroke-dasharray:50;stroke-dashoffset:50;animation:crDraw .4s .5s ease-out forwards}@keyframes crDraw{to{stroke-dashoffset:0}}
+.cr-hard{margin-top:34px;padding-top:6px}.cr-hh{text-align:center;margin-bottom:12px}.cr-hh h2{margin:0 0 4px;font-size:1.3rem}.cr-hh small{color:var(--muted)}
+.cr-ht{width:100%}.cr-ht td,.cr-ht th{padding:10px 12px;text-align:start;vertical-align:middle}.cr-ht td small{color:var(--accent);font-size:.8rem}
+.cr-ht .spk-b{width:38px;height:38px}
+.cr-lp{display:inline-block;min-width:34px;text-align:center;padding:2px 10px;border-radius:99px;background:rgba(249,115,22,.16);color:#f97316;font-weight:800}.cr-lp.hi{background:rgba(239,68,68,.18);color:#ef4444}
+@media(prefers-reduced-motion:reduce){.cr-node.done .cr-ck,.cr-bigck circle,.cr-bigck path{animation:none;stroke-dashoffset:0}}
+.cr-hl{display:grid;gap:8px}.cr-hi{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:16px;background:var(--card);border:1px solid var(--line)}
+.cr-hw{display:flex;flex-direction:column;min-width:96px}.cr-hw b{font-size:1.1rem}.cr-hw small{color:var(--accent);font-size:.78rem}
+.cr-hm{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.cr-hm span{font-weight:700}.cr-hm em{font-style:normal;color:var(--muted);font-size:.85rem}
+.cr-hi .spk-b{flex:none;width:40px;height:40px}.cr-hi .cr-lp{flex:none}
 </style>
 </head>
 <body>
@@ -4233,10 +4247,10 @@ const srsRec = () => { const a = S.student?.progress?.__srs; let b = null; try {
 const cDay = (off = 0) => { const d = new Date(Date.now() - off * 864e5); return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate(); };
 let _srsT = 0;
 const srsFlush = () => { clearTimeout(_srsT); _srsT = 0; if (!S.student) return; updateDoc(doc(db, "students", S.student.id), { "progress.__srs": srsRec() }).catch(() => {}); };
-function srsSet(id, box, due) {
+function srsSet(id, box, due, g) {
   const cur = srsRec(), k = cDay(); let st = cur.s || 0, t = cur.t || 0;
   if (cur.d !== k) { st = cur.d === cDay(1) ? st + 1 : 1; t = 0; }
-  const rec = { m: { ...(cur.m || {}), [id]: [box, due] }, at: Date.now(), d: k, s: st, t: t + 1 };
+  const old = (cur.m || {})[id] || [0, 0, 0], lap = (old[2] || 0) + (g === 0 ? 1 : g === 1 ? .5 : 0), rec = { m: { ...(cur.m || {}), [id]: [box, due, lap] }, at: Date.now(), d: k, s: st, t: t + 1 };
   try { localStorage.setItem(srsLs(), JSON.stringify(rec)); } catch {}
   S.student.progress = { ...(S.student.progress || {}), __srs: rec };
   if (!_srsT) _srsT = setTimeout(srsFlush, 2500);
@@ -4300,12 +4314,19 @@ function paintCards() {
       <div class="cr-gact"><button class="cr-start" id="cgo" ${todo ? "" : "disabled"}>${todo ? `ابدأ جلسة اليوم · ${todo} كلمة` : "خلّصت كل المطلوب ✓"}</button><label class="cr-au"><input type="checkbox" id="cau" ${CR.auto ? "checked" : ""}> نطق تلقائي</label><select id="cnn" aria-label="عدد الكلمات الجديدة">${[5, 10, 20, 40].map(n => `<option value="${n}" ${CR.newN === n ? "selected" : ""}>${n} جديدة</option>`).join("")}</select></div></div>
     <h2 class="cr-h">رحلتك في الكلمات</h2>
     <div class="cr-map" style="height:${decks.length * H + 20}px"><svg class="cr-path" viewBox="0 0 100 ${decks.length * H + 20}" preserveAspectRatio="none" aria-hidden="true"><path d="${path}" vector-effect="non-scaling-stroke"/></svg>
-    ${decks.map((d, i) => { const l = all.filter(c => (c.deck || "عام") === d), mt = l.filter(c => m[c.id] && m[c.id][0] >= 5).length, du = l.filter(c => m[c.id] && m[c.id][1] <= Date.now()).length, fr = l.filter(c => !m[c.id]).length, p = Math.round(mt / l.length * 100), pal = CPAL[i % CPAL.length];
-      return `<button type="button" class="cr-node ${p === 100 ? "done" : ""}" data-deck="${esc(d)}" style="left:${pts[i][0]}%;top:${pts[i][1] - 54}px;--c1:${pal[0]};--c2:${pal[1]};--p:${p}"><span class="cr-ring"><span class="cr-ic">${CEMO[i % CEMO.length]}</span>${p === 100 ? `<em class="cr-ck">${ico(CIC.good, 16)}</em>` : ""}${du ? `<em class="cr-bd">${du}</em>` : ""}</span><b>${esc(d)}</b><small>${mt}/${l.length} متقنة${fr ? ` · ${fr} جديدة` : ""}</small></button>`; }).join("")}</div>`;
+    ${decks.map((d, i) => { const l = all.filter(c => (c.deck || "عام") === d), mt = l.filter(c => m[c.id] && m[c.id][0] >= 2).length, du = l.filter(c => m[c.id] && m[c.id][1] <= Date.now()).length, fr = l.filter(c => !m[c.id]).length, p = Math.round(mt / l.length * 100), pal = CPAL[i % CPAL.length];
+      return `<button type="button" class="cr-node ${p === 100 ? "done" : ""}" data-deck="${esc(d)}" style="left:${pts[i][0]}%;top:${pts[i][1] - 54}px;--c1:${pal[0]};--c2:${pal[1]};--p:${p}"><span class="cr-ring"><span class="cr-ic">${CEMO[i % CEMO.length]}</span>${p === 100 ? `<em class="cr-ck">${ico(CIC.good, 16)}</em>` : ""}${du ? `<em class="cr-bd">${du}</em>` : ""}</span><b>${esc(d)}</b><small>${p === 100 ? "مكتملة ✓" : `${mt}/${l.length} مكتملة${fr ? ` · ${fr} جديدة` : ""}`}</small></button>`; }).join("")}</div>${hardTable(all, m)}`;
   $$("[data-deck]", b).forEach(x => x.onclick = () => { CR.deck = x.dataset.deck; const s2 = crStats(); if (!s2.due.length && !s2.fresh.length) { CR.deck = x.dataset.deck; startSession(true); } else startSession(); });
   const nn = $("#cnn", b); nn.onchange = e => { CR.newN = +e.target.value; paintCards(); };
   $("#cau", b).onchange = e => { CR.auto = e.target.checked; try { localStorage.setItem("rf_cauto", CR.auto ? "1" : "0"); } catch {} };
   $("#cgo", b).onclick = () => { CR.deck = ""; startSession(); };
+  const hb = $("#chard", b); if (hb) hb.onclick = () => { const mm = srsRec().m || {}, q = hardWords(all, mm); CR.deck = ""; CR.q = shuffle(q.slice()); CR.i = 0; CR.total = CR.q.length; CR.again = 0; CR.busy = false; CR.running = true; paintSession(true); };
+}
+const hardWords = (all, m) => all.filter(c => m[c.id] && (m[c.id][2] || 0) >= 1 && m[c.id][0] < 4).sort((a, b) => (m[b.id][2] || 0) - (m[a.id][2] || 0));
+function hardTable(all, m) {
+  const hw = hardWords(all, m);
+  return `<section class="cr-hard"><div class="cr-hh"><h2>🧠 الكلمات الصعبة</h2><small>${hw.length ? "الكلمات اللي بتغلط فيها أو بتصنّفها صعبة — بتختفي أول ما تتقنها" : "ممتاز! لا توجد كلمات صعبة حاليًا 🎉"}</small></div>
+  ${hw.length ? `<div class="cr-hl">${hw.map(c => { const e = m[c.id], lap = Math.max(1, Math.round(e[2] || 0)); return `<div class="cr-hi"><button type="button" class="spk-b" data-say="${esc(c.front)}" aria-label="نطق">${ico(SPK, 18)}</button><div class="cr-hw" dir="ltr"><b>${esc(c.front)}</b>${c.pron ? `<small dir="rtl">${esc(c.pron)}</small>` : ""}</div><div class="cr-hm"><span dir="rtl">${esc(c.back)}</span>${c.mfr ? `<em dir="ltr">${esc(c.mfr)}</em>` : ""}</div><span class="cr-lp ${lap >= 3 ? "hi" : ""}" title="عدد الغلطات">${lap}×</span></div>`; }).join("")}</div><button class="cr-start" id="chard" style="margin-top:14px;width:100%">راجع الكلمات الصعبة (${hw.length})</button>` : ""}</section>`;
 }
 const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 function startSession(review) {
@@ -4317,7 +4338,7 @@ function paintSession(enter) {
   const b = $("#cr"); if (!b) return;
   if (CR.i >= CR.q.length) {
     srsFlush(); CR.running = false; const info = srsInfo();
-    b.innerHTML = `<div class="cr-done"><div class="cr-trophy">🏆</div><h2>أحسنت! خلّصت الجلسة</h2><p>راجعت <b>${CR.total}</b> كلمة${CR.again ? ` — و<b>${CR.again}</b> هترجعلك قريب للتثبيت` : ""}</p><div class="cr-pill fire" style="margin:14px auto"><span>🔥</span><b>${info.streak}</b><small>يوم متتالي</small></div><button class="cr-start" id="cbk">رجوع للرحلة</button></div>`;
+    b.innerHTML = `<div class="cr-done"><div class="cr-bigck"><svg viewBox="0 0 52 52" width="96" height="96"><circle cx="26" cy="26" r="24" fill="none" stroke="#22c55e" stroke-width="3"/><path d="M14 27l8 8 16-17" fill="none" stroke="#22c55e" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h2>اكتملت الجلسة ✓</h2><p>راجعت <b>${CR.total}</b> كلمة${CR.again ? ` — و<b>${CR.again}</b> هترجعلك قريب للتثبيت` : ""}</p><div class="cr-pill fire" style="margin:14px auto"><span>🔥</span><b>${info.streak}</b><small>يوم متتالي</small></div><button class="cr-start" id="cbk">رجوع للرحلة</button></div>`;
     $("#cbk").onclick = () => { CR.running = false; paintCards(); }; return;
   }
   const c = CR.q[CR.i], m = srsRec().m || {}, box = m[c.id]?.[0] || 0, pct = Math.round(CR.i / Math.max(1, CR.q.length) * 100), pal = CPAL[Math.abs([...(c.deck || "")].reduce((a, ch) => a + ch.charCodeAt(0), 0)) % CPAL.length];
@@ -4356,7 +4377,7 @@ function advance(after, kind = "skip", ev) {
 }
 function rate(g, ev) {
   const c = CR.q[CR.i]; if (!c || CR.busy) return; const m = srsRec().m || {}, n = srsNext(m[c.id]?.[0] || 0, g);
-  srsSet(c.id, n.box, n.due); advance(() => { if (g === 0) { CR.again++; CR.q.push(c); } }, g, ev);
+  srsSet(c.id, n.box, n.due, g); advance(() => { if (g === 0) { CR.again++; CR.q.push(c); } }, g, ev);
 }
 document.addEventListener("click", e => { const b = e.target.closest?.("[data-say]"); if (!b) return; e.stopPropagation(); speak(b.dataset.say, b.dataset.slow === "1"); }, true);
 document.addEventListener("keydown", e => {
