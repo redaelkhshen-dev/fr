@@ -1501,6 +1501,12 @@ body:has(#cr){overflow-x:clip}.crp{overflow-x:clip}
 .cr-hw{display:flex;flex-direction:column;min-width:96px}.cr-hw b{font-size:1.1rem}.cr-hw small{color:var(--accent);font-size:.78rem}
 .cr-hm{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.cr-hm span{font-weight:700}.cr-hm em{font-style:normal;color:var(--muted);font-size:.85rem}
 .cr-hi .spk-b{flex:none;width:40px;height:40px}.cr-hi .cr-lp{flex:none}
+/* ---- ترتيب المجموعات (لوحة المدرس) ---- */
+.cd-panel{margin-bottom:14px}.cd-h{margin-bottom:8px}.cd-h small{color:var(--muted)}
+.cd-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line);flex-wrap:wrap}.cd-row.off{opacity:.65}
+.cd-n{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:rgba(212,164,55,.15);color:var(--accent);font-weight:800;flex:none}
+.cd-mv{display:flex;flex-direction:column;gap:3px}.cd-mv .btn{padding:0 8px;min-height:22px;line-height:1;font-size:.7rem}
+.cd-t{flex:1;min-width:160px;display:flex;flex-direction:column}.cd-t small{color:var(--muted)}
 </style>
 </head>
 <body>
@@ -1642,7 +1648,7 @@ let db; try { db = initializeFirestore(fbApp, { localCache: persistentLocalCache
 const storage = getStorage(fbApp);
 
 /* ---------- الحالة ---------- */
-const S = { vcount: {}, ready: false, user: null, student: null, busy: false, flash: "", videos: [], files: [], homework: [], hwsubs: [], exams: [], lives: [], notices: [], cards: [], courses: [], attempts: [], examKeys: {}, hwKeys: {}, certs: [], students: [], pw: {}, comments: [], ratings: [], payments: [], unsubs: [], unsubSelf: null, page: "" };
+const S = { vcount: {}, ready: false, user: null, student: null, busy: false, flash: "", videos: [], files: [], homework: [], hwsubs: [], exams: [], lives: [], notices: [], cards: [], cardDecks: [], courses: [], attempts: [], examKeys: {}, hwKeys: {}, certs: [], students: [], pw: {}, comments: [], ratings: [], payments: [], unsubs: [], unsubSelf: null, page: "" };
 const H = { tab: "videos", q: "", closed: new Set() };
 const A = { fq: "", fty: "", vq: "", cvid: "", cq: "", cstage: "", cgrade: "", tab: "overview", q: "", fstage: "", fstatus: "" };
 
@@ -1850,7 +1856,7 @@ async function countView(id) {
     await b.commit(); done(); S.vcount[id] = (S.vcount[id] || 0) + 1; onData();
   } catch (er) { console.warn("view count", er.code || er); }
 }
-const startContent = () => { if (S.contentOn) return; S.contentOn = true; subViews(); sub("videos", "videos"); sub("files", "files"); sub("homework", "homework"); sub("exams", "exams"); sub("lives", "lives"); sub("notices", "notices"); sub("cards", "cards"); sub("courses", "courses"); if (S.student?.id) S.unsubs.push(onSnapshot(query(collection(db, "certs"), where("uid", "==", S.student.id)), q => { S.certs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, e => console.warn("certs", e.code))); if (S.student?.id) S.unsubs.push(onSnapshot(query(collection(db, "attempts"), where("uid", "==", S.student.id)), q => { S.attempts = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, e => console.warn("attempts", e.code))); if (S.student?.id) S.unsubs.push(onSnapshot(query(collection(db, "hwsubs"), where("uid", "==", S.student.id)), q => { S.hwsubs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, e => console.warn("hwsubs", e.code))); };
+const startContent = () => { if (S.contentOn) return; S.contentOn = true; subViews(); sub("videos", "videos"); sub("files", "files"); sub("homework", "homework"); sub("exams", "exams"); sub("lives", "lives"); sub("notices", "notices"); sub("cards", "cards"); sub("cardDecks", "cardDecks"); sub("courses", "courses"); if (S.student?.id) S.unsubs.push(onSnapshot(query(collection(db, "certs"), where("uid", "==", S.student.id)), q => { S.certs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, e => console.warn("certs", e.code))); if (S.student?.id) S.unsubs.push(onSnapshot(query(collection(db, "attempts"), where("uid", "==", S.student.id)), q => { S.attempts = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, e => console.warn("attempts", e.code))); if (S.student?.id) S.unsubs.push(onSnapshot(query(collection(db, "hwsubs"), where("uid", "==", S.student.id)), q => { S.hwsubs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, e => console.warn("hwsubs", e.code))); };
 function checkNew() {
   const pn = S.students.filter(x => x.status === "pending").length;
   if (S.pn === undefined ? pn > 0 : pn > S.pn) toast(`🔔 ${pn} طلب تسجيل بانتظار مراجعتك`, "ok");
@@ -1918,7 +1924,7 @@ async function attachStudent(u) {
 onAuthStateChanged(auth, async u => {
   clearSubs(); S.user = u; S.student = null;
   if (!u) { S.ready = true; render(); return; }
-  if (u.email === ADMIN_EMAIL) { subViews(); sub("students", "students"); sub("videos", "videos"); sub("files", "files"); sub("homework", "homework"); sub("exams", "exams"); sub("lives", "lives"); sub("notices", "notices"); sub("cards", "cards"); sub("courses", "courses"); S.unsubs.push(onSnapshot(collection(db, "certs"), q => { S.certs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "attempts"), q => { S.attempts = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "hwKeys"), q => { S.hwKeys = Object.fromEntries(q.docs.map(d => [d.id, d.data().keys])); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "examKeys"), q => { S.examKeys = Object.fromEntries(q.docs.map(d => [d.id, d.data().keys])); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "hwsubs"), q => { S.hwsubs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); sub("comments", "comments"); sub("payments", "payments"); S.unsubs.push(onSnapshot(collection(db, "studentPw"), q => { S.pw = Object.fromEntries(q.docs.map(d => [d.id, d.data().pw])); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "ratings"), s => { S.ratings = s.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.ready = true; render(); return; }
+  if (u.email === ADMIN_EMAIL) { subViews(); sub("students", "students"); sub("videos", "videos"); sub("files", "files"); sub("homework", "homework"); sub("exams", "exams"); sub("lives", "lives"); sub("notices", "notices"); sub("cards", "cards"); sub("cardDecks", "cardDecks"); sub("courses", "courses"); S.unsubs.push(onSnapshot(collection(db, "certs"), q => { S.certs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "attempts"), q => { S.attempts = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "hwKeys"), q => { S.hwKeys = Object.fromEntries(q.docs.map(d => [d.id, d.data().keys])); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "examKeys"), q => { S.examKeys = Object.fromEntries(q.docs.map(d => [d.id, d.data().keys])); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "hwsubs"), q => { S.hwsubs = q.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); sub("comments", "comments"); sub("payments", "payments"); S.unsubs.push(onSnapshot(collection(db, "studentPw"), q => { S.pw = Object.fromEntries(q.docs.map(d => [d.id, d.data().pw])); onData(); }, () => {})); S.unsubs.push(onSnapshot(collection(db, "ratings"), s => { S.ratings = s.docs.map(d => ({ id: d.id, ...d.data() })); onData(); }, () => {})); S.ready = true; render(); return; }
   if (S.busy) return;
   await attachStudent(u);
 });
@@ -4288,7 +4294,10 @@ function speak(t, slow) {
 }
 function preSpeak(t) { if (!t) return; const url = ttsUrl(t, false); if (_pre.has(url) || _pre.size > 12) return; try { const a = new Audio(url); a.preload = "auto"; a.load(); _pre.set(url, a); } catch {} }
 const spkBtns = t => (t) ? `<span class="spk"><button type="button" class="spk-b" data-say="${esc(t)}" aria-label="نطق">${ico(SPK, 22)}</button><button type="button" class="spk-b slow" data-say="${esc(t)}" data-slow="1" aria-label="نطق بطيء" title="نطق بطيء">🐢</button></span>` : "";
-const crAll = () => visible(S.cards || []).filter(c => c.kind !== "grammar");
+const deckDoc = n => (S.cardDecks || []).find(d => d.name === n);
+const deckOk = n => { const d = deckDoc(n || "عام"); return !d || (!d.hidden && fits({ stage: d.stage || "all", system: d.system || "all", grade: d.grade || "all" }, S.student)); };
+const deckOrder = names => { const idx = new Map(names.map((n, i) => [n, i])); return names.slice().sort((a, b) => ((deckDoc(a)?.order ?? 9999) - (deckDoc(b)?.order ?? 9999)) || idx.get(a) - idx.get(b)); };
+const crAll = () => visible(S.cards || []).filter(c => c.kind !== "grammar" && deckOk(c.deck));
 const crPool = () => crAll().filter(c => !CR.deck || (c.deck || "عام") === CR.deck);
 function crStats(pool = crPool()) {
   const m = srsRec().m || {}, now = Date.now(), due = pool.filter(c => m[c.id] && m[c.id][1] <= now), fresh = pool.filter(c => !m[c.id]), mast = pool.filter(c => m[c.id] && m[c.id][0] >= 5);
@@ -4304,7 +4313,7 @@ function paintCards() {
   const all = crAll();
   if (!all.length) { b.innerHTML = `<div class="empty">${ico(CARD_IC, 40)}<br>لا توجد كلمات متاحة لك حاليًا.<br><small>هتظهر هنا أول ما يضيفها مسيو رضا.</small></div>`; return; }
   CR.deck = ""; const info = srsInfo(), st = crStats(all), M = st.mast.length, lvl = Math.floor(M / 10) + 1, lp = (M % 10) * 10;
-  const decks = [...new Set(all.map(c => c.deck || "عام"))], todo = st.due.length + Math.min(st.fresh.length, CR.newN), gp = Math.min(100, Math.round(info.today / GOAL * 100));
+  const decks = deckOrder([...new Set(all.map(c => c.deck || "عام"))]), todo = st.due.length + Math.min(st.fresh.length, CR.newN), gp = Math.min(100, Math.round(info.today / GOAL * 100));
   const H = 168, pos = [50, 76, 50, 24];
   const pts = decks.map((d, i) => [pos[i % 4], 70 + i * H]);
   const path = pts.map((p, i) => i ? `C${pts[i - 1][0]},${(pts[i - 1][1] + p[1]) / 2} ${p[0]},${(pts[i - 1][1] + p[1]) / 2} ${p[0]},${p[1]}` : `M${p[0]},${p[1]}`).join(" ");
@@ -4387,18 +4396,47 @@ document.addEventListener("keydown", e => {
 /* ---- لوحة المدرس: إدارة الكلمات ---- */
 TABS.cards = {
   skel: () => `<div class="nt-head"><span class="nt-hi">${ico(CARD_IC, 26)}</span><div><h2>بطاقات الكلمات</h2><small>كلمات فرنسية بمعناها بالعربي والفرنسي مع النطق الصوتي والتكرار المتباعد</small></div><div class="acts"><button class="btn btn-fill" data-a="cadd">+ كلمة</button><button class="btn btn-line" data-a="cimp">📥 استيراد مجموعة</button></div></div>
-    <div class="stats" id="cs" style="grid-template-columns:repeat(3,1fr);margin-bottom:14px"></div><div class="toolbar"><input id="cq" placeholder="بحث..." value="${esc(A.cq2 || "")}"><select id="cd"></select></div><div class="tw" id="cl"></div>`,
+    <div class="stats" id="cs" style="grid-template-columns:repeat(3,1fr);margin-bottom:14px"></div><div id="cdp"></div><div class="toolbar"><input id="cq" placeholder="بحث..." value="${esc(A.cq2 || "")}"><select id="cd"></select></div><div class="tw" id="cl"></div>`,
   init: b => { b.onclick = cardAction; $("#cq", b).oninput = e => { A.cq2 = e.target.value; fillTab(); }; $("#cd", b).onchange = e => { A.cd = e.target.value; fillTab(); }; },
   fill: b => {
     const all = (S.cards || []).filter(c => c.kind !== "grammar"), decks = [...new Set(all.map(c => c.deck).filter(Boolean))];
     $("#cs", b).innerHTML = [["إجمالي الكلمات", all.length], ["المجموعات", decks.length], ["بجملة مثال", all.filter(c => c.ex).length]].map(([t, n]) => `<div class="stat"><b>${n}</b><span>${t}</span></div>`).join("");
+    $("#cdp", b).innerHTML = decksPanel();
     const cd = $("#cd", b); cd.innerHTML = `<option value="">كل المجموعات</option>` + decks.map(d => `<option value="${esc(d)}" ${A.cd === d ? "selected" : ""}>${esc(d)}</option>`).join("");
     const q = (A.cq2 || "").trim().toLowerCase(), l = all.filter(c => (!A.cd || c.deck === A.cd) && (!q || [c.front, c.back, c.mfr, c.deck, c.pron].some(t => (t || "").toLowerCase().includes(q))));
     $("#cl", b).innerHTML = `<table><thead><tr><th>الكلمة</th><th>بالعربي</th><th>بالفرنسي</th><th>المجموعة</th><th>المستهدف</th><th></th></tr></thead><tbody>${l.slice(0, 300).map(c => `<tr><td dir="ltr" style="text-align:right"><b>${esc(c.front)}</b>${c.pron ? `<br><small class="ph">${esc(c.pron)}</small>` : ""}</td><td style="max-width:200px;white-space:pre-wrap">${esc(c.back)}</td><td dir="ltr" style="text-align:right;max-width:220px">${esc(c.mfr || "—")}${c.ex ? `<br><small class="ph">${esc(c.ex)}</small>` : ""}</td><td>${esc(c.deck || "—")}</td><td><small>${stageLabel(c.stage)} · ${sysLabel(c.system)}${c.grade && c.grade !== "all" ? " · " + esc(c.grade) : ""}</small></td><td><div class="acts"><button class="btn btn-line btn-sm" data-a="cedit" data-id="${esc(c.id)}">تعديل</button><button class="btn btn-bad btn-sm" data-a="cdel" data-id="${esc(c.id)}">حذف</button></div></td></tr>`).join("") || `<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:32px">لا توجد كلمات — اضغط «+ كلمة» أو «استيراد مجموعة»</td></tr>`}</tbody></table>${l.length > 300 ? `<p class="sub" style="padding:8px">يتم عرض أول 300 من ${l.length}</p>` : ""}`;
   }
 };
+const adminDecks = () => { const names = [...new Set((S.cards || []).filter(c => c.kind !== "grammar").map(c => c.deck || "عام"))]; return deckOrder(names); };
+const deckId = n => "d_" + [...n].map(ch => ch.charCodeAt(0).toString(36)).join("-");
+async function saveDeckOrder(names, extra = {}) {
+  const b = writeBatch(db);
+  names.forEach((n, i) => { const d = deckDoc(n), ref = doc(db, "cardDecks", d?.id || deckId(n)), data = { name: n, order: i, ...(extra[n] || {}) }; if (d) b.set(ref, data, { merge: true }); else b.set(ref, { stage: "all", system: "all", grade: "all", hidden: false, createdAt: serverTimestamp(), ...data }); });
+  await b.commit();
+}
+async function deckAction(a, n) {
+  const names = adminDecks(), i = names.indexOf(n);
+  try {
+    if (a === "dup" || a === "ddn") { const j = a === "dup" ? i - 1 : i + 1; if (j < 0 || j >= names.length) return; [names[i], names[j]] = [names[j], names[i]]; await saveDeckOrder(names); }
+    else if (a === "dhide") { const d = deckDoc(n); await saveDeckOrder(names, { [n]: { hidden: !d?.hidden } }); toast(d?.hidden ? "المجموعة ظاهرة للطلاب الآن" : "تم إخفاء المجموعة عن الطلاب", "ok"); }
+    else if (a === "dtgt") deckTarget(n);
+  } catch (er) { toast("فشل الحفظ: " + (er.code || er.message), "bad"); }
+}
+function deckTarget(n) {
+  const d = deckDoc(n) || { stage: "all", system: "all", grade: "all" };
+  const m = openModal(`<h2>من يشوف المجموعة؟</h2><p class="sub">${esc(n)}</p><div class="alert" id="err" hidden></div><form id="cf" novalidate>${targetFields(d)}<div class="mact"><button class="btn btn-fill" id="sb">حفظ</button><button type="button" class="btn btn-line" data-close>إلغاء</button></div></form>`);
+  bindTarget($("#cf", m), d);
+  $("#cf", m).addEventListener("submit", async e => { e.preventDefault(); const f = new FormData(e.target); $("#sb", m).disabled = true; try { await saveDeckOrder(adminDecks(), { [n]: { stage: f.get("stage"), system: f.get("system"), grade: f.get("grade") || "all" } }); closeModals(); toast("تم الحفظ", "ok"); } catch (er) { showErr("فشل الحفظ: " + (er.code || er.message)); $("#sb", m).disabled = false; } });
+}
+function decksPanel() {
+  const names = adminDecks(), cnt = n => (S.cards || []).filter(c => c.kind !== "grammar" && (c.deck || "عام") === n).length;
+  if (!names.length) return "";
+  return `<div class="card cd-panel"><div class="cd-h"><h3 class="ch">ترتيب المجموعات وظهورها للطلاب</h3><small>الترتيب ده هو ترتيب الفصول في رحلة الطالب</small></div>${names.map((n, i) => { const d = deckDoc(n), hid = !!d?.hidden, tg = d && (d.stage !== "all" || d.system !== "all" || (d.grade && d.grade !== "all")); return `<div class="cd-row ${hid ? "off" : ""}"><span class="cd-n">${i + 1}</span><div class="cd-mv"><button class="btn btn-line btn-sm" data-a="dup" data-name="${esc(n)}" ${i ? "" : "disabled"} aria-label="لفوق">▲</button><button class="btn btn-line btn-sm" data-a="ddn" data-name="${esc(n)}" ${i < names.length - 1 ? "" : "disabled"} aria-label="لتحت">▼</button></div><div class="cd-t"><b>${esc(n)}</b><small>${cnt(n)} كلمة · ${tg ? `${stageLabel(d.stage)} · ${sysLabel(d.system)}${d.grade && d.grade !== "all" ? " · " + esc(d.grade) : ""}` : "لكل الطلاب"}</small></div><span class="badge ${hid ? "bad" : "good"}">${hid ? "مخفية" : "ظاهرة"}</span><div class="acts"><button class="btn btn-line btn-sm" data-a="dhide" data-name="${esc(n)}">${hid ? "إظهار" : "إخفاء"}</button><button class="btn btn-line btn-sm" data-a="dtgt" data-name="${esc(n)}">تحديد الطلاب</button><button class="btn btn-line btn-sm" data-a="dview" data-name="${esc(n)}">عرض كلماتها</button></div></div>`; }).join("")}</div>`;
+}
 async function cardAction(e) {
   const btn = e.target.closest("[data-a]"); if (!btn || btn.tagName === "A") return; const a = btn.dataset.a, c = (S.cards || []).find(x => x.id === btn.dataset.id);
+  if (["dup", "ddn", "dhide", "dtgt"].includes(a)) return deckAction(a, btn.dataset.name);
+  if (a === "dview") { A.cd = btn.dataset.name; fillTab(); return $("#cl")?.scrollIntoView({ behavior: "smooth" }); }
   if (a === "cadd") return cardModal(null);
   if (a === "cimp") return cardImport();
   if (a === "cedit" && c) return cardModal(c);
