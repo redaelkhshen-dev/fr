@@ -1344,6 +1344,18 @@ html[data-theme=light] .hl-fx b{background-image:linear-gradient(100deg,#7a520a 
 .payn{order:0;width:100%;text-align:center;font:700 1.5rem var(--fm);letter-spacing:.06em;color:var(--accent-text)}
 .payc .btn{margin-inline-start:0}
 @media(max-width:700px){.steps3{grid-template-columns:1fr}}
+/* ---- كروت المراحل: خلفية ذهبية متحركة بدوائر عايمة ---- */
+.pc-top,.pcard:nth-child(2) .pc-top,.pcard:nth-child(3) .pc-top{--g1:#e8c566;--g2:#b8862b;--g3:#7a5712;overflow:hidden;color:#1a1405;background:linear-gradient(145deg,var(--g1),var(--g2) 60%,var(--g3));background-size:160% 160%;animation:pcBg 9s ease-in-out infinite}
+.pc-top:before,.pc-top:after{content:"";position:absolute;border-radius:50%;pointer-events:none}
+.pc-top:before{width:130px;height:130px;top:-50px;inset-inline-end:-36px;background:rgba(255,255,255,.18);animation:tpfF 7s ease-in-out infinite}
+.pc-top:after{width:40px;height:40px;bottom:22px;inset-inline-start:26%;background:rgba(255,255,255,.28);animation:tpfF 5s ease-in-out -2s infinite}
+.pc-top small{color:#1a1405;opacity:.75;z-index:1}
+.pcard:nth-child(2) .pc-top{--g1:#f1d27c;--g2:#c9972b;--g3:#8a6516}.pcard:nth-child(3) .pc-top{--g1:#dcb34e;--g2:#a8781f;--g3:#6b4a10}
+.pcard:hover .pc-top:before{transform:scale(1.15);transition:transform .5s}
+@keyframes pcBg{50%{background-position:100% 100%}}
+html[data-theme=light] .pc-top,html[data-theme=light] .pcard:nth-child(n) .pc-top{--g1:#f58aab;--g2:#e5497a;--g3:#a8204f;color:#fff4e4}
+html[data-theme=light] .pc-top small{color:#fff4e4}
+@media(prefers-reduced-motion:reduce){.pc-top,.pc-top:before,.pc-top:after{animation:none!important}}
 </style>
 </head>
 <body>
