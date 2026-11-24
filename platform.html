@@ -674,16 +674,16 @@ html[data-theme=light] .mini>div:nth-child(1){--mc:59,110,214}html[data-theme=li
 html[data-theme=light] .mini .mn-i{background:rgba(var(--mc),.13);border-color:transparent;color:rgb(var(--mc));box-shadow:none}
 html[data-theme=light] .mini b{-webkit-text-fill-color:#16233f;color:#16233f}
 html[data-theme=light] .badge{border-radius:99px}
-/* ---- النهاري: كروت إحصائيات ملونة موحدة بأيقونات زجاجية ---- */
-html[data-theme=light] .mini>div{border:0;color:#fff;box-shadow:0 10px 22px rgba(30,50,100,.16),inset 0 1px 0 rgba(255,255,255,.3)}
-html[data-theme=light] .mini>div:nth-child(1){background:linear-gradient(135deg,#6b99e0,#3f6fc0)}
-html[data-theme=light] .mini>div:nth-child(2){background:linear-gradient(135deg,#59bf9d,#2f9a77)}
-html[data-theme=light] .mini>div:nth-child(3){background:linear-gradient(135deg,#e6b455,#c98a2a)}
-html[data-theme=light] .mini>div:before{opacity:1;background:radial-gradient(circle,rgba(255,255,255,.28),transparent 70%)}
-html[data-theme=light] .mini .mn-i{color:#fff;background:rgba(255,255,255,.24);border:1px solid rgba(255,255,255,.35);box-shadow:inset 0 1px 0 rgba(255,255,255,.3)}
-html[data-theme=light] .mini b{-webkit-text-fill-color:#fff;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.15)}
-html[data-theme=light] .mini span{color:rgba(255,255,255,.92)}
-html[data-theme=light] .mini>div:hover{box-shadow:0 14px 28px rgba(30,50,100,.24)}
+/* ---- النهاري: كروت الإحصائيات بنفس توت/وردي وموجات تقدمك العام ---- */
+html[data-theme=light] .mini>div,html[data-theme=light] .mini>div:nth-child(n){border:0;color:#fff4e4;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='120' viewBox='0 0 400 120'%3E%3Cpath d='M0 70 Q50 30 100 70 T200 70 T300 70 T400 70 V120 H0Z' fill='%23fff' fill-opacity='.10'/%3E%3Cpath d='M0 90 Q50 55 100 90 T200 90 T300 90 T400 90 V120 H0Z' fill='%23fff' fill-opacity='.10'/%3E%3C/svg%3E") repeat-x 0 100%/200px 56px,radial-gradient(90px 90px at 96% 12%,rgba(255,255,255,.22),transparent 70%),radial-gradient(120px 120px at 4% 110%,rgba(130,150,235,.35),transparent 70%),linear-gradient(135deg,#e5497a,#c92c5f 60%,#a8204f);box-shadow:0 14px 28px rgba(190,35,90,.32),inset 0 1px 0 rgba(255,255,255,.35);animation:mnIn .6s both,ovWave 14s linear infinite}
+html[data-theme=light] .mini>div:nth-child(2){animation-delay:.08s,0s}html[data-theme=light] .mini>div:nth-child(3){animation-delay:.16s,0s}
+html[data-theme=light] .mini>div:before{opacity:1;inset:0;width:auto;height:auto;border-radius:0;background:linear-gradient(110deg,transparent 35%,rgba(255,255,255,.22) 50%,transparent 65%);transform:translateX(-120%);animation:wpbSw 5s ease-in-out infinite;z-index:-1}
+html[data-theme=light] .mini>div:after{display:none}
+html[data-theme=light] .mini .mn-i{color:#fff4e4;background:rgba(255,244,228,.2);border:1px solid rgba(255,244,228,.45);box-shadow:0 0 14px rgba(255,214,225,.4)}
+html[data-theme=light] .mini b{-webkit-text-fill-color:#fff;color:#fff;text-shadow:0 1px 2px rgba(120,10,50,.3)}
+html[data-theme=light] .mini span:not(.mn-i){color:rgba(255,244,228,.92)}
+html[data-theme=light] .mini>div:hover{transform:translateY(-3px);box-shadow:0 18px 32px rgba(190,35,90,.42),inset 0 1px 0 rgba(255,255,255,.35)}
+@media(prefers-reduced-motion:reduce){html[data-theme=light] .mini>div,html[data-theme=light] .mini>div:before{animation:none}}
 /* ---- النهاري: تقدمك العام بنفس توت/وردي تقدمك في الفيديو (حجم مناسب للكمبيوتر) ---- */
 html[data-theme=light] .ovp{max-width:520px;gap:16px;padding:14px 18px;border:0;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='120' viewBox='0 0 400 120'%3E%3Cpath d='M0 70 Q50 30 100 70 T200 70 T300 70 T400 70 V120 H0Z' fill='%23fff' fill-opacity='.10'/%3E%3Cpath d='M0 90 Q50 55 100 90 T200 90 T300 90 T400 90 V120 H0Z' fill='%23fff' fill-opacity='.10'/%3E%3C/svg%3E") repeat-x 0 100%/220px 64px,radial-gradient(90px 90px at 96% 12%,rgba(255,255,255,.22),transparent 70%),radial-gradient(120px 120px at 4% 110%,rgba(130,150,235,.35),transparent 70%),linear-gradient(135deg,#e5497a,#c92c5f 60%,#a8204f);box-shadow:0 14px 28px rgba(190,35,90,.32),inset 0 1px 0 rgba(255,255,255,.35);animation:ovWave 14s linear infinite}
 @keyframes ovWave{to{background-position:220px 100%,0 0,0 0,0 0}}
@@ -850,6 +850,16 @@ html[data-theme=light] .tpf-cta{color:#fff4e4;background:linear-gradient(135deg,
 .tpf-cta{max-width:640px;margin:28px auto 0;padding:18px 24px}}
 @media(max-width:480px){.tpf-ttl{display:none}.tpf{border-radius:24px}.tpf-top{height:190px}.tpf-sheet{padding:92px 14px 18px}.tpf-sheet h1{font-size:1.4rem}}
 @media(prefers-reduced-motion:reduce){.tpf,.tpf-av,.tpf-cr li,.tpf-c{animation:none}}
+/* ---- النهاري: كروت الإحصائيات بنفس توت/وردي وتأثير تقدمك العام ---- */
+html[data-theme=light] .mini>div,html[data-theme=light] .mini>div:nth-child(1),html[data-theme=light] .mini>div:nth-child(2),html[data-theme=light] .mini>div:nth-child(3){background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='120' viewBox='0 0 400 120'%3E%3Cpath d='M0 70 Q50 30 100 70 T200 70 T300 70 T400 70 V120 H0Z' fill='%23fff' fill-opacity='.10'/%3E%3Cpath d='M0 90 Q50 55 100 90 T200 90 T300 90 T400 90 V120 H0Z' fill='%23fff' fill-opacity='.10'/%3E%3C/svg%3E") repeat-x 0 100%/200px 56px,radial-gradient(90px 90px at 96% 12%,rgba(255,255,255,.22),transparent 70%),radial-gradient(120px 120px at 4% 110%,rgba(130,150,235,.35),transparent 70%),linear-gradient(135deg,#e5497a,#c92c5f 60%,#a8204f);box-shadow:0 12px 24px rgba(190,35,90,.3),inset 0 1px 0 rgba(255,255,255,.35);animation:mnIn .6s both,mnWave 14s linear infinite}
+@keyframes mnWave{to{background-position:200px 100%,0 0,0 0,0 0}}
+html[data-theme=light] .mini>div:before{opacity:0}
+html[data-theme=light] .mini>div:after{transform:translateX(-120%);animation:wpbSw 5s ease-in-out infinite}
+html[data-theme=light] .mini>div:nth-child(2):after{animation-delay:.5s}html[data-theme=light] .mini>div:nth-child(3):after{animation-delay:1s}
+html[data-theme=light] .mini .mn-i{background:rgba(255,244,228,.2);border:1px solid rgba(255,244,228,.45);color:#fff4e4;box-shadow:0 0 14px rgba(255,214,225,.4)}
+html[data-theme=light] .mini b{text-shadow:0 1px 2px rgba(120,10,50,.3)}html[data-theme=light] .mini span:not(.mn-i){color:rgba(255,244,228,.95)}
+html[data-theme=light] .mini>div:hover{box-shadow:0 16px 30px rgba(190,35,90,.42),0 0 0 2px rgba(255,244,228,.5)}
+@media(prefers-reduced-motion:reduce){html[data-theme=light] .mini>div,html[data-theme=light] .mini>div:after{animation:none}}
 /* ===== رصد الدرجات ===== */
 .gr-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px}.gr-head h2{margin:0}.gr-head small{color:var(--muted)}.gr-hi{flex:none;width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent-deep),var(--accent-2));color:#1b1405;box-shadow:0 8px 22px -10px var(--accent)}
 .gr-mn{margin-inline-start:auto;display:flex;align-items:center;gap:6px}.gr-mn input{max-width:none;width:200px}.gr-mn .ib{color:var(--fg)}
