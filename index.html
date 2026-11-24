@@ -1380,6 +1380,32 @@ img{decoding:async}
 html[data-theme=light] body:has(.pnav.sn) .fav.on,html[data-theme=light] body:has(.pnav.sn) .ainfo .fav.on,html[data-theme=light] body:has(.pnav.sn) .fav-w .fav.on{background:linear-gradient(135deg,#f0527f,#c92c5f);box-shadow:0 6px 14px -4px rgba(190,35,90,.55)}
 html[data-theme=light] body:has(.pnav.sn) .fav-w .fav,html[data-theme=light] body:has(.pnav.sn) .fcd-top .fav{background:rgba(214,58,105,.1);color:#c92c5f}
 html[data-theme=light] body:has(.pnav.sn) .fav-w .fav.on,html[data-theme=light] body:has(.pnav.sn) .fcd-top .fav.on{color:#fff;background:linear-gradient(135deg,#f0527f,#c92c5f)}
+/* ---- الإيرادات ---- */
+#abody{--rv:#d4a437}
+.rv-nav{display:flex;align-items:center;gap:10px}.rv-nav b{min-width:120px;text-align:center}
+.rv-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:14px}
+.rv-k{position:relative;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 16px 14px;display:flex;flex-direction:column;gap:2px;overflow:hidden;transition:transform .25s,box-shadow .25s}
+.rv-k:hover{transform:translateY(-3px);box-shadow:0 14px 28px -16px rgba(0,0,0,.4)}
+.rv-k b{font-size:1.7rem;line-height:1.2;font-variant-numeric:tabular-nums}.rv-k b small{font-size:.8rem;font-weight:600;color:var(--muted)}
+.rv-k>small{color:var(--muted)}.rv-k em{font-style:normal;font-size:.78rem;margin-top:4px;color:var(--muted)}
+.rv-ki{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;margin-bottom:8px;color:#d4a437;background:rgba(212,164,55,.14)}
+.rv-k.main{background:linear-gradient(135deg,rgba(212,164,55,.22),rgba(212,164,55,.05));border-color:rgba(212,164,55,.4)}
+.rv-k.warn .rv-ki{color:#f59e0b;background:rgba(245,158,11,.14)}.rv-k.bad .rv-ki{color:#ef4444;background:rgba(239,68,68,.14)}
+.rv-k .up{color:#22c55e;font-weight:700}.rv-k .dn{color:#ef4444;font-weight:700}
+.rv-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px;margin-top:14px}
+.rv-svg{width:100%;height:auto;display:block;margin-top:8px}
+.rv-gl{stroke:var(--line);stroke-width:1;stroke-dasharray:3 4;vector-effect:non-scaling-stroke}
+.rv-ln{stroke-dasharray:1400;animation:rvDraw 1.4s ease-out both}@keyframes rvDraw{from{stroke-dashoffset:1400}to{stroke-dashoffset:0}}
+.rv-dot{fill:var(--card);stroke:var(--rv);stroke-width:3;vector-effect:non-scaling-stroke}
+.rv-tx{fill:var(--muted);font-size:15px}.rv-sum{margin-top:6px;color:var(--muted);font-size:.88rem}.rv-sum b{color:var(--text)}
+.rv-br{display:grid;grid-template-columns:110px 1fr auto;align-items:center;gap:10px;padding:7px 0;font-size:.92rem}
+.rv-br i{height:10px;border-radius:9px;background:rgba(212,164,55,.14);overflow:hidden;display:block}
+.rv-br u{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,#e8c566,#b8862b);animation:rvGrow .9s ease-out both;transform-origin:right}@keyframes rvGrow{from{transform:scaleX(0)}}
+html[data-theme=light] #abody{--rv:#d6396a}
+html[data-theme=light] .rv-ki{color:#d6396a;background:rgba(214,58,105,.12)}
+html[data-theme=light] .rv-k.main{background:linear-gradient(135deg,rgba(245,138,171,.28),rgba(255,255,255,.7));border-color:rgba(214,58,105,.35)}
+html[data-theme=light] .rv-br i{background:rgba(214,58,105,.12)}html[data-theme=light] .rv-br u{background:linear-gradient(90deg,#f58aab,#d6396a)}
+@media(prefers-reduced-motion:reduce){.rv-ln,.rv-br u{animation:none}}
 </style>
 </head>
 <body>
@@ -3366,6 +3392,7 @@ function renderAdminLogin() {
   });
 }
 const AD_IC = {
+  revenue: '<path d="M3 20h18"/><path d="M5 16l4.500-5 3.500 3L19 6"/><path d="M15 6h4v4"/>',
   subs: '<path d="m3 8 4.500 4 5-7 5 7L22 8l-2 11H5z"/>',
   overview: '<rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/>',
   students: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8"/><path d="M18 14.3c2.2.7 3.5 2.6 3.5 5.7"/>',
@@ -3382,7 +3409,7 @@ const AD_IC = {
   security: '<rect x="4.5" y="10.5" width="15" height="10.5" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/><circle cx="12" cy="15.5" r="1.3"/>',
   payments: '<rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19"/><path d="M6.5 15h4"/>'
 };
-const AD_GROUPS = [["الرئيسية", [["overview", "نظرة عامة"], ["students", "الطلاب"], ["subs", "اشتراكات"]]], ["المحتوى", [["courses", "الكورسات"], ["videos", "الفيديوهات"], ["files", "الملفات"], ["homework", "الواجبات"], ["exams", "الاختبارات"]]], ["التواصل", [["lives", "البث المباشر"], ["notices", "الإشعارات"], ["comments", "التعليقات"]]], ["التقييم", [["grades", "رصد الدرجات"], ["certs", "الشهادات"]]], ["المالية", [["payments", "المدفوعات"]]], ["الإعدادات", [["security", "الأمان وكلمة السر"]]]];
+const AD_GROUPS = [["الرئيسية", [["overview", "نظرة عامة"], ["students", "الطلاب"], ["subs", "اشتراكات"], ["revenue", "الإيرادات"]]], ["المحتوى", [["courses", "الكورسات"], ["videos", "الفيديوهات"], ["files", "الملفات"], ["homework", "الواجبات"], ["exams", "الاختبارات"]]], ["التواصل", [["lives", "البث المباشر"], ["notices", "الإشعارات"], ["comments", "التعليقات"]]], ["التقييم", [["grades", "رصد الدرجات"], ["certs", "الشهادات"]]], ["المالية", [["payments", "المدفوعات"]]], ["الإعدادات", [["security", "الأمان وكلمة السر"]]]];
 function renderAdmin() {
   S.page = "admin";
   const nav = AD_GROUPS.map(([g, items], gi) => `${gi ? '<div class="sep"></div>' : ""}<div class="asg">${g}</div>${items.map(([k, t]) => `<button class="atab" data-t="${k}" title="${t}"><i class="ai"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${AD_IC[k]}</svg></i><span class="al">${t}</span><span class="ab"></span></button>`).join("")}`).join("");
@@ -4050,6 +4077,60 @@ function subModal(x) {
   const c = $("#sclr", m); if (c) c.onclick = () => { if (confirm("إلغاء الاشتراك؟ سيصبح المحتوى مفتوحًا للطالب بدون تاريخ انتهاء.")) save({ subPlan: deleteField(), subStart: deleteField(), subEnd: deleteField(), subEndMs: deleteField() }); };
 }
 
+
+/* ===== الإيرادات ===== */
+const RV = { m: monthOf(new Date()) };
+const rvMs = p => p.confirmedAt?.toMillis ? p.confirmedAt.toMillis() : p.createdAt?.toMillis ? p.createdAt.toMillis() : 0;
+const rvShift = (k, n) => { const [y, m] = k.split("-").map(Number), d = new Date(y, m - 1 + n, 1); return monthOf(d); };
+const rvLabel = (k, long) => { const [y, m] = k.split("-").map(Number); return new Date(y, m - 1, 1).toLocaleDateString("ar-EG", long ? { month: "long", year: "numeric" } : { month: "short" }); };
+const egp = n => Math.round(n).toLocaleString("ar-EG");
+function rvData() {
+  const conf = S.payments.filter(p => p.status === "confirmed").map(p => ({ ...p, ms: rvMs(p), amt: +p.amount || 0 })).filter(p => p.ms).sort((a, b) => a.ms - b.ms);
+  const seen = new Set(); conf.forEach(p => { p.mk = monthOf(new Date(p.ms)); p.first = !seen.has(p.uid); seen.add(p.uid); });
+  return conf;
+}
+function rvLine(vals, labels, fmt) {
+  const W = 640, H = 220, pl = 12, pr = 12, pt = 26, pb = 30, mx = Math.max(1, ...vals), n = vals.length, st = (W - pl - pr) / Math.max(1, n - 1);
+  const pts = vals.map((v, i) => [pl + i * st, pt + (H - pt - pb) * (1 - v / mx)]);
+  let d = pts.map((p, i) => i ? `C${(pts[i - 1][0] + p[0]) / 2},${pts[i - 1][1]} ${(pts[i - 1][0] + p[0]) / 2},${p[1]} ${p[0]},${p[1]}` : `M${p[0]},${p[1]}`).join(" ");
+  const area = d + ` L${pts[n - 1][0]},${H - pb} L${pts[0][0]},${H - pb}Z`;
+  return `<svg class="rv-svg" viewBox="0 0 ${W} ${H}" dir="ltr" role="img"><defs><linearGradient id="rvg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="var(--rv)" stop-opacity=".35"/><stop offset="1" stop-color="var(--rv)" stop-opacity="0"/></linearGradient></defs>
+    ${[0, .5, 1].map(f => `<line x1="${pl}" x2="${W - pr}" y1="${pt + (H - pt - pb) * f}" y2="${pt + (H - pt - pb) * f}" class="rv-gl"/>`).join("")}
+    <path d="${area}" fill="url(#rvg)"/><path d="${d}" fill="none" stroke="var(--rv)" stroke-width="3" stroke-linecap="round" vector-effect="non-scaling-stroke" class="rv-ln"/>
+    ${pts.map((p, i) => `<g><circle cx="${p[0]}" cy="${p[1]}" r="${i === n - 1 ? 5.500 : 3.500}" class="rv-dot"/><title>${labels[i]}: ${fmt(vals[i])}</title></g>`).join("")}
+    ${pts.map((p, i) => (i % 2 === n % 2 || n < 7) ? `<text x="${p[0]}" y="${H - 8}" text-anchor="middle" class="rv-tx">${labels[i]}</text>` : "").join("")}</svg>`;
+}
+TABS.revenue = {
+  skel: () => `<div class="nt-head"><div><h2>الإيرادات</h2><p class="sub">محسوبة من التحويلات المؤكدة فقط</p></div><div class="rv-nav"><button class="btn btn-line btn-sm" data-rv="-1" aria-label="الشهر السابق">›</button><b id="rvm"></b><button class="btn btn-line btn-sm" data-rv="1" aria-label="الشهر التالي">‹</button></div></div><div id="rv"></div>`,
+  init: b => { b.onclick = e => { const x = e.target.closest("[data-rv]"); if (x) { const nm = rvShift(RV.m, +x.dataset.rv); if (nm <= monthOf(new Date())) { RV.m = nm; fillTab(); } } }; },
+  fill: b => {
+    const P = rvData(), cur = RV.m, prev = rvShift(cur, -1), inM = k => P.filter(p => p.mk === k), sum = a => a.reduce((t, p) => t + p.amt, 0);
+    const mp = inM(cur), pp = inM(prev), rev = sum(mp), prevRev = sum(pp), ch = prevRev ? Math.round((rev - prevRev) / prevRev * 100) : null;
+    const nw = mp.filter(p => p.first), rn = mp.filter(p => !p.first), avg = mp.length ? rev / mp.length : 0;
+    const lastAmt = {}; P.forEach(p => { lastAmt[p.uid] = p.amt; }); const allAvg = P.length ? sum(P) / P.length : 0;
+    const now = Date.now(), lim = now + 30 * 864e5;
+    const up = S.students.filter(x => x.status === "active" && x.subEndMs && x.subPlan && x.subPlan !== "free" && x.subEndMs > now && x.subEndMs <= lim).sort((a, b) => a.subEndMs - b.subEndMs);
+    const exp = up.reduce((t, x) => t + (lastAmt[x.id] || allAvg), 0), lapsed = S.students.filter(x => x.status === "active" && x.subEndMs && x.subPlan && x.subPlan !== "free" && x.subEndMs <= now).length;
+    $("#rvm", b).textContent = rvLabel(cur, true);
+    const months = [...Array(12)].map((_, i) => rvShift(monthOf(new Date()), i - 11)), rv12 = months.map(k => sum(inM(k))), nw12 = months.map(k => inM(k).filter(p => p.first).length);
+    const by = (arr, f) => { const m = {}; arr.forEach(p => { const k = f(p) || "—"; m[k] = (m[k] || 0) + p.amt; }); return Object.entries(m).sort((a, b) => b[1] - a[1]); };
+    const bar = (rows, nameOf) => { const t = Math.max(1, ...rows.map(r => r[1])); return rows.length ? rows.map(([k, v]) => `<div class="rv-br"><span>${esc(nameOf(k))}</span><i><u style="width:${Math.max(4, v / t * 100)}%"></u></i><b>${egp(v)}</b></div>`).join("") : `<div class="empty">لا بيانات</div>`; };
+    const kpi = (ic, v, l, sub, cls = "") => `<div class="rv-k ${cls}"><span class="rv-ki">${ico(ic, 22)}</span><b>${v}</b><small>${l}</small>${sub ? `<em>${sub}</em>` : ""}</div>`;
+    $("#rv", b).innerHTML = `<div class="rv-kpis">
+      ${kpi('<path d="M12 3v18"/><path d="M16.500 7.500c-.8-1.200-2.400-2-4.500-2-2.600 0-4.200 1.200-4.200 3 0 4.300 8.900 2 8.900 6.300 0 1.800-1.800 3.200-4.700 3.200-2.300 0-4-.9-4.900-2.300"/>', egp(rev) + " <small>جنيه</small>", "دخل " + rvLabel(cur), ch === null ? "" : `<span class="${ch >= 0 ? "up" : "dn"}">${ch >= 0 ? "▲" : "▼"} ${Math.abs(ch)}% عن الشهر السابق</span>`, "main")}
+      ${kpi('<circle cx="9" cy="8" r="3.500"/><path d="M2.500 20c0-3.600 2.900-6 6.500-6s6.500 2.400 6.500 6"/><path d="M19 8v6M16 11h6"/>', nw.length, "مشتركون جدد", nw.length ? egp(sum(nw)) + " جنيه" : "")}
+      ${kpi('<path d="M3 12a9 9 0 0 1 15.500-6.200L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15.500 6.200L3 16"/><path d="M3 21v-5h5"/>', rn.length, "تجديدات هذا الشهر", rn.length ? egp(sum(rn)) + " جنيه" : "")}
+      ${kpi('<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/>', up.length, "هيجددوا خلال 30 يوم", up.length ? "متوقع ≈ " + egp(exp) + " جنيه" : "", "warn")}
+      ${kpi('<path d="M12 8v5l3 2"/><circle cx="12" cy="12" r="9"/>', egp(avg) + " <small>جنيه</small>", "متوسط الدفعة", mp.length + " تحويل مؤكد")}
+      ${kpi('<circle cx="12" cy="12" r="9"/><path d="m9 9 6 6M15 9l-6 6"/>', lapsed, "اشتراكات منتهية", lapsed ? "فرصة لإعادة التجديد" : "", lapsed ? "bad" : "")}
+    </div>
+    <div class="rv-grid"><div class="card"><h3 class="ch">منحنى الإيراد — آخر 12 شهر</h3>${rvLine(rv12, months.map(k => rvLabel(k)), v => egp(v) + " جنيه")}<div class="rv-sum">إجمالي 12 شهر: <b>${egp(rv12.reduce((a, c) => a + c, 0))}</b> جنيه</div></div>
+    <div class="card"><h3 class="ch">نمو المشتركين الجدد</h3>${rvLine(nw12, months.map(k => rvLabel(k)), v => v + " مشترك")}<div class="rv-sum">إجمالي الجدد: <b>${nw12.reduce((a, c) => a + c, 0)}</b> طالب</div></div></div>
+    <div class="rv-grid"><div class="card"><h3 class="ch">حسب الباقة (${rvLabel(cur)})</h3>${bar(by(mp, p => p.plan), k => PLAN_NAME[k] || k)}</div>
+    <div class="card"><h3 class="ch">حسب طريقة الدفع (${rvLabel(cur)})</h3>${bar(by(mp, p => p.method), k => PAY[k]?.name || k)}</div></div>
+    <div class="card" style="margin-top:14px"><h3 class="ch">اشتراكات تنتهي خلال 30 يوم</h3>${up.length ? `<div class="tw"><table><thead><tr><th>الطالب</th><th>الباقة</th><th>تنتهي في</th><th>المتبقي</th><th>المتوقع</th><th></th></tr></thead><tbody>${up.slice(0, 15).map(x => { const dl = Math.ceil((x.subEndMs - now) / 864e5); return `<tr><td><b>${esc(x.name)}</b><br><small class="ph">${esc(x.phone)}</small></td><td>${esc(PLAN_NAME[x.subPlan] || PLANS[x.subPlan]?.[0] || "")}</td><td>${esc(x.subEnd)}</td><td><span class="badge ${dl <= 3 ? "bad" : "warn"}">${dl} يوم</span></td><td>${egp(lastAmt[x.id] || allAvg)} جنيه</td><td><a class="btn btn-line btn-sm" target="_blank" rel="noopener" href="https://wa.me/2${esc(x.phone)}">واتس</a></td></tr>`; }).join("")}</tbody></table></div>${up.length > 15 ? `<p class="sub" style="margin-top:8px">و ${up.length - 15} آخرين...</p>` : ""}` : `<div class="empty">لا توجد اشتراكات تنتهي خلال 30 يوم.</div>`}</div>`;
+  }
+};
 TABS.payments = {
   skel: () => `<h2 style="margin-bottom:16px">المدفوعات</h2><div class="stats" id="ps" style="grid-template-columns:repeat(3,1fr)"></div><div class="toolbar"><select id="pst"><option value="">كل الحالات</option><option value="pending">بانتظار التأكيد</option><option value="confirmed">مؤكد</option><option value="rejected">مرفوض</option></select><input id="pq" placeholder="بحث بالاسم أو الرقم" value="${esc(A.pq || "")}"></div><div class="tw" id="pl"></div>`,
   init: b => { b.onclick = payAction; $("#pst", b).value = A.pst || ""; $("#pst", b).onchange = e => { A.pst = e.target.value; fillTab(); }; $("#pq", b).oninput = e => { A.pq = e.target.value; fillTab(); }; },
