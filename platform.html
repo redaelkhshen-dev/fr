@@ -1550,14 +1550,14 @@ body:has(#cr){overflow-x:clip}.crp{overflow-x:clip}
 @keyframes crShine{0%,55%{left:-80px}100%{left:120%}}
 @keyframes crGlow{0%,100%{box-shadow:0 6px 0 #ca9a04,0 14px 24px -10px rgba(0,0,0,.45),0 0 0 0 rgba(253,224,71,.5)}50%{box-shadow:0 6px 0 #ca9a04,0 14px 24px -10px rgba(0,0,0,.45),0 0 0 8px rgba(253,224,71,0)}}
 .cr-gact select,.cr-au{background:rgba(255,255,255,.14);border-radius:12px}.cr-au{padding:8px 12px;border:1px solid rgba(255,255,255,.3)}
-.cr-goal.done{background-image:linear-gradient(125deg,#059669,#10b981 45%,#0d9488 70%,#059669);box-shadow:0 26px 50px -22px rgba(16,185,129,.9),inset 0 1px 0 rgba(255,255,255,.3)}
+.cr-goal.gok{background-image:linear-gradient(125deg,#059669,#10b981 45%,#0d9488 70%,#059669);box-shadow:0 26px 50px -22px rgba(16,185,129,.9),inset 0 1px 0 rgba(255,255,255,.3)}
 .cr-cf{position:absolute;top:-10px;inset-inline-start:var(--x);width:8px;height:14px;border-radius:2px;background:hsl(var(--h) 90% 60%);opacity:0;animation:crFall 3.4s ease-in var(--d) infinite;pointer-events:none}
 @keyframes crFall{0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(190px) rotate(540deg)}}
 @media(max-width:480px){.cr-hud{gap:8px}.cr-pill{padding:10px}.cr-pc{font-size:1.2rem}}
 @media(prefers-reduced-motion:reduce){.cr-pill span,.cr-pill i u,.cr-goal,.cr-goal:before,.cr-orb,.cr-gi span,.cr-gb i,.cr-gb i:after,.cr-start,.cr-start:before,.cr-cf{animation:none!important}.cr-cf{display:none}}
 .cr-goal .cr-gact select{background:rgba(255,255,255,.16)!important;color:#fff!important;border:1px solid rgba(255,255,255,.35)!important}.cr-goal .cr-gact select option{color:#111;background:#fff}
 /* ---- كرت الهدف: نفس خلفية رأس الكورس الذهبية ---- */
-.cr-goal,.cr-goal.done{background:linear-gradient(100deg,#6f4e18,#8f6d22 45%,#b08f30);background-size:160% 160%;animation:pcBg 10s ease-in-out infinite;border:1px solid rgba(255,225,140,.28);box-shadow:0 22px 44px -22px rgba(120,84,20,.85),inset 0 1px 0 rgba(255,255,255,.22)}
+.cr-goal,.cr-goal.gok{background:linear-gradient(100deg,#6f4e18,#8f6d22 45%,#b08f30);background-size:160% 160%;animation:pcBg 10s ease-in-out infinite;border:1px solid rgba(255,225,140,.28);box-shadow:0 22px 44px -22px rgba(120,84,20,.85),inset 0 1px 0 rgba(255,255,255,.22)}
 .cr-goal:before{width:150px;height:150px;top:-60px;inset-inline-end:-30px;background:rgba(255,255,255,.14)}
 .cr-orb.o1{background:radial-gradient(circle,rgba(255,255,255,.2),transparent 70%)}.cr-orb.o2{background:radial-gradient(circle,rgba(255,236,170,.25),transparent 70%)}
 .cr-pc{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.28)}
@@ -1570,6 +1570,16 @@ body:has(#cr){overflow-x:clip}.crp{overflow-x:clip}
  .cr-pc{order:3}
  .cr-gact{justify-content:center}.cr-gact .cr-start{flex:1 1 100%;order:-1}
  .cr-goal .cr-au,.cr-goal .cr-gact select{justify-content:center}
+}
+/* ---- كرت الهدف: أصغر وفي النص ---- */
+.cr-goal{max-width:520px;margin-inline:auto}
+@media(max-width:600px){
+ .cr-goal{max-width:340px;padding:14px 14px 16px;border-radius:22px}
+ .cr-gt{gap:6px;margin-bottom:10px}.cr-gi{width:46px;height:46px}.cr-gi span{width:36px;height:36px;font-size:1.25rem}
+ .cr-gt h3{font-size:1rem}.cr-pc{font-size:1.05rem;padding:2px 10px}
+ .cr-gb{height:12px}.cr-gact{margin-top:12px;gap:8px}
+ .cr-start{padding:11px 14px;font-size:.95rem;min-width:0}
+ .cr-goal .cr-au,.cr-goal .cr-gact select{padding:6px 12px;min-height:34px;font-size:.82rem}
 }
 </style>
 </head>
@@ -4386,7 +4396,7 @@ function paintCards() {
   const path = pts.map((p, i) => i ? `C${pts[i - 1][0]},${(pts[i - 1][1] + p[1]) / 2} ${p[0]},${(pts[i - 1][1] + p[1]) / 2} ${p[0]},${p[1]}` : `M${p[0]},${p[1]}`).join(" ");
   const m = srsRec().m || {};
   b.innerHTML = `<div class="cr-hud"><div class="cr-pill fire"><span>🔥</span><b data-cu="${info.streak}">0</b><small>يوم متتالي</small></div><div class="cr-pill lvl"><span>⭐</span><b>مستوى ${lvl}</b><i><u style="width:${lp}%"></u></i></div><div class="cr-pill due"><span>⏰</span><b data-cu="${st.due.length}">0</b><small>مستحقة</small></div></div>
-    <div class="cr-goal ${info.today >= GOAL ? "done" : ""}"><i class="cr-orb o1"></i><i class="cr-orb o2"></i>${info.today >= GOAL ? [..."1234567890"].map((_, k) => `<i class="cr-cf" style="--x:${k * 10 + 4}%;--d:${(k % 5) * .35}s;--h:${k * 37 % 360}"></i>`).join("") : ""}<div class="cr-gt"><div class="cr-gi" style="--p:${gp}"><span>🎯</span></div><div><h3>${info.today >= GOAL ? "أنجزت هدف اليوم! 🎉" : "هدف اليوم"}</h3><small><b data-cu="${Math.min(info.today, GOAL)}">0</b> / ${GOAL} كلمة</small></div><div class="cr-pc">${gp}%</div></div><div class="cr-gb"><i style="width:${gp}%"></i></div>
+    <div class="cr-goal ${info.today >= GOAL ? "gok" : ""}"><i class="cr-orb o1"></i><i class="cr-orb o2"></i>${info.today >= GOAL ? [..."1234567890"].map((_, k) => `<i class="cr-cf" style="--x:${k * 10 + 4}%;--d:${(k % 5) * .35}s;--h:${k * 37 % 360}"></i>`).join("") : ""}<div class="cr-gt"><div class="cr-gi" style="--p:${gp}"><span>🎯</span></div><div><h3>${info.today >= GOAL ? "أنجزت هدف اليوم! 🎉" : "هدف اليوم"}</h3><small><b data-cu="${Math.min(info.today, GOAL)}">0</b> / ${GOAL} كلمة</small></div><div class="cr-pc">${gp}%</div></div><div class="cr-gb"><i style="width:${gp}%"></i></div>
       <div class="cr-gact"><button class="cr-start" id="cgo" ${todo ? "" : "disabled"}>${todo ? `ابدأ جلسة اليوم · ${todo} كلمة` : "خلّصت كل المطلوب ✓"}</button><label class="cr-au"><input type="checkbox" id="cau" ${CR.auto ? "checked" : ""}> نطق تلقائي</label><select id="cnn" aria-label="عدد الكلمات الجديدة">${[5, 10, 20, 40].map(n => `<option value="${n}" ${CR.newN === n ? "selected" : ""}>${n} جديدة</option>`).join("")}</select></div></div>
     <h2 class="cr-h">رحلتك في الكلمات</h2>
     <div class="cr-map" style="height:${decks.length * H + 20}px"><svg class="cr-path" viewBox="0 0 100 ${decks.length * H + 20}" preserveAspectRatio="none" aria-hidden="true"><path d="${path}" vector-effect="non-scaling-stroke"/></svg>
