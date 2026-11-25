@@ -1644,6 +1644,18 @@ body:has(.stars-bg) .crp{position:relative;z-index:1}
 html[data-theme=light] .stars-bg{background:radial-gradient(70% 45% at 50% 0%,rgba(229,73,122,.07),transparent 70%)}
 html[data-theme=light] .stars-bg i{background:#e5a93a;box-shadow:0 0 6px 1px rgba(214,58,105,.35)}html[data-theme=light] .stars-bg i.sx{background:none;color:#d63a69;filter:drop-shadow(0 0 4px rgba(214,58,105,.45))}
 @media(prefers-reduced-motion:reduce){.stars-bg i{animation:none;opacity:.35}}
+/* ---- قفل المستويات ---- */
+.cr-node.lock{cursor:not-allowed}.cr-node.lock .cr-ring{background:conic-gradient(#64748b 100%,#64748b 0);box-shadow:none;filter:grayscale(.85) brightness(.8)}
+.cr-node.lock .cr-ic{filter:grayscale(1) blur(.4px);opacity:.55}.cr-node.lock b,.cr-node.lock small{opacity:.6}
+.cr-lk{position:absolute;inset:0;margin:auto;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-size:1.25rem;background:rgba(15,15,25,.78);border:2px solid rgba(255,255,255,.35);box-shadow:0 4px 12px rgba(0,0,0,.4);animation:lkBob 3s ease-in-out infinite}
+@keyframes lkBob{50%{transform:translateY(-2px) rotate(-6deg)}}
+.cr-node.lock:hover{transform:translateX(-50%)}
+.cr-node.shake{animation:lkShake .45s}@keyframes lkShake{20%,60%{transform:translateX(calc(-50% - 7px))}40%,80%{transform:translateX(calc(-50% + 7px))}}
+.cr-node.unl .cr-ring{animation:unlPop 1s cubic-bezier(.2,1.4,.4,1) both,unlGlow 2.4s ease-out 1s 2}
+@keyframes unlPop{from{transform:scale(.6) rotate(-12deg);filter:grayscale(1)}60%{transform:scale(1.15)}}
+@keyframes unlGlow{0%{box-shadow:0 0 0 0 rgba(253,224,71,.8)}100%{box-shadow:0 0 0 26px rgba(253,224,71,0)}}
+.cr-node.unl:after{content:"🔓 اتفتح!";position:absolute;top:-8px;inset-inline-end:6px;font-size:.72rem;font-weight:800;background:#fde047;color:#4a3300;padding:2px 8px;border-radius:99px;animation:unlTag 1s .3s both}@keyframes unlTag{from{transform:scale(0)}}
+@media(prefers-reduced-motion:reduce){.cr-lk,.cr-node.unl .cr-ring,.cr-node.shake{animation:none}}
 </style>
 </head>
 <body>
@@ -4440,7 +4452,14 @@ const deckOk = n => { const d = deckDoc(n || "عام"); return !d || (!d.hidden 
 const deckOrder = names => { const idx = new Map(names.map((n, i) => [n, i])); return names.slice().sort((a, b) => ((deckDoc(a)?.order ?? 9999) - (deckDoc(b)?.order ?? 9999)) || idx.get(a) - idx.get(b)); };
 const ordOf = c => c.ord ?? (c.createdAt?.toMillis ? c.createdAt.toMillis() : 0);
 const byWritten = list => { const idx = new Map((S.cards || []).map((c, i) => [c.id, i])); return list.slice().sort((a, b) => (ordOf(a) - ordOf(b)) || (idx.get(b.id) - idx.get(a.id))); };
-const crAll = () => byWritten( visible(S.cards || []).filter(c => c.kind !== "grammar" && deckOk(c.deck)));
+const crEvery = () => byWritten(visible(S.cards || []).filter(c => c.kind !== "grammar" && deckOk(c.deck)));
+/* قفل المستويات: المستوى يفتح لما اللي قبله يكتمل (كل كلماته وصلت لمرحلة «كويسة») */
+function deckLocks(list = crEvery()) {
+  const m = srsRec().m || {}, decks = deckOrder([...new Set(list.map(c => c.deck || "عام"))]), locked = new Set(); let blocked = false;
+  decks.forEach(d => { if (blocked) locked.add(d); const l = list.filter(c => (c.deck || "عام") === d); if (!(l.length && l.every(c => m[c.id] && m[c.id][0] >= 2))) blocked = true; });
+  return { locked, decks };
+}
+const crAll = () => { const e = crEvery(), { locked } = deckLocks(e); return e.filter(c => !locked.has(c.deck || "عام")); };
 const crPool = () => crAll().filter(c => !CR.deck || (c.deck || "عام") === CR.deck);
 function crStats(pool = crPool()) {
   const m = srsRec().m || {}, now = Date.now(), due = pool.filter(c => m[c.id] && m[c.id][1] <= now), fresh = pool.filter(c => !m[c.id]), mast = pool.filter(c => m[c.id] && m[c.id][0] >= 5);
@@ -4472,7 +4491,7 @@ const levelUp = (lvl, M) => lvCelebrate({ badge: lvl, title: "مبروك! 🎉",
 /* ---- إكمال مجموعة (مستوى في رحلتك) وفتح التالية ---- */
 function deckCheck() {
   try {
-    const all = crAll(), m = srsRec().m || {}, decks = deckOrder([...new Set(all.map(c => c.deck || "عام"))]), k = "rf_dk_" + (S.student?.id || "");
+    const all = crEvery(), m = srsRec().m || {}, decks = deckOrder([...new Set(all.map(c => c.deck || "عام"))]), k = "rf_dk_" + (S.student?.id || "");
     const done = decks.filter(d => { const l = all.filter(c => (c.deck || "عام") === d); return l.length && l.every(c => m[c.id] && m[c.id][0] >= 2); });
     const raw = localStorage.getItem(k), seen = raw ? JSON.parse(raw) : null;
     localStorage.setItem(k, JSON.stringify(done));
@@ -4498,22 +4517,25 @@ function renderCards() {
 }
 function paintCards() {
   const b = $("#cr"); if (!b || S.page !== "cards" || CR.running || CR.done) return;
-  const all = crAll();
-  if (!all.length) { b.innerHTML = `<div class="empty">${ico(CARD_IC, 40)}<br>لا توجد كلمات متاحة لك حاليًا.<br><small>هتظهر هنا أول ما يضيفها مسيو رضا.</small></div>`; return; }
+  const every = crEvery(), all = crAll(), { locked } = deckLocks(every);
+  if (!every.length) { b.innerHTML = `<div class="empty">${ico(CARD_IC, 40)}<br>لا توجد كلمات متاحة لك حاليًا.<br><small>هتظهر هنا أول ما يضيفها مسيو رضا.</small></div>`; return; }
   CR.deck = ""; const info = srsInfo(), st = crStats(all), M = st.mast.length, lvl = lvlOf(M), lp = (M % 10) * 10; setTimeout(() => { deckCheck(); if (!document.querySelector(".lv-ov")) lvlCheck(); }, 600);
-  const decks = deckOrder([...new Set(all.map(c => c.deck || "عام"))]), todo = st.due.length + Math.min(st.fresh.length, CR.newN), gp = Math.min(100, Math.round(info.today / GOAL * 100));
+  const decks = deckOrder([...new Set(every.map(c => c.deck || "عام"))]), todo = st.due.length + Math.min(st.fresh.length, CR.newN), gp = Math.min(100, Math.round(info.today / GOAL * 100));
   const H = 168, pos = [50, 76, 50, 24];
   const pts = decks.map((d, i) => [pos[i % 4], 70 + i * H]);
   const path = pts.map((p, i) => i ? `C${pts[i - 1][0]},${(pts[i - 1][1] + p[1]) / 2} ${p[0]},${(pts[i - 1][1] + p[1]) / 2} ${p[0]},${p[1]}` : `M${p[0]},${p[1]}`).join(" ");
   const m = srsRec().m || {};
+  let unlSeen = []; try { unlSeen = JSON.parse(localStorage.getItem("rf_unl_" + (S.student?.id || "")) || "null") || []; } catch { }
+  const unlNow = decks.filter(d => !locked.has(d));
   b.innerHTML = `<div class="cr-hud"><div class="cr-pill fire"><span>🔥</span><b data-cu="${info.streak}">0</b><small>يوم متتالي</small></div><div class="cr-pill lvl"><span>⭐</span><b>مستوى ${lvl}</b><i><u style="width:${lp}%"></u></i></div><div class="cr-pill due"><span>⏰</span><b data-cu="${st.due.length}">0</b><small>مستحقة</small></div></div>
     <div class="cr-goal ${info.today >= GOAL ? "gok" : ""}"><i class="cr-orb o1"></i><i class="cr-orb o2"></i>${info.today >= GOAL ? [..."1234567890"].map((_, k) => `<i class="cr-cf" style="--x:${k * 10 + 4}%;--d:${(k % 5) * .35}s;--h:${k * 37 % 360}"></i>`).join("") : ""}<div class="cr-gt"><div class="cr-gi" style="--p:${gp}"><span>🎯</span></div><div><h3>${info.today >= GOAL ? "أنجزت هدف اليوم! 🎉" : "هدف اليوم"}</h3><small><b data-cu="${Math.min(info.today, GOAL)}">0</b> / ${GOAL} كلمة</small></div><div class="cr-pc">${gp}%</div></div><div class="cr-gb"><i style="width:${gp}%"></i></div>
       <div class="cr-gact"><button class="cr-start" id="cgo" ${todo ? "" : "disabled"}>${todo ? `ابدأ جلسة اليوم · ${todo} كلمة` : "خلّصت كل المطلوب ✓"}</button><label class="cr-au"><input type="checkbox" id="cau" ${CR.auto ? "checked" : ""}> نطق تلقائي</label><select id="cnn" aria-label="عدد الكلمات الجديدة">${[5, 10, 20, 40].map(n => `<option value="${n}" ${CR.newN === n ? "selected" : ""}>${n} جديدة</option>`).join("")}</select></div></div>
     <h2 class="cr-h">رحلتك في الكلمات</h2>
     <div class="cr-map" style="height:${decks.length * H + 20}px"><svg class="cr-path" viewBox="0 0 100 ${decks.length * H + 20}" preserveAspectRatio="none" aria-hidden="true"><path d="${path}" vector-effect="non-scaling-stroke"/></svg>
-    ${decks.map((d, i) => { const l = all.filter(c => (c.deck || "عام") === d), mt = l.filter(c => m[c.id] && m[c.id][0] >= 2).length, du = l.filter(c => m[c.id] && m[c.id][1] <= Date.now()).length, fr = l.filter(c => !m[c.id]).length, p = Math.round(mt / l.length * 100), pal = CPAL[i % CPAL.length];
-      return `<button type="button" class="cr-node ${p === 100 ? "done" : ""}" data-deck="${esc(d)}" style="left:${pts[i][0]}%;top:${pts[i][1] - 54}px;--c1:${pal[0]};--c2:${pal[1]};--p:${p}"><span class="cr-ring"><span class="cr-ic ${deckDoc(d)?.img ? "has" : ""}">${deckIconHTML(d, i)}</span>${p === 100 ? `<em class="cr-ck">${ico(CIC.good, 16)}</em>` : ""}${du ? `<em class="cr-bd">${du}</em>` : ""}</span><b>${esc(d)}</b><small>${p === 100 ? "مكتملة ✓" : `${mt}/${l.length} مكتملة${fr ? ` · ${fr} جديدة` : ""}`}</small></button>`; }).join("")}</div>${hardTable(all, m)}`;
-  $$("[data-deck]", b).forEach(x => x.onclick = () => { CR.deck = x.dataset.deck; const s2 = crStats(); if (!s2.due.length && !s2.fresh.length) { startSession(true); } else startSession(30); });
+    ${decks.map((d, i) => { const lk = locked.has(d), isNew = !lk && unlSeen.length && !unlSeen.includes(d), l = every.filter(c => (c.deck || "عام") === d), mt = l.filter(c => m[c.id] && m[c.id][0] >= 2).length, du = l.filter(c => m[c.id] && m[c.id][1] <= Date.now()).length, fr = l.filter(c => !m[c.id]).length, p = Math.round(mt / l.length * 100), pal = CPAL[i % CPAL.length];
+      return `<button type="button" class="cr-node ${p === 100 ? "done" : ""} ${lk ? "lock" : ""} ${isNew ? "unl" : ""}" data-deck="${esc(d)}" ${lk ? `data-lock="${esc(decks[i - 1] || "")}" aria-disabled="true"` : ""} style="left:${pts[i][0]}%;top:${pts[i][1] - 54}px;--c1:${pal[0]};--c2:${pal[1]};--p:${p}"><span class="cr-ring"><span class="cr-ic ${deckDoc(d)?.img ? "has" : ""}">${deckIconHTML(d, i)}</span>${lk ? `<em class="cr-lk">🔒</em>` : ""}${p === 100 ? `<em class="cr-ck">${ico(CIC.good, 16)}</em>` : ""}${du ? `<em class="cr-bd">${du}</em>` : ""}</span><b>${esc(d)}</b><small>${lk ? "🔒 مقفل" : p === 100 ? "مكتملة ✓" : `${mt}/${l.length} مكتملة${fr ? ` · ${fr} جديدة` : ""}`}</small></button>`; }).join("")}</div>${hardTable(all, m)}`;
+  try { localStorage.setItem("rf_unl_" + (S.student?.id || ""), JSON.stringify(unlSeen.length ? [...new Set([...unlSeen, ...unlNow])] : unlNow)); } catch { }
+  $$("[data-deck]", b).forEach(x => x.onclick = () => { if (x.dataset.lock !== undefined) { x.classList.remove("shake"); void x.offsetWidth; x.classList.add("shake"); return toast(`🔒 المستوى مقفل — أكمل «${x.dataset.lock}» الأول`, "bad"); } CR.deck = x.dataset.deck; const s2 = crStats(); if (!s2.due.length && !s2.fresh.length) { startSession(true); } else startSession(30); });
   $$("[data-cu]", b).forEach(el => countTo(el, +el.dataset.cu));
   const nn = $("#cnn", b); nn.onchange = e => { CR.newN = +e.target.value; paintCards(); };
   $("#cau", b).onchange = e => { CR.auto = e.target.checked; try { localStorage.setItem("rf_cauto", CR.auto ? "1" : "0"); } catch {} };
