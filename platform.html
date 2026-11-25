@@ -1661,6 +1661,51 @@ html[data-theme=light] .stars-bg i{background:#e5a93a;box-shadow:0 0 6px 1px rgb
 .cr-node.lock .cr-ic{filter:none;opacity:1}.cr-node.lock b,.cr-node.lock small{opacity:1}
 .cr-node.lock small{color:var(--muted)}
 .cr-lk{inset:auto;margin:0;bottom:-2px;inset-inline-end:-2px;width:34px;height:34px;font-size:1rem;background:linear-gradient(145deg,#64748b,#334155);border:3px solid var(--card);box-shadow:0 4px 10px rgba(0,0,0,.35);animation:lkBob 3s ease-in-out infinite}
+/* ---- لوحة بطاقات الكلمات (المدرس): تصميم متقدم ---- */
+.cdx-hero{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:22px;border-radius:22px;margin-bottom:16px;color:#fff;background:radial-gradient(160px 160px at 92% 0%,rgba(255,255,255,.18),transparent 70%),linear-gradient(120deg,#4f46e5,#7c3aed 55%,#c026d3);box-shadow:0 18px 36px -18px rgba(99,60,220,.7);position:relative;overflow:hidden}
+.cdx-hero:after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 35%,rgba(255,255,255,.14) 50%,transparent 65%);transform:translateX(-120%);animation:wpbSw 6s ease-in-out infinite;pointer-events:none}
+.cdx-hi{flex:none;width:58px;height:58px;border-radius:18px;display:grid;place-items:center;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.35);backdrop-filter:blur(4px)}
+.cdx-ht{flex:1;min-width:220px}.cdx-ht h2{margin:0 0 4px;font-size:1.5rem;color:#fff}.cdx-ht p{margin:0;opacity:.88;font-size:.92rem;line-height:1.6}
+.cdx-ha{display:flex;gap:8px;flex-wrap:wrap;position:relative;z-index:1}.cdx-hero .btn-fill{background:#fff;color:#4f46e5;border-color:#fff;box-shadow:0 8px 18px -8px rgba(0,0,0,.4)}
+.cdx-ghost{background:rgba(255,255,255,.16)!important;color:#fff!important;border:1px solid rgba(255,255,255,.4)!important}.cdx-empty .cdx-ghost{background:var(--bg2)!important;color:var(--fg)!important;border-color:var(--line)!important}
+.cdx-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:16px}
+.cdx-st{display:flex;align-items:center;gap:12px;padding:14px;border-radius:16px;background:var(--card);border:1px solid var(--line);position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s}.cdx-st:hover{transform:translateY(-2px);box-shadow:0 14px 26px -16px var(--c)}
+.cdx-st:before{content:"";position:absolute;inset-inline-start:0;top:0;bottom:0;width:4px;background:var(--c)}
+.cdx-si{flex:none;width:42px;height:42px;border-radius:13px;display:grid;place-items:center;font-size:1.25rem;background:color-mix(in srgb,var(--c) 16%,transparent)}
+.cdx-st b{display:block;font:800 1.45rem var(--fd);line-height:1.1}.cdx-st small{color:var(--muted);font-size:.78rem}.cdx-st>div{min-width:0;flex:1}
+.cdx-pb{display:block;height:5px;border-radius:5px;background:color-mix(in srgb,var(--fg) 10%,transparent);margin-top:6px;overflow:hidden}.cdx-pb u{display:block;height:100%;border-radius:5px;background:var(--c,#10b981);transition:width .6s}
+.cdx-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px;padding:10px;border-radius:16px;background:var(--card);border:1px solid var(--line)}
+.cdx-search{flex:1 1 240px;display:flex;align-items:center;gap:8px;padding:0 12px;border-radius:12px;background:var(--bg2);border:1px solid var(--line);color:var(--muted)}.cdx-search:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 20%,transparent)}
+.cdx-search input{flex:1;border:0!important;background:transparent!important;min-height:42px;box-shadow:none!important;color:var(--fg);outline:0}
+.cdx-chips{display:flex;gap:6px;flex-wrap:wrap}.cdx-ch,.cdx-t{border:1px solid var(--line);background:var(--bg2);color:var(--fg);border-radius:999px;padding:7px 14px;font:600 .82rem var(--fb);cursor:pointer;transition:all .2s}
+.cdx-ch:hover,.cdx-t:hover{border-color:var(--accent)}.cdx-ch.on{background:var(--accent);color:#1a1405;border-color:var(--accent)}
+.cdx-tools{display:flex;gap:6px}.cdx-t{border-radius:10px}
+.cdx-d{margin-bottom:14px;padding:14px;border-radius:20px;background:var(--card);border:1px solid var(--line);transition:box-shadow .25s,border-color .25s}.cdx-d:hover{box-shadow:0 16px 30px -22px rgba(0,0,0,.6);border-color:color-mix(in srgb,var(--accent) 35%,var(--line))}.cdx-d.off{opacity:.78;background-image:repeating-linear-gradient(135deg,transparent 0 12px,rgba(120,120,140,.05) 12px 24px)}
+.cdx-dh{display:flex;align-items:center;gap:12px}
+.cdx-mv{display:flex;flex-direction:column;align-items:center;gap:1px;flex:none}.cdx-mv span{font:800 .8rem var(--fd);color:var(--muted)}.cdx-mv button{border:0;background:none;color:var(--muted);cursor:pointer;font-size:.7rem;line-height:1;padding:3px 8px;border-radius:6px}.cdx-mv button:hover:not(:disabled){background:var(--bg2);color:var(--fg)}.cdx-mv button:disabled{opacity:.25;cursor:default}
+.cdx-dh .cd-ic{width:56px;height:56px;font-size:1.8rem;border-radius:18px;background:linear-gradient(145deg,color-mix(in srgb,var(--accent) 22%,var(--bg2)),var(--bg2));box-shadow:0 8px 16px -10px rgba(0,0,0,.5)}
+.cdx-dt{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px;text-align:start;background:none;border:0;padding:0;color:inherit;font:inherit;cursor:pointer}.cdx-dt b{font-size:1.12rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cdx-meta{display:flex;gap:6px;flex-wrap:wrap}.cdx-meta em{font-style:normal;font-size:.74rem;padding:2px 9px;border-radius:99px;background:var(--bg2);border:1px solid var(--line);color:var(--muted)}.cdx-meta em.ok{color:#10b981;border-color:rgba(16,185,129,.35);background:rgba(16,185,129,.1)}.cdx-meta em.warn{color:#f59e0b;border-color:rgba(245,158,11,.4);background:rgba(245,158,11,.1)}
+.cdx-dt .cdx-pb{max-width:220px;margin-top:0}
+.cdx-sw{flex:none;display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--bg2);color:var(--muted);border-radius:999px;padding:4px 12px 4px 6px;font:700 .78rem var(--fb);cursor:pointer}
+.cdx-sw i{width:34px;height:20px;border-radius:12px;background:#64748b;position:relative;transition:background .25s}.cdx-sw i:after{content:"";position:absolute;top:2px;inset-inline-start:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .25s;box-shadow:0 1px 3px rgba(0,0,0,.4)}
+.cdx-sw.on{color:#10b981;border-color:rgba(16,185,129,.4)}.cdx-sw.on i{background:#10b981}.cdx-sw.on i:after{transform:translateX(-14px)}
+.cdx-da{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:12px;padding-top:12px;border-top:1px dashed var(--line)}.cdx-sp{flex:1}
+.cdx-b{border:1px solid var(--line);background:var(--bg2);color:var(--fg);border-radius:10px;padding:8px 13px;font:600 .82rem var(--fb);cursor:pointer;transition:all .18s}.cdx-b:hover{transform:translateY(-1px);border-color:var(--accent)}
+.cdx-b.pri{background:linear-gradient(135deg,var(--accent),color-mix(in srgb,var(--accent) 70%,#000));color:#1a1405;border-color:transparent;box-shadow:0 8px 16px -10px var(--accent)}.cdx-b.bad{color:#ef4444}.cdx-b.bad:hover{background:rgba(239,68,68,.12);border-color:#ef4444}
+.cdx-ws{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px}
+.cdx-w{display:flex;gap:10px;padding:12px;border-radius:14px;background:var(--bg2);border:1px solid var(--line);transition:border-color .2s,transform .2s}.cdx-w:hover{border-color:var(--accent);transform:translateY(-1px)}
+.cdx-wn{flex:none;width:26px;height:26px;border-radius:8px;display:grid;place-items:center;font:700 .74rem var(--fd);background:var(--card);color:var(--muted)}
+.cdx-wm{flex:1;min-width:0}.cdx-wm p{margin:3px 0 0;font-size:.86rem;line-height:1.5}
+.cdx-wf{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}.cdx-wf b{font-size:1.1rem}.cdx-pr{color:var(--accent-text,var(--accent));background:color-mix(in srgb,var(--accent) 14%,transparent);padding:1px 8px;border-radius:8px}
+.cdx-ar{font-weight:600}.cdx-fr{color:var(--muted);text-align:left}.cdx-ex{color:var(--muted);font-style:italic;border-inline-start:3px solid color-mix(in srgb,var(--accent) 50%,transparent);padding-inline-start:8px;text-align:left}.cdx-ex span{display:block;font-style:normal;text-align:right;margin-top:2px}.cdx-no{color:#f59e0b;opacity:.75;font-size:.76rem!important}
+.cdx-wa{display:flex;flex-direction:column;gap:6px;flex:none}.cdx-ib{width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:var(--card);cursor:pointer;font-size:.9rem;transition:all .18s}.cdx-ib:hover{transform:scale(1.08);border-color:var(--accent)}.cdx-ib.bad:hover{background:rgba(239,68,68,.14);border-color:#ef4444}
+.cdx-none,.cdx-empty{grid-column:1/-1;text-align:center;padding:30px 16px;color:var(--muted)}.cdx-empty{border:2px dashed var(--line);border-radius:22px;background:var(--card)}.cdx-empty h3{margin:8px 0 4px;color:var(--fg)}.cdx-empty .cdx-ha{justify-content:center;margin-top:12px}
+@media(max-width:900px){.cdx-stats{grid-template-columns:repeat(2,1fr)}.cdx-ws{grid-template-columns:1fr}}
+@media(max-width:560px){.cdx-hero{padding:16px}.cdx-dh{flex-wrap:wrap}.cdx-dt{flex:1 1 55%}.cdx-sw{order:5}.cdx-da .cdx-sp{display:none}.cdx-b{flex:1 1 auto;text-align:center}.cdx-ha .btn{flex:1}}
+html[data-theme=light] .cdx-hero{box-shadow:0 18px 36px -18px rgba(99,60,220,.55)}html[data-theme=light] .cdx-ch.on{color:#fff}html[data-theme=light] .cdx-b.pri{color:#fff}
+@media(prefers-reduced-motion:reduce){.cdx-hero:after{animation:none}}
+@media(max-width:560px){.cdx-ha .btn{white-space:nowrap;padding-inline:10px;font-size:.85rem}.cdx-stats{gap:8px}.cdx-st{padding:10px;gap:8px}.cdx-si{width:34px;height:34px;font-size:1.05rem}.cdx-st b{font-size:1.2rem}.cdx-st small{display:block;font-size:.72rem;line-height:1.25}.cdx-st:last-child{grid-column:1/-1}.cdx-dh{gap:8px}.cdx-dh .cd-ic{width:46px;height:46px;font-size:1.5rem}.cdx-dt{flex:1 1 40%}}
 </style>
 </head>
 <body>
@@ -4611,12 +4656,16 @@ document.addEventListener("keydown", e => {
 });
 /* ---- لوحة المدرس: إدارة الكلمات ---- */
 TABS.cards = {
-  skel: () => `<div class="nt-head"><span class="nt-hi">${ico(CARD_IC, 26)}</span><div><h2>بطاقات الكلمات</h2><small>كل مجموعة لها قسمها: كلماتها وترتيبها وظهورها وتسميتها وحذفها</small></div><div class="acts"><button class="btn btn-fill" data-a="cadd">+ كلمة</button><button class="btn btn-line" data-a="cimp">📥 استيراد مجموعة</button><button class="btn btn-line" data-a="dnew">+ مجموعة جديدة</button></div></div>
-    <div class="stats" id="cs" style="grid-template-columns:repeat(3,1fr);margin-bottom:14px"></div><div class="toolbar"><input id="cq" placeholder="بحث في كل الكلمات..." value="${esc(A.cq2 || "")}"></div><div id="cdp"></div>`,
+  skel: () => `<section class="cdx-hero"><span class="cdx-hi">${ico(CARD_IC, 30)}</span><div class="cdx-ht"><h2>بطاقات الكلمات</h2><p>أدر مجموعات المفردات: رتّبها، حدّد من يشوفها، وعدّل كلماتها — كل مجموعة قسم مستقل.</p></div><div class="cdx-ha"><button class="btn btn-fill" data-a="cadd">+ كلمة</button><button class="btn cdx-ghost" data-a="cimp">📥 استيراد</button><button class="btn cdx-ghost" data-a="dnew">+ مجموعة</button></div></section>
+    <div class="cdx-stats" id="cs"></div>
+    <div class="cdx-bar"><label class="cdx-search"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="cq" placeholder="ابحث في كل الكلمات (كلمة، معنى، مثال)..." value="${esc(A.cq2 || "")}"></label>
+      <div class="cdx-chips" id="cfl"></div><div class="cdx-tools"><button class="cdx-t" data-a="dall">فتح الكل</button><button class="cdx-t" data-a="dnone">طيّ الكل</button></div></div><div id="cdp"></div>`,
   init: b => { b.onclick = cardAction; $("#cq", b).oninput = e => { A.cq2 = e.target.value; fillTab(); setTimeout(() => { const i = $("#cq"); if (i) { i.focus(); i.setSelectionRange(i.value.length, i.value.length); } }, 0); }; },
   fill: b => {
-    const all = byWritten((S.cards || []).filter(c => c.kind !== "grammar"));
-    $("#cs", b).innerHTML = [["إجمالي الكلمات", all.length], ["المجموعات", adminDecks().length], ["بجملة مثال", all.filter(c => c.ex).length]].map(([t, n]) => `<div class="stat"><b>${n}</b><span>${t}</span></div>`).join("");
+    const all = byWritten((S.cards || []).filter(c => c.kind !== "grammar")), names = adminDecks(), hid = names.filter(n => deckDoc(n)?.hidden).length, ex = all.length ? Math.round(all.filter(c => c.ex).length / all.length * 100) : 0, fr = all.length ? Math.round(all.filter(c => c.mfr).length / all.length * 100) : 0;
+    $("#cs", b).innerHTML = [["📚", "إجمالي الكلمات", all.length, "#6366f1"], ["🗂️", "المجموعات", names.length, "#f59e0b"], ["💬", "بجملة مثال", ex + "%", "#10b981", ex], ["🇫🇷", "بمعنى فرنسي", fr + "%", "#ec4899", fr], ["🙈", "مجموعات مخفية", hid, "#64748b"]].map(([i, t, n, c, p]) => `<div class="cdx-st" style="--c:${c}"><span class="cdx-si">${i}</span><div><b>${n}</b><small>${t}</small>${p != null ? `<i class="cdx-pb"><u style="width:${p}%"></u></i>` : ""}</div></div>`).join("");
+    const f = A.cfl || "all";
+    $("#cfl", b).innerHTML = [["all", "الكل"], ["show", "ظاهرة"], ["hid", "مخفية"], ["miss", "ناقصة بيانات"]].map(([k, t]) => `<button class="cdx-ch ${f === k ? "on" : ""}" data-a="cfil" data-k="${k}">${t}</button>`).join("");
     $("#cdp", b).innerHTML = decksPanel();
   }
 };
@@ -4701,23 +4750,30 @@ function deckTarget(n) {
   $("#cf", m).addEventListener("submit", async e => { e.preventDefault(); const f = new FormData(e.target); $("#sb", m).disabled = true; try { await saveDeckOrder(adminDecks(), { [n]: { stage: f.get("stage"), system: f.get("system"), grade: f.get("grade") || "all" } }); closeModals(); toast("تم الحفظ", "ok"); } catch (er) { showErr("فشل الحفظ: " + (er.code || er.message)); $("#sb", m).disabled = false; } });
 }
 function decksPanel() {
-  const names = adminDecks(), q = (A.cq2 || "").trim().toLowerCase(), all = byWritten((S.cards || []).filter(c => c.kind !== "grammar"));
-  if (!names.length) return `<div class="empty">لا توجد مجموعات بعد — اضغط «+ مجموعة جديدة» أو «+ كلمة» أو «استيراد مجموعة».</div>`;
+  const names = adminDecks(), q = (A.cq2 || "").trim().toLowerCase(), f = A.cfl || "all", all = byWritten((S.cards || []).filter(c => c.kind !== "grammar"));
+  if (!names.length) return `<div class="cdx-empty"><span>${ico(CARD_IC, 44)}</span><h3>لا توجد مجموعات بعد</h3><p>ابدأ بإنشاء مجموعة أو استيراد كلمات من جدول.</p><div class="cdx-ha"><button class="btn btn-fill" data-a="dnew">+ مجموعة جديدة</button><button class="btn cdx-ghost" data-a="cimp">📥 استيراد</button></div></div>`;
   const sections = names.map((n, i) => {
-    const d = deckDoc(n), hid = !!d?.hidden, tg = d && (d.stage !== "all" || d.system !== "all" || (d.grade && d.grade !== "all")), words = all.filter(c => (c.deck || "عام") === n);
+    const d = deckDoc(n), hid = !!d?.hidden, tg = d && (d.stage !== "all" || d.system !== "all" || (d.grade && d.grade !== "all")), words = all.filter(c => (c.deck || "عام") === n), miss = words.filter(c => !c.ex || !c.mfr).length;
+    if (f === "show" && hid || f === "hid" && !hid || f === "miss" && !miss) return "";
     const l = q ? words.filter(c => [c.front, c.back, c.mfr, c.pron, c.ex].some(t => (t || "").toLowerCase().includes(q))) : words;
     if (q && !l.length) return "";
-    const open = q ? true : !!(A.cdo || {})[n], nm = esc(n);
-    return `<section class="card cd-sec ${hid ? "off" : ""}"><header class="cd-hd"><span class="cd-n">${i + 1}</span><span class="cd-ic ${d?.img ? "has" : ""}">${deckIconHTML(n, i)}</span><div class="cd-mv"><button class="btn btn-line btn-sm" data-a="dup" data-name="${nm}" ${i ? "" : "disabled"} aria-label="لفوق">▲</button><button class="btn btn-line btn-sm" data-a="ddn" data-name="${nm}" ${i < names.length - 1 ? "" : "disabled"} aria-label="لتحت">▼</button></div>
-      <button type="button" class="cd-t" data-a="dtog" data-name="${nm}"><b>${nm}</b><small>${words.length} كلمة · ${tg ? `${stageLabel(d.stage)} · ${sysLabel(d.system)}${d.grade && d.grade !== "all" ? " · " + esc(d.grade) : ""}` : "لكل الطلاب"}</small></button><span class="badge ${hid ? "bad" : "good"}">${hid ? "مخفية" : "ظاهرة"}</span><button type="button" class="cd-chev ${open ? "on" : ""}" data-a="dtog" data-name="${nm}" aria-label="فتح">⌄</button></header>
-      <div class="cd-acts"><button class="btn btn-fill btn-sm" data-a="cadd" data-name="${nm}">+ كلمة</button><button class="btn btn-line btn-sm" data-a="cimp" data-name="${nm}">📥 استيراد</button><button class="btn btn-line btn-sm" data-a="dtgt" data-name="${nm}">🎯 تحديد الطلاب</button><button class="btn btn-line btn-sm" data-a="dhide" data-name="${nm}">${hid ? "👁 إظهار" : "🙈 إخفاء"}</button><button class="btn btn-line btn-sm" data-a="dico" data-name="${nm}">🖼 الأيقونة</button><button class="btn btn-line btn-sm" data-a="drn" data-name="${nm}">✏️ تعديل المجموعة</button><button class="btn btn-bad btn-sm" data-a="ddel" data-name="${nm}">🗑 حذف المجموعة</button></div>
-      ${open ? `<div class="tw cd-body">${l.length ? `<table><thead><tr><th>#</th><th>الكلمة</th><th>بالعربي</th><th>بالفرنسي</th><th></th></tr></thead><tbody>${l.slice(0, 300).map((c, k) => `<tr><td>${k + 1}</td><td dir="ltr" style="text-align:right"><b>${esc(c.front)}</b>${c.pron ? `<br><small class="ph">${esc(c.pron)}</small>` : ""}</td><td style="max-width:200px;white-space:pre-wrap">${esc(c.back)}</td><td dir="ltr" style="text-align:right;max-width:220px">${esc(c.mfr || "—")}${c.ex ? `<br><small class="ph">${esc(c.ex)}</small>` : ""}</td><td><div class="acts"><button class="btn btn-line btn-sm" data-a="cedit" data-id="${esc(c.id)}">تعديل</button><button class="btn btn-bad btn-sm" data-a="cdel" data-id="${esc(c.id)}">حذف</button></div></td></tr>`).join("")}</tbody></table>` : `<div class="empty">المجموعة فاضية — أضف كلمات أو استوردها.</div>`}</div>` : ""}</section>`;
+    const open = q ? true : !!(A.cdo || {})[n], nm = esc(n), pct = words.length ? Math.round((words.length - miss) / words.length * 100) : 0;
+    return `<section class="cdx-d ${hid ? "off" : ""}"><header class="cdx-dh"><div class="cdx-mv"><button data-a="dup" data-name="${nm}" ${i ? "" : "disabled"} aria-label="لفوق" title="لفوق">▲</button><span>${i + 1}</span><button data-a="ddn" data-name="${nm}" ${i < names.length - 1 ? "" : "disabled"} aria-label="لتحت" title="لتحت">▼</button></div>
+      <span class="cd-ic ${d?.img ? "has" : ""}">${deckIconHTML(n, i)}</span>
+      <button type="button" class="cdx-dt" data-a="dtog" data-name="${nm}"><b>${nm}</b><span class="cdx-meta"><em>📚 ${words.length} كلمة</em><em>${tg ? `🎯 ${stageLabel(d.stage)} · ${sysLabel(d.system)}${d.grade && d.grade !== "all" ? " · " + esc(d.grade) : ""}` : "🌐 كل الطلاب"}</em>${miss ? `<em class="warn">⚠ ${miss} ناقصة</em>` : words.length ? `<em class="ok">✓ بيانات كاملة</em>` : ""}</span>${words.length ? `<i class="cdx-pb"><u style="width:${pct}%"></u></i>` : ""}</button>
+      <button type="button" class="cdx-sw ${hid ? "" : "on"}" data-a="dhide" data-name="${nm}" role="switch" aria-checked="${!hid}" title="${hid ? "إظهار للطلاب" : "إخفاء عن الطلاب"}"><i></i><span>${hid ? "مخفية" : "ظاهرة"}</span></button>
+      <button type="button" class="cd-chev ${open ? "on" : ""}" data-a="dtog" data-name="${nm}" aria-label="فتح">⌄</button></header>
+      <div class="cdx-da"><button class="cdx-b pri" data-a="cadd" data-name="${nm}">+ كلمة</button><button class="cdx-b" data-a="cimp" data-name="${nm}">📥 استيراد</button><span class="cdx-sp"></span><button class="cdx-b" data-a="dtgt" data-name="${nm}">🎯 تحديد الطلاب</button><button class="cdx-b" data-a="dico" data-name="${nm}">🖼 الأيقونة</button><button class="cdx-b" data-a="drn" data-name="${nm}">✏️ تعديل</button><button class="cdx-b bad" data-a="ddel" data-name="${nm}">🗑 حذف</button></div>
+      ${open ? `<div class="cdx-ws">${l.length ? l.slice(0, 300).map((c, k) => `<article class="cdx-w"><span class="cdx-wn">${k + 1}</span><div class="cdx-wm"><div class="cdx-wf"><b dir="ltr">${esc(c.front)}</b>${c.pron ? `<small class="cdx-pr">${esc(c.pron)}</small>` : ""}</div><p class="cdx-ar">${esc(c.back)}</p>${c.mfr ? `<p class="cdx-fr" dir="ltr">${esc(c.mfr)}</p>` : `<p class="cdx-no">بدون معنى فرنسي</p>`}${c.ex ? `<p class="cdx-ex" dir="ltr">“${esc(c.ex)}”${c.exAr ? `<span dir="rtl">${esc(c.exAr)}</span>` : ""}</p>` : `<p class="cdx-no">بدون جملة مثال</p>`}</div><div class="cdx-wa"><button class="cdx-ib" data-a="cedit" data-id="${esc(c.id)}" title="تعديل" aria-label="تعديل">✏️</button><button class="cdx-ib bad" data-a="cdel" data-id="${esc(c.id)}" title="حذف" aria-label="حذف">🗑</button></div></article>`).join("") : `<div class="cdx-none">المجموعة فاضية — أضف كلمات أو استوردها.</div>`}</div>` : ""}</section>`;
   }).join("");
-  return sections || `<div class="empty">لا توجد نتائج للبحث.</div>`;
+  return sections || `<div class="cdx-empty"><h3>لا توجد نتائج</h3><p>غيّر البحث أو الفلتر.</p></div>`;
 }
 async function cardAction(e) {
   const btn = e.target.closest("[data-a]"); if (!btn || btn.tagName === "A") return; const a = btn.dataset.a, c = (S.cards || []).find(x => x.id === btn.dataset.id);
   if (["dup", "ddn", "dhide", "dtgt"].includes(a)) return deckAction(a, btn.dataset.name);
+  if (a === "cfil") { A.cfl = btn.dataset.k; return fillTab(); }
+  if (a === "dall") { A.cdo = Object.fromEntries(adminDecks().map(n => [n, true])); return fillTab(); }
+  if (a === "dnone") { A.cdo = {}; return fillTab(); }
   if (a === "dtog") { A.cdo = { ...(A.cdo || {}), [btn.dataset.name]: !(A.cdo || {})[btn.dataset.name] }; return fillTab(); }
   if (a === "dico") return deckIcon(btn.dataset.name);
   if (a === "drn") return deckRename(btn.dataset.name);
