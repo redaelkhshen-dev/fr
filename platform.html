@@ -4299,7 +4299,9 @@ const spkBtns = t => (t) ? `<span class="spk"><button type="button" class="spk-b
 const deckDoc = n => (S.cardDecks || []).find(d => d.name === n);
 const deckOk = n => { const d = deckDoc(n || "عام"); return !d || (!d.hidden && fits({ stage: d.stage || "all", system: d.system || "all", grade: d.grade || "all" }, S.student)); };
 const deckOrder = names => { const idx = new Map(names.map((n, i) => [n, i])); return names.slice().sort((a, b) => ((deckDoc(a)?.order ?? 9999) - (deckDoc(b)?.order ?? 9999)) || idx.get(a) - idx.get(b)); };
-const crAll = () => visible(S.cards || []).filter(c => c.kind !== "grammar" && deckOk(c.deck));
+const ordOf = c => c.ord ?? (c.createdAt?.toMillis ? c.createdAt.toMillis() : 0);
+const byWritten = list => { const idx = new Map((S.cards || []).map((c, i) => [c.id, i])); return list.slice().sort((a, b) => (ordOf(a) - ordOf(b)) || (idx.get(b.id) - idx.get(a.id))); };
+const crAll = () => byWritten( visible(S.cards || []).filter(c => c.kind !== "grammar" && deckOk(c.deck)));
 const crPool = () => crAll().filter(c => !CR.deck || (c.deck || "عام") === CR.deck);
 function crStats(pool = crPool()) {
   const m = srsRec().m || {}, now = Date.now(), due = pool.filter(c => m[c.id] && m[c.id][1] <= now), fresh = pool.filter(c => !m[c.id]), mast = pool.filter(c => m[c.id] && m[c.id][0] >= 5);
@@ -4332,7 +4334,7 @@ function paintCards() {
   const nn = $("#cnn", b); nn.onchange = e => { CR.newN = +e.target.value; paintCards(); };
   $("#cau", b).onchange = e => { CR.auto = e.target.checked; try { localStorage.setItem("rf_cauto", CR.auto ? "1" : "0"); } catch {} };
   $("#cgo", b).onclick = () => { CR.deck = ""; startSession(); };
-  const hb = $("#chard", b); if (hb) hb.onclick = () => { const mm = srsRec().m || {}, q = hardWords(all, mm); CR.deck = ""; CR.q = shuffle(q.slice()); CR.i = 0; CR.total = CR.q.length; CR.again = 0; CR.busy = false; CR.running = true; paintSession(true); };
+  const hb = $("#chard", b); if (hb) hb.onclick = () => { const mm = srsRec().m || {}, q = hardWords(all, mm); CR.deck = ""; CR.q = byWritten(q); CR.i = 0; CR.total = CR.q.length; CR.again = 0; CR.busy = false; CR.running = true; paintSession(true); };
 }
 const hardWords = (all, m) => all.filter(c => m[c.id] && (m[c.id][2] || 0) > 0 && m[c.id][0] < 4).sort((a, b) => (m[b.id][2] || 0) - (m[a.id][2] || 0));
 function hardTable(all, m) {
@@ -4342,8 +4344,8 @@ function hardTable(all, m) {
 }
 const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 function startSession(review) {
-  const st = crStats(); let q = [...shuffle(st.due.slice()), ...shuffle(st.fresh.slice()).slice(0, typeof review === "number" ? review : CR.newN)];
-  if (review && !q.length) q = shuffle(st.pool.slice()).slice(0, 15);
+  const st = crStats(); let q = byWritten([...st.due, ...st.fresh.slice(0, typeof review === "number" ? review : CR.newN)]);
+  if (review && !q.length) q = st.pool.slice(0, 15);
   CR.done = false; CR.q = q; CR.i = 0; CR.total = q.length; CR.again = 0; CR.busy = false; CR.running = true; paintSession(true);
 }
 function paintSession(enter) {
@@ -4402,7 +4404,7 @@ TABS.cards = {
     <div class="stats" id="cs" style="grid-template-columns:repeat(3,1fr);margin-bottom:14px"></div><div id="cdp"></div><div class="toolbar"><input id="cq" placeholder="بحث..." value="${esc(A.cq2 || "")}"><select id="cd"></select></div><div class="tw" id="cl"></div>`,
   init: b => { b.onclick = cardAction; $("#cq", b).oninput = e => { A.cq2 = e.target.value; fillTab(); }; $("#cd", b).onchange = e => { A.cd = e.target.value; fillTab(); }; },
   fill: b => {
-    const all = (S.cards || []).filter(c => c.kind !== "grammar"), decks = [...new Set(all.map(c => c.deck).filter(Boolean))];
+    const all = byWritten((S.cards || []).filter(c => c.kind !== "grammar")), decks = [...new Set(all.map(c => c.deck).filter(Boolean))];
     $("#cs", b).innerHTML = [["إجمالي الكلمات", all.length], ["المجموعات", decks.length], ["بجملة مثال", all.filter(c => c.ex).length]].map(([t, n]) => `<div class="stat"><b>${n}</b><span>${t}</span></div>`).join("");
     $("#cdp", b).innerHTML = decksPanel();
     const cd = $("#cd", b); cd.innerHTML = `<option value="">كل المجموعات</option>` + decks.map(d => `<option value="${esc(d)}" ${A.cd === d ? "selected" : ""}>${esc(d)}</option>`).join("");
@@ -4461,7 +4463,7 @@ function cardModal(c) {
     e.preventDefault(); showErr(""); const f = new FormData(e.target), g = k => (f.get(k) || "").trim(), data = { kind: "vocab", deck: g("deck"), front: g("front"), pron: g("pron"), back: g("back"), mfr: g("mfr"), ex: g("ex"), exAr: g("exAr"), stage: f.get("stage"), system: f.get("system"), grade: f.get("grade") || "all" };
     if (!data.front || !data.back) return showErr("اكتب الكلمة ومعناها بالعربي");
     $("#sb", m).disabled = true;
-    try { if (c) await updateDoc(doc(db, "cards", c.id), data); else await addDoc(collection(db, "cards"), { ...data, createdAt: serverTimestamp() }); closeModals(); toast("تم الحفظ", "ok"); }
+    try { if (c) await updateDoc(doc(db, "cards", c.id), data); else await addDoc(collection(db, "cards"), { ...data, ord: Date.now(), createdAt: serverTimestamp() }); closeModals(); toast("تم الحفظ", "ok"); }
     catch (er) { showErr("فشل الحفظ: " + (er.code || er.message)); $("#sb", m).disabled = false; }
   });
 }
@@ -4481,7 +4483,7 @@ function cardImport() {
     $("#sb", m).disabled = true;
     try {
       const b = writeBatch(db), base = { kind: "vocab", deck: (f.get("deck") || "").trim(), stage: f.get("stage"), system: f.get("system"), grade: f.get("grade") || "all" };
-      rows.forEach(r => b.set(doc(collection(db, "cards")), { ...base, front: r[0], back: r[1], mfr: r[2] || "", pron: r[3] || "", ex: r[4] || "", exAr: r[5] || "", createdAt: serverTimestamp() }));
+      const o0 = Date.now(); rows.forEach((r, ri) => b.set(doc(collection(db, "cards")), { ...base, ord: o0 + ri, front: r[0], back: r[1], mfr: r[2] || "", pron: r[3] || "", ex: r[4] || "", exAr: r[5] || "", createdAt: serverTimestamp() }));
       await b.commit(); closeModals(); toast(`تم استيراد ${rows.length} كلمة`, "ok");
     } catch (er) { showErr("فشل الاستيراد: " + (er.code || er.message)); $("#sb", m).disabled = false; }
   });
