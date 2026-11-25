@@ -1602,6 +1602,17 @@ body:has(#cr){overflow-x:clip}.crp{overflow-x:clip}
 @keyframes lvUp{from{transform:translateY(14px);opacity:0}}
 .lv-go{border:0;cursor:pointer;width:100%;padding:14px;border-radius:999px;font:800 1.05rem var(--fb);color:#fff;background:linear-gradient(135deg,#6d5bf0,#4f46e5);box-shadow:0 10px 22px -8px rgba(79,70,229,.7);animation:lvUp .5s 1s both;transition:transform .15s}.lv-go:hover{transform:translateY(-2px)}.lv-go:active{transform:scale(.97)}
 @media(prefers-reduced-motion:reduce){.lv-medal,.lv-rb,.lv-star,.lv-shine,.lv-sp,.lv-c{animation:none!important}.lv-sp,.lv-c{display:none}}
+/* ---- احتفال مذهّب ---- */
+.lv-card{background:linear-gradient(150deg,#f6dc8c,#d8a834 48%,#9a6f1a);color:#2a1c04;border:1px solid rgba(255,244,200,.55);box-shadow:0 40px 80px -20px rgba(0,0,0,.65),inset 0 1px 0 rgba(255,255,255,.55)}
+.lv-card:before,.lv-card:after{content:"";position:absolute;border-radius:50%;pointer-events:none;background:rgba(255,255,255,.2)}
+.lv-card:before{width:170px;height:170px;top:-70px;inset-inline-end:-50px;animation:tpfF 7s ease-in-out infinite}.lv-card:after{width:70px;height:70px;bottom:70px;inset-inline-start:-20px;animation:tpfF 5s ease-in-out -2s infinite}
+.lv-card>*{position:relative;z-index:1}
+.lv-card h2{color:#2a1c04;text-shadow:0 1px 0 rgba(255,255,255,.4)}.lv-card p{color:rgba(42,28,4,.78)}.lv-card p b{color:#3a2704;background:rgba(255,255,255,.4);padding:1px 10px;border-radius:10px;font-size:1.15rem}.lv-card small{color:rgba(42,28,4,.7)}
+.lv-go{background:linear-gradient(135deg,#3b2a08,#1a1405);color:#ffe9a8;box-shadow:0 10px 22px -8px rgba(26,20,5,.8),inset 0 1px 0 rgba(255,233,168,.3)}
+.lv-halo{position:absolute;width:260px;height:260px;border-radius:50%;background:repeating-conic-gradient(rgba(255,255,255,.38) 0 10deg,transparent 10deg 30deg);-webkit-mask:radial-gradient(circle,#000 20%,transparent 68%);mask:radial-gradient(circle,#000 20%,transparent 68%);animation:lvSpin 14s linear infinite}
+@keyframes lvSpin{to{transform:rotate(360deg)}}
+.lv-medal{filter:drop-shadow(0 14px 18px rgba(90,55,0,.5)) drop-shadow(0 0 22px rgba(255,255,255,.55))}
+@media(prefers-reduced-motion:reduce){.lv-halo,.lv-card:before,.lv-card:after{animation:none!important}}
 </style>
 </head>
 <body>
@@ -4412,14 +4423,30 @@ function medalSvg() {
     <path class="lv-star" d="M100 66l9.8 20.2 22.2 3.2-16.1 15.6 3.8 22.1L100 116.600l-19.7 10.500 3.8-22.100L68 89.400l22.200-3.200z" fill="#ffefb8"/>
     <clipPath id="lvc"><path d="${d}Z"/></clipPath><rect class="lv-shine" x="-60" y="0" width="40" height="200" fill="rgba(255,255,255,.55)" clip-path="url(#lvc)" transform="skewX(-20)"/></svg>`;
 }
-function levelUp(lvl, M) {
+function lvCelebrate({ badge, title, line, note, btn }) {
+  document.querySelector(".lv-ov")?.remove();
   const ov = document.createElement("div"); ov.className = "lv-ov";
-  const bits = Array.from({ length: 16 }, (_, i) => { const a = i * 22.5, k = i % 4, col = ["#ff6b6b", "#ffd43b", "#8b5cf6", "#4f46e5"][k]; return `<i class="lv-c k${k}" style="--a:${a}deg;--d:${(i % 5) * .08}s;--col:${col}"></i>`; }).join("");
-  const sp = [[8, 20], [86, 12], [90, 62], [10, 70]].map(([x, y], i) => `<svg class="lv-sp" style="left:${x}%;top:${y}%;--d:${i * .35}s" viewBox="0 0 40 40" width="38" height="38"><g stroke="${i % 2 ? "#ffd43b" : "#ff6b6b"}" stroke-width="2.4" stroke-linecap="round">${[0, 45, 90, 135, 180, 225, 270, 315].map(a => `<line x1="20" y1="8" x2="20" y2="2" transform="rotate(${a} 20 20)"/>`).join("")}</g></svg>`).join("");
-  ov.innerHTML = `<div class="lv-card" role="dialog" aria-modal="true"><div class="lv-stage">${bits}${sp}${medalSvg()}<div class="lv-n">${lvl}</div></div><h2>مبروك! 🎉</h2><p>فتحت <b>المستوى ${lvl}</b><br><small>أتقنت ${M} كلمة — كمّل وهتوصل أعلى</small></p><button class="lv-go" type="button">استمر</button></div>`;
+  const bits = Array.from({ length: 20 }, (_, i) => { const a = i * 18, k = i % 4, col = ["#fff7d6", "#ff6b6b", "#8b5cf6", "#ffffff"][k]; return `<i class="lv-c k${k}" style="--a:${a}deg;--d:${(i % 5) * .08}s;--col:${col}"></i>`; }).join("");
+  const sp = [[8, 20], [86, 12], [90, 62], [10, 70], [50, 4]].map(([x, y], i) => `<svg class="lv-sp" style="left:${x}%;top:${y}%;--d:${i * .35}s" viewBox="0 0 40 40" width="38" height="38"><g stroke="${i % 2 ? "#fff7d6" : "#7a4a05"}" stroke-width="2.4" stroke-linecap="round">${[0, 45, 90, 135, 180, 225, 270, 315].map(a => `<line x1="20" y1="8" x2="20" y2="2" transform="rotate(${a} 20 20)"/>`).join("")}</g></svg>`).join("");
+  ov.innerHTML = `<div class="lv-card" role="dialog" aria-modal="true"><div class="lv-stage"><i class="lv-halo"></i>${bits}${sp}${medalSvg()}<div class="lv-n">${badge}</div></div><h2>${title}</h2><p>${line}<br><small>${note}</small></p><button class="lv-go" type="button">${btn || "استمر"}</button></div>`;
   const close = () => { ov.classList.add("out"); setTimeout(() => ov.remove(), 260); };
   ov.querySelector(".lv-go").onclick = close; ov.addEventListener("mousedown", e => { if (e.target === ov) close(); });
   document.body.append(ov); ov.querySelector(".lv-go").focus();
+  try { navigator.vibrate?.([40, 60, 40]); } catch { }
+}
+const levelUp = (lvl, M) => lvCelebrate({ badge: lvl, title: "مبروك! 🎉", line: `فتحت <b>المستوى ${lvl}</b>`, note: `أتقنت ${M} كلمة — كمّل وهتوصل أعلى` });
+/* ---- إكمال مجموعة (مستوى في رحلتك) وفتح التالية ---- */
+function deckCheck() {
+  try {
+    const all = crAll(), m = srsRec().m || {}, decks = deckOrder([...new Set(all.map(c => c.deck || "عام"))]), k = "rf_dk_" + (S.student?.id || "");
+    const done = decks.filter(d => { const l = all.filter(c => (c.deck || "عام") === d); return l.length && l.every(c => m[c.id] && m[c.id][0] >= 2); });
+    const raw = localStorage.getItem(k), seen = raw ? JSON.parse(raw) : null;
+    localStorage.setItem(k, JSON.stringify(done));
+    if (!seen) return;
+    const fresh = done.filter(d => !seen.includes(d)); if (!fresh.length) return;
+    const d = fresh[fresh.length - 1], i = decks.indexOf(d), nx = decks[i + 1];
+    lvCelebrate({ badge: i + 1, title: "أنهيت المستوى! 🏆", line: `أكملت <b>${esc(d)}</b>`, note: nx ? `اتفتح لك المستوى الجاي: «${esc(nx)}»` : "أنهيت كل المستويات المتاحة — أنت بطل!", btn: nx ? "كمّل للمستوى الجاي" : "استمر" });
+  } catch (e) { }
 }
 function lvlCheck() {
   try {
@@ -4438,7 +4465,7 @@ function paintCards() {
   const b = $("#cr"); if (!b || S.page !== "cards" || CR.running || CR.done) return;
   const all = crAll();
   if (!all.length) { b.innerHTML = `<div class="empty">${ico(CARD_IC, 40)}<br>لا توجد كلمات متاحة لك حاليًا.<br><small>هتظهر هنا أول ما يضيفها مسيو رضا.</small></div>`; return; }
-  CR.deck = ""; const info = srsInfo(), st = crStats(all), M = st.mast.length, lvl = lvlOf(M), lp = (M % 10) * 10; setTimeout(lvlCheck, 600);
+  CR.deck = ""; const info = srsInfo(), st = crStats(all), M = st.mast.length, lvl = lvlOf(M), lp = (M % 10) * 10; setTimeout(() => { deckCheck(); if (!document.querySelector(".lv-ov")) lvlCheck(); }, 600);
   const decks = deckOrder([...new Set(all.map(c => c.deck || "عام"))]), todo = st.due.length + Math.min(st.fresh.length, CR.newN), gp = Math.min(100, Math.round(info.today / GOAL * 100));
   const H = 168, pos = [50, 76, 50, 24];
   const pts = decks.map((d, i) => [pos[i % 4], 70 + i * H]);
@@ -4473,7 +4500,7 @@ function startSession(review) {
 function paintSession(enter) {
   const b = $("#cr"); if (!b) return;
   if (CR.i >= CR.q.length) {
-    srsFlush(); CR.running = false; CR.done = true; const info = srsInfo(); setTimeout(lvlCheck, 350);
+    srsFlush(); CR.running = false; CR.done = true; const info = srsInfo(); setTimeout(() => { deckCheck(); if (!document.querySelector(".lv-ov")) lvlCheck(); }, 350);
     b.innerHTML = `<div class="cr-done"><div class="cr-bigck"><svg viewBox="0 0 52 52" width="96" height="96"><circle cx="26" cy="26" r="24" fill="none" stroke="#22c55e" stroke-width="3"/><path d="M14 27l8 8 16-17" fill="none" stroke="#22c55e" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h2>اكتملت الجلسة ✓</h2><p>راجعت <b>${CR.total}</b> كلمة${CR.again ? ` — و<b>${CR.again}</b> هترجعلك قريب للتثبيت` : ""}</p><div class="cr-pill fire" style="margin:14px auto"><span>🔥</span><b>${info.streak}</b><small>يوم متتالي</small></div><button class="cr-start" id="cbk">رجوع للرحلة</button></div>`;
     $("#cbk").onclick = () => { CR.running = false; CR.done = false; paintCards(); }; return;
   }
