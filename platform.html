@@ -1556,6 +1556,21 @@ body:has(#cr){overflow-x:clip}.crp{overflow-x:clip}
 @media(max-width:480px){.cr-hud{gap:8px}.cr-pill{padding:10px}.cr-pc{font-size:1.2rem}}
 @media(prefers-reduced-motion:reduce){.cr-pill span,.cr-pill i u,.cr-goal,.cr-goal:before,.cr-orb,.cr-gi span,.cr-gb i,.cr-gb i:after,.cr-start,.cr-start:before,.cr-cf{animation:none!important}.cr-cf{display:none}}
 .cr-goal .cr-gact select{background:rgba(255,255,255,.16)!important;color:#fff!important;border:1px solid rgba(255,255,255,.35)!important}.cr-goal .cr-gact select option{color:#111;background:#fff}
+/* ---- كرت الهدف: نفس خلفية رأس الكورس الذهبية ---- */
+.cr-goal,.cr-goal.done{background:linear-gradient(100deg,#6f4e18,#8f6d22 45%,#b08f30);background-size:160% 160%;animation:pcBg 10s ease-in-out infinite;border:1px solid rgba(255,225,140,.28);box-shadow:0 22px 44px -22px rgba(120,84,20,.85),inset 0 1px 0 rgba(255,255,255,.22)}
+.cr-goal:before{width:150px;height:150px;top:-60px;inset-inline-end:-30px;background:rgba(255,255,255,.14)}
+.cr-orb.o1{background:radial-gradient(circle,rgba(255,255,255,.2),transparent 70%)}.cr-orb.o2{background:radial-gradient(circle,rgba(255,236,170,.25),transparent 70%)}
+.cr-pc{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.28)}
+.cr-goal .cr-au,.cr-goal .cr-gact select{background:rgba(255,255,255,.2)!important;border:1px solid rgba(255,255,255,.18)!important;border-radius:999px;padding:9px 16px;color:#fff!important;font-weight:600;min-height:40px;display:inline-flex;align-items:center}
+.cr-goal .cr-au{gap:8px;cursor:pointer}.cr-goal .cr-au input{accent-color:#f5d36a}
+.cr-gb{background:rgba(0,0,0,.25)}
+@media(max-width:600px){
+ .cr-goal{padding:20px 16px;text-align:center}
+ .cr-gt{flex-direction:column;gap:10px;text-align:center;margin-bottom:14px}.cr-gt>div:nth-child(2){flex:none}
+ .cr-pc{order:3}
+ .cr-gact{justify-content:center}.cr-gact .cr-start{flex:1 1 100%;order:-1}
+ .cr-goal .cr-au,.cr-goal .cr-gact select{justify-content:center}
+}
 </style>
 </head>
 <body>
