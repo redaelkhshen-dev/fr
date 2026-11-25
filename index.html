@@ -1711,6 +1711,42 @@ html[data-theme=light] .cdx-hero{box-shadow:0 18px 36px -18px rgba(99,60,220,.55
 .cdx-hero .btn-fill{background:#fff;color:#6f4e18;border-color:#fff}
 .cdx-hi{background:rgba(255,255,255,.2);border-color:rgba(255,236,170,.45)}
 html[data-theme=light] .cdx-hero{box-shadow:0 18px 36px -18px rgba(120,84,20,.6)}
+/* ---- إدارة الفيديوهات: تصميم متقدم ---- */
+.vdx-hero{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:22px;border-radius:22px;margin-bottom:16px;color:#fff;position:relative;overflow:hidden;background:radial-gradient(150px 150px at 8% -10%,rgba(255,255,255,.16),transparent 70%),linear-gradient(100deg,#6f4e18,#8f6d22 45%,#b08f30);border:1px solid rgba(255,225,140,.28);box-shadow:0 18px 36px -18px rgba(120,84,20,.8),inset 0 1px 0 rgba(255,255,255,.22)}
+.vdx-hero:after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 35%,rgba(255,255,255,.14) 50%,transparent 65%);transform:translateX(-120%);animation:wpbSw 6s ease-in-out infinite;pointer-events:none}
+.vdx-hi{flex:none;width:58px;height:58px;border-radius:18px;display:grid;place-items:center;background:rgba(255,255,255,.2);border:1px solid rgba(255,236,170,.45)}
+.vdx-ht{flex:1;min-width:220px}.vdx-ht h2{margin:0 0 4px;font-size:1.5rem;color:#fff}.vdx-ht p{margin:0;opacity:.9;font-size:.92rem;line-height:1.6}
+.vdx-ha{position:relative;z-index:1}.vdx-hero .btn-fill{background:#fff;color:#6f4e18;border-color:#fff;box-shadow:0 8px 18px -8px rgba(0,0,0,.4)}
+.vdx-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:16px}
+.vdx-st{display:flex;align-items:center;gap:12px;padding:14px;border-radius:16px;background:var(--card);border:1px solid var(--line);position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s}.vdx-st:hover{transform:translateY(-2px);box-shadow:0 14px 26px -16px var(--c)}
+.vdx-st:before{content:"";position:absolute;inset-inline-start:0;top:0;bottom:0;width:4px;background:var(--c)}
+.vdx-si{flex:none;width:44px;height:44px;border-radius:13px;display:grid;place-items:center;color:var(--c);background:color-mix(in srgb,var(--c) 16%,transparent)}
+.vdx-st b{display:block;font:800 1.45rem var(--fd);line-height:1.1}.vdx-st small{color:var(--muted);font-size:.78rem}
+.vdx-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:14px 0 16px;padding:10px;border-radius:16px;background:var(--card);border:1px solid var(--line)}
+.vdx-search{flex:1 1 220px;display:flex;align-items:center;gap:8px;padding:0 12px;border-radius:12px;background:var(--bg2);border:1px solid var(--line);color:var(--muted)}.vdx-search:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 20%,transparent)}
+.vdx-search input{flex:1;border:0!important;background:transparent!important;min-height:42px;box-shadow:none!important;color:var(--fg);outline:0}
+.vdx-chips{display:flex;gap:6px;flex-wrap:wrap}.vdx-ch{border:1px solid var(--line);background:var(--bg2);color:var(--fg);border-radius:999px;padding:7px 14px;font:600 .82rem var(--fb);cursor:pointer;transition:all .2s}.vdx-ch em{font-style:normal;opacity:.7;margin-inline-start:4px;font-size:.74rem}.vdx-ch:hover{border-color:var(--accent)}.vdx-ch.on{background:var(--accent);color:#1a1405;border-color:var(--accent)}
+.vdx-end{display:flex;gap:8px;align-items:center}.vdx-end select{min-height:40px;border-radius:10px;padding:0 10px}
+.vdx-vw{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}.vdx-vw button{border:0;background:var(--bg2);color:var(--muted);width:38px;height:38px;display:grid;place-items:center;cursor:pointer}.vdx-vw button.on{background:var(--accent);color:#1a1405}
+.vdx-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px}
+.vdx-c{display:flex;flex-direction:column;border-radius:20px;overflow:hidden;background:var(--card);border:1px solid var(--line);transition:transform .25s,box-shadow .25s,border-color .25s;animation:vdxIn .5s calc(var(--i)*.04s) both}
+@keyframes vdxIn{from{opacity:0;transform:translateY(14px)}}
+.vdx-c:hover{transform:translateY(-4px);box-shadow:0 22px 36px -22px rgba(0,0,0,.7);border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+.vdx-th{position:relative;aspect-ratio:16/9;background:#000;overflow:hidden}.vdx-th img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s}.vdx-c:hover .vdx-th img{transform:scale(1.07)}
+.vdx-th:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.35),transparent 35%,rgba(0,0,0,.6));pointer-events:none}
+.vdx-pl{position:absolute;inset:0;z-index:2;display:grid;place-items:center;color:#fff}.vdx-pl span{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.5);backdrop-filter:blur(6px);opacity:0;transform:scale(.7);transition:all .25s}.vdx-c:hover .vdx-pl span{opacity:1;transform:none}
+.vdx-rb,.vdx-vw2,.vdx-at{position:absolute;z-index:3;display:inline-flex;align-items:center;gap:5px;font:700 .74rem var(--fb);color:#fff;padding:4px 10px;border-radius:99px;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.18)}
+.vdx-rb{top:10px;inset-inline-start:10px;max-width:70%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;background:linear-gradient(135deg,rgba(176,143,48,.92),rgba(111,78,24,.92))}.vdx-vw2{bottom:10px;inset-inline-start:10px}.vdx-at{bottom:10px;inset-inline-end:10px;background:rgba(16,185,129,.8)}
+.vdx-bd{padding:14px 14px 6px;flex:1}.vdx-bd h3{margin:0 0 6px;font-size:1.02rem;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.vdx-ds{margin:0 0 10px;color:var(--muted);font-size:.84rem;line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.vdx-tg{display:flex;gap:6px;flex-wrap:wrap}.vdx-tg span{font-size:.72rem;padding:3px 10px;border-radius:99px;background:var(--bg2);border:1px solid var(--line);color:var(--muted)}.vdx-tg span.g{color:var(--accent-text,var(--accent));border-color:color-mix(in srgb,var(--accent) 40%,var(--line))}
+.vdx-ft{display:flex;align-items:center;gap:14px;padding:10px 14px 12px;margin-top:8px;border-top:1px dashed var(--line)}.vdx-s{display:inline-flex;align-items:center;gap:5px;color:var(--muted);font-size:.86rem}.vdx-s b{color:var(--fg)}.vdx-s svg{color:var(--accent)}
+.vdx-ac{margin-inline-start:auto;display:flex;gap:6px}
+.vdx-grid.list{grid-template-columns:1fr;gap:10px}.vdx-grid.list .vdx-c{flex-direction:row;align-items:stretch}.vdx-grid.list .vdx-th{width:230px;aspect-ratio:auto;flex:none}.vdx-grid.list .vdx-bd{padding:14px}.vdx-grid.list .vdx-ft{flex-direction:column;justify-content:center;border-top:0;border-inline-start:1px dashed var(--line);margin:0;align-items:flex-start;gap:8px}.vdx-grid.list .vdx-ac{margin:0}
+.vdx-empty{grid-column:1/-1;text-align:center;padding:40px 16px;color:var(--muted);border:2px dashed var(--line);border-radius:22px;background:var(--card)}.vdx-empty h3{margin:8px 0 4px;color:var(--fg)}
+@media(max-width:1000px){.vdx-stats{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:600px){.vdx-hero{padding:16px}.vdx-stats{grid-template-columns:repeat(2,1fr);gap:8px}.vdx-st{padding:10px;gap:8px}.vdx-si{width:36px;height:36px}.vdx-st b{font-size:1.2rem}.vdx-st:last-child{grid-column:1/-1}.vdx-ha .btn{width:100%}.vdx-grid.list .vdx-c{flex-direction:column}.vdx-grid.list .vdx-th{width:auto;aspect-ratio:16/9}.vdx-grid.list .vdx-ft{flex-direction:row;border-inline-start:0;border-top:1px dashed var(--line)}.vdx-end{width:100%}.vdx-end select{flex:1}}
+@media(prefers-reduced-motion:reduce){.vdx-hero:after,.vdx-c{animation:none}}
 </style>
 </head>
 <body>
@@ -3818,16 +3854,29 @@ const TABS = {
     }
   },
   videos: {
-    skel: () => `<div class="toolbar"><h2 style="flex:1">إدارة الفيديوهات</h2><button class="btn btn-fill ibtn" data-a="vadd">${ico(SI.plus, 17)} إضافة فيديو</button></div><div class="sstats" id="vst"></div>${filterBar()}<div class="toolbar" style="margin-top:12px"><span class="sq">${ico(SI.search, 18)}<input id="vq" placeholder="ابحث في الفيديوهات..." value="${esc(A.vq || "")}"></span></div><div class="agrid" id="vl"></div>`,
-    init: b => { b.onclick = contentAction; bindFilter(b); $("#vq", b).oninput = e => { A.vq = e.target.value; TABS.videos.fill(b); }; },
+    skel: () => `<section class="vdx-hero"><span class="vdx-hi">${ico(SI.play, 30)}</span><div class="vdx-ht"><h2>إدارة الفيديوهات</h2><p>ارفع فيديوهات الشرح، نظّمها في كورسات، وتابع المشاهدات والتقييمات والتعليقات.</p></div><div class="vdx-ha"><button class="btn btn-fill ibtn" data-a="vadd">${ico(SI.plus, 17)} إضافة فيديو</button></div></section>
+      <div class="vdx-stats" id="vst"></div>${filterBar()}
+      <div class="vdx-bar"><label class="vdx-search">${ico(SI.search, 18)}<input id="vq" placeholder="ابحث في عناوين وأوصاف الفيديوهات..." value="${esc(A.vq || "")}"></label><div class="vdx-chips" id="vfc"></div><div class="vdx-end"><select id="vso" aria-label="ترتيب"><option value="new">الأحدث</option><option value="views">الأكثر مشاهدة</option><option value="rate">الأعلى تقييمًا</option><option value="cm">الأكثر تعليقًا</option><option value="az">أبجديًا</option></select><div class="vdx-vw" id="vvw"></div></div></div><div class="vdx-grid" id="vl"></div>`,
+    init: b => {
+      b.onclick = e => { const t = e.target.closest("[data-vf],[data-vv]"); if (t) { if (t.dataset.vf !== undefined) A.vfl = t.dataset.vf; else A.vvw = t.dataset.vv; return TABS.videos.fill(b); } contentAction(e); };
+      bindFilter(b); $("#vq", b).oninput = e => { A.vq = e.target.value; TABS.videos.fill(b); };
+      const so = $("#vso", b); so.value = A.vso || "new"; so.onchange = e => { A.vso = e.target.value; TABS.videos.fill(b); };
+    },
     fill: b => {
-      const all = S.videos, q = (A.vq || "").trim().toLowerCase(), atts = all.reduce((n, v) => n + (v.attachments || []).length, 0), cms = all.reduce((n, v) => n + vstat(v.id).c, 0), inC = all.filter(v => v.courseId).length;
-      $("#vst", b).innerHTML = [["play", "all", all.length, "إجمالي الفيديوهات"], ["layers", "warn", inC, "داخل كورسات"], ["clip", "good", atts, "ملفات شرح"], ["msg", "all", cms, "تعليقات الطلاب"]].map(([i, t, n, l]) => `<div class="sst ${t}"><span class="ssi">${ico(SI[i], 24)}</span><div><b>${n}</b><small>${l}</small></div></div>`).join("");
-      $("#vl", b).innerHTML = S.videos.filter(passFilter).filter(v => !q || (v.title || "").toLowerCase().includes(q)).map(v => { const c = v.courseId && S.courses.find(c => c.id === v.courseId), st = vstat(v.id), na = (v.attachments || []).length;
-        return `<div class="acard vc"><div class="vth"><img loading="lazy" src="https://i.ytimg.com/vi/${esc(v.ytId)}/mqdefault.jpg" alt=""><a class="vplay" href="https://youtu.be/${esc(v.ytId)}" target="_blank" rel="noopener" title="معاينة على يوتيوب" aria-label="معاينة">${ico(SI.play, 30)}</a>${c ? `<span class="vrib">${ico(SI.layers, 13)} ${esc(c.title)}</span>` : ""}${na ? `<span class="vatc">${ico(SI.clip, 13)} ${na}</span>` : ""}</div>
-        <div class="vbd"><h3>${esc(v.title)}</h3>${v.description ? `<p class="sub vds">${esc(v.description)}</p>` : ""}
-        <div class="m"><span class="cch2">${stageLabel(v.stage)}</span><span class="cch2">${sysLabel(v.system)}</span><span class="cch2 g">${gradeLabel(v)}</span></div></div>
-        <div class="vft"><span class="vs" title="عدد المشاهدين">${vwEye(16)}<b>${vFmt(vNum(v.id))}</b></span><span class="vs">${ico(SI.star, 16)}<b>${st.avg}</b></span><span class="vs">${ico(SI.msg, 16)}<b>${st.c}</b></span><span class="ia" style="width:auto;margin-inline-start:auto">${ib("", "vedit", v.id, "edit", "تعديل الفيديو")}${ib("r", "vdel", v.id, "trash", "حذف الفيديو")}</span></div></div>`; }).join("") || `<div class="empty">${ico(SI.play, 34)}<br>لا توجد فيديوهات مطابقة</div>`;
+      const all = S.videos, q = (A.vq || "").trim().toLowerCase(), atts = all.reduce((n, v) => n + (v.attachments || []).length, 0), cms = all.reduce((n, v) => n + vstat(v.id).c, 0), inC = all.filter(v => v.courseId).length, views = all.reduce((n, v) => n + (+vNum(v.id) || 0), 0);
+      const rated = all.map(v => vstat(v.id)).filter(x => +x.avg > 0), avg = rated.length ? (rated.reduce((n, x) => n + +x.avg, 0) / rated.length).toFixed(1) : "—";
+      $("#vst", b).innerHTML = [["play", "#6366f1", all.length, "إجمالي الفيديوهات"], ["layers", "#f59e0b", inC, "داخل كورسات"], ["clip", "#10b981", atts, "ملفات شرح"], ["msg", "#ec4899", cms, "تعليقات الطلاب"], ["star", "#eab308", avg, "متوسط التقييم"]].map(([i, c, n, l]) => `<div class="vdx-st" style="--c:${c}"><span class="vdx-si">${ico(SI[i], 22)}</span><div><b>${n}</b><small>${l}</small></div></div>`).join("");
+      const f = A.vfl || "", w = A.vvw || "grid", fl = [["", "الكل", all.length], ["c", "داخل كورس", inC], ["n", "بدون كورس", all.length - inC], ["a", "بها ملفات", all.filter(v => (v.attachments || []).length).length]];
+      $("#vfc", b).innerHTML = fl.map(([k, t, n]) => `<button class="vdx-ch ${f === k ? "on" : ""}" data-vf="${k}">${t} <em>${n}</em></button>`).join("");
+      $("#vvw", b).innerHTML = `<button class="${w === "grid" ? "on" : ""}" data-vv="grid" aria-label="شبكة" title="شبكة"><svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg></button><button class="${w === "list" ? "on" : ""}" data-vv="list" aria-label="قائمة" title="قائمة"><svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor"><rect x="3" y="4" width="18" height="4" rx="2"/><rect x="3" y="10" width="18" height="4" rx="2"/><rect x="3" y="16" width="18" height="4" rx="2"/></svg></button>`;
+      let list = S.videos.filter(passFilter).filter(v => !q || [v.title, v.description].some(t => (t || "").toLowerCase().includes(q))).filter(v => !f || (f === "c" ? v.courseId : f === "n" ? !v.courseId : (v.attachments || []).length));
+      const so = A.vso || "new", key = { views: v => -(+vNum(v.id) || 0), rate: v => -(+vstat(v.id).avg || 0), cm: v => -vstat(v.id).c };
+      if (key[so]) list = [...list].sort((x, y) => key[so](x) - key[so](y)); else if (so === "az") list = [...list].sort((x, y) => (x.title || "").localeCompare(y.title || "", "ar"));
+      const $g = $("#vl", b); $g.className = "vdx-grid " + (w === "list" ? "list" : "");
+      $g.innerHTML = list.map((v, i) => { const c = v.courseId && S.courses.find(c => c.id === v.courseId), st = vstat(v.id), na = (v.attachments || []).length;
+        return `<article class="vdx-c" style="--i:${Math.min(i, 12)}"><div class="vdx-th"><img loading="lazy" src="https://i.ytimg.com/vi/${esc(v.ytId)}/mqdefault.jpg" alt=""><a class="vdx-pl" href="https://youtu.be/${esc(v.ytId)}" target="_blank" rel="noopener" title="معاينة على يوتيوب" aria-label="معاينة"><span>${ico(SI.play, 26)}</span></a>${c ? `<span class="vdx-rb">${ico(SI.layers, 13)} ${esc(c.title)}</span>` : ""}<span class="vdx-vw2">${vwEye(14)} ${vFmt(vNum(v.id))}</span>${na ? `<span class="vdx-at">${ico(SI.clip, 13)} ${na}</span>` : ""}</div>
+        <div class="vdx-bd"><h3>${esc(v.title)}</h3>${v.description ? `<p class="vdx-ds">${esc(v.description)}</p>` : ""}<div class="vdx-tg"><span>${stageLabel(v.stage)}</span><span>${sysLabel(v.system)}</span><span class="g">${gradeLabel(v)}</span></div></div>
+        <div class="vdx-ft"><span class="vdx-s" title="التقييم">${ico(SI.star, 15)}<b>${st.avg}</b></span><span class="vdx-s" title="التعليقات">${ico(SI.msg, 15)}<b>${st.c}</b></span><span class="vdx-ac">${ib("", "vedit", v.id, "edit", "تعديل الفيديو")}${ib("r", "vdel", v.id, "trash", "حذف الفيديو")}</span></div></article>`; }).join("") || `<div class="vdx-empty">${ico(SI.play, 40)}<h3>لا توجد فيديوهات مطابقة</h3><p>غيّر البحث أو الفلتر، أو أضف فيديو جديد.</p></div>`;
     }
   },
   files: {
