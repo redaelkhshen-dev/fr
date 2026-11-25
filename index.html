@@ -1508,6 +1508,13 @@ body:has(#cr){overflow-x:clip}.crp{overflow-x:clip}
 .cd-mv{display:flex;flex-direction:column;gap:3px}.cd-mv .btn{padding:0 8px;min-height:22px;line-height:1;font-size:.7rem}
 .cd-t{flex:1;min-width:160px;display:flex;flex-direction:column}.cd-t small{color:var(--muted)}
 .cr-live{margin-inline-start:6px;padding:4px 10px;border-radius:99px;background:rgba(250,204,21,.16);color:#facc15;font-weight:800;font-size:.82rem;white-space:nowrap}
+/* ---- أقسام المجموعات (لوحة المدرس) ---- */
+.cd-sec{margin-bottom:14px;padding:14px 16px}.cd-sec.off{opacity:.7}
+.cd-hd{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.cd-hd .cd-t{flex:1;min-width:160px;background:none;border:0;padding:0;text-align:start;font:inherit;color:inherit;cursor:pointer;display:flex;flex-direction:column}.cd-hd .cd-t b{font-size:1.1rem}.cd-hd .cd-t small{color:var(--muted)}
+.cd-chev{background:none;border:0;color:var(--muted);font-size:1.4rem;cursor:pointer;transition:transform .25s}.cd-chev.on{transform:rotate(180deg)}
+.cd-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+.cd-body{margin-top:12px}
 </style>
 </head>
 <body>
@@ -4400,16 +4407,13 @@ document.addEventListener("keydown", e => {
 });
 /* ---- لوحة المدرس: إدارة الكلمات ---- */
 TABS.cards = {
-  skel: () => `<div class="nt-head"><span class="nt-hi">${ico(CARD_IC, 26)}</span><div><h2>بطاقات الكلمات</h2><small>كلمات فرنسية بمعناها بالعربي والفرنسي مع النطق الصوتي والتكرار المتباعد</small></div><div class="acts"><button class="btn btn-fill" data-a="cadd">+ كلمة</button><button class="btn btn-line" data-a="cimp">📥 استيراد مجموعة</button></div></div>
-    <div class="stats" id="cs" style="grid-template-columns:repeat(3,1fr);margin-bottom:14px"></div><div id="cdp"></div><div class="toolbar"><input id="cq" placeholder="بحث..." value="${esc(A.cq2 || "")}"><select id="cd"></select></div><div class="tw" id="cl"></div>`,
-  init: b => { b.onclick = cardAction; $("#cq", b).oninput = e => { A.cq2 = e.target.value; fillTab(); }; $("#cd", b).onchange = e => { A.cd = e.target.value; fillTab(); }; },
+  skel: () => `<div class="nt-head"><span class="nt-hi">${ico(CARD_IC, 26)}</span><div><h2>بطاقات الكلمات</h2><small>كل مجموعة لها قسمها: كلماتها وترتيبها وظهورها وتسميتها وحذفها</small></div><div class="acts"><button class="btn btn-fill" data-a="cadd">+ كلمة</button><button class="btn btn-line" data-a="cimp">📥 استيراد مجموعة</button><button class="btn btn-line" data-a="dnew">+ مجموعة جديدة</button></div></div>
+    <div class="stats" id="cs" style="grid-template-columns:repeat(3,1fr);margin-bottom:14px"></div><div class="toolbar"><input id="cq" placeholder="بحث في كل الكلمات..." value="${esc(A.cq2 || "")}"></div><div id="cdp"></div>`,
+  init: b => { b.onclick = cardAction; $("#cq", b).oninput = e => { A.cq2 = e.target.value; fillTab(); setTimeout(() => { const i = $("#cq"); if (i) { i.focus(); i.setSelectionRange(i.value.length, i.value.length); } }, 0); }; },
   fill: b => {
-    const all = byWritten((S.cards || []).filter(c => c.kind !== "grammar")), decks = [...new Set(all.map(c => c.deck).filter(Boolean))];
-    $("#cs", b).innerHTML = [["إجمالي الكلمات", all.length], ["المجموعات", decks.length], ["بجملة مثال", all.filter(c => c.ex).length]].map(([t, n]) => `<div class="stat"><b>${n}</b><span>${t}</span></div>`).join("");
+    const all = byWritten((S.cards || []).filter(c => c.kind !== "grammar"));
+    $("#cs", b).innerHTML = [["إجمالي الكلمات", all.length], ["المجموعات", adminDecks().length], ["بجملة مثال", all.filter(c => c.ex).length]].map(([t, n]) => `<div class="stat"><b>${n}</b><span>${t}</span></div>`).join("");
     $("#cdp", b).innerHTML = decksPanel();
-    const cd = $("#cd", b); cd.innerHTML = `<option value="">كل المجموعات</option>` + decks.map(d => `<option value="${esc(d)}" ${A.cd === d ? "selected" : ""}>${esc(d)}</option>`).join("");
-    const q = (A.cq2 || "").trim().toLowerCase(), l = all.filter(c => (!A.cd || c.deck === A.cd) && (!q || [c.front, c.back, c.mfr, c.deck, c.pron].some(t => (t || "").toLowerCase().includes(q))));
-    $("#cl", b).innerHTML = `<table><thead><tr><th>الكلمة</th><th>بالعربي</th><th>بالفرنسي</th><th>المجموعة</th><th>المستهدف</th><th></th></tr></thead><tbody>${l.slice(0, 300).map(c => `<tr><td dir="ltr" style="text-align:right"><b>${esc(c.front)}</b>${c.pron ? `<br><small class="ph">${esc(c.pron)}</small>` : ""}</td><td style="max-width:200px;white-space:pre-wrap">${esc(c.back)}</td><td dir="ltr" style="text-align:right;max-width:220px">${esc(c.mfr || "—")}${c.ex ? `<br><small class="ph">${esc(c.ex)}</small>` : ""}</td><td>${esc(c.deck || "—")}</td><td><small>${stageLabel(c.stage)} · ${sysLabel(c.system)}${c.grade && c.grade !== "all" ? " · " + esc(c.grade) : ""}</small></td><td><div class="acts"><button class="btn btn-line btn-sm" data-a="cedit" data-id="${esc(c.id)}">تعديل</button><button class="btn btn-bad btn-sm" data-a="cdel" data-id="${esc(c.id)}">حذف</button></div></td></tr>`).join("") || `<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:32px">لا توجد كلمات — اضغط «+ كلمة» أو «استيراد مجموعة»</td></tr>`}</tbody></table>${l.length > 300 ? `<p class="sub" style="padding:8px">يتم عرض أول 300 من ${l.length}</p>` : ""}`;
   }
 };
 const adminDecks = () => { const names = [...new Set((S.cards || []).filter(c => c.kind !== "grammar").map(c => c.deck || "عام"))]; return deckOrder(names); };
@@ -4427,6 +4431,37 @@ async function deckAction(a, n) {
     else if (a === "dtgt") deckTarget(n);
   } catch (er) { toast("فشل الحفظ: " + (er.code || er.message), "bad"); }
 }
+const chunk = (a, n = 400) => { const o = []; for (let i = 0; i < a.length; i += n) o.push(a.slice(i, i + n)); return o; };
+function deckRename(n) {
+  const isNew = !n, d = deckDoc(n);
+  const m = openModal(`<h2>${isNew ? "مجموعة جديدة" : "تعديل المجموعة"}</h2>${isNew ? `<p class="sub">اكتب اسم المجموعة، وبعدها أضف كلماتها.</p>` : `<p class="sub">تغيير الاسم بيتطبق على كل كلمات المجموعة (${(S.cards || []).filter(c => (c.deck || "عام") === n).length}).</p>`}<div class="alert" id="err" hidden></div>
+    <form id="cf" novalidate><label class="fl">اسم المجموعة<input name="nm" maxlength="50" value="${esc(n)}" placeholder="مثال: Unité 1"></label><div class="mact"><button class="btn btn-fill" id="sb">${isNew ? "إنشاء" : "حفظ"}</button><button type="button" class="btn btn-line" data-close>إلغاء</button></div></form>`);
+  $("#cf", m).addEventListener("submit", async e => {
+    e.preventDefault(); showErr(""); const nn = (new FormData(e.target).get("nm") || "").trim();
+    if (!nn) return showErr("اكتب اسم المجموعة"); if (nn === n) return closeModals();
+    const exists = adminDecks().includes(nn) || deckDoc(nn);
+    if (exists && !confirm(`فيه مجموعة بنفس الاسم "${nn}" — هيتم دمجهم. تكمل؟`)) return;
+    $("#sb", m).disabled = true;
+    try {
+      if (isNew) { await setDoc(doc(db, "cardDecks", deckId(nn)), { name: nn, order: adminDecks().length, stage: "all", system: "all", grade: "all", hidden: false, createdAt: serverTimestamp() }, { merge: true }); }
+      else {
+        for (const part of chunk((S.cards || []).filter(c => (c.deck || "عام") === n))) { const b = writeBatch(db); part.forEach(c => b.update(doc(db, "cards", c.id), { deck: nn })); await b.commit(); }
+        const nb = writeBatch(db); if (!deckDoc(nn)) nb.set(doc(db, "cardDecks", deckId(nn)), { stage: d?.stage || "all", system: d?.system || "all", grade: d?.grade || "all", hidden: !!d?.hidden, order: d?.order ?? 9999, createdAt: serverTimestamp(), name: nn }); if (d) nb.delete(doc(db, "cardDecks", d.id)); await nb.commit();
+        if ((A.cdo || {})[n]) A.cdo = { ...A.cdo, [nn]: true };
+      }
+      closeModals(); toast(isNew ? "تم إنشاء المجموعة" : "تم تغيير اسم المجموعة", "ok");
+    } catch (er) { showErr("فشل الحفظ: " + (er.code || er.message)); $("#sb", m).disabled = false; }
+  });
+}
+async function deckDelete(n) {
+  const list = (S.cards || []).filter(c => (c.deck || "عام") === n), d = deckDoc(n);
+  if (!confirm(`حذف مجموعة "${n}" وكل كلماتها (${list.length} كلمة)؟\nلا يمكن التراجع.`)) return;
+  try {
+    for (const part of chunk(list)) { const b = writeBatch(db); part.forEach(c => b.delete(doc(db, "cards", c.id))); await b.commit(); }
+    if (d) await deleteDoc(doc(db, "cardDecks", d.id));
+    toast("تم حذف المجموعة", "ok");
+  } catch (er) { toast("فشل الحذف: " + (er.code || er.message), "bad"); }
+}
 function deckTarget(n) {
   const d = deckDoc(n) || { stage: "all", system: "all", grade: "all" };
   const m = openModal(`<h2>من يشوف المجموعة؟</h2><p class="sub">${esc(n)}</p><div class="alert" id="err" hidden></div><form id="cf" novalidate>${targetFields(d)}<div class="mact"><button class="btn btn-fill" id="sb">حفظ</button><button type="button" class="btn btn-line" data-close>إلغاء</button></div></form>`);
@@ -4434,23 +4469,36 @@ function deckTarget(n) {
   $("#cf", m).addEventListener("submit", async e => { e.preventDefault(); const f = new FormData(e.target); $("#sb", m).disabled = true; try { await saveDeckOrder(adminDecks(), { [n]: { stage: f.get("stage"), system: f.get("system"), grade: f.get("grade") || "all" } }); closeModals(); toast("تم الحفظ", "ok"); } catch (er) { showErr("فشل الحفظ: " + (er.code || er.message)); $("#sb", m).disabled = false; } });
 }
 function decksPanel() {
-  const names = adminDecks(), cnt = n => (S.cards || []).filter(c => c.kind !== "grammar" && (c.deck || "عام") === n).length;
-  if (!names.length) return "";
-  return `<div class="card cd-panel"><div class="cd-h"><h3 class="ch">ترتيب المجموعات وظهورها للطلاب</h3><small>الترتيب ده هو ترتيب الفصول في رحلة الطالب</small></div>${names.map((n, i) => { const d = deckDoc(n), hid = !!d?.hidden, tg = d && (d.stage !== "all" || d.system !== "all" || (d.grade && d.grade !== "all")); return `<div class="cd-row ${hid ? "off" : ""}"><span class="cd-n">${i + 1}</span><div class="cd-mv"><button class="btn btn-line btn-sm" data-a="dup" data-name="${esc(n)}" ${i ? "" : "disabled"} aria-label="لفوق">▲</button><button class="btn btn-line btn-sm" data-a="ddn" data-name="${esc(n)}" ${i < names.length - 1 ? "" : "disabled"} aria-label="لتحت">▼</button></div><div class="cd-t"><b>${esc(n)}</b><small>${cnt(n)} كلمة · ${tg ? `${stageLabel(d.stage)} · ${sysLabel(d.system)}${d.grade && d.grade !== "all" ? " · " + esc(d.grade) : ""}` : "لكل الطلاب"}</small></div><span class="badge ${hid ? "bad" : "good"}">${hid ? "مخفية" : "ظاهرة"}</span><div class="acts"><button class="btn btn-line btn-sm" data-a="dhide" data-name="${esc(n)}">${hid ? "إظهار" : "إخفاء"}</button><button class="btn btn-line btn-sm" data-a="dtgt" data-name="${esc(n)}">تحديد الطلاب</button><button class="btn btn-line btn-sm" data-a="dview" data-name="${esc(n)}">عرض كلماتها</button></div></div>`; }).join("")}</div>`;
+  const names = adminDecks(), q = (A.cq2 || "").trim().toLowerCase(), all = byWritten((S.cards || []).filter(c => c.kind !== "grammar"));
+  if (!names.length) return `<div class="empty">لا توجد مجموعات بعد — اضغط «+ مجموعة جديدة» أو «+ كلمة» أو «استيراد مجموعة».</div>`;
+  const sections = names.map((n, i) => {
+    const d = deckDoc(n), hid = !!d?.hidden, tg = d && (d.stage !== "all" || d.system !== "all" || (d.grade && d.grade !== "all")), words = all.filter(c => (c.deck || "عام") === n);
+    const l = q ? words.filter(c => [c.front, c.back, c.mfr, c.pron, c.ex].some(t => (t || "").toLowerCase().includes(q))) : words;
+    if (q && !l.length) return "";
+    const open = q ? true : !!(A.cdo || {})[n], nm = esc(n);
+    return `<section class="card cd-sec ${hid ? "off" : ""}"><header class="cd-hd"><span class="cd-n">${i + 1}</span><div class="cd-mv"><button class="btn btn-line btn-sm" data-a="dup" data-name="${nm}" ${i ? "" : "disabled"} aria-label="لفوق">▲</button><button class="btn btn-line btn-sm" data-a="ddn" data-name="${nm}" ${i < names.length - 1 ? "" : "disabled"} aria-label="لتحت">▼</button></div>
+      <button type="button" class="cd-t" data-a="dtog" data-name="${nm}"><b>${nm}</b><small>${words.length} كلمة · ${tg ? `${stageLabel(d.stage)} · ${sysLabel(d.system)}${d.grade && d.grade !== "all" ? " · " + esc(d.grade) : ""}` : "لكل الطلاب"}</small></button><span class="badge ${hid ? "bad" : "good"}">${hid ? "مخفية" : "ظاهرة"}</span><button type="button" class="cd-chev ${open ? "on" : ""}" data-a="dtog" data-name="${nm}" aria-label="فتح">⌄</button></header>
+      <div class="cd-acts"><button class="btn btn-fill btn-sm" data-a="cadd" data-name="${nm}">+ كلمة</button><button class="btn btn-line btn-sm" data-a="cimp" data-name="${nm}">📥 استيراد</button><button class="btn btn-line btn-sm" data-a="dtgt" data-name="${nm}">🎯 تحديد الطلاب</button><button class="btn btn-line btn-sm" data-a="dhide" data-name="${nm}">${hid ? "👁 إظهار" : "🙈 إخفاء"}</button><button class="btn btn-line btn-sm" data-a="drn" data-name="${nm}">✏️ تعديل المجموعة</button><button class="btn btn-bad btn-sm" data-a="ddel" data-name="${nm}">🗑 حذف المجموعة</button></div>
+      ${open ? `<div class="tw cd-body">${l.length ? `<table><thead><tr><th>#</th><th>الكلمة</th><th>بالعربي</th><th>بالفرنسي</th><th></th></tr></thead><tbody>${l.slice(0, 300).map((c, k) => `<tr><td>${k + 1}</td><td dir="ltr" style="text-align:right"><b>${esc(c.front)}</b>${c.pron ? `<br><small class="ph">${esc(c.pron)}</small>` : ""}</td><td style="max-width:200px;white-space:pre-wrap">${esc(c.back)}</td><td dir="ltr" style="text-align:right;max-width:220px">${esc(c.mfr || "—")}${c.ex ? `<br><small class="ph">${esc(c.ex)}</small>` : ""}</td><td><div class="acts"><button class="btn btn-line btn-sm" data-a="cedit" data-id="${esc(c.id)}">تعديل</button><button class="btn btn-bad btn-sm" data-a="cdel" data-id="${esc(c.id)}">حذف</button></div></td></tr>`).join("")}</tbody></table>` : `<div class="empty">المجموعة فاضية — أضف كلمات أو استوردها.</div>`}</div>` : ""}</section>`;
+  }).join("");
+  return sections || `<div class="empty">لا توجد نتائج للبحث.</div>`;
 }
 async function cardAction(e) {
   const btn = e.target.closest("[data-a]"); if (!btn || btn.tagName === "A") return; const a = btn.dataset.a, c = (S.cards || []).find(x => x.id === btn.dataset.id);
   if (["dup", "ddn", "dhide", "dtgt"].includes(a)) return deckAction(a, btn.dataset.name);
-  if (a === "dview") { A.cd = btn.dataset.name; fillTab(); return $("#cl")?.scrollIntoView({ behavior: "smooth" }); }
-  if (a === "cadd") return cardModal(null);
-  if (a === "cimp") return cardImport();
+  if (a === "dtog") { A.cdo = { ...(A.cdo || {}), [btn.dataset.name]: !(A.cdo || {})[btn.dataset.name] }; return fillTab(); }
+  if (a === "drn") return deckRename(btn.dataset.name);
+  if (a === "ddel") return deckDelete(btn.dataset.name);
+  if (a === "dnew") return deckRename("");
+  if (a === "cadd") return cardModal(null, btn.dataset.name);
+  if (a === "cimp") return cardImport(btn.dataset.name);
   if (a === "cedit" && c) return cardModal(c);
   if (a === "cdel" && c) { if (!confirm(`حذف الكلمة "${c.front}"؟`)) return; try { await deleteDoc(doc(db, "cards", c.id)); toast("تم الحذف", "ok"); } catch (er) { toast("فشل الحذف", "bad"); } }
 }
 const deckList = () => `<datalist id="dkl">${[...new Set((S.cards || []).map(c => c.deck).filter(Boolean))].map(d => `<option value="${esc(d)}">`).join("")}</datalist>`;
-function cardModal(c) {
+function cardModal(c, preset) {
   const m = openModal(`<h2>${c ? "تعديل كلمة" : "إضافة كلمة"}</h2><div class="alert" id="err" hidden></div>
-    <form id="cf" novalidate><label class="fl">المجموعة<input name="deck" list="dkl" maxlength="50" placeholder="مثال: Unité 1" value="${esc(c?.deck)}"></label>${deckList()}
+    <form id="cf" novalidate><label class="fl">المجموعة<input name="deck" list="dkl" maxlength="50" placeholder="مثال: Unité 1" value="${esc(c ? c.deck : preset)}"></label>${deckList()}
     <label class="fl">الكلمة بالفرنسية<input name="front" dir="ltr" maxlength="120" value="${esc(c?.front)}"></label>
     <label class="fl">النطق بالعربي (اختياري)<input name="pron" dir="rtl" maxlength="80" placeholder="مثال: بونجور" value="${esc(c?.pron)}"></label>
     <label class="fl">المعنى بالعربي<input name="back" dir="rtl" maxlength="300" value="${esc(c?.back)}"></label>
@@ -4467,9 +4515,9 @@ function cardModal(c) {
     catch (er) { showErr("فشل الحفظ: " + (er.code || er.message)); $("#sb", m).disabled = false; }
   });
 }
-function cardImport() {
+function cardImport(preset) {
   const m = openModal(`<h2>استيراد مجموعة كلمات</h2><div class="alert" id="err" hidden></div>
-    <form id="cf" novalidate><label class="fl">المجموعة<input name="deck" list="dkl" maxlength="50" placeholder="مثال: Unité 1"></label>${deckList()}
+    <form id="cf" novalidate><label class="fl">المجموعة<input name="deck" list="dkl" maxlength="50" placeholder="مثال: Unité 1" value="${esc(preset)}"></label>${deckList()}
     <label class="fl">كل كلمة في سطر، والأعمدة مفصولة بـ | (أو الصقها من Excel):<br><small style="color:var(--muted)">الفرنسي | المعنى بالعربي | المعنى بالفرنسي | النطق | جملة مثال | ترجمة المثال</small>
     <textarea name="rows" dir="auto" rows="9" placeholder="bonjour | مرحبًا | salutation du matin | بونجور | Bonjour, comment ça va ? | مرحبًا، كيف حالك؟&#10;merci | شكرًا | mot de gratitude | ميرسي"></textarea></label>${targetFields()}
     <p class="sub" id="cim" style="font-size:.84rem"></p><div class="mact"><button class="btn btn-fill" id="sb">استيراد</button><button type="button" class="btn btn-line" data-close>إلغاء</button></div></form>`, true);
