@@ -1623,6 +1623,16 @@ html[data-theme=light] .cr-gb i:after{background:repeating-linear-gradient(115de
 html[data-theme=light] .cr-gb{background:rgba(255,255,255,.28);box-shadow:inset 0 1px 3px rgba(120,10,50,.3)}
 html[data-theme=light] .cr-pc,html[data-theme=light] .cr-goal .cr-au,html[data-theme=light] .cr-goal .cr-gact select{background:rgba(255,255,255,.2)!important;border-color:rgba(255,244,228,.4)!important}
 html[data-theme=light] .cr-start:disabled{background:rgba(255,244,228,.85);color:#a8204f;box-shadow:0 6px 0 rgba(120,10,50,.25)}
+/* ---- أيقونات المستويات ---- */
+.cr-ic{overflow:hidden;transition:transform .3s}.cr-node:hover .cr-ic{transform:scale(1.07) rotate(-3deg)}
+.cr-ic.has{padding:0;background:#fff;box-shadow:inset 0 0 0 3px rgba(255,255,255,.9),0 6px 14px -4px rgba(0,0,0,.4)}
+.cr-ic img{width:100%;height:100%;object-fit:cover;display:block;border-radius:50%}
+.cr-ic:not(.has){animation:icBob 4s ease-in-out infinite}@keyframes icBob{50%{transform:translateY(-3px)}}
+.cr-ic:after{content:"";position:absolute;inset:0;background:linear-gradient(120deg,transparent 35%,rgba(255,255,255,.35) 50%,transparent 65%);transform:translateX(-120%);animation:icSh 5s ease-in-out infinite;pointer-events:none}@keyframes icSh{0%,60%{transform:translateX(-120%)}100%{transform:translateX(120%)}}
+.cd-ic{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-size:1.5rem;background:var(--bg2);border:1px solid var(--line);overflow:hidden;flex:none}.cd-ic img{width:100%;height:100%;object-fit:cover}
+.ic-pv{display:grid;place-items:center;margin:6px 0 12px}.ic-pv .cr-ic{animation:none}
+.ic-pk{display:flex;flex-wrap:wrap;gap:6px;margin:-4px 0 12px}.ic-pk button{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--bg2);font-size:1.2rem;cursor:pointer}.ic-pk button:hover{border-color:var(--accent)}
+@media(prefers-reduced-motion:reduce){.cr-ic,.cr-ic:after{animation:none!important}}
 </style>
 </head>
 <body>
@@ -4412,6 +4422,9 @@ function speak(t, slow) {
 function preSpeak(t) { if (!t) return; const url = ttsUrl(t, false); if (_pre.has(url) || _pre.size > 12) return; try { const a = new Audio(url); a.preload = "auto"; a.load(); _pre.set(url, a); } catch {} }
 const spkBtns = t => (t) ? `<span class="spk"><button type="button" class="spk-b" data-say="${esc(t)}" aria-label="نطق">${ico(SPK, 22)}</button><button type="button" class="spk-b slow" data-say="${esc(t)}" data-slow="1" aria-label="نطق بطيء" title="نطق بطيء">🐢</button></span>` : "";
 const deckDoc = n => (S.cardDecks || []).find(d => d.name === n);
+const DK_ICONS = [[/se pr[ée]senter|تعارف|تقديم/i, "🙋"], [/salut|bonjour|تحي|مرحب/i, "👋"], [/num[ée]r|nombre|chiffre|أرقام|ارقام|عدد/i, "🔢"], [/pronom|ضمائر|ضمير/i, "👤"], [/couleur|لون|ألوان|الوان/i, "🎨"], [/famille|عائل|أسر|اسر/i, "👨‍👩‍👧"], [/restaurant|nourriture|manger|aliment|cuisine|طعام|أكل|اكل|مطعم/i, "🍽️"], [/fruit|l[ée]gume|فواك|خضار/i, "🍎"], [/animal|حيوان/i, "🦁"], [/corps|جسم|جسد/i, "🧍"], [/maison|بيت|منزل/i, "🏠"], [/[ée]cole|classe|مدرس|فصل|دراس/i, "🏫"], [/travail|m[ée]tier|profession|مهن|وظائف|عمل/i, "💼"], [/temps|heure|jour|mois|semaine|date|وقت|ساعة|أيام|ايام|شهور/i, "⏰"], [/m[ée]t[ée]o|saison|طقس|فصول/i, "⛅"], [/v[êe]tement|ملابس|لبس/i, "👕"], [/voyage|transport|ville|direction|سفر|مواصلات|مدين|اتجاه/i, "✈️"], [/verbe|conjug|فعل|أفعال|افعال/i, "⚡"], [/adjectif|صفات|صفة/i, "✨"], [/question|interrog|سؤال|أسئلة|اسئلة/i, "❓"], [/pr[ée]sent\b|pass[ée]|futur|مضارع|ماضي|مستقبل/i, "🕰️"], [/article|أدوات|ادوات|أداة/i, "🔖"], [/politesse|courtoisie|أدب|ادب/i, "🤝"], [/sport|رياض/i, "⚽"], [/sant[ée]|m[ée]decin|صح|مرض|طبيب/i, "🩺"], [/achat|magasin|shopping|تسوق|شراء/i, "🛍️"], [/t[ée]l[ée]phone|هاتف|تليفون/i, "📱"], [/musique|موسيق/i, "🎵"], [/nature|طبيع/i, "🌿"], [/pays|nationalit|دول|بلاد|جنسي/i, "🌍"]];
+const deckEmoji = (n, i = 0) => { const d = deckDoc(n); if (d?.icon) return d.icon; const h = DK_ICONS.find(([r]) => r.test(n)); return h ? h[1] : CEMO[i % CEMO.length]; };
+const deckIconHTML = (n, i = 0) => { const d = deckDoc(n); return d?.img ? `<img src="${esc(d.img)}" alt="" loading="lazy" decoding="async">` : deckEmoji(n, i); };
 const deckOk = n => { const d = deckDoc(n || "عام"); return !d || (!d.hidden && fits({ stage: d.stage || "all", system: d.system || "all", grade: d.grade || "all" }, S.student)); };
 const deckOrder = names => { const idx = new Map(names.map((n, i) => [n, i])); return names.slice().sort((a, b) => ((deckDoc(a)?.order ?? 9999) - (deckDoc(b)?.order ?? 9999)) || idx.get(a) - idx.get(b)); };
 const ordOf = c => c.ord ?? (c.createdAt?.toMillis ? c.createdAt.toMillis() : 0);
@@ -4487,7 +4500,7 @@ function paintCards() {
     <h2 class="cr-h">رحلتك في الكلمات</h2>
     <div class="cr-map" style="height:${decks.length * H + 20}px"><svg class="cr-path" viewBox="0 0 100 ${decks.length * H + 20}" preserveAspectRatio="none" aria-hidden="true"><path d="${path}" vector-effect="non-scaling-stroke"/></svg>
     ${decks.map((d, i) => { const l = all.filter(c => (c.deck || "عام") === d), mt = l.filter(c => m[c.id] && m[c.id][0] >= 2).length, du = l.filter(c => m[c.id] && m[c.id][1] <= Date.now()).length, fr = l.filter(c => !m[c.id]).length, p = Math.round(mt / l.length * 100), pal = CPAL[i % CPAL.length];
-      return `<button type="button" class="cr-node ${p === 100 ? "done" : ""}" data-deck="${esc(d)}" style="left:${pts[i][0]}%;top:${pts[i][1] - 54}px;--c1:${pal[0]};--c2:${pal[1]};--p:${p}"><span class="cr-ring"><span class="cr-ic">${CEMO[i % CEMO.length]}</span>${p === 100 ? `<em class="cr-ck">${ico(CIC.good, 16)}</em>` : ""}${du ? `<em class="cr-bd">${du}</em>` : ""}</span><b>${esc(d)}</b><small>${p === 100 ? "مكتملة ✓" : `${mt}/${l.length} مكتملة${fr ? ` · ${fr} جديدة` : ""}`}</small></button>`; }).join("")}</div>${hardTable(all, m)}`;
+      return `<button type="button" class="cr-node ${p === 100 ? "done" : ""}" data-deck="${esc(d)}" style="left:${pts[i][0]}%;top:${pts[i][1] - 54}px;--c1:${pal[0]};--c2:${pal[1]};--p:${p}"><span class="cr-ring"><span class="cr-ic ${deckDoc(d)?.img ? "has" : ""}">${deckIconHTML(d, i)}</span>${p === 100 ? `<em class="cr-ck">${ico(CIC.good, 16)}</em>` : ""}${du ? `<em class="cr-bd">${du}</em>` : ""}</span><b>${esc(d)}</b><small>${p === 100 ? "مكتملة ✓" : `${mt}/${l.length} مكتملة${fr ? ` · ${fr} جديدة` : ""}`}</small></button>`; }).join("")}</div>${hardTable(all, m)}`;
   $$("[data-deck]", b).forEach(x => x.onclick = () => { CR.deck = x.dataset.deck; const s2 = crStats(); if (!s2.due.length && !s2.fresh.length) { startSession(true); } else startSession(30); });
   $$("[data-cu]", b).forEach(el => countTo(el, +el.dataset.cu));
   const nn = $("#cnn", b); nn.onchange = e => { CR.newN = +e.target.value; paintCards(); };
@@ -4584,6 +4597,34 @@ async function deckAction(a, n) {
   } catch (er) { toast("فشل الحفظ: " + (er.code || er.message), "bad"); }
 }
 const chunk = (a, n = 400) => { const o = []; for (let i = 0; i < a.length; i += n) o.push(a.slice(i, i + n)); return o; };
+const resizeImg = (file, px = 320) => new Promise((ok, bad) => { const im = new Image(), u = URL.createObjectURL(file); im.onload = () => { const c = document.createElement("canvas"); c.width = c.height = px; const x = c.getContext("2d"), r = Math.min(im.width, im.height); x.drawImage(im, (im.width - r) / 2, (im.height - r) / 2, r, r, 0, 0, px, px); URL.revokeObjectURL(u); c.toBlob(b => b ? ok(b) : bad(new Error("img")), "image/jpeg", .88); }; im.onerror = () => { URL.revokeObjectURL(u); bad(new Error("img")); }; im.src = u; });
+function deckIcon(n) {
+  const d = deckDoc(n), i = adminDecks().indexOf(n), auto = (() => { const h = DK_ICONS.find(([r]) => r.test(n)); return h ? h[1] : CEMO[i % CEMO.length]; })(), picks = ["👋", "🔢", "👤", "🎨", "👨‍👩‍👧", "🍽️", "🏠", "🏫", "💼", "⏰", "✈️", "⚡", "❓", "🌍", "🛍️", "🩺", "⚽", "🎵", "🌟", "🚀"];
+  const m = openModal(`<h2>أيقونة «${esc(n)}»</h2><p class="sub">اختر إيموجي، أو ارفع صورة (بتتقص مربعة وتتصغّر تلقائيًا). لو تركتها فاضية بتتحدد من اسم المجموعة (${auto}).</p><div class="alert" id="err" hidden></div>
+    <form id="cf" novalidate><div class="ic-pv" id="pv"><span class="cr-ic ${d?.img ? "has" : ""}" style="--c1:#f59e0b;--c2:#f97316">${deckIconHTML(n, i)}</span></div>
+      <label class="fl">إيموجي<input name="ic" maxlength="8" value="${esc(d?.icon || "")}" placeholder="${auto}"></label><div class="ic-pk">${picks.map(p => `<button type="button" data-p="${p}">${p}</button>`).join("")}</div>
+      <label class="fl">صورة (اختياري)<input type="file" name="f" accept="image/*"></label>${d?.img ? `<label class="chk"><input type="checkbox" name="rm"> إزالة الصورة الحالية</label>` : ""}
+      <div class="pbar" id="pg" hidden><i style="width:0"></i></div><div class="mact"><button class="btn btn-fill" id="sb">حفظ</button><button type="button" class="btn btn-line" data-close>إلغاء</button></div></form>`);
+  $$("[data-p]", m).forEach(b => b.onclick = () => { m.querySelector("[name=ic]").value = b.dataset.p; });
+  m.querySelector("[name=f]").onchange = e => { const f = e.target.files[0]; if (f) $("#pv .cr-ic", m).innerHTML = `<img src="${URL.createObjectURL(f)}" alt="">`, $("#pv .cr-ic", m).classList.add("has"); };
+  $("#cf", m).addEventListener("submit", async e => {
+    e.preventDefault(); showErr(""); const f = new FormData(e.target), file = f.get("f"), ic = (f.get("ic") || "").trim(), rm = f.get("rm");
+    $("#sb", m).disabled = true;
+    try {
+      const upd = { name: n, icon: ic }; let oldPath = "";
+      if (file && file.size) {
+        if (!file.type.startsWith("image/")) throw new Error("الملف لازم يكون صورة");
+        const blob = await resizeImg(file), path = `files/deckicon_${deckId(n).slice(0, 40)}_${Date.now()}.jpg`; $("#pg", m).hidden = false;
+        await new Promise((ok, bad) => { const t = uploadBytesResumable(ref(storage, path), blob, { contentType: "image/jpeg" }); t.on("state_changed", s => { $("#pg i", m).style.width = Math.round(s.bytesTransferred / s.totalBytes * 100) + "%"; }, bad, ok); });
+        upd.img = await getDownloadURL(ref(storage, path)); upd.imgPath = path; oldPath = d?.imgPath || "";
+      } else if (rm && d?.img) { upd.img = ""; upd.imgPath = ""; oldPath = d.imgPath || ""; }
+      if (!d) Object.assign(upd, { order: Math.max(0, i), stage: "all", system: "all", grade: "all", hidden: false, createdAt: serverTimestamp() });
+      await setDoc(doc(db, "cardDecks", deckId(n)), upd, { merge: true });
+      if (oldPath) { try { await deleteObject(ref(storage, oldPath)); } catch { } }
+      closeModals(); toast("تم حفظ الأيقونة", "ok");
+    } catch (er) { showErr("فشل الحفظ: " + (er.code || er.message)); $("#sb", m).disabled = false; }
+  });
+}
 function deckRename(n) {
   const isNew = !n, d = deckDoc(n);
   const m = openModal(`<h2>${isNew ? "مجموعة جديدة" : "تعديل المجموعة"}</h2>${isNew ? `<p class="sub">اكتب اسم المجموعة، وبعدها أضف كلماتها.</p>` : `<p class="sub">تغيير الاسم بيتطبق على كل كلمات المجموعة (${(S.cards || []).filter(c => (c.deck || "عام") === n).length}).</p>`}<div class="alert" id="err" hidden></div>
@@ -4598,7 +4639,7 @@ function deckRename(n) {
       if (isNew) { await setDoc(doc(db, "cardDecks", deckId(nn)), { name: nn, order: adminDecks().length, stage: "all", system: "all", grade: "all", hidden: false, createdAt: serverTimestamp() }, { merge: true }); }
       else {
         for (const part of chunk((S.cards || []).filter(c => (c.deck || "عام") === n))) { const b = writeBatch(db); part.forEach(c => b.update(doc(db, "cards", c.id), { deck: nn })); await b.commit(); }
-        const nb = writeBatch(db); if (!deckDoc(nn)) nb.set(doc(db, "cardDecks", deckId(nn)), { stage: d?.stage || "all", system: d?.system || "all", grade: d?.grade || "all", hidden: !!d?.hidden, order: d?.order ?? 9999, createdAt: serverTimestamp(), name: nn }); if (d) nb.delete(doc(db, "cardDecks", d.id)); await nb.commit();
+        const nb = writeBatch(db); if (!deckDoc(nn)) nb.set(doc(db, "cardDecks", deckId(nn)), { stage: d?.stage || "all", system: d?.system || "all", grade: d?.grade || "all", hidden: !!d?.hidden, order: d?.order ?? 9999, createdAt: serverTimestamp(), name: nn, ...(d?.icon ? { icon: d.icon } : {}), ...(d?.img ? { img: d.img, imgPath: d.imgPath || "" } : {}) }); if (d) nb.delete(doc(db, "cardDecks", d.id)); await nb.commit();
         if ((A.cdo || {})[n]) A.cdo = { ...A.cdo, [nn]: true };
       }
       closeModals(); toast(isNew ? "تم إنشاء المجموعة" : "تم تغيير اسم المجموعة", "ok");
@@ -4628,9 +4669,9 @@ function decksPanel() {
     const l = q ? words.filter(c => [c.front, c.back, c.mfr, c.pron, c.ex].some(t => (t || "").toLowerCase().includes(q))) : words;
     if (q && !l.length) return "";
     const open = q ? true : !!(A.cdo || {})[n], nm = esc(n);
-    return `<section class="card cd-sec ${hid ? "off" : ""}"><header class="cd-hd"><span class="cd-n">${i + 1}</span><div class="cd-mv"><button class="btn btn-line btn-sm" data-a="dup" data-name="${nm}" ${i ? "" : "disabled"} aria-label="لفوق">▲</button><button class="btn btn-line btn-sm" data-a="ddn" data-name="${nm}" ${i < names.length - 1 ? "" : "disabled"} aria-label="لتحت">▼</button></div>
+    return `<section class="card cd-sec ${hid ? "off" : ""}"><header class="cd-hd"><span class="cd-n">${i + 1}</span><span class="cd-ic ${d?.img ? "has" : ""}">${deckIconHTML(n, i)}</span><div class="cd-mv"><button class="btn btn-line btn-sm" data-a="dup" data-name="${nm}" ${i ? "" : "disabled"} aria-label="لفوق">▲</button><button class="btn btn-line btn-sm" data-a="ddn" data-name="${nm}" ${i < names.length - 1 ? "" : "disabled"} aria-label="لتحت">▼</button></div>
       <button type="button" class="cd-t" data-a="dtog" data-name="${nm}"><b>${nm}</b><small>${words.length} كلمة · ${tg ? `${stageLabel(d.stage)} · ${sysLabel(d.system)}${d.grade && d.grade !== "all" ? " · " + esc(d.grade) : ""}` : "لكل الطلاب"}</small></button><span class="badge ${hid ? "bad" : "good"}">${hid ? "مخفية" : "ظاهرة"}</span><button type="button" class="cd-chev ${open ? "on" : ""}" data-a="dtog" data-name="${nm}" aria-label="فتح">⌄</button></header>
-      <div class="cd-acts"><button class="btn btn-fill btn-sm" data-a="cadd" data-name="${nm}">+ كلمة</button><button class="btn btn-line btn-sm" data-a="cimp" data-name="${nm}">📥 استيراد</button><button class="btn btn-line btn-sm" data-a="dtgt" data-name="${nm}">🎯 تحديد الطلاب</button><button class="btn btn-line btn-sm" data-a="dhide" data-name="${nm}">${hid ? "👁 إظهار" : "🙈 إخفاء"}</button><button class="btn btn-line btn-sm" data-a="drn" data-name="${nm}">✏️ تعديل المجموعة</button><button class="btn btn-bad btn-sm" data-a="ddel" data-name="${nm}">🗑 حذف المجموعة</button></div>
+      <div class="cd-acts"><button class="btn btn-fill btn-sm" data-a="cadd" data-name="${nm}">+ كلمة</button><button class="btn btn-line btn-sm" data-a="cimp" data-name="${nm}">📥 استيراد</button><button class="btn btn-line btn-sm" data-a="dtgt" data-name="${nm}">🎯 تحديد الطلاب</button><button class="btn btn-line btn-sm" data-a="dhide" data-name="${nm}">${hid ? "👁 إظهار" : "🙈 إخفاء"}</button><button class="btn btn-line btn-sm" data-a="dico" data-name="${nm}">🖼 الأيقونة</button><button class="btn btn-line btn-sm" data-a="drn" data-name="${nm}">✏️ تعديل المجموعة</button><button class="btn btn-bad btn-sm" data-a="ddel" data-name="${nm}">🗑 حذف المجموعة</button></div>
       ${open ? `<div class="tw cd-body">${l.length ? `<table><thead><tr><th>#</th><th>الكلمة</th><th>بالعربي</th><th>بالفرنسي</th><th></th></tr></thead><tbody>${l.slice(0, 300).map((c, k) => `<tr><td>${k + 1}</td><td dir="ltr" style="text-align:right"><b>${esc(c.front)}</b>${c.pron ? `<br><small class="ph">${esc(c.pron)}</small>` : ""}</td><td style="max-width:200px;white-space:pre-wrap">${esc(c.back)}</td><td dir="ltr" style="text-align:right;max-width:220px">${esc(c.mfr || "—")}${c.ex ? `<br><small class="ph">${esc(c.ex)}</small>` : ""}</td><td><div class="acts"><button class="btn btn-line btn-sm" data-a="cedit" data-id="${esc(c.id)}">تعديل</button><button class="btn btn-bad btn-sm" data-a="cdel" data-id="${esc(c.id)}">حذف</button></div></td></tr>`).join("")}</tbody></table>` : `<div class="empty">المجموعة فاضية — أضف كلمات أو استوردها.</div>`}</div>` : ""}</section>`;
   }).join("");
   return sections || `<div class="empty">لا توجد نتائج للبحث.</div>`;
@@ -4639,6 +4680,7 @@ async function cardAction(e) {
   const btn = e.target.closest("[data-a]"); if (!btn || btn.tagName === "A") return; const a = btn.dataset.a, c = (S.cards || []).find(x => x.id === btn.dataset.id);
   if (["dup", "ddn", "dhide", "dtgt"].includes(a)) return deckAction(a, btn.dataset.name);
   if (a === "dtog") { A.cdo = { ...(A.cdo || {}), [btn.dataset.name]: !(A.cdo || {})[btn.dataset.name] }; return fillTab(); }
+  if (a === "dico") return deckIcon(btn.dataset.name);
   if (a === "drn") return deckRename(btn.dataset.name);
   if (a === "ddel") return deckDelete(btn.dataset.name);
   if (a === "dnew") return deckRename("");
