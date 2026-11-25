@@ -1581,6 +1581,27 @@ body:has(#cr){overflow-x:clip}.crp{overflow-x:clip}
  .cr-start{padding:11px 14px;font-size:.95rem;min-width:0}
  .cr-goal .cr-au,.cr-goal .cr-gact select{padding:6px 12px;min-height:34px;font-size:.82rem}
 }
+/* ---- احتفال المستوى الجديد ---- */
+.lv-ov{position:fixed;inset:0;z-index:300;display:grid;place-items:center;padding:20px;background:rgba(10,8,2,.72);-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);animation:lvFade .3s both}.lv-ov.out{animation:lvFade .25s reverse both}
+@keyframes lvFade{from{opacity:0}}
+.lv-card{width:min(340px,100%);background:#fff;color:#1c1c28;border-radius:30px;padding:26px 22px 24px;text-align:center;box-shadow:0 40px 80px -20px rgba(0,0,0,.6);animation:lvPop .6s cubic-bezier(.2,1.3,.4,1) both;position:relative;overflow:hidden}
+@keyframes lvPop{from{transform:translateY(40px) scale(.8);opacity:0}}
+.lv-stage{position:relative;height:210px;display:grid;place-items:center}
+.lv-medal{width:170px;height:195px;filter:drop-shadow(0 14px 18px rgba(120,80,0,.35));animation:lvDrop .9s cubic-bezier(.2,1.4,.4,1) .15s both,lvBob 3.2s ease-in-out 1.1s infinite;overflow:visible}
+@keyframes lvDrop{from{transform:translateY(-120px) scale(.4) rotate(-30deg);opacity:0}60%{opacity:1}}
+@keyframes lvBob{50%{transform:translateY(-6px)}}
+.lv-rb{transform-box:fill-box;transform-origin:50% 0;animation:lvSw 3s ease-in-out 1s infinite}.lv-rb.r{animation-delay:1.3s;animation-direction:reverse}
+@keyframes lvSw{50%{transform:rotate(4deg)}}
+.lv-star{transform-box:fill-box;transform-origin:center;animation:lvTw 2s ease-in-out 1s infinite}@keyframes lvTw{50%{transform:scale(1.12) rotate(8deg)}}
+.lv-shine{animation:lvSh 3s ease-in-out 1.2s infinite}@keyframes lvSh{0%{transform:skewX(-20deg) translateX(0)}55%,100%{transform:skewX(-20deg) translateX(420px)}}
+.lv-n{position:absolute;top:50%;margin-top:-36px;font:900 1.15rem var(--fd);color:#a8620a;background:#fff3c4;border:3px solid #ffb02e;border-radius:50%;width:34px;height:34px;display:grid;place-items:center;transform:translateY(46px);animation:lvPop .5s 1s both}
+.lv-c{position:absolute;top:50%;left:50%;width:9px;height:9px;margin:-5px;background:var(--col);border-radius:2px;opacity:0;animation:lvBurst 1.3s cubic-bezier(.1,.8,.3,1) calc(.5s + var(--d)) both}.lv-c.k1{border-radius:50%;background:none;border:3px solid var(--col)}.lv-c.k2{clip-path:polygon(50% 0,100% 100%,0 100%);border-radius:0}
+@keyframes lvBurst{0%{opacity:1;transform:rotate(var(--a)) translateY(0)}100%{opacity:0;transform:rotate(var(--a)) translateY(-120px) rotate(300deg)}}
+.lv-sp{position:absolute;animation:lvSp 1.6s ease-in-out var(--d) infinite;opacity:0}@keyframes lvSp{0%,100%{opacity:0;transform:scale(.4) rotate(0)}50%{opacity:1;transform:scale(1) rotate(30deg)}}
+.lv-card h2{margin:6px 0 4px;font:800 1.7rem var(--fd);animation:lvUp .5s .7s both}.lv-card p{margin:0 0 18px;color:#6b7280;line-height:1.7;animation:lvUp .5s .85s both}.lv-card p b{color:#4f46e5;font-size:1.2rem}.lv-card small{color:#8a93a6}
+@keyframes lvUp{from{transform:translateY(14px);opacity:0}}
+.lv-go{border:0;cursor:pointer;width:100%;padding:14px;border-radius:999px;font:800 1.05rem var(--fb);color:#fff;background:linear-gradient(135deg,#6d5bf0,#4f46e5);box-shadow:0 10px 22px -8px rgba(79,70,229,.7);animation:lvUp .5s 1s both;transition:transform .15s}.lv-go:hover{transform:translateY(-2px)}.lv-go:active{transform:scale(.97)}
+@media(prefers-reduced-motion:reduce){.lv-medal,.lv-rb,.lv-star,.lv-shine,.lv-sp,.lv-c{animation:none!important}.lv-sp,.lv-c{display:none}}
 </style>
 </head>
 <body>
@@ -4380,6 +4401,34 @@ function crStats(pool = crPool()) {
   const m = srsRec().m || {}, now = Date.now(), due = pool.filter(c => m[c.id] && m[c.id][1] <= now), fresh = pool.filter(c => !m[c.id]), mast = pool.filter(c => m[c.id] && m[c.id][0] >= 5);
   return { pool, due, fresh, mast };
 }
+
+/* ---- احتفال الترقية لمستوى جديد ---- */
+const lvlOf = M => Math.floor(M / 10) + 1;
+function medalSvg() {
+  let d = ""; for (let i = 0; i <= 160; i++) { const t = i / 160 * Math.PI * 2, r = 86 + 8 * Math.cos(t * 10); d += (i ? "L" : "M") + (100 + r * Math.cos(t)).toFixed(1) + " " + (100 + r * Math.sin(t)).toFixed(1); }
+  return `<svg class="lv-medal" viewBox="0 0 200 230" aria-hidden="true"><defs><linearGradient id="lvg1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd966"/><stop offset="1" stop-color="#ffb02e"/></linearGradient><linearGradient id="lvg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffcb52"/><stop offset="1" stop-color="#f59e0b"/></linearGradient><linearGradient id="lvr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6d5bf0"/><stop offset="1" stop-color="#4338ca"/></linearGradient></defs>
+    <g class="lv-rb l"><path d="M52 150 L28 222 L66 204 L88 228 L104 150Z" fill="url(#lvr)"/></g><g class="lv-rb r"><path d="M148 150 L172 222 L134 204 L112 228 L96 150Z" fill="url(#lvr)"/></g>
+    <path d="${d}Z" fill="url(#lvg1)"/><circle cx="100" cy="100" r="62" fill="#ffb02e" opacity=".55"/><circle cx="100" cy="100" r="54" fill="url(#lvg2)"/>
+    <path class="lv-star" d="M100 66l9.8 20.2 22.2 3.2-16.1 15.6 3.8 22.1L100 116.600l-19.7 10.500 3.8-22.100L68 89.400l22.200-3.200z" fill="#ffefb8"/>
+    <clipPath id="lvc"><path d="${d}Z"/></clipPath><rect class="lv-shine" x="-60" y="0" width="40" height="200" fill="rgba(255,255,255,.55)" clip-path="url(#lvc)" transform="skewX(-20)"/></svg>`;
+}
+function levelUp(lvl, M) {
+  const ov = document.createElement("div"); ov.className = "lv-ov";
+  const bits = Array.from({ length: 16 }, (_, i) => { const a = i * 22.5, k = i % 4, col = ["#ff6b6b", "#ffd43b", "#8b5cf6", "#4f46e5"][k]; return `<i class="lv-c k${k}" style="--a:${a}deg;--d:${(i % 5) * .08}s;--col:${col}"></i>`; }).join("");
+  const sp = [[8, 20], [86, 12], [90, 62], [10, 70]].map(([x, y], i) => `<svg class="lv-sp" style="left:${x}%;top:${y}%;--d:${i * .35}s" viewBox="0 0 40 40" width="38" height="38"><g stroke="${i % 2 ? "#ffd43b" : "#ff6b6b"}" stroke-width="2.4" stroke-linecap="round">${[0, 45, 90, 135, 180, 225, 270, 315].map(a => `<line x1="20" y1="8" x2="20" y2="2" transform="rotate(${a} 20 20)"/>`).join("")}</g></svg>`).join("");
+  ov.innerHTML = `<div class="lv-card" role="dialog" aria-modal="true"><div class="lv-stage">${bits}${sp}${medalSvg()}<div class="lv-n">${lvl}</div></div><h2>مبروك! 🎉</h2><p>فتحت <b>المستوى ${lvl}</b><br><small>أتقنت ${M} كلمة — كمّل وهتوصل أعلى</small></p><button class="lv-go" type="button">استمر</button></div>`;
+  const close = () => { ov.classList.add("out"); setTimeout(() => ov.remove(), 260); };
+  ov.querySelector(".lv-go").onclick = close; ov.addEventListener("mousedown", e => { if (e.target === ov) close(); });
+  document.body.append(ov); ov.querySelector(".lv-go").focus();
+}
+function lvlCheck() {
+  try {
+    const M = crStats(crAll()).mast.length, lvl = lvlOf(M), k = "rf_lvl_" + (S.student?.id || ""), seen = +localStorage.getItem(k);
+    if (!seen) return localStorage.setItem(k, lvl);
+    if (lvl > seen) { localStorage.setItem(k, lvl); levelUp(lvl, M); }
+    else if (lvl < seen) localStorage.setItem(k, lvl);
+  } catch (e) { }
+}
 function renderCards() {
   S.page = "cards"; CR.running = false; CR.done = false;
   app.innerHTML = `${studentHeader()}<main class="wrap sec crp"><div id="cr"></div></main>`;
@@ -4389,7 +4438,7 @@ function paintCards() {
   const b = $("#cr"); if (!b || S.page !== "cards" || CR.running || CR.done) return;
   const all = crAll();
   if (!all.length) { b.innerHTML = `<div class="empty">${ico(CARD_IC, 40)}<br>لا توجد كلمات متاحة لك حاليًا.<br><small>هتظهر هنا أول ما يضيفها مسيو رضا.</small></div>`; return; }
-  CR.deck = ""; const info = srsInfo(), st = crStats(all), M = st.mast.length, lvl = Math.floor(M / 10) + 1, lp = (M % 10) * 10;
+  CR.deck = ""; const info = srsInfo(), st = crStats(all), M = st.mast.length, lvl = lvlOf(M), lp = (M % 10) * 10; setTimeout(lvlCheck, 600);
   const decks = deckOrder([...new Set(all.map(c => c.deck || "عام"))]), todo = st.due.length + Math.min(st.fresh.length, CR.newN), gp = Math.min(100, Math.round(info.today / GOAL * 100));
   const H = 168, pos = [50, 76, 50, 24];
   const pts = decks.map((d, i) => [pos[i % 4], 70 + i * H]);
@@ -4424,7 +4473,7 @@ function startSession(review) {
 function paintSession(enter) {
   const b = $("#cr"); if (!b) return;
   if (CR.i >= CR.q.length) {
-    srsFlush(); CR.running = false; CR.done = true; const info = srsInfo();
+    srsFlush(); CR.running = false; CR.done = true; const info = srsInfo(); setTimeout(lvlCheck, 350);
     b.innerHTML = `<div class="cr-done"><div class="cr-bigck"><svg viewBox="0 0 52 52" width="96" height="96"><circle cx="26" cy="26" r="24" fill="none" stroke="#22c55e" stroke-width="3"/><path d="M14 27l8 8 16-17" fill="none" stroke="#22c55e" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h2>اكتملت الجلسة ✓</h2><p>راجعت <b>${CR.total}</b> كلمة${CR.again ? ` — و<b>${CR.again}</b> هترجعلك قريب للتثبيت` : ""}</p><div class="cr-pill fire" style="margin:14px auto"><span>🔥</span><b>${info.streak}</b><small>يوم متتالي</small></div><button class="cr-start" id="cbk">رجوع للرحلة</button></div>`;
     $("#cbk").onclick = () => { CR.running = false; CR.done = false; paintCards(); }; return;
   }
