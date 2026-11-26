@@ -2181,7 +2181,7 @@ function resizeImage(file, size = 256) {
   });
 }
 function pickerHTML(cur, s) {
-  return `<div class="grp">الصورة الشخصية أو الأيقونة<div class="picker"><div id="pv">${avatarHTML({ photo: cur, name: s?.name }, 76)}</div><div><div class="emojis">${AVATARS.map(e => `<button type="button" class="em" data-e="${e}" aria-label="شخصية">${avSvg(e)}</button>`).join("")}</div><details class="chx"${CHARS.includes(cur) ? " open" : ""}><summary>شخصيات كرتونية <small>${CHARS.length}</small></summary><div class="emojis">${CHARS.map(e => `<button type="button" class="em" data-e="${e}" aria-label="شخصية كرتونية"><img loading="lazy" src="${chSrc(e)}" alt=""></button>`).join("")}</div></details><label class="btn btn-line btn-sm">رفع صورة<input type="file" accept="image/*" hidden id="pfile"></label></div></div></div>`;
+  return `<div class="grp">الصورة الشخصية أو الأيقونة<div class="picker"><div id="pv">${avatarHTML({ photo: cur, name: s?.name }, 76)}</div><div><details class="chx"${AVATARS.includes(cur) ? " open" : ""}><summary>أيقونات شخصية <small>${AVATARS.length}</small></summary><div class="emojis">${AVATARS.map(e => `<button type="button" class="em" data-e="${e}" aria-label="شخصية">${avSvg(e)}</button>`).join("")}</div></details><details class="chx"${CHARS.includes(cur) ? " open" : ""}><summary>شخصيات كرتونية <small>${CHARS.length}</small></summary><div class="emojis">${CHARS.map(e => `<button type="button" class="em" data-e="${e}" aria-label="شخصية كرتونية"><img loading="lazy" src="${chSrc(e)}" alt=""></button>`).join("")}</div></details><label class="btn btn-line btn-sm">رفع صورة<input type="file" accept="image/*" hidden id="pfile"></label></div></div></div>`;
 }
 function bindPicker(root, initial, name) {
   let val = initial || "";
