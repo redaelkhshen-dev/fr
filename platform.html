@@ -1788,6 +1788,18 @@ html[data-theme=light] .cdx-hero{box-shadow:0 18px 36px -18px rgba(120,84,20,.6)
 @media(max-width:1000px){.ovx-kpis{grid-template-columns:repeat(2,1fr)}.ovx-row.r3{grid-template-columns:1fr 1fr}.ovx-chips{grid-template-columns:repeat(4,1fr)}}
 @media(max-width:640px){.ovx-hero{padding:18px}.ovx-ht h2{font-size:1.35rem}.ovx-row,.ovx-row.r3{grid-template-columns:1fr}.ovx-kpis{gap:10px}.ovx-k{padding:12px;gap:10px}.ovx-ki{width:42px;height:42px;font-size:1.2rem}.ovx-k b{font-size:1.45rem}.ovx-chips{grid-template-columns:repeat(3,1fr)}.ovx-qa .btn{flex:1 1 auto}}
 @media(prefers-reduced-motion:reduce){.ovx-hero:after,.ovx-k.pulse .ovx-ki{animation:none}}
+/* ---- نظرة عامة: ضبط الأبعاد ---- */
+.ovx-kpis{grid-template-columns:repeat(4,minmax(0,1fr))}.ovx-row{grid-template-columns:repeat(2,minmax(0,1fr))}.ovx-row.r3{grid-template-columns:repeat(3,minmax(0,1fr))}.ovx-chips{grid-template-columns:repeat(7,minmax(0,1fr))}
+.ovx-card{overflow:hidden;display:flex;flex-direction:column}.ovx-card>h3{flex:none}
+.ovx-tv{grid-template-columns:minmax(0,1fr);flex:1;align-content:start}.ovx-tv>div{min-width:0;overflow:hidden}.ovx-tv em{flex:none;min-width:34px;text-align:end}
+.ovx-att{grid-template-columns:minmax(0,1fr);align-content:start;flex:1}.ovx-att em{min-width:0}
+.ovx-att .ovx-ok,.ovx-tv .ovx-ok{display:grid;place-items:center;min-height:150px}
+.ovx-dw{flex-wrap:nowrap}.ovx-lg{min-width:0}.ovx-lg li span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ovx-sy{margin-top:auto}.ovx-sy .bar{display:grid;grid-template-columns:90px minmax(0,1fr) 28px;align-items:center;gap:8px;margin:0}.ovx-sy .bar span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.82rem}.ovx-sy .bar b{text-align:end}.ovx-sy .bar .bg{min-width:0}
+.ovx-card .rv-svg{width:100%;height:auto;max-height:230px}
+@media(max-width:1100px){.ovx-row.r3{grid-template-columns:repeat(2,minmax(0,1fr))}.ovx-row.r3>.ovx-card:first-child{grid-column:1/-1}}
+@media(max-width:1000px){.ovx-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.ovx-chips{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:640px){.ovx-row,.ovx-row.r3{grid-template-columns:minmax(0,1fr)}.ovx-chips{grid-template-columns:repeat(3,minmax(0,1fr))}.ovx-dw{flex-wrap:wrap}}
 </style>
 </head>
 <body>
