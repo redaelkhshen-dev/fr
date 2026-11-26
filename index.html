@@ -1883,6 +1883,7 @@ html[data-theme=light] .crP{background:rgba(214,58,105,.12)}html[data-theme=ligh
 .crI.vth i{position:absolute;z-index:2;inset:0;margin:auto;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;color:#fff;background:rgba(0,0,0,.45);border:1.5px solid rgba(255,255,255,.75);backdrop-filter:blur(3px);box-shadow:0 2px 8px rgba(0,0,0,.4)}
 .crI.vth i svg{margin-inline-start:-1px}
 @media(max-width:600px){.crI.vth{width:64px;height:46px}.crI.vth i{width:24px;height:24px}}
+.chx{margin:0 0 10px;max-width:400px}.chx summary{cursor:pointer;list-style:none;display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:var(--bg);font-size:.86rem;font-weight:700;color:var(--text)}.chx summary::-webkit-details-marker{display:none}.chx summary::after{content:"";width:7px;height:7px;border-inline-end:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg) translateY(-2px);transition:transform .25s}.chx[open] summary::after{transform:rotate(-135deg) translateY(-1px)}.chx summary small{background:var(--accent);color:#fff;border-radius:999px;padding:1px 8px;font-size:.72rem}.chx .emojis{margin-top:10px}.chx .em img,.avc img{width:100%;height:100%;object-fit:cover;display:block;border-radius:50%}.avc{background:#e9e6df;overflow:hidden}
 </style>
 </head>
 <body>
@@ -1960,6 +1961,8 @@ const AVSPEC = {
   p14: { bg: "#2f6fb3", sk: "#f1c9a0", sh: "#2b3f66", h: "short", hc: "#2a1b10", pf: "tie" }
 };
 const AVATARS = Object.keys(AVSPEC).map(k => "av:" + k);
+const CHARS = Array.from({ length: 24 }, (_, i) => "ch:c" + String(i + 1).padStart(2, "0"));
+const chSrc = c => "av/" + String(c).slice(3) + ".webp";
 function avSvg(code) {
   const o = AVSPEC[String(code).slice(3)]; if (!o) return "";
   const hair = { short: `<path d="M30 46C28 24 72 24 70 46C66 36 58 33 50 33S34 36 30 46z" fill="${o.hc}"/>`,
@@ -2060,6 +2063,7 @@ const brand = (live) => `<a class="logo" href="#/"><span class="logo-mark${live 
 const avatarHTML = (s, size = 40) => {
   const p = s?.photo || "", st = `width:${size}px;height:${size}px;font-size:${Math.round(size * .5)}px`;
   if (p.startsWith("data:image/")) return `<span class="av" style="${st}"><img src="${esc(p)}" alt=""></span>`;
+  if (CHARS.includes(p)) return `<span class="av avs avc" style="${st}"><img src="${chSrc(p)}" alt=""></span>`;
   if (p.startsWith("av:") && AVSPEC[p.slice(3)]) return `<span class="av avs" style="${st}">${avSvg(p)}</span>`;
   if (p) return `<span class="av" style="${st}">${esc(p)}</span>`;
   return `<span class="av" style="${st}">${esc(((s?.name || "؟").trim()[0]) || "؟")}</span>`;
@@ -2085,7 +2089,7 @@ function resizeImage(file, size = 256) {
   });
 }
 function pickerHTML(cur, s) {
-  return `<div class="grp">الصورة الشخصية أو الأيقونة<div class="picker"><div id="pv">${avatarHTML({ photo: cur, name: s?.name }, 76)}</div><div><div class="emojis">${AVATARS.map(e => `<button type="button" class="em" data-e="${e}" aria-label="شخصية">${avSvg(e)}</button>`).join("")}</div><label class="btn btn-line btn-sm">رفع صورة<input type="file" accept="image/*" hidden id="pfile"></label></div></div></div>`;
+  return `<div class="grp">الصورة الشخصية أو الأيقونة<div class="picker"><div id="pv">${avatarHTML({ photo: cur, name: s?.name }, 76)}</div><div><div class="emojis">${AVATARS.map(e => `<button type="button" class="em" data-e="${e}" aria-label="شخصية">${avSvg(e)}</button>`).join("")}</div><details class="chx"${CHARS.includes(cur) ? " open" : ""}><summary>شخصيات كرتونية <small>${CHARS.length}</small></summary><div class="emojis">${CHARS.map(e => `<button type="button" class="em" data-e="${e}" aria-label="شخصية كرتونية"><img loading="lazy" src="${chSrc(e)}" alt=""></button>`).join("")}</div></details><label class="btn btn-line btn-sm">رفع صورة<input type="file" accept="image/*" hidden id="pfile"></label></div></div></div>`;
 }
 function bindPicker(root, initial, name) {
   let val = initial || "";
