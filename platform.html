@@ -1800,6 +1800,26 @@ html[data-theme=light] .cdx-hero{box-shadow:0 18px 36px -18px rgba(120,84,20,.6)
 @media(max-width:1100px){.ovx-row.r3{grid-template-columns:repeat(2,minmax(0,1fr))}.ovx-row.r3>.ovx-card:first-child{grid-column:1/-1}}
 @media(max-width:1000px){.ovx-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.ovx-chips{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media(max-width:640px){.ovx-row,.ovx-row.r3{grid-template-columns:minmax(0,1fr)}.ovx-chips{grid-template-columns:repeat(3,minmax(0,1fr))}.ovx-dw{flex-wrap:wrap}}
+/* ---- هيرو نظرة عامة متحرك ---- */
+.ovx-hero{background:linear-gradient(115deg,#5e4015,#8f6d22 30%,#c4a043 55%,#8f6d22 78%,#6f4e18);background-size:260% 260%;animation:ovxFlow 14s ease-in-out infinite}
+@keyframes ovxFlow{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.ovx-o{position:absolute;border-radius:50%;pointer-events:none;filter:blur(8px)}
+.ovx-o.o1{width:190px;height:190px;top:-70px;inset-inline-start:6%;background:radial-gradient(circle,rgba(255,244,200,.45),transparent 68%);animation:ovxF1 9s ease-in-out infinite}
+.ovx-o.o2{width:150px;height:150px;bottom:-60px;inset-inline-start:42%;background:radial-gradient(circle,rgba(255,200,90,.4),transparent 68%);animation:ovxF2 11s ease-in-out infinite}
+.ovx-o.o3{width:220px;height:220px;top:-90px;inset-inline-end:-40px;background:radial-gradient(circle,rgba(255,255,255,.28),transparent 68%);animation:ovxF1 13s ease-in-out -4s infinite reverse}
+@keyframes ovxF1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(40px,28px) scale(1.18)}}
+@keyframes ovxF2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-50px,-22px) scale(1.25)}}
+.ovx-wv{position:absolute;inset:auto 0 0 0;height:60px;pointer-events:none;opacity:.5;background:repeating-linear-gradient(100deg,transparent 0 40px,rgba(255,255,255,.07) 40px 80px);animation:ovxWv 8s linear infinite}
+@keyframes ovxWv{to{background-position:160px 0}}
+.ovx-sp{position:absolute;width:var(--z);height:var(--z);pointer-events:none;color:#fff7d6;opacity:0;animation:ovxTw 3.4s ease-in-out var(--d) infinite;filter:drop-shadow(0 0 6px rgba(255,244,200,.95))}
+.ovx-sp:before,.ovx-sp:after{content:"";position:absolute;background:currentColor;border-radius:2px}
+.ovx-sp:before{left:50%;top:-80%;width:14%;height:260%;transform:translateX(-50%)}.ovx-sp:after{top:50%;left:-80%;height:14%;width:260%;transform:translateY(-50%)}
+@keyframes ovxTw{0%,100%{opacity:0;transform:scale(.3) rotate(0)}50%{opacity:1;transform:scale(1) rotate(45deg)}}
+.ovx-hero:after{animation-duration:4.5s}
+.ovx-ht h2{background:linear-gradient(90deg,#fff,#ffe9a8,#fff);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:ovxTx 5s linear infinite}
+@keyframes ovxTx{to{background-position:-200% 0}}
+@media(prefers-reduced-motion:reduce){.ovx-hero,.ovx-o,.ovx-wv,.ovx-sp,.ovx-ht h2{animation:none}.ovx-sp{opacity:.7}}
+.ovx-ht h2{background:none;-webkit-text-fill-color:#fff;color:#fff;animation:none;text-shadow:0 2px 14px rgba(60,35,0,.35)}@keyframes ovxTw{0%,100%{opacity:0;transform:scale(.3)}50%{opacity:1;transform:scale(1)}}
 </style>
 </head>
 <body>
@@ -3884,7 +3904,7 @@ const TABS = {
       const att = [[pend.length, "طلب تسجيل قيد المراجعة", "students", "#f59e0b", "👤"], [soon.length, "اشتراك ينتهي خلال 7 أيام", "subs", "#ec4899", "⏳"], [lapsed.length, "اشتراك منتهي — فرصة تجديد", "subs", "#ef4444", "⚠️"], [S.pp || 0, "تحويل دفع بانتظار التأكيد", "payments", "#6366f1", "💳"]].filter(x => x[0]);
       const kpi = (ic, n, l, c, sub, go, cls = "") => `<button type="button" class="ovx-k ${cls}" style="--c:${c}" ${go ? `data-go="${go}"` : ""}><span class="ovx-ki">${ic}</span><div><b data-cu="${n}">${n}</b><small>${l}</small>${sub ? `<em>${sub}</em>` : ""}</div></button>`;
       const chip = (ic, n, l, go) => `<button type="button" class="ovx-ch" data-go="${go}"><span>${ic}</span><b>${n}</b><small>${l}</small></button>`;
-      $("#ov", b).innerHTML = `<section class="ovx-hero"><div class="ovx-ht"><small>${new Date().toLocaleDateString("ar-EG", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</small><h2>${hi}، مسيو رضا 👋</h2><p>${pend.length ? `عندك <b>${pend.length}</b> طلب تسجيل ينتظر ردّك.` : "كل شيء تمام — مفيش طلبات معلّقة."} ${soon30.length ? `و<b>${soon30.length}</b> اشتراك هيجدّد خلال 30 يوم.` : ""}</p></div>
+      $("#ov", b).innerHTML = `<section class="ovx-hero"><i class="ovx-o o1"></i><i class="ovx-o o2"></i><i class="ovx-o o3"></i><i class="ovx-wv"></i>${[[8,22],[22,70],[38,18],[52,78],[66,26],[78,64],[90,20],[94,74],[30,48],[60,50]].map(([x, y], i) => `<i class="ovx-sp" style="left:${x}%;top:${y}%;--d:${(i * .43).toFixed(2)}s;--z:${6 + i % 3 * 3}px"></i>`).join("")}<div class="ovx-ht"><small>${new Date().toLocaleDateString("ar-EG", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</small><h2>${hi}، مسيو رضا 👋</h2><p>${pend.length ? `عندك <b>${pend.length}</b> طلب تسجيل ينتظر ردّك.` : "كل شيء تمام — مفيش طلبات معلّقة."} ${soon30.length ? `و<b>${soon30.length}</b> اشتراك هيجدّد خلال 30 يوم.` : ""}</p></div>
         <div class="ovx-qa"><button class="btn btn-fill" data-go="videos">🎬 فيديو جديد</button><button class="btn ovx-g" data-go="students">👥 الطلاب</button><button class="btn ovx-g" data-go="cards">🗂 بطاقات الكلمات</button>${xlBtn()}</div></section>
         ${reqCard(pend)}
         <div class="ovx-kpis">${kpi("👥", st.length, "إجمالي الطلاب", "#6366f1", `${act} نشط`, "students")}${kpi("💰", rev, "دخل الشهر (جنيه)", "#10b981", ch === null ? "" : `<span class="${ch >= 0 ? "up" : "dn"}">${ch >= 0 ? "▲" : "▼"} ${Math.abs(ch)}% عن الشهر السابق</span>`, "revenue", "money")}${kpi("⏳", soon30.length, "هيجدّدوا خلال 30 يوم", "#f59e0b", lapsed.length ? `${lapsed.length} منتهي` : "", "subs")}${kpi("🕓", pend.length, "قيد المراجعة", "#ec4899", blk ? `${blk} محظور/مرفوض` : "", "students", pend.length ? "pulse" : "")}</div>
