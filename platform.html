@@ -1875,6 +1875,14 @@ html[data-theme=light] .cdx-hero{box-shadow:0 18px 36px -18px rgba(120,84,20,.6)
 @media(max-width:1100px){.cmx-layout{grid-template-columns:minmax(0,1fr)}.cmx-side{grid-template-columns:repeat(2,minmax(0,1fr));position:static}.cmx-vl2{max-height:320px}}
 @media(max-width:640px){.cmx-end select{width:auto}.cmx-c{padding:14px}}
 html[data-theme=light] .crP{background:rgba(214,58,105,.12)}html[data-theme=light] .crP i{background:linear-gradient(90deg,#e5497a,#f58aa5,#e5497a);background-size:200% 100%;box-shadow:0 0 8px rgba(229,73,122,.35)}
+/* ---- أيقونة الكورس: صورة فيديو ---- */
+.crI.vth{position:relative;overflow:hidden;width:78px;height:52px;border-radius:14px;padding:0;background:#111;box-shadow:0 6px 16px rgba(0,0,0,.25)}
+.crI.vth img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .4s}
+.crd:hover .crI.vth img{transform:scale(1.1)}
+.crI.vth:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.05),rgba(0,0,0,.45))}
+.crI.vth i{position:absolute;z-index:2;inset:0;margin:auto;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;color:#fff;background:rgba(0,0,0,.45);border:1.5px solid rgba(255,255,255,.75);backdrop-filter:blur(3px);box-shadow:0 2px 8px rgba(0,0,0,.4)}
+.crI.vth i svg{margin-inline-start:-1px}
+@media(max-width:600px){.crI.vth{width:64px;height:46px}.crI.vth i{width:24px;height:24px}}
 </style>
 </head>
 <body>
@@ -3103,7 +3111,7 @@ function fillHome() {
     if (!cs.length) list.innerHTML = v.length ? v.map(vCard).join("") : `<div class="empty">لا توجد فيديوهات لمرحلتك حاليًا</div>`;
     else {
       const sect = (id, ic, title, desc, vids) => { const dn = vids.filter(x => getProg(x.id).done).length, pc = vids.length ? Math.round(vids.reduce((a, x) => a + Math.min(100, getProg(x.id).p), 0) / vids.length) : 0;
-        return `<section class="crs"><details class="crd" data-id="${esc(id)}" ${H.closed.has(id) ? "" : "open"}><summary class="crh"><span class="crI">${ic}</span><div class="crT"><b>${esc(title)}</b>${desc ? `<small>${esc(desc)}</small>` : ""}<div class="crM"><span>${vids.length} ${vids.length === 1 ? "درس" : "دروس"}</span><span>·</span><span>أكملت ${dn} من ${vids.length}</span><span class="crP"><i style="width:${pc}%"></i></span><em>${pc}%</em></div></div><span class="crA" aria-hidden="true">⌄</span></summary><div class="grid crg">${vids.map(vCard).join("")}</div></details></section>`; };
+        return `<section class="crs"><details class="crd" data-id="${esc(id)}" ${H.closed.has(id) ? "" : "open"}><summary class="crh"><span class="crI vth">${vids[0]?.ytId ? `<img loading="lazy" src="https://i.ytimg.com/vi/${esc(vids[0].ytId)}/mqdefault.jpg" alt="">` : ic}<i aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg></i></span><div class="crT"><b>${esc(title)}</b>${desc ? `<small>${esc(desc)}</small>` : ""}<div class="crM"><span>${vids.length} ${vids.length === 1 ? "درس" : "دروس"}</span><span>·</span><span>أكملت ${dn} من ${vids.length}</span><span class="crP"><i style="width:${pc}%"></i></span><em>${pc}%</em></div></div><span class="crA" aria-hidden="true">⌄</span></summary><div class="grid crg">${vids.map(vCard).join("")}</div></details></section>`; };
       const html = cs.map(c => ({ c, vids: v.filter(x => x.courseId === c.id) })).filter(g => g.vids.length).map(g => sect(g.c.id, "📚", g.c.title, g.c.description, g.vids));
       const other = v.filter(x => !x.courseId || !cids.has(x.courseId)); if (other.length) html.push(sect("_other", "🎬", "فيديوهات أخرى", "", other));
       list.innerHTML = html.join("") || `<div class="empty">لا توجد فيديوهات لمرحلتك حاليًا</div>`;
