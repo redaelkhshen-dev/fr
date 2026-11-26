@@ -1962,7 +1962,7 @@ const AVSPEC = {
 };
 const AVATARS = Object.keys(AVSPEC).map(k => "av:" + k);
 const CHARS = Array.from({ length: 24 }, (_, i) => "ch:c" + String(i + 1).padStart(2, "0"));
-const chSrc = c => "av/" + String(c).slice(3) + ".webp";
+const chSrc = c => "av/" + String(c).slice(3) + ".webp?v=2";
 function avSvg(code) {
   const o = AVSPEC[String(code).slice(3)]; if (!o) return "";
   const hair = { short: `<path d="M30 46C28 24 72 24 70 46C66 36 58 33 50 33S34 36 30 46z" fill="${o.hc}"/>`,
