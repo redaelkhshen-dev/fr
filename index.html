@@ -1976,6 +1976,35 @@ html[data-theme=light] .bnx-go{background:#f6edf1}
 html[data-theme=light] .bnx-en{background:rgba(214,58,105,.07);border-color:rgba(214,58,105,.3)}
 html[data-theme=light] .bnx-er i{border-color:rgba(214,58,105,.5)}
 html[data-theme=light] .bnx-g h3 em{background:#f4e6ec}
+/* أزرار اختيار الصورة */
+.picker>div:last-child{flex:1;min-width:min(100%,260px)}
+.chx{max-width:420px;margin:0 0 10px}
+.chx summary,.chx-up{position:relative;display:flex;align-items:center;gap:12px;width:100%;box-sizing:border-box;padding:10px 12px;border-radius:16px;border:1px solid var(--line);background:linear-gradient(135deg,var(--bg2),var(--bg));color:var(--fg);cursor:pointer;overflow:hidden;transition:transform .2s,border-color .2s,box-shadow .25s}
+.chx summary::before,.chx-up::before{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 35%,rgba(255,226,140,.13) 50%,transparent 65%);background-size:260% 100%;background-position:130% 0;transition:background-position .7s}
+.chx summary:hover,.chx-up:hover{transform:translateY(-2px);border-color:var(--accent);box-shadow:0 10px 22px rgba(0,0,0,.28),0 0 0 1px rgba(212,167,58,.25) inset}
+.chx summary:hover::before,.chx-up:hover::before{background-position:-60% 0}
+.chx summary:active,.chx-up:active{transform:scale(.98)}
+.chx[open] summary{border-color:var(--accent);background:linear-gradient(135deg,rgba(212,167,58,.16),var(--bg))}
+.chx-i{flex:none;width:42px;height:42px;border-radius:13px;display:grid;place-items:center;font-size:1.3rem;background:linear-gradient(135deg,var(--accent-2),var(--accent));color:#2a1d05;box-shadow:0 6px 14px rgba(212,167,58,.28),inset 0 1px 0 rgba(255,255,255,.45)}
+.chx-up .chx-i{background:var(--soft);color:var(--accent-text);box-shadow:none;border:1px solid rgba(212,167,58,.4)}
+.chx-t{flex:1;min-width:0;display:block}.chx-t b{display:block;font:700 .95rem var(--fd)}.chx-t small{display:block;margin-top:1px;color:var(--muted);font-size:.76rem}
+.chx-n{flex:none;min-width:30px;height:26px;padding:0 9px;border-radius:999px;display:grid;place-items:center;background:var(--soft);border:1px solid rgba(212,167,58,.4);color:var(--accent-text);font:800 .76rem var(--fd)}
+.chx summary::after{content:"";flex:none;width:8px;height:8px;margin-inline:2px 4px;border-inline-end:2.5px solid var(--muted);border-bottom:2.5px solid var(--muted);transform:rotate(45deg) translateY(-2px);transition:transform .3s,border-color .2s}
+.chx summary:hover::after{border-color:var(--accent)}
+.chx[open] summary::after{transform:rotate(-135deg) translateY(-1px);border-color:var(--accent)}
+.chx .emojis{animation:chxOpen .35s cubic-bezier(.2,.9,.3,1.1) both;padding:4px 2px}
+@keyframes chxOpen{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+.chx .em{transition:transform .2s,box-shadow .2s,border-color .2s}.chx .em:hover{transform:scale(1.12);box-shadow:0 6px 14px rgba(0,0,0,.35)}
+.chx-up{max-width:420px;border-style:dashed}
+html[data-theme=light] .chx summary,html[data-theme=light] .chx-up{background:#fff;border-color:#f0dfe6}
+html[data-theme=light] .chx summary:hover,html[data-theme=light] .chx-up:hover{border-color:rgba(214,58,105,.5);box-shadow:0 10px 22px rgba(190,35,90,.15)}
+html[data-theme=light] .chx[open] summary{background:linear-gradient(135deg,rgba(214,58,105,.1),#fff);border-color:rgba(214,58,105,.45)}
+html[data-theme=light] .chx-i{background:linear-gradient(135deg,#e5497a,#c92c5f 60%,#a8204f);color:#fff;box-shadow:0 6px 14px rgba(190,35,90,.3),inset 0 1px 0 rgba(255,255,255,.35)}
+html[data-theme=light] .chx-up .chx-i{background:rgba(214,58,105,.1);color:#c92c5f;border-color:rgba(214,58,105,.3);box-shadow:none}
+html[data-theme=light] .chx-n{background:rgba(214,58,105,.1);border-color:rgba(214,58,105,.3);color:#c92c5f}
+html[data-theme=light] .chx summary::before,html[data-theme=light] .chx-up::before{background-image:linear-gradient(110deg,transparent 35%,rgba(214,58,105,.1) 50%,transparent 65%)}
+@media(prefers-reduced-motion:reduce){.chx .emojis{animation:none}}
+.chx summary .chx-t small{background:none;color:var(--muted);padding:0;border-radius:0;font-size:.76rem;font-weight:400}
 </style>
 </head>
 <body>
@@ -2181,7 +2210,7 @@ function resizeImage(file, size = 256) {
   });
 }
 function pickerHTML(cur, s) {
-  return `<div class="grp">الصورة الشخصية أو الأيقونة<div class="picker"><div id="pv">${avatarHTML({ photo: cur, name: s?.name }, 76)}</div><div><details class="chx"${AVATARS.includes(cur) ? " open" : ""}><summary>أيقونات شخصية <small>${AVATARS.length}</small></summary><div class="emojis">${AVATARS.map(e => `<button type="button" class="em" data-e="${e}" aria-label="شخصية">${avSvg(e)}</button>`).join("")}</div></details><details class="chx"${CHARS.includes(cur) ? " open" : ""}><summary>شخصيات كرتونية <small>${CHARS.length}</small></summary><div class="emojis">${CHARS.map(e => `<button type="button" class="em" data-e="${e}" aria-label="شخصية كرتونية"><img loading="lazy" src="${chSrc(e)}" alt=""></button>`).join("")}</div></details><label class="btn btn-line btn-sm">رفع صورة<input type="file" accept="image/*" hidden id="pfile"></label></div></div></div>`;
+  return `<div class="grp">الصورة الشخصية أو الأيقونة<div class="picker"><div id="pv">${avatarHTML({ photo: cur, name: s?.name }, 76)}</div><div><details class="chx"${AVATARS.includes(cur) ? " open" : ""}><summary><span class="chx-i">🙂</span><span class="chx-t"><b>أيقونات شخصية</b><small>اختر من ${AVATARS.length} أيقونة</small></span><span class="chx-n">${AVATARS.length}</span></summary><div class="emojis">${AVATARS.map(e => `<button type="button" class="em" data-e="${e}" aria-label="شخصية">${avSvg(e)}</button>`).join("")}</div></details><details class="chx"${CHARS.includes(cur) ? " open" : ""}><summary><span class="chx-i">🧸</span><span class="chx-t"><b>شخصيات كرتونية</b><small>اختر من ${CHARS.length} شخصية</small></span><span class="chx-n">${CHARS.length}</span></summary><div class="emojis">${CHARS.map(e => `<button type="button" class="em" data-e="${e}" aria-label="شخصية كرتونية"><img loading="lazy" src="${chSrc(e)}" alt=""></button>`).join("")}</div></details><label class="chx-up"><span class="chx-i"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4m0 0L7 9m5-5 5 5M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg></span><span class="chx-t"><b>رفع صورة</b><small>من جهازك (صورة شخصية حقيقية)</small></span><input type="file" accept="image/*" hidden id="pfile"></label></div></div></div>`;
 }
 function bindPicker(root, initial, name) {
   let val = initial || "";
