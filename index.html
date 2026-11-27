@@ -2149,6 +2149,22 @@ html[data-theme=light] .dlx-c{background:#fff;border-color:#f0dfe6}html[data-the
 html[data-theme=light] .dlx-c:hover::after{background-position:-40% 0}html[data-theme=light] .dlx-i{background:color-mix(in srgb,var(--tc) 10%,#fff)}
 html[data-theme=light] .dlx-b{background:linear-gradient(135deg,#f06292,#d63a69);color:#fff;box-shadow:0 8px 18px -8px #d63a69}
 .atr>small{direction:ltr;unicode-bidi:isolate;white-space:nowrap}
+/* ===== تصنيف الطلاب (stx) ===== */
+.stx{display:grid;gap:10px;margin:12px 0 14px;padding:14px;border-radius:18px;border:1px solid var(--line);background:linear-gradient(180deg,var(--soft),var(--card) 100px)}
+.stx-r{display:flex;flex-wrap:wrap;align-items:center;gap:8px}.stx-r.g{padding:10px;border-radius:14px;background:var(--bg2);border:1px dashed var(--line);animation:chxOpen .3s both}.stx-r .sp{flex:1}
+.stx-l{display:inline-flex;align-items:center;gap:6px;min-width:62px;color:var(--muted);font:800 .78rem var(--fd)}
+.stx-c{--sc:var(--accent);display:inline-flex;align-items:center;gap:8px;min-height:36px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--fg);font:700 .84rem var(--fd);cursor:pointer;transition:transform .2s,border-color .2s,background .2s,box-shadow .25s}
+.stx-c em{font-style:normal;min-width:22px;height:20px;padding:0 6px;display:grid;place-items:center;border-radius:10px;background:var(--bg);color:var(--muted);font:800 .7rem var(--fd);transition:.2s}
+.stx-c:hover{transform:translateY(-2px);border-color:var(--sc)}
+.stx-c.on{background:linear-gradient(135deg,color-mix(in srgb,var(--sc) 85%,#fff),var(--sc));border-color:transparent;color:#1d1506;box-shadow:0 8px 18px -8px var(--sc)}.stx-c.on em{background:rgba(255,255,255,.4);color:#1d1506}
+.stx-c.s-primary{--sc:#22b8cf}.stx-c.s-prep{--sc:#f59e0b}.stx-c.s-secondary{--sc:#ec5aa5}
+.stx-t{min-height:36px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:transparent;color:var(--fg);font:700 .82rem var(--fd);cursor:pointer;transition:.2s}.stx-t:hover{border-color:var(--accent);color:var(--accent-text)}.stx-t.on{background:var(--accent);border-color:var(--accent);color:#1d1506}
+.stx-n{padding:4px 14px;border-radius:999px;background:var(--bg);border:1px solid var(--line);color:var(--accent-text);font:800 .8rem var(--fd)}
+tr.stx-gh td{padding:10px 0 4px!important;border:0!important;background:transparent!important}
+.stx-gd{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:12px;background:linear-gradient(270deg,color-mix(in srgb,var(--gc,var(--accent)) 24%,transparent),transparent);border-inline-start:4px solid var(--gc,var(--accent));font:800 .92rem var(--fd);white-space:nowrap}
+.stx-gd em{margin-inline-start:auto;font-style:normal;padding:2px 12px;border-radius:999px;background:var(--bg);color:var(--muted);font-size:.74rem}
+tr.stx-gh.s-primary{--gc:#22b8cf}tr.stx-gh.s-prep{--gc:#f59e0b}tr.stx-gh.s-secondary{--gc:#ec5aa5}
+html[data-theme=light] .stx{background:linear-gradient(180deg,rgba(214,58,105,.05),#fff 100px);border-color:#f0dfe6}html[data-theme=light] .stx-r.g{background:#faf3f6;border-color:#f0dfe6}html[data-theme=light] .stx-c{background:#fff;border-color:#f0dfe6}html[data-theme=light] .stx-c.on,html[data-theme=light] .stx-t.on{color:#fff}html[data-theme=light] .stx-c.on em{color:#fff;background:rgba(255,255,255,.3)}html[data-theme=light] .stx-t.on{background:#d63a69;border-color:#d63a69}html[data-theme=light] .stx-t:hover{border-color:#d63a69;color:#c92c5f}html[data-theme=light] .stx-n{color:#c92c5f;background:#fdf0f4;border-color:#f3d4de}
 </style>
 </head>
 <body>
@@ -4244,6 +4260,10 @@ async function installApp() {
 }
 const installBtn = () => isStandalone() ? "" : `<button type="button" class="btn btn-line btn-sm ibtn inst-btn" data-install>${fsv(LGI.dev, 16)} ثبّت التطبيق</button>`;
 document.addEventListener("click", e => { if (e.target.closest("[data-install]")) installApp(); });
+const gNorm = x => { const gl = GRADES[x.stage] || [], g = x.grade || ""; return gl.includes(g) ? g : (gnum(g) && gl.find(y => gnum(y) === gnum(g))) || ""; };
+const grouped = l => { const out = [], so = Object.keys(STAGES), key = x => `${x.stage || "_"}|${gNorm(x)}`, order = x => { const si = so.indexOf(x.stage), gi = (GRADES[x.stage] || []).indexOf(gNorm(x)); return (si < 0 ? 9 : si) * 100 + (gi < 0 ? 99 : gi); };
+  const sorted = [...l].sort((a, b) => order(a) - order(b)), cnt = {}; sorted.forEach(x => { cnt[key(x)] = (cnt[key(x)] || 0) + 1; });
+  let last = ""; sorted.forEach(x => { const k = key(x); if (k !== last) { last = k; out.push({ __g: 1, k: x.stage || "none", t: `${STAGES[x.stage] || "غير محدد"} › ${gNorm(x) || "صف غير محدد"}`, n: cnt[k] }); } out.push(x); }); return out; };
 const TABS = {
   overview: {
     skel: () => `<div id="ov"></div>`,
@@ -4280,20 +4300,27 @@ const TABS = {
   },
   students: {
     skel: () => `<div class="nt-head"><div><h2>إدارة الطلاب</h2></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-fill btn-sm ibtn" id="addst" type="button">${ico('<path d="M12 5v14M5 12h14"/>', 16)} إضافة طالب</button>${xlBtn()}</div></div><div class="sstats" id="sst"></div><div class="toolbar"><span class="sq">${ico(SI.search, 18)}<input id="aq" placeholder="بحث بالاسم أو الرقم أو المدينة" value="${esc(A.q)}"></span>
-      <select id="as"><option value="">كل المراحل</option>${opts(STAGES, A.fstage)}</select>
-      <select id="at"><option value="">كل الحالات</option><option value="active" ${A.fstatus === "active" ? "selected" : ""}>نشط</option><option value="pending" ${A.fstatus === "pending" ? "selected" : ""}>قيد المراجعة</option><option value="rejected" ${A.fstatus === "rejected" ? "selected" : ""}>مرفوض</option><option value="banned" ${A.fstatus === "banned" ? "selected" : ""}>محظور</option></select></div><div class="tw" id="sl"></div>`,
+      <select id="at"><option value="">كل الحالات</option><option value="active" ${A.fstatus === "active" ? "selected" : ""}>نشط</option><option value="pending" ${A.fstatus === "pending" ? "selected" : ""}>قيد المراجعة</option><option value="rejected" ${A.fstatus === "rejected" ? "selected" : ""}>مرفوض</option><option value="banned" ${A.fstatus === "banned" ? "selected" : ""}>محظور</option></select></div><div class="stx" id="stx"></div><div class="tw" id="sl"></div>`,
     init: b => {
       $("#addst", b).onclick = addStudent;
+      b.addEventListener("click", e => { const c = e.target.closest("[data-sf]"); if (!c) return; const k = c.dataset.sf, v = c.dataset.v; if (k === "stage") { A.fstage = v; A.fgrade = ""; A.fsys = ""; } else if (k === "grade") A.fgrade = v; else if (k === "sys") A.fsys = v; else if (k === "grp") A.fgrp = !A.fgrp; else if (k === "reset") { A.fstage = A.fgrade = A.fsys = ""; } fillTab(); });
       $("#aq", b).oninput = e => { A.q = e.target.value; fillTab(); };
-      $("#as", b).onchange = e => { A.fstage = e.target.value; fillTab(); };
       $("#at", b).onchange = e => { A.fstatus = e.target.value; fillTab(); };
       b.onclick = xlClick(b, studentAction);
     },
     fill: b => {
-      const q = A.q.trim().toLowerCase();
-      const l = [...S.students].sort((a, b) => (b.status === "pending") - (a.status === "pending")).filter(x => (!A.fstage || x.stage === A.fstage) && (!A.fstatus || (x.status || "active") === A.fstatus) && (!q || [x.name, x.phone, x.city].some(t => (t || "").toLowerCase().includes(q))));
+      const q = A.q.trim().toLowerCase(), gOf = gNorm, sOf = x => x.stage || "";
+      const base = [...S.students].sort((a, b) => (b.status === "pending") - (a.status === "pending")).filter(x => (!A.fstatus || (x.status || "active") === A.fstatus) && (!q || [x.name, x.phone, x.city].some(t => (t || "").toLowerCase().includes(q))));
+      const byStage = base.filter(x => !A.fstage || sOf(x) === A.fstage), byGrade = byStage.filter(x => !A.fgrade || (A.fgrade === "_" ? !gOf(x) : gOf(x) === A.fgrade));
+      const l = byGrade.filter(x => !A.fsys || x.system === A.fsys);
+      const chip = (k, v, t, n, on, cls = "") => `<button type="button" class="stx-c ${cls} ${on ? "on" : ""}" data-sf="${k}" data-v="${esc(v)}">${t}<em>${n}</em></button>`;
+      const SC = { primary: "#22b8cf", prep: "#f59e0b", secondary: "#ec5aa5" };
+      const stageChips = chip("stage", "", "كل المراحل", base.length, !A.fstage) + Object.entries(STAGES).map(([k, t]) => chip("stage", k, t, base.filter(x => sOf(x) === k).length, A.fstage === k, "s-" + k)).join("");
+      const gl = A.fstage ? GRADES[A.fstage] || [] : [], gradeChips = A.fstage ? chip("grade", "", "كل الصفوف", byStage.length, !A.fgrade) + gl.map(g => chip("grade", g, g.replace("الصف ", ""), byStage.filter(x => gOf(x) === g).length, A.fgrade === g)).join("") + (byStage.some(x => !gOf(x)) ? chip("grade", "_", "غير محدد", byStage.filter(x => !gOf(x)).length, A.fgrade === "_") : "") : "";
+      const sysChips = chip("sys", "", "كل الأنظمة", byGrade.length, !A.fsys) + Object.entries(SYSTEMS).map(([k, t]) => [k, t, byGrade.filter(x => x.system === k).length]).filter(([k, , n]) => n || A.fsys === k).map(([k, t, n]) => chip("sys", k, t, n, A.fsys === k)).join("");
+      $("#stx", b).innerHTML = `<div class="stx-r"><span class="stx-l">${ico(SI.layers || SI.students, 15)} المرحلة</span>${stageChips}</div>${A.fstage ? `<div class="stx-r g"><span class="stx-l">الصف</span>${gradeChips}</div>` : ""}<div class="stx-r"><span class="stx-l">النظام</span>${sysChips}<span class="sp"></span><button type="button" class="stx-t ${A.fgrp ? "on" : ""}" data-sf="grp" aria-pressed="${!!A.fgrp}">☰ تجميع حسب المرحلة والصف</button>${A.fstage || A.fgrade || A.fsys ? `<button type="button" class="stx-t" data-sf="reset">↺ مسح التصنيف</button>` : ""}<span class="stx-n">${l.length} طالب</span></div>`;
       $("#sst", b).innerHTML = stStats();
-      $("#sl", b).innerHTML = `<table><thead><tr><th>الطالب</th><th>الواتس</th><th>كلمة السر</th><th>المرحلة</th><th>المدينة</th><th>الحالة</th><th>المشاهدة</th><th>الجهاز</th><th>التسجيل</th><th>إجراءات</th></tr></thead><tbody>${l.map(x => `<tr>
+      $("#sl", b).innerHTML = `<table><thead><tr><th>الطالب</th><th>الواتس</th><th>كلمة السر</th><th>المرحلة</th><th>المدينة</th><th>الحالة</th><th>المشاهدة</th><th>الجهاز</th><th>التسجيل</th><th>إجراءات</th></tr></thead><tbody>${(A.fgrp ? grouped(l) : l).map(x => x.__g ? `<tr class="stx-gh s-${x.k}"><td colspan="10"><div class="stx-gd"><span>${x.t}</span><em>${x.n} طالب</em></div></td></tr>` : `<tr>
         <td><div class="who">${avatarHTML(x, 36)}<div><b>${esc(x.name)}</b><br><small style="color:var(--muted)">${esc(x.grade || "")}</small></div></div></td>
         <td class="ph">${esc(x.phone)}</td><td class="ph">${S.pw[x.id] ? `<code>${esc(S.pw[x.id])}</code>` : `<small style="color:var(--muted)">—</small>`}</td><td>${stageLabel(x.stage)}<br><small style="color:var(--muted)">${sysLabel(x.system)}</small></td><td>${esc(x.city || "—")}</td>
         <td>${stBadge(x)}</td>
