@@ -2009,6 +2009,34 @@ html[data-theme=light] .chx summary::before,html[data-theme=light] .chx-up::befo
 .pf-top>.av{box-shadow:0 0 0 4px var(--bg),0 0 0 6px var(--accent),0 12px 28px rgba(212,167,58,.3)}
 .pf-top h2{margin:0 0 4px;text-align:center}.pf-top small{display:block;text-align:center;direction:ltr;unicode-bidi:plaintext;letter-spacing:.5px;color:var(--muted)}
 html[data-theme=light] .pf-top>.av{box-shadow:0 0 0 4px #fff,0 0 0 6px #d63a69,0 12px 28px rgba(214,58,105,.28)}
+/* ===== تأثير صورة الطالب + زر كلمة السر ===== */
+.pfx-av{position:relative;width:128px;height:128px;display:grid;place-items:center;isolation:isolate}
+.pfx-av>.av{position:relative;z-index:2;box-shadow:0 0 0 4px var(--card),0 10px 26px rgba(0,0,0,.4)!important;transition:transform .5s cubic-bezier(.3,1.5,.5,1)}
+.pfx-av:hover>.av{transform:scale(1.07) rotate(-3deg)}
+.pfx-r{position:absolute;inset:6px;border-radius:50%;z-index:0;background:conic-gradient(from 0deg,#f0cf6e,#b8862b,transparent 35%,#f0cf6e 55%,#d4a73a,transparent 85%,#f0cf6e);animation:pfxSpin 5s linear infinite;-webkit-mask:radial-gradient(circle,transparent 59%,#000 61%);mask:radial-gradient(circle,transparent 59%,#000 61%);filter:drop-shadow(0 0 6px rgba(240,207,110,.6))}
+.pfx-g{position:absolute;inset:4px;border-radius:50%;z-index:-1;background:radial-gradient(circle,rgba(240,207,110,.55),transparent 68%);filter:blur(10px);animation:pfxGlow 3.2s ease-in-out infinite}
+.pfx-d{position:absolute;z-index:3;top:50%;left:50%;width:9px;height:9px;margin:-4.5px;border-radius:50%;background:#ffe08a;box-shadow:0 0 10px #ffd35a;animation:pfxOrb 7s linear infinite}
+.pfx-d.d2{width:6px;height:6px;margin:-3px;animation-duration:9s;animation-delay:-3s;opacity:.8}.pfx-d.d3{width:5px;height:5px;margin:-2.5px;animation-duration:11s;animation-delay:-6s;opacity:.65}
+@keyframes pfxSpin{to{transform:rotate(360deg)}}
+@keyframes pfxGlow{50%{opacity:.45;transform:scale(1.12)}}
+@keyframes pfxOrb{from{transform:rotate(0) translateX(61px)}to{transform:rotate(360deg) translateX(61px)}}
+.pf-top>.av{box-shadow:none}
+.pfx-pw{position:relative;display:flex;align-items:center;justify-content:center;gap:10px;min-height:52px;border:1.5px solid transparent;border-radius:16px;overflow:hidden;isolation:isolate;font:800 .98rem var(--fd);color:var(--accent-text);background:linear-gradient(var(--card),var(--card)) padding-box,linear-gradient(120deg,#f0cf6e,#b8862b,#f0cf6e,#8f6d22) border-box;background-size:100% 100%,300% 100%;animation:pfxBd 5s linear infinite;transition:transform .25s,box-shadow .3s}
+.pfx-pw::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(110deg,transparent 35%,rgba(240,207,110,.22) 50%,transparent 65%);background-size:260% 100%;animation:bnxSheen 4.5s ease-in-out infinite}
+.pfx-pw i{font-style:normal;font-size:1.25rem;display:grid;place-items:center;width:34px;height:34px;border-radius:11px;background:linear-gradient(135deg,#f0cf6e,#d4a73a);box-shadow:0 4px 10px rgba(212,167,58,.35);transition:transform .35s cubic-bezier(.3,1.6,.5,1)}
+.pfx-pw:hover{transform:translateY(-3px);box-shadow:0 12px 26px rgba(212,167,58,.25)}.pfx-pw:hover i{transform:rotate(-18deg) scale(1.12)}.pfx-pw:active{transform:scale(.98)}
+.pfx-pw:disabled{opacity:.6;animation:none}
+@keyframes pfxBd{to{background-position:0 0,300% 0}}
+@media(prefers-reduced-motion:reduce){.pfx-r,.pfx-g,.pfx-d,.pfx-pw,.pfx-pw::before{animation:none!important}}
+html[data-theme=light] .pfx-av>.av{box-shadow:0 0 0 4px #fff,0 10px 26px rgba(190,35,90,.28)!important}
+html[data-theme=light] .pfx-r{background:conic-gradient(from 0deg,#ff8fb3,#c92c5f,transparent 35%,#ff8fb3 55%,#e5497a,transparent 85%,#ff8fb3);filter:drop-shadow(0 0 6px rgba(214,58,105,.5))}
+html[data-theme=light] .pfx-g{background:radial-gradient(circle,rgba(229,73,122,.4),transparent 68%)}
+html[data-theme=light] .pfx-d{background:#ff8fb3;box-shadow:0 0 10px #e5497a}
+html[data-theme=light] .pf-top>.av{box-shadow:none}
+html[data-theme=light] .pfx-pw{color:#c92c5f;background:linear-gradient(#fff,#fff) padding-box,linear-gradient(120deg,#ff8fb3,#c92c5f,#ff8fb3,#a8204f) border-box;background-size:100% 100%,300% 100%}
+html[data-theme=light] .pfx-pw::before{background:linear-gradient(110deg,transparent 35%,rgba(214,58,105,.14) 50%,transparent 65%);background-size:260% 100%}
+html[data-theme=light] .pfx-pw i{background:linear-gradient(135deg,#f06292,#c92c5f);box-shadow:0 4px 10px rgba(214,58,105,.35)}
+html[data-theme=light] .pfx-pw:hover{box-shadow:0 12px 26px rgba(190,35,90,.2)}
 </style>
 </head>
 <body>
@@ -3950,7 +3978,7 @@ function renderProfile() {
   S.page = "profile"; const s = S.student;
   app.innerHTML = `${studentHeader()}<main class="wrap sec"><p style="margin-bottom:16px"><a class="btn btn-line btn-sm" href="#/">← العودة</a></p><div class="pf">
 ${planCard(s)}
-  <div class="card"><div class="pf-top">${avatarHTML(s, 92)}<div><h2>${esc(s.name)}</h2><small>${esc(s.phone)}</small></div></div>
+  <div class="card"><div class="pf-top"><div class="pfx-av"><i class="pfx-r"></i><i class="pfx-g"></i>${avatarHTML(s, 92)}<i class="pfx-d d1"></i><i class="pfx-d d2"></i><i class="pfx-d d3"></i></div><div><h2>${esc(s.name)}</h2><small>${esc(s.phone)}</small></div></div>
     <div class="alert" id="err" hidden></div>
     <form id="f" novalidate>${profileFields(s, true)}${pickerHTML(s.photo || "", s)}<button class="btn btn-fill w100" id="sb">حفظ التعديلات</button></form></div>
   <div class="card"><h2 style="margin-bottom:6px">تغيير كلمة السر</h2><p class="sub" style="margin-bottom:12px">أرقام فقط (من 6 إلى 12 رقم)</p>
@@ -3959,7 +3987,7 @@ ${planCard(s)}
       <label class="fl">كلمة السر الحالية<input name="old" type="password" inputmode="numeric" dir="ltr" autocomplete="current-password" maxlength="12"></label>
       <label class="fl">كلمة السر الجديدة<input name="n1" type="password" inputmode="numeric" dir="ltr" autocomplete="new-password" maxlength="12"></label>
       <label class="fl">تأكيد الجديدة<input name="n2" type="password" inputmode="numeric" dir="ltr" autocomplete="new-password" maxlength="12"></label>
-      <button class="btn btn-line w100" id="sb2">تغيير كلمة السر</button></form>
+      <button class="btn btn-line w100 pfx-pw" id="sb2"><i aria-hidden="true">🔑</i><span>تغيير كلمة السر</span></button></form>
     <p class="sub" style="margin-top:14px">رقم الواتس لا يمكن تعديله. للتغيير تواصل مع المدرس.</p></div></div></main>`;
   $("#lo").onclick = doLogout;
   const form = $("#f"); bindStageGrade(form);
