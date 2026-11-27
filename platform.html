@@ -2005,6 +2005,10 @@ html[data-theme=light] .chx-n{background:rgba(214,58,105,.1);border-color:rgba(2
 html[data-theme=light] .chx summary::before,html[data-theme=light] .chx-up::before{background-image:linear-gradient(110deg,transparent 35%,rgba(214,58,105,.1) 50%,transparent 65%)}
 @media(prefers-reduced-motion:reduce){.chx .emojis{animation:none}}
 .chx summary .chx-t small{background:none;color:var(--muted);padding:0;border-radius:0;font-size:.76rem;font-weight:400}
+.pf-top{flex-direction:column;justify-content:center;text-align:center;gap:12px;margin-bottom:12px;padding:6px 0 4px}
+.pf-top>.av{box-shadow:0 0 0 4px var(--bg),0 0 0 6px var(--accent),0 12px 28px rgba(212,167,58,.3)}
+.pf-top h2{margin:0 0 4px;text-align:center}.pf-top small{display:block;text-align:center;direction:ltr;unicode-bidi:plaintext;letter-spacing:.5px;color:var(--muted)}
+html[data-theme=light] .pf-top>.av{box-shadow:0 0 0 4px #fff,0 0 0 6px #d63a69,0 12px 28px rgba(214,58,105,.28)}
 </style>
 </head>
 <body>
@@ -3946,7 +3950,7 @@ function renderProfile() {
   S.page = "profile"; const s = S.student;
   app.innerHTML = `${studentHeader()}<main class="wrap sec"><p style="margin-bottom:16px"><a class="btn btn-line btn-sm" href="#/">← العودة</a></p><div class="pf">
 ${planCard(s)}
-  <div class="card"><div class="pf-top">${avatarHTML(s, 64)}<div><h2>${esc(s.name)}</h2><small>${esc(s.phone)}</small></div></div>
+  <div class="card"><div class="pf-top">${avatarHTML(s, 92)}<div><h2>${esc(s.name)}</h2><small>${esc(s.phone)}</small></div></div>
     <div class="alert" id="err" hidden></div>
     <form id="f" novalidate>${profileFields(s, true)}${pickerHTML(s.photo || "", s)}<button class="btn btn-fill w100" id="sb">حفظ التعديلات</button></form></div>
   <div class="card"><h2 style="margin-bottom:6px">تغيير كلمة السر</h2><p class="sub" style="margin-bottom:12px">أرقام فقط (من 6 إلى 12 رقم)</p>
