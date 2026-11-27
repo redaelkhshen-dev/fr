@@ -2037,6 +2037,40 @@ html[data-theme=light] .pfx-pw{color:#c92c5f;background:linear-gradient(#fff,#ff
 html[data-theme=light] .pfx-pw::before{background:linear-gradient(110deg,transparent 35%,rgba(214,58,105,.14) 50%,transparent 65%);background-size:260% 100%}
 html[data-theme=light] .pfx-pw i{background:linear-gradient(135deg,#f06292,#c92c5f);box-shadow:0 4px 10px rgba(214,58,105,.35)}
 html[data-theme=light] .pfx-pw:hover{box-shadow:0 12px 26px rgba(190,35,90,.2)}
+/* ===== إشعارات لوحة التحكم (ntx) ===== */
+.ntx-hero{position:relative;display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:22px;margin-bottom:16px;border-radius:24px;overflow:hidden;isolation:isolate;color:#fff;background:linear-gradient(115deg,#5e4015,#8f6d22 30%,#c4a043 55%,#8f6d22 78%,#6f4e18);background-size:260% 260%;animation:ovxFlow 14s ease-in-out infinite;border:1px solid rgba(255,225,140,.3);box-shadow:0 20px 40px -20px rgba(120,84,20,.85),inset 0 1px 0 rgba(255,255,255,.22)}
+.ntx-o{position:absolute;z-index:-1;border-radius:50%;filter:blur(20px);opacity:.5;animation:bnxOrb 9s ease-in-out infinite}.ntx-o.o1{width:140px;height:140px;background:#ffe08a;top:-50px;inset-inline-end:8%}.ntx-o.o2{width:100px;height:100px;background:#fff3c4;bottom:-40px;inset-inline-start:30%;animation-delay:-3s;opacity:.35}.ntx-o.o3{width:80px;height:80px;background:#d4a73a;top:20px;inset-inline-start:-20px;animation-delay:-6s}
+.ntx-bell{position:relative;flex:none;width:62px;height:62px}.ntx-bell span{position:absolute;inset:0;display:grid;place-items:center;border-radius:20px;color:#5e4015;background:linear-gradient(135deg,#fff7d6,#ffe08a);box-shadow:0 10px 24px rgba(0,0,0,.3),inset 0 1px 0 #fff}.ntx-bell svg{transform-origin:50% 10%;animation:bnxSwing 3.4s ease-in-out infinite}.ntx-bell::before,.ntx-bell::after{content:"";position:absolute;inset:0;border-radius:20px;border:2px solid rgba(255,240,180,.7);animation:bnxPulse 2.6s ease-out infinite}.ntx-bell::after{animation-delay:1.3s}
+.ntx-ht{flex:1;min-width:180px}.ntx-ht h2{margin:0;font-size:1.5rem;color:#fff}.ntx-ht small{display:block;margin-top:4px;color:rgba(255,246,214,.9);line-height:1.6}
+.ntx-qa{display:flex;gap:8px;flex-wrap:wrap}.ntx-hero .btn-fill{background:#fff;color:#6f4e18;border-color:#fff;box-shadow:0 8px 18px -8px rgba(0,0,0,.4)}
+.ntx-clr{display:inline-flex;align-items:center;gap:8px;background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.35);color:#fff;backdrop-filter:blur(4px)}.ntx-clr:hover{background:#d94a5c;border-color:#d94a5c}
+.ntx-dng{display:inline-flex;align-items:center;gap:7px;background:linear-gradient(135deg,#e0546a,#b92a45);border:0;color:#fff;box-shadow:0 8px 18px -8px rgba(220,50,80,.7)}.ntx-dng:hover{filter:brightness(1.1);transform:translateY(-1px)}.ntx-dng:disabled{opacity:.45;box-shadow:none}
+.ntx-bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:4px 0 10px}.ntx-bar .gr-chips{margin:0}
+.ntx-s{flex:1;min-width:220px;display:flex;align-items:center;gap:10px;padding:0 14px;min-height:46px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--muted);transition:border-color .2s,box-shadow .2s}.ntx-s:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(212,167,58,.15)}.ntx-s input{flex:1;border:0;background:transparent;color:var(--fg);outline:0;min-height:44px;font:inherit}
+.ntx-dt{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}.ntx-dl{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font:700 .82rem var(--fd);margin-inline-end:4px}
+.ntx-dc{min-height:34px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--fg);font:600 .82rem var(--fd);cursor:pointer;transition:.2s}.ntx-dc:hover{border-color:var(--accent);transform:translateY(-1px)}.ntx-dc.on{background:linear-gradient(135deg,var(--accent-2),var(--accent));border-color:transparent;color:#1d1506;box-shadow:0 6px 14px -6px var(--accent)}
+.ntx-rg{display:inline-flex;align-items:center;gap:8px;animation:chxOpen .3s both}.ntx-rg input{min-height:36px;padding:0 10px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--fg);font:inherit;color-scheme:dark}.ntx-rg i{font-style:normal;color:var(--muted)}
+.ntx-sel{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 14px;margin-bottom:12px;border-radius:14px;border:1px solid var(--line);background:var(--card);position:sticky;top:8px;z-index:5;box-shadow:0 8px 20px rgba(0,0,0,.18)}.ntx-sel .sp{flex:1}.ntx-sel[hidden]{display:none}
+.ntx-all{display:inline-flex;align-items:center;gap:10px;cursor:pointer;font:700 .88rem var(--fd)}.ntx-all input{width:20px;height:20px;accent-color:var(--accent)}
+.ntx-ck{flex:none;position:relative;display:grid;place-items:center;width:24px;margin-top:14px;cursor:pointer}.ntx-ck input{position:absolute;opacity:0;inset:0;cursor:pointer}.ntx-ck i{width:22px;height:22px;border-radius:8px;border:2px solid var(--line);display:grid;place-items:center;transition:.2s;background:var(--bg)}.ntx-ck input:checked+i{background:var(--accent);border-color:var(--accent)}.ntx-ck input:checked+i::after{content:"✓";color:#1d1506;font:800 .8rem/1 var(--fd)}.ntx-ck:hover i{border-color:var(--accent)}
+.nt-card{animation:bnxIn .5s cubic-bezier(.2,.9,.3,1.1) both;animation-delay:calc(var(--i,0) * 40ms)}.nt-card.ck{border-color:var(--accent);background:linear-gradient(270deg,rgba(212,167,58,.1),var(--card))}
+.nt-ic{box-shadow:0 8px 18px -10px var(--accent)}.nt-card:hover .nt-ic{transform:rotate(-6deg) scale(1.06)}.nt-ic{transition:transform .3s cubic-bezier(.3,1.5,.5,1)}
+.ntx-cm{display:grid;gap:12px}.ntx-ch{display:flex;align-items:center;gap:12px}.ntx-ch h2{margin:0;font-size:1.15rem}.ntx-ch small{color:var(--muted)}.ntx-ch>span{flex:none;width:48px;height:48px;border-radius:15px;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,#e0546a,#b92a45);box-shadow:0 8px 18px -8px rgba(220,50,80,.7)}
+.ntx-cm select,.ntx-cm input[type=date]{width:100%}.ntx-r2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.ntx-r2[hidden]{display:none}
+.ntx-pv{display:flex;align-items:center;gap:12px;padding:14px;border-radius:14px;border:1px dashed #e0546a;background:rgba(224,84,106,.08)}.ntx-pv b{font:800 1.8rem var(--fd);color:#ff7a8c;line-height:1}.ntx-pv span{color:var(--muted)}
+@media(max-width:600px){.ntx-hero{padding:16px}.ntx-ht h2{font-size:1.25rem}.ntx-qa{width:100%}.ntx-qa .btn{flex:1;justify-content:center}.ntx-ck{margin-top:0}.nt-card{flex-wrap:wrap}}
+@media(prefers-reduced-motion:reduce){.ntx-hero,.ntx-o,.ntx-bell svg,.ntx-bell::before,.ntx-bell::after,.nt-card{animation:none!important}}
+html[data-theme=light] .ntx-hero{background:linear-gradient(115deg,#d63a69,#e5497a 35%,#f06292 58%,#c92c5f 80%,#a8204f);background-size:260% 260%;border-color:rgba(255,255,255,.3);box-shadow:0 20px 40px -20px rgba(190,35,90,.6),inset 0 1px 0 rgba(255,255,255,.35)}
+html[data-theme=light] .ntx-o.o1{background:#ffd0e0}html[data-theme=light] .ntx-o.o2{background:#fff}html[data-theme=light] .ntx-o.o3{background:#ff8fb3}
+html[data-theme=light] .ntx-bell span{color:#c92c5f;background:#fff}html[data-theme=light] .ntx-hero .btn-fill{color:#c92c5f}
+html[data-theme=light] .ntx-dc.on{background:linear-gradient(135deg,#f06292,#d63a69);color:#fff;box-shadow:0 6px 14px -6px #d63a69}
+html[data-theme=light] .ntx-s:focus-within{border-color:#d63a69;box-shadow:0 0 0 3px rgba(214,58,105,.15)}
+html[data-theme=light] .ntx-ck input:checked+i{background:#d63a69;border-color:#d63a69}html[data-theme=light] .ntx-ck input:checked+i::after{color:#fff}html[data-theme=light] .ntx-all input{accent-color:#d63a69}
+html[data-theme=light] .nt-card.ck{border-color:#d63a69;background:linear-gradient(270deg,rgba(214,58,105,.08),#fff)}
+html[data-theme=light] .ntx-rg input{color-scheme:light}html[data-theme=light] .ntx-pv b{color:#d03050}
+.ntx-s input{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important;min-height:44px;border-radius:0!important}
+.ntx-qa .btn{white-space:nowrap;padding-inline:14px}
+html[data-theme=light] .ntx-ht small{color:#fff}
 </style>
 </head>
 <body>
@@ -4574,20 +4608,45 @@ const NCI = { bell: '<path d="M6 9a6 6 0 0 1 12 0c0 6 2.500 7.500 2.500 7.500h-1
 const ntKey = n => { const d = n.createdAt?.toDate ? n.createdAt.toDate() : new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime(); };
 const ntDay = k => { const t = new Date(); const td = new Date(t.getFullYear(), t.getMonth(), t.getDate()).getTime(), df = Math.round((td - k) / 864e5); return df <= 0 ? "اليوم" : df === 1 ? "أمس" : df < 7 ? "هذا الأسبوع" : new Date(k).toLocaleDateString("ar-EG", { month: "long", year: "numeric" }); };
 const nib = (cls, a, id, ic, t) => `<button class="ib ${cls}" data-a="${a}" data-id="${esc(id)}" title="${t}" aria-label="${t}">${ico(NCI[ic], 17)}</button>`;
+const ntMs = n => n.createdAt?.toDate ? n.createdAt.toDate().getTime() : Date.now();
+const ntDay0 = () => { const t = new Date(); return new Date(t.getFullYear(), t.getMonth(), t.getDate()).getTime(); };
+const ntKind = (n, k) => k === "m" ? n.kind !== "auto" : k === "a" ? n.kind === "auto" : true;
+const ntWhen = (n, w, f, t) => { const ms = ntMs(n), now = Date.now(); if (w === "today") return ms >= ntDay0(); if (w === "7") return ms >= now - 7 * 864e5; if (w === "30") return ms >= now - 30 * 864e5; if (w === "r") { const f0 = f ? new Date(f + "T00:00:00").getTime() : -Infinity, t0 = t ? new Date(t + "T23:59:59").getTime() : Infinity; return ms >= f0 && ms <= t0; } return true; };
+const ntList = () => { const q = (A.nq || "").trim().toLowerCase(); return S.notices.filter(passFilter).filter(n => ntKind(n, A.nk) && ntWhen(n, A.nd, A.nf, A.nt) && (!q || `${n.title} ${n.body || ""}`.toLowerCase().includes(q))); };
+const ntAgo = ms => { const m = Math.round((Date.now() - ms) / 6e4); return m < 1 ? "الآن" : m < 60 ? `منذ ${m} د` : m < 1440 ? `منذ ${Math.round(m / 60)} س` : `منذ ${Math.round(m / 1440)} يوم`; };
+const ntBurst = async (ids, label) => {
+  if (!ids.length) return toast("لا توجد إشعارات للمسح", "err");
+  if (!confirm(`مسح ${ids.length} إشعار ${label || ""}؟\nسيختفي من عند الطلاب ولا يمكن التراجع.`)) return false;
+  try { for (const part of chunk(ids)) { const bt = writeBatch(db); part.forEach(id => bt.delete(doc(db, "notices", id))); await bt.commit(); } A.nsel = new Set(); toast(`تم مسح ${ids.length} إشعار`, "ok"); return true; }
+  catch (er) { toast("فشل المسح: " + (er.code || er.message), "err"); return false; }
+};
 TABS.notices = {
-  skel: () => `<div class="nt-head"><span class="nt-hi">${ico(NCI.bell, 26)}</span><div><h2>الإشعارات</h2><small>أرسل تنبيهات لطلابك فور حدوثها، وتابع كل ما أُرسل تلقائيًا</small></div><button class="btn btn-fill nt-add" data-a="nadd">${ico(NCI.send, 17)} إرسال إشعار</button></div>
-    <div class="sstats" id="ns"></div>${filterBar()}<div class="gr-chips" id="nk"></div>
+  skel: () => `<section class="ntx-hero"><i class="ntx-o o1"></i><i class="ntx-o o2"></i><i class="ntx-o o3"></i><div class="ntx-bell"><span>${ico(NCI.bell, 30)}</span></div><div class="ntx-ht"><h2>الإشعارات</h2><small>أرسل تنبيهات لطلابك فور حدوثها، وتابع كل ما أُرسل تلقائيًا</small></div>
+      <div class="ntx-qa"><button class="btn btn-fill nt-add" data-a="nadd">${ico(NCI.send, 17)} إرسال إشعار</button><button class="btn ntx-clr" data-a="ncl">${ico(NCI.trash, 17)} مسح الإشعارات</button></div></section>
+    <div class="sstats" id="ns"></div>${filterBar()}
+    <div class="ntx-bar"><label class="ntx-s">${ico(NCI.bell, 16)}<input id="nq" type="search" placeholder="ابحث في عنوان الإشعار أو نصه..." value="${esc(A.nq || "")}"></label><div class="gr-chips" id="nk"></div></div>
+    <div class="ntx-dt" id="nd"></div><div class="ntx-sel" id="nsb" hidden></div>
     <div class="nt-info">${ico(NCI.auto, 18)}<span>الإشعار يصل لطلاب المرحلة والنظام والصف المحددين في جرس الإشعارات (وكتنبيه بالمتصفح لمن فعّله). وأي فيديو أو ملف أو واجب أو اختبار أو بث تضيفه يُرسَل تلقائيًا كإشعار لمرحلته.</span></div><div id="nl"></div>`,
-  init: b => { b.onclick = e => { const c = e.target.closest("[data-nk]"); if (c) { A.nk = c.dataset.nk; return fillTab(); } noticeAction(e); }; bindFilter(b); },
+  init: b => {
+    A.nsel = A.nsel || new Set();
+    b.onclick = e => { const c = e.target.closest("[data-nk]"); if (c) { A.nk = c.dataset.nk; return fillTab(); } const d = e.target.closest("[data-nd]"); if (d) { A.nd = d.dataset.nd; return fillTab(); } noticeAction(e); };
+    b.addEventListener("input", e => { if (e.target.id === "nq") { A.nq = e.target.value; TABS.notices.fill(b); } });
+    b.addEventListener("change", e => { if (e.target.matches("[data-nr]")) { A[e.target.dataset.nr] = e.target.value; TABS.notices.fill(b); } if (e.target.matches("[data-nsel]")) { const id = e.target.dataset.nsel; e.target.checked ? A.nsel.add(id) : A.nsel.delete(id); TABS.notices.fill(b); } });
+    bindFilter(b);
+  },
   fill: b => {
+    A.nsel = A.nsel || new Set(); const ids = new Set(S.notices.map(n => n.id)); [...A.nsel].forEach(i => { if (!ids.has(i)) A.nsel.delete(i); });
     const all = S.notices.filter(passFilter), week = Date.now() - 7 * 864e5, man = all.filter(n => n.kind !== "auto"), aut = all.filter(n => n.kind === "auto");
-    $("#ns", b).innerHTML = [["bell", "all", "إجمالي الإشعارات", all.length], ["hand", "warn", "أرسلتها يدويًا", man.length], ["auto", "good", "تلقائية", aut.length], ["clock", "all", "آخر 7 أيام", all.filter(n => (n.createdAt?.toDate ? n.createdAt.toDate().getTime() : Date.now()) > week).length]].map(([i, t, l, n]) => `<div class="sst ${t}"><span class="ssi">${ico(NCI[i], 24)}</span><div><b>${n}</b><small>${l}</small></div></div>`).join("");
+    $("#ns", b).innerHTML = [["bell", "all", "إجمالي الإشعارات", all.length], ["hand", "warn", "أرسلتها يدويًا", man.length], ["auto", "good", "تلقائية", aut.length], ["clock", "all", "آخر 7 أيام", all.filter(n => ntMs(n) > week).length]].map(([i, t, l, n]) => `<div class="sst ${t}"><span class="ssi">${ico(NCI[i], 24)}</span><div><b>${n}</b><small>${l}</small></div></div>`).join("");
     $("#nk", b).innerHTML = [["", "الكل", all.length], ["m", "يدوية", man.length], ["a", "تلقائية", aut.length]].map(([k, t, n]) => `<button type="button" class="gr-ch ${(A.nk || "") === k ? "on" : ""}" data-nk="${k}">${t}<em>${n}</em></button>`).join("");
-    const l = (A.nk === "m" ? man : A.nk === "a" ? aut : all); let last = null;
-    $("#nl", b).innerHTML = l.length ? l.map(n => { const k = ntKey(n), h = ntDay(k), head = h !== last ? `<div class="nt-day">${h}</div>` : ""; last = h; const auto = n.kind === "auto";
-      return `${head}<div class="nt-card ${auto ? "auto" : "man"}"><div class="nt-ic">${esc(n.ic || "📢")}</div><div class="nt-b"><div class="nt-t"><h3>${esc(n.title)}</h3><small>${esc(ntDate(n))}</small></div>
+    $("#nd", b).innerHTML = `<span class="ntx-dl">${ico(NCI.clock, 15)} التاريخ</span>${[["", "كل الأوقات"], ["today", "اليوم"], ["7", "آخر 7 أيام"], ["30", "آخر 30 يومًا"], ["r", "فترة محددة"]].map(([k, t]) => `<button type="button" class="ntx-dc ${(A.nd || "") === k ? "on" : ""}" data-nd="${k}">${t}</button>`).join("")}${A.nd === "r" ? `<span class="ntx-rg"><input type="date" data-nr="nf" value="${esc(A.nf || "")}" aria-label="من"><i>←</i><input type="date" data-nr="nt" value="${esc(A.nt || "")}" aria-label="إلى"></span>` : ""}`;
+    const l = ntList(), sel = A.nsel, ns = l.filter(n => sel.has(n.id)).length, sb = $("#nsb", b);
+    sb.hidden = !l.length; sb.innerHTML = l.length ? `<label class="ntx-all"><input type="checkbox" data-a="nall" ${ns === l.length ? "checked" : ""}><span>${ns ? `محدد ${ns} من ${l.length}` : `تحديد الكل (${l.length})`}</span></label><span class="sp"></span>${ns ? `<button class="btn ntx-dng btn-sm" data-a="ndsel">${ico(NCI.trash, 15)} مسح المحدد (${ns})</button><button class="btn btn-line btn-sm" data-a="nnone">إلغاء التحديد</button>` : `<button class="btn btn-line btn-sm" data-a="ndvis">${ico(NCI.trash, 15)} مسح المعروض (${l.length})</button>`}` : "";
+    let last = null;
+    $("#nl", b).innerHTML = l.length ? l.map((n, i) => { const k = ntKey(n), h = ntDay(k), head = h !== last ? `<div class="nt-day">${h}</div>` : ""; last = h; const auto = n.kind === "auto", ck = sel.has(n.id);
+      return `${head}<div class="nt-card ${auto ? "auto" : "man"}${ck ? " ck" : ""}" style="--i:${Math.min(i, 14)}"><label class="ntx-ck"><input type="checkbox" data-nsel="${esc(n.id)}" ${ck ? "checked" : ""} aria-label="تحديد"><i></i></label><div class="nt-ic">${esc(n.ic || "📢")}</div><div class="nt-b"><div class="nt-t"><h3>${esc(n.title)}</h3><small>${esc(ntDate(n))} · ${ntAgo(ntMs(n))}</small></div>
         ${n.body ? `<p>${esc(n.body)}</p>` : ""}<div class="m"><span class="badge ${auto ? "" : "warn"}">${auto ? "⚡ تلقائي" : "✍️ يدوي"}</span><span class="badge">${stageLabel(n.stage)}</span><span class="badge">${sysLabel(n.system)}</span><span class="badge good">${gradeLabel(n)}</span></div></div>
-        <div class="nt-act">${nib("g", "nedit", n.id, "pen", "تعديل")}${nib("r", "ndel", n.id, "trash", "حذف")}</div></div>`; }).join("") : `<div class="empty">${ico(NCI.bell, 34)}<br>لا توجد إشعارات — اضغط «إرسال إشعار»</div>`;
+        <div class="nt-act">${nib("g", "nedit", n.id, "pen", "تعديل")}${nib("r", "ndel", n.id, "trash", "حذف")}</div></div>`; }).join("") : `<div class="empty">${ico(NCI.bell, 34)}<br>${all.length ? "لا توجد إشعارات تطابق البحث أو التاريخ" : "لا توجد إشعارات — اضغط «إرسال إشعار»"}</div>`;
   }
 };
 async function noticeAction(e) {
@@ -4595,8 +4654,25 @@ async function noticeAction(e) {
   try {
     if (a === "nadd") return noticeModal();
     if (a === "nedit") return noticeModal(n);
-    if (a === "ndel") { if (!n || !confirm(`حذف الإشعار "${n.title}"؟ سيختفي من عند الطلاب.`)) return; await deleteDoc(doc(db, "notices", id)); toast("تم الحذف", "ok"); }
+    if (a === "ncl") return noticeClearModal();
+    if (a === "nall") { const l = ntList(); btn.checked ? l.forEach(x => A.nsel.add(x.id)) : l.forEach(x => A.nsel.delete(x.id)); return fillTab(); }
+    if (a === "nnone") { A.nsel = new Set(); return fillTab(); }
+    if (a === "ndsel") { await ntBurst([...A.nsel], "محدد"); return fillTab(); }
+    if (a === "ndvis") { await ntBurst(ntList().map(x => x.id), "من المعروض"); return fillTab(); }
+    if (a === "ndel") { if (!n || !confirm(`حذف الإشعار "${n.title}"؟ سيختفي من عند الطلاب.`)) return; await deleteDoc(doc(db, "notices", id)); A.nsel?.delete(id); toast("تم الحذف", "ok"); }
   } catch (er) { toast("فشلت العملية: " + (er.code || er.message), "err"); }
+}
+function noticeClearModal() {
+  const m = openModal(`<div class="ntx-cm"><div class="ntx-ch"><span>${ico(NCI.trash, 26)}</span><div><h2>مسح الإشعارات المُرسلة</h2><small>اختر النوع والفترة ثم راجع العدد قبل المسح</small></div></div>
+    <label class="fl">النوع<select id="cmk"><option value="">كل الإشعارات (يدوية وتلقائية)</option><option value="m">اليدوية فقط</option><option value="a">التلقائية فقط</option></select></label>
+    <label class="fl">الفترة<select id="cmw"><option value="all">كل الفترات (الكل)</option><option value="o7">الأقدم من 7 أيام</option><option value="o30">الأقدم من 30 يومًا</option><option value="o90">الأقدم من 90 يومًا</option><option value="today">اليوم فقط</option><option value="r">فترة محددة بالتاريخ</option></select></label>
+    <div class="ntx-r2" id="cmr" hidden><label class="fl">من<input type="date" id="cmf"></label><label class="fl">إلى<input type="date" id="cmt"></label></div>
+    <div class="ntx-pv" id="cpv"></div><div class="mact"><button class="btn ntx-dng" id="cgo">${ico(NCI.trash, 17)} مسح نهائي</button><button type="button" class="btn btn-line" data-close>إلغاء</button></div></div>`);
+  const pick = () => { const k = $("#cmk", m).value, w = $("#cmw", m).value, f = $("#cmf", m).value, t = $("#cmt", m).value, now = Date.now(); $("#cmr", m).hidden = w !== "r";
+    return S.notices.filter(n => ntKind(n, k) && (w === "all" || (w === "o7" ? ntMs(n) < now - 7 * 864e5 : w === "o30" ? ntMs(n) < now - 30 * 864e5 : w === "o90" ? ntMs(n) < now - 90 * 864e5 : ntWhen(n, w === "r" ? "r" : w, f, t)))); };
+  const upd = () => { const l = pick(); $("#cpv", m).innerHTML = `<b>${l.length}</b><span>${l.length ? "إشعار سيُمسح من عند كل الطلاب" : "لا توجد إشعارات مطابقة"}</span>`; $("#cgo", m).disabled = !l.length; };
+  m.addEventListener("input", upd); m.addEventListener("change", upd); upd();
+  $("#cgo", m).onclick = async () => { const l = pick(); if (await ntBurst(l.map(n => n.id), "")) m.remove(); };
 }
 function noticeModal(n) {
   const m = openModal(`<h2>${n ? "تعديل إشعار" : "إرسال إشعار"}</h2><div class="alert" id="err" hidden></div>
