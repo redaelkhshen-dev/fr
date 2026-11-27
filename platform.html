@@ -2071,6 +2071,7 @@ html[data-theme=light] .ntx-rg input{color-scheme:light}html[data-theme=light] .
 .ntx-s input{border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important;min-height:44px;border-radius:0!important}
 .ntx-qa .btn{white-space:nowrap;padding-inline:14px}
 html[data-theme=light] .ntx-ht small{color:#fff}
+.mini .mgo{cursor:pointer;transition:transform .25s cubic-bezier(.3,1.4,.5,1),box-shadow .25s,border-color .25s}.mini .mgo:hover{transform:translateY(-4px);box-shadow:0 14px 28px -12px rgba(0,0,0,.5);border-color:var(--accent)}.mini .mgo:active{transform:scale(.97)}.mini .mgo:focus-visible{outline:2px solid var(--accent);outline-offset:3px}.mini .mgo:hover .mn-i{transform:scale(1.1) rotate(-6deg)}.mini .mgo .mn-i{transition:transform .3s cubic-bezier(.3,1.5,.5,1)}
 </style>
 </head>
 <body>
@@ -3175,12 +3176,13 @@ function renderHome() {
   S.page = "home"; const s = S.student;
   app.innerHTML = `${studentHeader()}<section class="shero"><div class="wrap shero-in"><div class="st"><span class="eyebrow">${STAGES[s.stage]} · ${SYSTEMS[s.system]}</span>
       <h1>أهلًا يا <span class="hl">${esc(s.name.split(" ")[0])}</span> 👋</h1><p class="lead">${esc(s.grade)} — جاهز تكمل رحلتك مع الفرنسية؟</p>
-      <div class="mini"><div><span class="mn-i">${ico(MNI.v, 22)}</span><b id="cv">0</b><span>فيديو متاح</span></div><div><span class="mn-i">${ico(MNI.f, 22)}</span><b id="cf">0</b><span>ملف متاح</span></div><div><span class="mn-i">${ico(MNI.g, 22)}</span><b>${SYSTEMS[s.system]}</b><span>${STAGES[s.stage]}</span></div></div><div class="ovp" id="ovp"><span class="ov-ring" id="ovr"><b id="ovn">0%</b></span><div class="ov-m"><div class="ov-t" id="ovt"><em>تقدمك العام</em></div><div class="pbar-track"><i id="ovf"></i></div></div><span class="ov-cup">${ico(MNI.cup, 20)}</span></div></div>
+      <div class="mini"><div class="mgo" role="button" tabindex="0" data-go="videos" title="اذهب إلى الفيديوهات"><span class="mn-i">${ico(MNI.v, 22)}</span><b id="cv">0</b><span>فيديو متاح</span></div><div class="mgo" role="button" tabindex="0" data-go="files" title="اذهب إلى الملفات"><span class="mn-i">${ico(MNI.f, 22)}</span><b id="cf">0</b><span>ملف متاح</span></div><div><span class="mn-i">${ico(MNI.g, 22)}</span><b>${SYSTEMS[s.system]}</b><span>${STAGES[s.stage]}</span></div></div><div class="ovp" id="ovp"><span class="ov-ring" id="ovr"><b id="ovn">0%</b></span><div class="ov-m"><div class="ov-t" id="ovt"><em>تقدمك العام</em></div><div class="pbar-track"><i id="ovf"></i></div></div><span class="ov-cup">${ico(MNI.cup, 20)}</span></div></div>
       <div class="sv"><div class="disc sm">${avatarHTML(s, 200)}</div></div></div></section><main class="wrap"><div id="subs"></div><div id="cont"></div>
     <div class="tabs"><div class="trow">${stabsHTML()}</div><input class="srch" id="q" placeholder="ابحث..." value="${esc(H.q)}"></div>
     <div class="grid" id="list"></div></main><footer class="foot">© منصة مسيو رضا الخشن — المحتوى للاستخدام الشخصي فقط</footer>`;
   $("#lo").onclick = doLogout;
   $$(".tab").forEach(b => b.onclick = () => { H.tab = b.dataset.t; H.tabMoved = true; fillHome(); });
+  $$(".mini .mgo").forEach(c => { const go = () => { H.tab = c.dataset.go; H.tabMoved = true; H.q = ""; const q = $("#q"); if (q) q.value = ""; fillHome(); ($(".tab.on") || $("#cont"))?.scrollIntoView({ behavior: "smooth", block: "center" }); }; c.onclick = go; c.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } }; });
   $("#q").oninput = e => { H.q = e.target.value; fillHome(); };
   fillHome();
 }

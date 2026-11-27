@@ -1,5 +1,5 @@
 /* Service worker بسيط: يخزّن غلاف التطبيق فقط، ولا يتدخل في Firebase أو الفيديو */
-const V = "rf-v37", SHELL = ["./", "index.html", "manifest.webmanifest", "icon-192.png", "icon-512.png", "teacher.jpg"];
+const V = "rf-v38", SHELL = ["./", "index.html", "manifest.webmanifest", "icon-192.png", "icon-512.png", "teacher.jpg"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(V).then(c => c.addAll(SHELL).catch(() => {})).then(() => self.skipWaiting())); });
 self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== V).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener("fetch", e => {
